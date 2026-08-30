@@ -46,13 +46,18 @@ No backend/server in this repo — it's Flutter-only. **Supported targets are An
 
   (`openapi-generator-out/` and the jar are gitignored.) Jar: download from `https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/<version>/openapi-generator-cli-<version>.jar` (get `<version>` from that path's `maven-metadata.xml`). Then copy the generated `lib/` contents over `lib/client/intervalls/`, rewrite `package:intervalls_client/` → `package:triiq/client/intervalls/` throughout, and run `dart run build_runner build --delete-conflicting-outputs`.
 
-  **`openapi.json` carries a local fix**: upstream declares
-  `skyline_chart_bytes` as `array` of `string/byte` on `Activity` and
-  `ActivityWithIntervals`, but the API actually sends a single base64 string
-  (Jackson serialises Java `byte[]` that way), so every `listActivities` call
-  died in deserialization. It is `{"type": "string", "format": "byte"}` here.
-  Re-download the spec from intervals.icu and you reintroduce the bug — the
-  live test in `test/sync_live_test.dart` catches it.
+  **`openapi.json` carries local fixes** — re-download the spec from
+  intervals.icu and you reintroduce these bugs; the live tests in
+  `test/sync_live_test.dart` catch them:
+
+  - `skyline_chart_bytes` (`Activity`, `ActivityWithIntervals`): declared
+    upstream as an `array` of `string/byte`, but the API sends a single
+    base64 string (Jackson serialises Java `byte[]` that way). Every
+    `listActivities` call died in deserialization. Now `{"type": "string",
+    "format": "byte"}`.
+  - `workout_doc` (4 schemas incl. `Event`, `Workout`): its
+    `additionalProperties` were non-nullable `object`, but the blob routinely
+    contains nulls, killing every `listEvents` call. Now `nullable: true`.
 
   **Exception to reapply after regenerating**: `upload_activity_request.dart`, `upload_activity_streams_csv_request.dart`, `upload_wellness_request.dart` need hand-patched `fromJson`/`toJson` (they wrap a `MultipartFile`, which the generator can't (de)serialize as JSON — the stock generated code fails to compile). Drop `@JsonSerializable(...)` from the class (keep `@CopyWith()`), and replace the `fromJson`/`toJson` bodies with `throw UnsupportedError(...)`.
 

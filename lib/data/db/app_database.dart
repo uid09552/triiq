@@ -55,7 +55,16 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // v2 added planned calendar entries. Existing caches only held what
+        // already happened, so the table is simply created empty and filled
+        // by the next sync.
+        if (oldVersion < 2) {
+          await db.execute(_createEventsTable);
+          await db.execute(_createEventsDateIndex);
+        }
+      },
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE wellness (
@@ -85,6 +94,8 @@ class AppDatabase {
         await db.execute(
           'CREATE INDEX idx_activities_date ON activities(date)',
         );
+        await db.execute(_createEventsTable);
+        await db.execute(_createEventsDateIndex);
         await db.execute('''
           CREATE TABLE sync_state (
             scope TEXT PRIMARY KEY,
@@ -96,6 +107,28 @@ class AppDatabase {
       },
     );
   }
+
+  /// Planned calendar entries (workouts, races, notes). Kept as SQL
+  /// constants so [_open]'s `onCreate` and `onUpgrade` cannot drift apart.
+  static const _createEventsTable = '''
+    CREATE TABLE events (
+      id TEXT PRIMARY KEY,
+      date TEXT NOT NULL,
+      category TEXT,
+      type TEXT,
+      name TEXT,
+      description TEXT,
+      planned_load INTEGER,
+      planned_time INTEGER,
+      planned_distance REAL,
+      indoor INTEGER NOT NULL DEFAULT 0,
+      raw TEXT NOT NULL,
+      synced_at INTEGER NOT NULL
+    )
+  ''';
+
+  static const _createEventsDateIndex =
+      'CREATE INDEX idx_events_date ON events(date)';
 
   Future<String> _resolvePath() async {
     if (_overridePath != null) return _overridePath;

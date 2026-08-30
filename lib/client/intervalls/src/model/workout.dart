@@ -230,7 +230,7 @@ class Workout {
   )
 
 
-  final Map<String, Object>? workoutDoc;
+  final Map<String, Object?>? workoutDoc;
 
 
 

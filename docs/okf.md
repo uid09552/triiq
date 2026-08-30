@@ -124,10 +124,19 @@ the single read path for the UI.
   via the repositories. `SyncScope` is `today | month | year | all`, each
   anchored on today's date (`all` uses a fixed 2000-01-01 start — Intervals.icu
   just returns whatever exists in range).
-- The **Today** screen calls `syncTodayIfMissing()` on load (and again
-  whenever the session's connection state changes): it's a no-op if not
-  connected or if today's wellness row is already cached, so the "fetch once
-  per day" behavior falls out of that check rather than a separate scheduler.
+- Planned calendar entries (`listEvents`) are synced alongside wellness and
+  activities, into an `events` table. They are written with
+  `EventsRepository.replaceRange`, not upserted: a coach reshuffling the week
+  *deletes* sessions upstream, and a plain upsert would leave those ghosts
+  cached forever.
+- The **Today** screen syncs `SyncService.todayWindow()` — Monday..Sunday of
+  the current week, extended to tomorrow when today is Sunday. One round-trip
+  covers the week's TSS total and tomorrow's session. On open (and on any
+  connection change) it uses `syncTodayWindowIfMissing()`, a no-op once
+  today's wellness row is cached; pull-to-refresh and the refresh button in
+  the header use `syncTodayWindow()`, which always refetches. A failed fetch
+  does not blank the screen — it falls through to the cache and shows the
+  error alongside.
 - The **Sync** screen (More → Sync) exposes the same scopes as manual
   buttons, showing the cached activities date range from `SyncStateRepository`.
 
@@ -180,7 +189,9 @@ activity id and the wellness date).
 ### Local storage
 
 SQLite via `sqflite` (Android native) + `sqflite_common_ffi` +
-`sqlite3_flutter_libs` (Windows). See `lib/data/db/app_database.dart`
+`sqlite3_flutter_libs` (Windows). Schema v2 (`wellness`, `activities`,
+`events`, `sync_state`); v1 caches upgrade in place by creating `events`
+empty. See `lib/data/db/app_database.dart`
 for the storage-path logic (desktop: `./triiq.db` in the process's working
 directory; mobile: app documents directory; web: unsupported, throws).
 

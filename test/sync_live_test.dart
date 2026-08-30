@@ -10,6 +10,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:triiq/data/db/app_database.dart';
 import 'package:triiq/data/intervals_session.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
+import 'package:triiq/data/repositories/events_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
 import 'package:triiq/data/sync/sync_scope.dart';
@@ -37,6 +38,7 @@ void main() {
   late AppDatabase database;
   late WellnessRepository wellnessRepository;
   late ActivitiesRepository activitiesRepository;
+  late EventsRepository eventsRepository;
   late SyncStateRepository syncStateRepository;
   late SyncService syncService;
 
@@ -69,10 +71,12 @@ void main() {
     database = AppDatabase.atPath(p.join(tempDir.path, 'triiq.db'));
     wellnessRepository = WellnessRepository(database: database);
     activitiesRepository = ActivitiesRepository(database: database);
+    eventsRepository = EventsRepository(database: database);
     syncStateRepository = SyncStateRepository(database: database);
     syncService = SyncService(
       wellnessRepository: wellnessRepository,
       activitiesRepository: activitiesRepository,
+      eventsRepository: eventsRepository,
       syncStateRepository: syncStateRepository,
     );
   });
@@ -185,6 +189,63 @@ void main() {
     expect(activityRows, result.activitiesCount);
     expect(wellnessRows, result.wellnessCount);
   }, timeout: const Timeout(Duration(minutes: 5)));
+
+  test('syncs the Today window: planned events land in SQLite', skip: _skip,
+      () async {
+    await IntervalsSession.instance.connect(_apiKey);
+
+    final result = await syncService.syncTodayWindow();
+    final (weekStart, weekEnd) = SyncService.todayWindow();
+
+    // ignore: avoid_print
+    print('today window ${_formatDate(weekStart)}..${_formatDate(weekEnd)}: '
+        '${result.eventsCount} planned events, '
+        '${result.activitiesCount} activities');
+
+    final stored = await eventsRepository.getRange(
+      _formatDate(weekStart),
+      _formatDate(weekEnd),
+    );
+    expect(stored, hasLength(result.eventsCount));
+    for (final event in stored) {
+      expect(event.id, isNotEmpty);
+      expect(event.date, matches(r'^\d{4}-\d{2}-\d{2}$'));
+    }
+  });
+
+  test('re-syncing planned events drops entries deleted upstream',
+      skip: _skip, () async {
+    await IntervalsSession.instance.connect(_apiKey);
+
+    final (weekStart, weekEnd) = SyncService.todayWindow();
+    await syncService.syncTodayWindow();
+
+    // A stale plan the server no longer knows about. The next sync must
+    // clear it rather than leave a ghost session on the Today screen.
+    final db = await database.database;
+    await db.insert('events', {
+      'id': 'stale-ghost-event',
+      'date': _formatDate(weekStart),
+      'category': 'WORKOUT',
+      'type': 'Ride',
+      'name': 'Deleted upstream',
+      'description': null,
+      'planned_load': 99,
+      'planned_time': null,
+      'planned_distance': null,
+      'indoor': 0,
+      'raw': '{}',
+      'synced_at': DateTime.now().millisecondsSinceEpoch,
+    });
+
+    await syncService.syncTodayWindow();
+
+    final stored = await eventsRepository.getRange(
+      _formatDate(weekStart),
+      _formatDate(weekEnd),
+    );
+    expect(stored.map((e) => e.id), isNot(contains('stale-ghost-event')));
+  });
 }
 
 String _formatDate(DateTime date) =>

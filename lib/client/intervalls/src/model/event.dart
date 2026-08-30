@@ -547,7 +547,7 @@ class Event {
   )
 
 
-  final Map<String, Object>? workoutDoc;
+  final Map<String, Object?>? workoutDoc;
 
 
 

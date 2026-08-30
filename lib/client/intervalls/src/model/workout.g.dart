@@ -31,7 +31,7 @@ abstract class _$WorkoutCWProxy {
 
   Workout joulesAboveFtp(int? joulesAboveFtp);
 
-  Workout workoutDoc(Map<String, Object>? workoutDoc);
+  Workout workoutDoc(Map<String, Object?>? workoutDoc);
 
   Workout folderId(int? folderId);
 
@@ -82,7 +82,7 @@ abstract class _$WorkoutCWProxy {
     DateTime? updated,
     int? joules,
     int? joulesAboveFtp,
-    Map<String, Object>? workoutDoc,
+    Map<String, Object?>? workoutDoc,
     int? folderId,
     int? day,
     int? days,
@@ -146,7 +146,7 @@ class _$WorkoutCWProxyImpl implements _$WorkoutCWProxy {
       this(joulesAboveFtp: joulesAboveFtp);
 
   @override
-  Workout workoutDoc(Map<String, Object>? workoutDoc) =>
+  Workout workoutDoc(Map<String, Object?>? workoutDoc) =>
       this(workoutDoc: workoutDoc);
 
   @override
@@ -286,7 +286,7 @@ class _$WorkoutCWProxyImpl implements _$WorkoutCWProxy {
       workoutDoc: workoutDoc == const $CopyWithPlaceholder()
           ? _value.workoutDoc
           // ignore: cast_nullable_to_non_nullable
-          : workoutDoc as Map<String, Object>?,
+          : workoutDoc as Map<String, Object?>?,
       folderId: folderId == const $CopyWithPlaceholder()
           ? _value.folderId
           // ignore: cast_nullable_to_non_nullable
@@ -389,9 +389,7 @@ Workout _$WorkoutFromJson(Map<String, dynamic> json) => $checkedCreate(
       ),
       workoutDoc: $checkedConvert(
         'workout_doc',
-        (v) => (v as Map<String, dynamic>?)?.map(
-          (k, e) => MapEntry(k, e as Object),
-        ),
+        (v) => v as Map<String, dynamic>?,
       ),
       folderId: $checkedConvert('folder_id', (v) => (v as num?)?.toInt()),
       day: $checkedConvert('day', (v) => (v as num?)?.toInt()),

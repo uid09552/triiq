@@ -556,7 +556,7 @@ class EventEx {
   )
 
 
-  final Map<String, Object>? workoutDoc;
+  final Map<String, Object?>? workoutDoc;
 
 
 

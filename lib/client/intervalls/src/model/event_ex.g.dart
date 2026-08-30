@@ -73,7 +73,7 @@ abstract class _$EventExCWProxy {
 
   EventEx joulesAboveFtp(int? joulesAboveFtp);
 
-  EventEx workoutDoc(Map<String, Object>? workoutDoc);
+  EventEx workoutDoc(Map<String, Object?>? workoutDoc);
 
   EventEx pushErrors(List<PushError>? pushErrors);
 
@@ -177,7 +177,7 @@ abstract class _$EventExCWProxy {
     EventExTargetEnum? target,
     int? joules,
     int? joulesAboveFtp,
-    Map<String, Object>? workoutDoc,
+    Map<String, Object?>? workoutDoc,
     List<PushError>? pushErrors,
     bool? athleteCannotEdit,
     bool? hideFromAthlete,
@@ -323,7 +323,7 @@ class _$EventExCWProxyImpl implements _$EventExCWProxy {
       this(joulesAboveFtp: joulesAboveFtp);
 
   @override
-  EventEx workoutDoc(Map<String, Object>? workoutDoc) =>
+  EventEx workoutDoc(Map<String, Object?>? workoutDoc) =>
       this(workoutDoc: workoutDoc);
 
   @override
@@ -642,7 +642,7 @@ class _$EventExCWProxyImpl implements _$EventExCWProxy {
       workoutDoc: workoutDoc == const $CopyWithPlaceholder()
           ? _value.workoutDoc
           // ignore: cast_nullable_to_non_nullable
-          : workoutDoc as Map<String, Object>?,
+          : workoutDoc as Map<String, Object?>?,
       pushErrors: pushErrors == const $CopyWithPlaceholder()
           ? _value.pushErrors
           // ignore: cast_nullable_to_non_nullable
@@ -835,9 +835,7 @@ EventEx _$EventExFromJson(Map<String, dynamic> json) => $checkedCreate(
       ),
       workoutDoc: $checkedConvert(
         'workout_doc',
-        (v) => (v as Map<String, dynamic>?)?.map(
-          (k, e) => MapEntry(k, e as Object),
-        ),
+        (v) => v as Map<String, dynamic>?,
       ),
       pushErrors: $checkedConvert(
         'push_errors',

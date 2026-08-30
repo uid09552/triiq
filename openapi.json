@@ -9247,7 +9247,8 @@
           "workout_doc": {
             "type": "object",
             "additionalProperties": {
-              "type": "object"
+              "type": "object",
+              "nullable": true
             }
           },
           "folder_id": {
@@ -9389,7 +9390,8 @@
           "workout_doc": {
             "type": "object",
             "additionalProperties": {
-              "type": "object"
+              "type": "object",
+              "nullable": true
             }
           },
           "folder_id": {
@@ -10544,7 +10546,8 @@
           "workout_doc": {
             "type": "object",
             "additionalProperties": {
-              "type": "object"
+              "type": "object",
+              "nullable": true
             }
           },
           "push_errors": {
@@ -10898,7 +10901,8 @@
           "workout_doc": {
             "type": "object",
             "additionalProperties": {
-              "type": "object"
+              "type": "object",
+              "nullable": true
             }
           },
           "push_errors": {
