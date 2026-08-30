@@ -1,0 +1,84 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+Thumbs.db
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ / Android Studio related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related — ignored outright since launch/debug configs can carry
+# environment variables, tokens, or machine-specific secrets.
+.vscode/
+
+# Claude Code related — settings.json is shared project config;
+# settings.local.json holds personal/local overrides and must not be shared.
+.claude/settings.local.json
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Android signing/config secrets
+android/key.properties
+android/local.properties
+**/*.keystore
+**/*.jks
+
+# iOS/macOS signing secrets
+**/*.mobileprovision
+**/*.p12
+**/*.p8
+**/*.cer
+
+# Environment files / generic secrets — never commit real credentials
+# (e.g. the Intervals.icu API key, Claude/Ollama keys) to the repo.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+secrets.yaml
+
+# OpenAPI client regeneration (see CLAUDE.md). The generator jar gets
+# downloaded into the working tree and it writes to a scratch output dir;
+# only the copied-in result under lib/client/intervalls belongs in the repo.
+openapi-generator-cli*.jar
+/openapi-generator-out/
+
+# Local SQLite cache of the user's Intervals.icu data (see lib/data/db) —
+# personal data, not something to check in.
+triiq.db
+triiq.db-shm
+triiq.db-wal

@@ -1,0 +1,5 @@
+tags:
+  # Hits the real Intervals.icu API. Opt-in: the tests self-skip unless a key
+  # is passed, so a plain `flutter test` stays offline and deterministic.
+  #   flutter test --dart-define=INTERVALS_API_KEY=<key>
+  live:
