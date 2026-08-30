@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Responding
+
+Keep replies to the user short — a few lines, no preamble or recap of work
+already shown in tool output. Token cost matters here. Lead with the result;
+add detail only where it changes a decision (a failure, a risk, a choice that
+needs input). Thoroughness belongs in the code and in docs/okf.md, not in
+chat.
+
 ## Project
 
 Flutter app `triiq` (Dart SDK ^3.11.5).
