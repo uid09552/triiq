@@ -40,6 +40,13 @@ class EventsRepository {
     });
   }
 
+  /// Drops one cached entry — what deleting a session upstream needs, so
+  /// the calendar stops showing it before the next sync of that range.
+  Future<void> deleteById(String id) async {
+    final db = await _database.database;
+    await db.delete('events', where: 'id = ?', whereArgs: [id]);
+  }
+
   Future<List<LocalEvent>> getByDate(String date) async {
     final db = await _database.database;
     final rows = await db.query(

@@ -32,6 +32,12 @@ class LocalActivity {
   final Map<String, dynamic> raw;
   final DateTime syncedAt;
 
+  /// Rehydrates the full typed [Activity] from [raw] — every field the API
+  /// returned, not just the handful promoted to columns. Used by the
+  /// activity detail screen instead of teaching this class about fields
+  /// nothing else needs.
+  Activity toActivity() => Activity.fromJson(raw);
+
   factory LocalActivity.fromApi(Activity activity) {
     final json = activity.toJson();
     final startDateLocal = activity.startDateLocal ?? '';

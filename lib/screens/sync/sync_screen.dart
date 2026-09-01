@@ -4,6 +4,9 @@ import '../../data/intervals_session.dart';
 import '../../data/repositories/sync_state_repository.dart';
 import '../../data/sync/sync_scope.dart';
 import '../../data/sync/sync_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../notifications/notification_service.dart';
+import '../../notifications/notification_settings.dart';
 import '../../widgets/section_card.dart';
 
 /// Lets the user pull a range of Intervals.icu history into the local
@@ -42,21 +45,29 @@ class _SyncScreenState extends State<SyncScreen> {
       _running = scope;
       _lastMessage = null;
     });
+    final l10n = AppLocalizations.of(context)!;
     try {
       final result = await _syncService.syncScope(scope);
       if (!mounted) return;
       setState(() {
         _running = null;
-        _lastMessage =
-            'Synced ${result.activitiesCount} activities, '
-            '${result.wellnessCount} wellness records.';
+        _lastMessage = l10n.syncedMessage(
+          result.activitiesCount,
+          result.wellnessCount,
+        );
       });
       await _loadState();
+      if (NotificationSettings.instance.enabled) {
+        await NotificationService.instance.showSyncComplete(
+          activities: result.activitiesCount,
+          wellness: result.wellnessCount,
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _running = null;
-        _lastMessage = 'Sync failed: $e';
+        _lastMessage = l10n.syncFailedMessage(e.toString());
       });
     }
   }
@@ -64,28 +75,29 @@ class _SyncScreenState extends State<SyncScreen> {
   @override
   Widget build(BuildContext context) {
     final connected = _session.isConnected;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Sync')),
+      appBar: AppBar(title: Text(l10n.titleSync)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           if (!connected)
             SectionCard(
               icon: Icons.link_off,
-              title: 'Not connected',
-              child: const Text(
-                'Connect your Intervals.icu account in Profile before syncing.',
-              ),
+              title: l10n.syncNotConnectedTitle,
+              child: Text(l10n.syncNotConnectedBody),
             ),
           if (connected && _activitiesState != null)
             SectionCard(
               icon: Icons.history,
-              title: 'Local cache',
+              title: l10n.localCacheTitle,
               child: Text(
-                'Activities cached from ${_activitiesState!.oldest} to '
-                '${_activitiesState!.newest}\n'
-                'Last synced ${_activitiesState!.lastSyncedAt}',
+                l10n.localCacheBody(
+                  _activitiesState!.oldest,
+                  _activitiesState!.newest,
+                  _activitiesState!.lastSyncedAt.toString(),
+                ),
               ),
             ),
           const SizedBox(height: 16),
@@ -131,9 +143,18 @@ class _SyncTile extends StatelessWidget {
     SyncScope.all: Icons.cloud_sync_outlined,
   };
 
+  static String _label(AppLocalizations l10n, SyncScope scope) =>
+      switch (scope) {
+        SyncScope.today => l10n.syncScopeToday,
+        SyncScope.month => l10n.syncScopeMonth,
+        SyncScope.year => l10n.syncScopeYear,
+        SyncScope.all => l10n.syncScopeAll,
+      };
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       child: ListTile(
@@ -157,7 +178,7 @@ class _SyncTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          scope.label,
+          _label(l10n, scope),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         trailing: running

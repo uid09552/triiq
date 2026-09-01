@@ -59,6 +59,20 @@ class LocalEvent {
       category == 'RACE_B' ||
       category == 'RACE_C';
 
+  /// When the entry starts, from `start_date_local`, falling back to the
+  /// cached day. Null only if neither parses.
+  DateTime? get startsAt =>
+      DateTime.tryParse(raw['start_date_local'] as String? ?? '') ??
+      DateTime.tryParse(date);
+
+  /// Whether the entry is pinned to a time of day. Intervals.icu writes
+  /// midnight for a session that is simply "somewhere today", which is an
+  /// all-day entry in calendar terms rather than a workout at 00:00.
+  bool get hasTimeOfDay {
+    final start = startsAt;
+    return start != null && (start.hour != 0 || start.minute != 0);
+  }
+
   factory LocalEvent.fromApi(Event event) {
     final json = event.toJson();
     final startDateLocal = event.startDateLocal ?? '';

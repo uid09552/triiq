@@ -1,56 +1,138 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
-/// Week list of planned vs. completed trainings, one row per day.
-///
-/// TODO: wire up to lib/client/intervalls (BibliothekApi for planned
-/// workouts/events, AktivittenApi for completed activities in the week).
+import '../../data/models/local_activity.dart';
+import '../../data/models/local_event.dart';
+import '../../l10n/app_localizations.dart';
+import 'calendar_day_marker.dart';
+
+/// Week list of planned (tertiary colour) vs. completed (primary colour)
+/// trainings, one row per day.
 class WeeklyCalendarView extends StatelessWidget {
-  const WeeklyCalendarView({super.key});
+  const WeeklyCalendarView({
+    super.key,
+    required this.weekStart,
+    required this.selectedDate,
+    required this.eventsByDate,
+    required this.activitiesByDate,
+    required this.onSelect,
+  });
 
-  static const _days = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
+  /// Monday of the displayed week.
+  final DateTime weekStart;
+  final DateTime selectedDate;
+  final Map<String, List<LocalEvent>> eventsByDate;
+  final Map<String, List<LocalActivity>> activitiesByDate;
+  final ValueChanged<DateTime> onSelect;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final today = _dateOnly(DateTime.now());
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: _days.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 7,
       separatorBuilder: (_, _) => const SizedBox(height: 10),
-      itemBuilder: (context, index) => Card(
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+      itemBuilder: (context, index) {
+        final date = weekStart.add(Duration(days: index));
+        final isToday = _dateOnly(date) == today;
+        final isSelected = _dateOnly(date) == _dateOnly(selectedDate);
+        final key = _fmt(date);
+        final events = (eventsByDate[key] ?? const [])
+            .where((e) => e.isTraining)
+            .toList();
+        final activities = activitiesByDate[key] ?? const [];
+        final hasAny = events.isNotEmpty || activities.isNotEmpty;
+
+        return Card(
+          color: isSelected
+              ? colorScheme.primary.withValues(alpha: 0.08)
+              : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: isToday
+                ? BorderSide(color: colorScheme.primary, width: 1.5)
+                : BorderSide.none,
           ),
-          leading: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              shape: BoxShape.circle,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => onSelect(date),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 40,
+                    child: Column(
+                      children: [
+                        Text(
+                          '${date.day}',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat.EEEE(locale).format(date),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        if (hasAny)
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              for (final event in events)
+                                CalendarDayMarker(
+                                  type: event.type,
+                                  color: colorScheme.tertiary,
+                                ),
+                              for (final activity in activities)
+                                CalendarDayMarker(
+                                  type: activity.type,
+                                  color: colorScheme.primary,
+                                ),
+                            ],
+                          )
+                        else
+                          Text(
+                            l10n.noTrainingData,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+                ],
+              ),
             ),
-            child: Icon(
-              Icons.circle_outlined,
-              size: 18,
-              color: colorScheme.onSurfaceVariant,
-            ),
           ),
-          title: Text(
-            _days[index],
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          subtitle: const Text('No training data'),
-        ),
-      ),
+        );
+      },
     );
   }
+
+  static DateTime _dateOnly(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  static String _fmt(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
 }

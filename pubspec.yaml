@@ -50,6 +50,36 @@ dependencies:
   # Secure storage for the Intervals.icu API key (lib/data/intervals_session.dart)
   flutter_secure_storage: ^9.2.2
 
+  # Non-secret user preferences (LLM provider/model, Ollama URL) — lib/data/app_preferences.dart
+  shared_preferences: ^2.3.0
+
+  # LLM agent (lib/agent) — provider-agnostic chat/tool-calling over Claude or Ollama
+  langchain: ^0.9.0
+  langchain_core: ^0.5.0
+  langchain_anthropic: ^0.4.0
+  langchain_ollama: ^0.5.0
+
+  # Notifications (lib/notifications) — flutter_local_notifications has no
+  # Windows backend, so it only covers Android/iOS; local_notifier covers
+  # Windows desktop toasts instead. timezone is for scheduling the daily
+  # reminder at the athlete's local wall-clock time (see NotificationService
+  # for why it's a fixed UTC offset, not a real IANA zone: the obvious
+  # package for that, flutter_timezone, currently fails to build on Android
+  # under this project's AGP version).
+  flutter_local_notifications: ^22.3.0
+  local_notifier: ^0.1.6
+  timezone: ^0.11.1
+
+  # "Open in Intervals.icu" on the activity detail screen (lib/screens/activities)
+  url_launcher: ^6.3.2
+
+  # Renders the agent's markdown replies (lib/screens/chat) — tables, lists,
+  # headings — instead of showing the raw markdown source.
+  flutter_markdown_plus: ^1.0.12
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -66,6 +96,27 @@ dev_dependencies:
   copy_with_extension_gen: ^7.1.0
   json_serializable: ^6.9.3
 
+  # Generates platform app icons from assets/icon/ (see `dart run flutter_launcher_icons`)
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+  android: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#6750E4"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  ios: true
+  remove_alpha_ios: true
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 256
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#6750E4"
+    theme_color: "#6750E4"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -76,6 +127,16 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Generates lib/l10n/app_localizations.dart from lib/l10n/app_en.arb and
+  # app_de.arb (config in l10n.yaml) — see lib/locale_controller.dart for
+  # how the active locale (System/English/German) is chosen.
+  generate: true
+
+  assets:
+    # The training reference the agent quotes from, via its
+    # `get_training_guidance` tool (lib/agent/tools).
+    - training-philosophy.md
 
   # To add assets to your application, add an assets section, like this:
   # assets:

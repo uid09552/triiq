@@ -1,0 +1,932 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for German (`de`).
+class AppLocalizationsDe extends AppLocalizations {
+  AppLocalizationsDe([String locale = 'de']) : super(locale);
+
+  @override
+  String get navToday => 'Heute';
+
+  @override
+  String get navCalendar => 'Kalender';
+
+  @override
+  String get navChat => 'Chat';
+
+  @override
+  String get navStatistics => 'Statistik';
+
+  @override
+  String get navMore => 'Mehr';
+
+  @override
+  String get profileAndSettingsTooltip => 'Profil & Einstellungen';
+
+  @override
+  String get titleProfile => 'Profil';
+
+  @override
+  String get titleSettings => 'Einstellungen';
+
+  @override
+  String get titleSync => 'Synchronisierung';
+
+  @override
+  String get titleActivities => 'Aktivitäten';
+
+  @override
+  String get titleActivity => 'Aktivität';
+
+  @override
+  String get titleAthlete => 'Athlet';
+
+  @override
+  String get titlePlannedTraining => 'Geplantes Training';
+
+  @override
+  String get titleTrainNow => 'Jetzt trainieren';
+
+  @override
+  String get refreshTooltip => 'Aktualisieren';
+
+  @override
+  String get openSettingsButton => 'Einstellungen öffnen';
+
+  @override
+  String get openProfileButton => 'Profil öffnen';
+
+  @override
+  String get notConnected => 'Nicht verbunden';
+
+  @override
+  String get connectedLabel => 'Verbunden';
+
+  @override
+  String get syncedWithIntervals => 'Synchronisiert mit Intervals.icu';
+
+  @override
+  String get activityFallback => 'Aktivität';
+
+  @override
+  String get plannedSessionFallback => 'Geplante Einheit';
+
+  @override
+  String heroActivitiesStatus(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktivitäten heute protokolliert',
+      one: '1 Aktivität heute protokolliert',
+      zero: 'Bereit fürs Training',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notConnectedToIntervals => 'Nicht mit Intervals.icu verbunden';
+
+  @override
+  String get noWorkoutLoggedToday => 'Heute noch kein Training protokolliert';
+
+  @override
+  String get finishSettingUp => 'Einrichtung abschließen';
+
+  @override
+  String get connectIntervalsPrompt =>
+      'Verbinde dein Intervals.icu-Konto, um deine Trainingsdaten zu sehen.';
+
+  @override
+  String get setupLlmPrompt =>
+      'Richte einen LLM-Anbieter (Claude oder Ollama) ein, um mit dem Trainingsassistenten zu chatten.';
+
+  @override
+  String get syncFailed => 'Synchronisierung fehlgeschlagen';
+
+  @override
+  String get tssToday => 'TSS heute';
+
+  @override
+  String get tssWeek => 'TSS Woche';
+
+  @override
+  String get ctlLabel => 'CTL';
+
+  @override
+  String get atlLabel => 'ATL';
+
+  @override
+  String get todaysActivities => 'Heutige Aktivitäten';
+
+  @override
+  String get todaysTraining => 'Heutiges Training';
+
+  @override
+  String get tomorrowsTraining => 'Morgiges Training';
+
+  @override
+  String get nothingPlannedToday => 'Für heute nichts geplant — Ruhetag.';
+
+  @override
+  String get nothingPlannedTomorrow => 'Für morgen noch nichts geplant.';
+
+  @override
+  String get connectToSeePlan =>
+      'Verbinde dein Intervals.icu-Konto, um deinen Plan zu sehen.';
+
+  @override
+  String get connectInProfile => 'Verbinde dein Intervals.icu-Konto im Profil';
+
+  @override
+  String get noTargetSet => 'Kein Ziel festgelegt';
+
+  @override
+  String get sportLabel => 'Sportart';
+
+  @override
+  String get sportRun => 'Laufen';
+
+  @override
+  String get sportRide => 'Rad';
+
+  @override
+  String get sportSwim => 'Schwimmen';
+
+  @override
+  String durationMinutes(int minutes) {
+    return 'Dauer — $minutes Min.';
+  }
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes Min.';
+  }
+
+  @override
+  String get intensityLabel => 'Intensität';
+
+  @override
+  String get intensityRecovery => 'Erholung';
+
+  @override
+  String get intensityEndurance => 'Ausdauer';
+
+  @override
+  String get intensityIntervals => 'Intervalle';
+
+  @override
+  String trainNowEventTitle(String intensity, String sport) {
+    return '$intensity $sport-Training';
+  }
+
+  @override
+  String get llmNeededForProposal =>
+      'Richte in den Einstellungen einen LLM-Anbieter ein, um einen Vorschlag zu erhalten.';
+
+  @override
+  String get proposeTraining => 'Training vorschlagen';
+
+  @override
+  String get askAgain => 'Erneut fragen';
+
+  @override
+  String get addToGoogleCalendar => 'Zu Google Kalender hinzufügen';
+
+  @override
+  String get couldNotOpenGoogleCalendar =>
+      'Google Kalender konnte nicht geöffnet werden.';
+
+  @override
+  String get thinkingEllipsis => 'Denkt nach…';
+
+  @override
+  String toolFailedSuffix(String label) {
+    return '$label — fehlgeschlagen';
+  }
+
+  @override
+  String toolRunningGeneric(String name) {
+    return '$name wird ausgeführt…';
+  }
+
+  @override
+  String get trainNowToolChecking =>
+      'Profil und zwischengespeicherte Daten werden geprüft…';
+
+  @override
+  String get trainNowToolDailyLoad =>
+      'Tägliche Belastung und Wellness werden gelesen…';
+
+  @override
+  String get trainNowToolActivities => 'Letzte Aktivitäten werden gelesen…';
+
+  @override
+  String get trainNowToolPlanned => 'Geplante Einheiten werden gelesen…';
+
+  @override
+  String get trainNowToolSummary => 'Letzte 7 Tage werden zusammengefasst…';
+
+  @override
+  String get trainNowToolGuidance => 'Trainingsreferenz wird konsultiert…';
+
+  @override
+  String get trainNowToolSyncing => 'Synchronisierung mit Intervals.icu…';
+
+  @override
+  String get tssHistoryTitle => 'TSS — letzte 42 Tage';
+
+  @override
+  String get totalLabel => 'Gesamt';
+
+  @override
+  String get avgPerDay => 'Ø / Tag';
+
+  @override
+  String get avgPerWeek => 'Ø / Woche';
+
+  @override
+  String get dailyTss => 'Täglicher TSS';
+
+  @override
+  String get tapBarForDetails => 'Tippe auf einen Balken für Datum und Wert.';
+
+  @override
+  String selectedDayTss(String date, int tss) {
+    return '$date · $tss TSS';
+  }
+
+  @override
+  String get connectForAthleteDetails =>
+      'Verbinde dein Intervals.icu-Konto im Profil, um deine Athletendetails zu sehen.';
+
+  @override
+  String athleteIdLine(String id) {
+    return 'Athleten-ID $id · synchronisiert mit Intervals.icu';
+  }
+
+  @override
+  String get bodyAndWellness => 'Körper & Wellness';
+
+  @override
+  String get noWellnessCached =>
+      'Noch keine Wellness-Daten zwischengespeichert.';
+
+  @override
+  String get weightLabel => 'Gewicht';
+
+  @override
+  String get restingHrLabel => 'Ruhepuls';
+
+  @override
+  String get hrvLabel => 'HRV';
+
+  @override
+  String get thresholdsTitle => 'Schwellenwerte';
+
+  @override
+  String get noActivitiesForThresholds =>
+      'Noch keine Aktivitäten zwischengespeichert, daher konnten keine sportartspezifischen Schwellenwerte gelesen werden.';
+
+  @override
+  String get thresholdPaceLabel => 'Schwellenpace';
+
+  @override
+  String get weightAsAnalysedLabel => 'Gewicht (bei Analyse)';
+
+  @override
+  String asOfDate(String date) {
+    return 'Stand $date';
+  }
+
+  @override
+  String get calendarMonth => 'Monat';
+
+  @override
+  String get calendarWeek => 'Woche';
+
+  @override
+  String get todayTooltip => 'Heute';
+
+  @override
+  String get noTrainingData => 'Keine Trainingsdaten';
+
+  @override
+  String get nothingPlannedOrLogged =>
+      'An diesem Tag nichts geplant oder protokolliert.';
+
+  @override
+  String get plannedStatus => 'Geplant';
+
+  @override
+  String get completedStatus => 'Abgeschlossen';
+
+  @override
+  String get messageAgentHint => 'Nachricht an den Trainingsassistenten…';
+
+  @override
+  String get askAboutTraining =>
+      'Frage nach deinem Training, Fortschritt oder Plan';
+
+  @override
+  String get pickLlmProviderToChat =>
+      'Wähle einen LLM-Anbieter in den Einstellungen, um zu chatten';
+
+  @override
+  String get noReplyFromModel => 'Keine Antwort vom Modell erhalten.';
+
+  @override
+  String get chatToolChecking =>
+      'Profil und zwischengespeicherte Daten werden geprüft…';
+
+  @override
+  String get chatToolDailyLoad =>
+      'Tägliche Belastung und Wellness werden gelesen…';
+
+  @override
+  String get chatToolActivities => 'Aktivitäten werden gelesen…';
+
+  @override
+  String get chatToolPlanned => 'Geplante Einheiten werden gelesen…';
+
+  @override
+  String get chatToolSummary => 'Training wird zusammengefasst…';
+
+  @override
+  String get chatToolGuidance => 'Trainingsreferenz wird konsultiert…';
+
+  @override
+  String get chatToolSyncing => 'Synchronisierung mit Intervals.icu…';
+
+  @override
+  String get appearanceTitle => 'Erscheinungsbild';
+
+  @override
+  String get appearanceSystem => 'System';
+
+  @override
+  String get appearanceLight => 'Hell';
+
+  @override
+  String get appearanceDark => 'Dunkel';
+
+  @override
+  String get languageTitle => 'Sprache';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
+  String get notificationsTitle => 'Benachrichtigungen';
+
+  @override
+  String get enableNotifications => 'Benachrichtigungen aktivieren';
+
+  @override
+  String get notificationsSubtitle =>
+      'Abschluss der Synchronisierung und Antworten des Trainingsassistenten';
+
+  @override
+  String get dailyTrainingReminder => 'Tägliche Trainingserinnerung';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Die Benachrichtigungsberechtigung wurde verweigert. Aktiviere sie für TriIQ in den Geräteeinstellungen, um dies einzuschalten.';
+
+  @override
+  String get reminderNeedsBackground =>
+      'Die tägliche Erinnerung erfordert, dass die App im Hintergrund erreichbar bleibt — das ist auf dieser Plattform nicht verfügbar.';
+
+  @override
+  String get syncSectionTitle => 'Synchronisierung';
+
+  @override
+  String get autoSyncDescription =>
+      'Diesen Monat automatisch aktualisieren, solange die App geöffnet ist, höchstens so oft wie:';
+
+  @override
+  String autoSyncMinutes(int minutes) {
+    return '$minutes Min.';
+  }
+
+  @override
+  String autoSyncHours(int hours) {
+    return '$hours Std.';
+  }
+
+  @override
+  String get llmProviderTitle => 'LLM-Anbieter';
+
+  @override
+  String get claudeLabel => 'Claude';
+
+  @override
+  String get ollamaLabel => 'Ollama';
+
+  @override
+  String get claudeApiKeyLabel => 'Claude-API-Schlüssel';
+
+  @override
+  String get claudeKeyStoredHint =>
+      'Ein Schlüssel ist gespeichert — gib einen neuen ein, um ihn zu ersetzen';
+
+  @override
+  String get showTooltip => 'Anzeigen';
+
+  @override
+  String get hideTooltip => 'Verbergen';
+
+  @override
+  String get saveKeyButton => 'Schlüssel speichern';
+
+  @override
+  String get clearButton => 'Löschen';
+
+  @override
+  String get claudeModelLabel => 'Claude-Modell';
+
+  @override
+  String get claudeKeySecureHelp =>
+      'Der Schlüssel wird im Anmeldeinformationsspeicher deines Betriebssystems gespeichert und nur an Anthropic gesendet. Die Nutzung wird deinem eigenen Anthropic-Konto in Rechnung gestellt.';
+
+  @override
+  String get claudeKeyInsecureHelp =>
+      'Dieser Build kann den Schlüssel nicht sicher speichern, daher wird er nur für diese Sitzung vorgehalten und du musst ihn nach einem Neuladen erneut eingeben.';
+
+  @override
+  String get ollamaServerUrlLabel => 'Ollama-Server-URL';
+
+  @override
+  String get ollamaCloudApiKeyLabel => 'Ollama-Cloud-API-Schlüssel';
+
+  @override
+  String get ollamaApiKeyOptionalLabel => 'Ollama-API-Schlüssel (optional)';
+
+  @override
+  String get ollamaKeyStoredHint =>
+      'Ein Schlüssel ist gespeichert — gib einen neuen ein, um ihn zu ersetzen';
+
+  @override
+  String get getAKeyButton => 'Schlüssel holen';
+
+  @override
+  String get testConnectionButton => 'Verbindung testen';
+
+  @override
+  String get ollamaModelLabel => 'Ollama-Modell';
+
+  @override
+  String get ollamaKeySecureHelp =>
+      'Der Schlüssel wird im Anmeldeinformationsspeicher deines Betriebssystems gespeichert und nur an Ollama Cloud gesendet.';
+
+  @override
+  String get ollamaKeyInsecureHelp =>
+      'Dieser Build kann den Schlüssel nicht sicher speichern, daher wird er nur für diese Sitzung vorgehalten und du musst ihn nach einem Neuladen erneut eingeben.';
+
+  @override
+  String get ollamaLocalHelp =>
+      'Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen.';
+
+  @override
+  String get claudeKeySavedMessage => 'Claude-API-Schlüssel gespeichert.';
+
+  @override
+  String get claudeKeyRemovedMessage => 'Claude-API-Schlüssel entfernt.';
+
+  @override
+  String get ollamaKeyRemovedMessage => 'Ollama-API-Schlüssel entfernt.';
+
+  @override
+  String couldNotOpenUrl(String url) {
+    return '$url konnte nicht geöffnet werden';
+  }
+
+  @override
+  String get ollamaKeySavedPrefix => 'Ollama-API-Schlüssel gespeichert';
+
+  @override
+  String get connectedPrefix => 'Verbunden';
+
+  @override
+  String connectedModelsMessage(String prefix, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Modelle verfügbar.',
+      one: '1 Modell verfügbar.',
+      zero:
+          'verbunden, aber auf diesem Server sind noch keine Modelle verfügbar.',
+    );
+    return '$prefix — $_temp0';
+  }
+
+  @override
+  String couldNotConnectKeyNotSaved(String error) {
+    return 'Verbindung fehlgeschlagen: $error. Schlüssel nicht gespeichert.';
+  }
+
+  @override
+  String couldNotConnect(String error) {
+    return 'Verbindung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get profileHeaderChecking => 'Gespeicherte Verbindung wird geprüft…';
+
+  @override
+  String get intervalsConnectionTitle => 'Intervals.icu-Verbindung';
+
+  @override
+  String get checkingForSavedKey => 'Suche nach gespeichertem API-Schlüssel…';
+
+  @override
+  String get disconnectButton => 'Trennen';
+
+  @override
+  String get apiKeyHelpSecure =>
+      'Deinen API-Schlüssel findest du unter Einstellungen auf intervals.icu. Er wird im sicheren Anmeldeinformationsspeicher dieses Geräts aufbewahrt.';
+
+  @override
+  String get apiKeyHelpInsecure =>
+      'Deinen API-Schlüssel findest du unter Einstellungen auf intervals.icu. Im Browser wird er nur für diesen Tab vorgehalten — Browser haben keinen sicheren Speicherort dafür, daher musst du ihn nach einem Neuladen erneut eingeben.';
+
+  @override
+  String get intervalsApiKeyLabel => 'Intervals.icu-API-Schlüssel';
+
+  @override
+  String get connectButton => 'Verbinden';
+
+  @override
+  String couldNotConnectGeneric(String error) {
+    return 'Verbindung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get moreSyncSubtitle => 'Trainingsdaten von Intervals.icu abrufen';
+
+  @override
+  String get moreActivitiesSubtitle => 'Alle zwischengespeicherten Aktivitäten';
+
+  @override
+  String get trainingPlansTitle => 'Trainingspläne';
+
+  @override
+  String get gearTitle => 'Ausrüstung';
+
+  @override
+  String get comingSoon => 'Demnächst verfügbar';
+
+  @override
+  String get syncNotConnectedTitle => 'Nicht verbunden';
+
+  @override
+  String get syncNotConnectedBody =>
+      'Verbinde dein Intervals.icu-Konto im Profil, bevor du synchronisierst.';
+
+  @override
+  String get localCacheTitle => 'Lokaler Zwischenspeicher';
+
+  @override
+  String localCacheBody(String oldest, String newest, String lastSynced) {
+    return 'Aktivitäten zwischengespeichert von $oldest bis $newest\nZuletzt synchronisiert $lastSynced';
+  }
+
+  @override
+  String syncedMessage(int activities, int wellness) {
+    return '$activities Aktivitäten synchronisiert, $wellness Wellness-Datensätze.';
+  }
+
+  @override
+  String syncFailedMessage(String error) {
+    return 'Synchronisierung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get syncScopeToday => 'Heute';
+
+  @override
+  String get syncScopeMonth => 'Dieser Monat';
+
+  @override
+  String get syncScopeYear => 'Dieses Jahr';
+
+  @override
+  String get syncScopeAll => 'Alles (Erstsynchronisierung)';
+
+  @override
+  String get noActivitiesCachedConnected =>
+      'Noch keine Aktivitäten zwischengespeichert — versuche Synchronisierung unter Mehr.';
+
+  @override
+  String get noActivitiesCachedDisconnected =>
+      'Verbinde dein Intervals.icu-Konto, um deine Aktivitäten zu sehen.';
+
+  @override
+  String noActivitiesOfType(String sport) {
+    return 'Keine $sport-Aktivitäten gespeichert — synchronisiere unter Mehr.';
+  }
+
+  @override
+  String get showAllActivities => 'Alle Aktivitäten anzeigen';
+
+  @override
+  String get tssSuffix => 'TSS';
+
+  @override
+  String get openInIntervals => 'In Intervals.icu öffnen';
+
+  @override
+  String get timeInZone => 'Zeit in Zone';
+
+  @override
+  String get distanceLabel => 'Distanz';
+
+  @override
+  String get durationLabel => 'Dauer';
+
+  @override
+  String get elevationGainLabel => 'Höhenmeter';
+
+  @override
+  String get avgHrLabel => 'Ø Puls';
+
+  @override
+  String get maxHrLabel => 'Max. Puls';
+
+  @override
+  String get avgPowerNpLabel => 'Ø Leistung (NP)';
+
+  @override
+  String get avgPowerLabel => 'Ø Leistung';
+
+  @override
+  String get caloriesLabel => 'Kalorien';
+
+  @override
+  String get plannedTssLabel => 'Geplanter TSS';
+
+  @override
+  String get locationLabel => 'Ort';
+
+  @override
+  String get indoorLabel => 'Indoor';
+
+  @override
+  String get workoutTitle => 'Workout';
+
+  @override
+  String get statsNotConnected => 'Nicht mit Intervals.icu verbunden';
+
+  @override
+  String get volumeTitle => 'Umfang';
+
+  @override
+  String get thisWeek => 'Diese Woche';
+
+  @override
+  String get thisMonth => 'Dieser Monat';
+
+  @override
+  String get thisYear => 'Dieses Jahr';
+
+  @override
+  String rangeDaysShort(int days) {
+    return '$days T';
+  }
+
+  @override
+  String get rangeOneYear => '1 J';
+
+  @override
+  String get noDataCachedForRange =>
+      'Für diesen Zeitraum sind noch keine Daten gespeichert.';
+
+  @override
+  String selectedDayValue(String date, String value) {
+    return '$date: $value';
+  }
+
+  @override
+  String get tapChartForDay =>
+      'Für einen einzelnen Tag auf das Diagramm tippen.';
+
+  @override
+  String get currentLabel => 'Aktuell';
+
+  @override
+  String get changeLabel => 'Änderung';
+
+  @override
+  String get avgLabel => 'Durchschnitt';
+
+  @override
+  String get rangeLabel => 'Tief – hoch';
+
+  @override
+  String get whatThisMeans => 'Was das bedeutet';
+
+  @override
+  String get metricCtlTitle => 'Fitness (CTL)';
+
+  @override
+  String get metricAtlTitle => 'Ermüdung (ATL)';
+
+  @override
+  String get metricFormTitle => 'Form (TSB)';
+
+  @override
+  String get metricRampTitle => 'Anstiegsrate';
+
+  @override
+  String get formLabel => 'Form';
+
+  @override
+  String get rampRateLabel => 'Anstieg';
+
+  @override
+  String get metricCtlExplainer =>
+      'CTL ist ein gewichteter 42-Tage-Durchschnitt deiner Trainingsbelastung: wie viel Training du verarbeitet hast — kein Maß für Fitness oder Gesundheit. Der Wert kann steigen, während du dich immer tiefer eingräbst.';
+
+  @override
+  String get metricAtlExplainer =>
+      'ATL ist derselbe Durchschnitt über 7 Tage — die Belastung, die noch in den Beinen steckt. Er steigt und fällt schnell; ein hoher ATL in einem harten Block ist normal und für sich genommen kein Warnsignal.';
+
+  @override
+  String get metricFormExplainer =>
+      'Form ist CTL minus ATL. Positiv heißt: weniger frische Belastung als üblich, negativ heißt: das Training der letzten Tage war hart. Negative Form ist der Bereich, in dem Fitness entsteht — sie ist keine Diagnose.';
+
+  @override
+  String get metricRampExplainer =>
+      'Die Anstiegsrate zeigt, wie schnell sich CTL verändert. Es gibt keinen allgemein sicheren Wert — beurteile ihn an deiner eigenen Historie, deinem Laufumfang und daran, wie du schläfst und dich erholst.';
+
+  @override
+  String ftpValue(int watts) {
+    return 'FTP $watts W';
+  }
+
+  @override
+  String ofPlanned(int planned) {
+    return 'von $planned';
+  }
+
+  @override
+  String weeklyGoalProgress(int completed, int planned, int remaining) {
+    return '$completed von $planned TSS diese Woche · $remaining verbleiben';
+  }
+
+  @override
+  String weeklyGoalReached(int completed, int planned) {
+    return '$completed von $planned TSS diese Woche · Ziel erreicht';
+  }
+
+  @override
+  String get weeklyLoadTitle => 'Wochenbelastung';
+
+  @override
+  String get fourWeekTrend => '4-Wochen-Trend';
+
+  @override
+  String get completedVsPlanned => 'Absolviert vs. geplant';
+
+  @override
+  String selectedWeekLoad(String week, int completed, int planned) {
+    return 'Woche ab $week: $completed TSS absolviert, $planned geplant';
+  }
+
+  @override
+  String get tapBarForWeek => 'Für eine Woche auf einen Balken tippen.';
+
+  @override
+  String weekSessionsAndTime(int sessions, String time) {
+    return '$sessions Einheiten · $time';
+  }
+
+  @override
+  String get completedLegend => 'Absolviert';
+
+  @override
+  String get plannedLegend => 'Geplant';
+
+  @override
+  String get fitnessTrendTitle => 'Fitness-Verlauf';
+
+  @override
+  String get bySportTitle => 'Nach Sportart';
+
+  @override
+  String sessionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einheiten',
+      one: '1 Einheit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get indoorFtpLabel => 'Indoor-FTP';
+
+  @override
+  String ageYears(int years) {
+    return '$years J.';
+  }
+
+  @override
+  String get thresholdsFromSettings =>
+      'Aus deinen aktuellen Intervals.icu-Sporteinstellungen.';
+
+  @override
+  String get thresholdsFromActivity =>
+      'Aus deiner zuletzt ausgewerteten Aktivität gelesen.';
+
+  @override
+  String get newChatTitle => 'Neuen Chat starten?';
+
+  @override
+  String get newChatConfirm =>
+      'Damit wird das Gespräch gelöscht. Chats werden nirgends gespeichert.';
+
+  @override
+  String get newChatButton => 'Neuer Chat';
+
+  @override
+  String get cancelButton => 'Abbrechen';
+
+  @override
+  String get createButton => 'Erstellen';
+
+  @override
+  String messagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Nachrichten',
+      one: '1 Nachricht',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatSuggestionLastWeek => 'Wie war die letzte Woche?';
+
+  @override
+  String get chatSuggestionRecovered => 'Bin ich erholt genug für Intervalle?';
+
+  @override
+  String get chatSuggestionIntensity => 'Ist meine Intensität wirklich 80/20?';
+
+  @override
+  String get createInIntervals => 'In Intervals.icu erstellen';
+
+  @override
+  String get connectToCreateWorkout =>
+      'Verbinde Intervals.icu, um das in deinen Kalender zu legen.';
+
+  @override
+  String get preparingWorkout => 'Workout wird vorbereitet …';
+
+  @override
+  String get couldNotStructureWorkout =>
+      'Das Modell hat kein Workout geliefert, das sich erstellen lässt. Frag noch einmal.';
+
+  @override
+  String couldNotCreateWorkout(String error) {
+    return 'Workout konnte nicht erstellt werden: $error';
+  }
+
+  @override
+  String workoutCreated(String name) {
+    return '„$name“ wurde in deinen Intervals.icu-Kalender eingetragen.';
+  }
+
+  @override
+  String get deleteButton => 'Löschen';
+
+  @override
+  String get deleteTooltip => 'Löschen';
+
+  @override
+  String get deletePlannedWorkoutTitle => 'Diese Einheit löschen?';
+
+  @override
+  String deletePlannedWorkoutConfirm(String name) {
+    return '„$name“ wird aus deinem Intervals.icu-Kalender entfernt. Das lässt sich nicht rückgängig machen.';
+  }
+
+  @override
+  String workoutDeleted(String name) {
+    return '„$name“ wurde aus deinem Intervals.icu-Kalender gelöscht.';
+  }
+
+  @override
+  String couldNotDeleteWorkout(String error) {
+    return 'Workout konnte nicht gelöscht werden: $error';
+  }
+
+  @override
+  String get workoutParsedByIntervals =>
+      'Intervals.icu macht aus diesen Schritten ein strukturiertes Workout; nicht Erkennbares bleibt als Beschreibung stehen.';
+}

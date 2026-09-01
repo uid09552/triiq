@@ -1,0 +1,88 @@
+import 'package:langchain_anthropic/langchain_anthropic.dart';
+import 'package:langchain_core/chat_models.dart';
+import 'package:langchain_core/tools.dart';
+import 'package:langchain_ollama/langchain_ollama.dart';
+
+import 'llm_settings.dart';
+
+/// Thrown when the selected provider has no usable configuration yet.
+class LlmNotConfiguredException implements Exception {
+  const LlmNotConfiguredException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
+/// Builds the LangChain chat model for the athlete's current provider
+/// choice, with [tools] bound as its default options.
+///
+/// This is the only place either provider is named: everything above it —
+/// the agent loop, the tools, the chat UI — works against LangChain's
+/// [BaseChatModel], so adding a provider means adding a case here.
+///
+/// Tools are bound to `defaultOptions` rather than passed per call, because
+/// the agent talks to the model through the erased `BaseChatModel` type and
+/// so cannot construct provider-specific options at the call site.
+BaseChatModel createChatModel(
+  LlmSettings settings, {
+  List<ToolSpec> tools = const [],
+}) {
+  switch (settings.provider) {
+    case LlmProvider.claude:
+      final apiKey = settings.claudeApiKey;
+      if (apiKey == null || apiKey.isEmpty) {
+        throw const LlmNotConfiguredException(
+          'No Claude API key stored. Add one in Settings → LLM provider, or '
+          'switch to Ollama.',
+        );
+      }
+      return ChatAnthropic(
+        apiKey: apiKey,
+        defaultOptions: ChatAnthropicOptions(
+          model: settings.claudeModel,
+          // Long enough for a table plus commentary; tool-call turns are far
+          // shorter than this, so the ceiling only bites on the final answer.
+          maxTokens: 4096,
+          // The job is reading the athlete's numbers back accurately, not
+          // producing varied prose.
+          temperature: 0.2,
+          tools: tools,
+        ),
+      );
+
+    case LlmProvider.ollama:
+      final baseUrl = settings.ollamaBaseUrl.trim();
+      if (baseUrl.isEmpty) {
+        throw const LlmNotConfiguredException(
+          'No Ollama server URL set. Add one in Settings → LLM provider.',
+        );
+      }
+      if (settings.isOllamaCloud && !settings.hasOllamaApiKey) {
+        throw const LlmNotConfiguredException(
+          'No Ollama Cloud API key stored. Add one in Settings → LLM '
+          'provider, or point the server URL at a local Ollama instance.',
+        );
+      }
+      final ollamaApiKey = settings.ollamaApiKey;
+      return ChatOllama(
+        baseUrl: baseUrl,
+        // Ollama Cloud authenticates like any other hosted API — a Bearer
+        // token — rather than through a client parameter of its own.
+        // Harmless to send to a local server too, which just ignores it.
+        headers: ollamaApiKey == null
+            ? null
+            : {'Authorization': 'Bearer $ollamaApiKey'},
+        defaultOptions: ChatOllamaOptions(
+          model: settings.ollamaModel,
+          temperature: 0.2,
+          // Tool results (a month of daily metrics, say) plus the system
+          // prompt overrun Ollama's 2048-token default context, and what
+          // falls out of the window is the data the answer was built on.
+          numCtx: 16384,
+          tools: tools,
+        ),
+      );
+  }
+}

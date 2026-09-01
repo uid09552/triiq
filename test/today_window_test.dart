@@ -34,4 +34,30 @@ void main() {
     expect(oldest, DateTime(2026, 8, 24));
     expect(newest, DateTime(2026, 8, 30));
   });
+
+  group('monthWindow', () {
+    test('covers the whole current month', () {
+      // Wednesday 2026-08-26, a week wholly inside August.
+      final (oldest, newest) = SyncService.monthWindow(DateTime(2026, 8, 26));
+
+      expect(oldest, DateTime(2026, 8, 1));
+      expect(newest, DateTime(2026, 8, 31));
+    });
+
+    test('reaches back when the current week starts in the previous month', () {
+      // Tuesday 2026-09-01: that week started Monday 2026-08-31.
+      final (oldest, newest) = SyncService.monthWindow(DateTime(2026, 9, 1));
+
+      expect(oldest, DateTime(2026, 8, 31));
+      expect(newest, DateTime(2026, 9, 30));
+    });
+
+    test('reaches forward when tomorrow is next month', () {
+      // Monday 2026-08-31: tomorrow, and the rest of that week, is September.
+      final (oldest, newest) = SyncService.monthWindow(DateTime(2026, 8, 31));
+
+      expect(oldest, DateTime(2026, 8, 1));
+      expect(newest, DateTime(2026, 9, 6));
+    });
+  });
 }

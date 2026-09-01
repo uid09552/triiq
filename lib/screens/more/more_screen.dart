@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../activities/activities_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_screen.dart';
@@ -10,12 +12,13 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _MoreTile(
           icon: Icons.person_outline,
-          title: 'Profile',
+          title: l10n.titleProfile,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ProfileScreen()),
           ),
@@ -23,7 +26,7 @@ class MoreScreen extends StatelessWidget {
         const SizedBox(height: 10),
         _MoreTile(
           icon: Icons.settings_outlined,
-          title: 'Settings',
+          title: l10n.titleSettings,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const SettingsScreen()),
           ),
@@ -31,24 +34,33 @@ class MoreScreen extends StatelessWidget {
         const SizedBox(height: 10),
         _MoreTile(
           icon: Icons.cloud_sync_outlined,
-          title: 'Sync',
-          subtitle: 'Pull training data from Intervals.icu',
+          title: l10n.titleSync,
+          subtitle: l10n.moreSyncSubtitle,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const SyncScreen()),
           ),
         ),
+        const SizedBox(height: 10),
+        _MoreTile(
+          icon: Icons.list_alt_outlined,
+          title: l10n.titleActivities,
+          subtitle: l10n.moreActivitiesSubtitle,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ActivitiesScreen()),
+          ),
+        ),
         const SizedBox(height: 20),
-        const _MoreTile(
+        _MoreTile(
           icon: Icons.event_note_outlined,
-          title: 'Training plans',
-          subtitle: 'Coming soon',
+          title: l10n.trainingPlansTitle,
+          subtitle: l10n.comingSoon,
           enabled: false,
         ),
         const SizedBox(height: 10),
-        const _MoreTile(
+        _MoreTile(
           icon: Icons.fitness_center_outlined,
-          title: 'Gear',
-          subtitle: 'Coming soon',
+          title: l10n.gearTitle,
+          subtitle: l10n.comingSoon,
           enabled: false,
         ),
       ],

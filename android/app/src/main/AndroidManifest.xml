@@ -1,4 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required to reach Intervals.icu / the LLM provider over HTTPS. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Runtime-requested (Settings → Notifications) on API 33+; declaring
+         it is required before the app can even ask. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- So the daily training-reminder alarm survives a device reboot.
+         Scheduled inexact (a few minutes' drift is fine for a training
+         reminder), so this doesn't need the user-granted
+         SCHEDULE_EXACT_ALARM permission. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Backup is off because the Intervals.icu API key is stored in
          EncryptedSharedPreferences, encrypted with an Android Keystore key
          that never leaves the device: backing that ciphertext up (cloud
@@ -42,6 +52,20 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- flutter_local_notifications: re-arms the daily reminder alarm
+             after a reboot, and receives it when it fires. -->
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

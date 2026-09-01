@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../data/intervals_session.dart';
+import '../../l10n/app_localizations.dart';
+import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
 import '../settings/settings_screen.dart';
 
@@ -41,7 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Could not connect: $e';
+        _error = AppLocalizations.of(context)!.couldNotConnectGeneric(
+          e.toString(),
+        );
         _connecting = false;
       });
     }
@@ -50,9 +54,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: Text(l10n.titleProfile)),
       body: ListenableBuilder(
         listenable: _session,
         builder: (context, _) {
@@ -74,34 +79,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Column(
                   children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: restoring
-                          ? const Padding(
+                    restoring
+                        ? Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Padding(
                               padding: EdgeInsets.all(18),
                               child: CircularProgressIndicator(
                                 color: Colors.white,
                                 strokeWidth: 2.5,
                               ),
-                            )
-                          : const Icon(
-                              Icons.person,
-                              size: 32,
-                              color: Colors.white,
                             ),
-                    ),
+                          )
+                        : const AthleteAvatar(size: 64),
                     const SizedBox(height: 12),
                     Text(
                       restoring
-                          ? 'Checking saved connection…'
+                          ? l10n.profileHeaderChecking
                           : connected
-                          ? (_session.athleteName ?? 'Connected')
-                          : 'Not connected',
+                          ? (_session.athleteName ?? l10n.connectedLabel)
+                          : l10n.notConnected,
                       style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(
                             color: Colors.white,
@@ -114,15 +115,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               SectionCard(
                 icon: Icons.link,
-                title: 'Intervals.icu connection',
+                title: l10n.intervalsConnectionTitle,
                 child: restoring
-                    ? const Text('Checking for a saved API key…')
+                    ? Text(l10n.checkingForSavedKey)
                     : connected
                     ? Align(
                         alignment: Alignment.centerLeft,
                         child: FilledButton.tonal(
                           onPressed: _session.disconnect,
-                          child: const Text('Disconnect'),
+                          child: Text(l10n.disconnectButton),
                         ),
                       )
                     : Column(
@@ -130,14 +131,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           Text(
                             _session.remembersApiKey
-                                ? 'Find your API key under Settings on '
-                                      'intervals.icu. It is kept in this '
-                                      'device\'s secure credential store.'
-                                : 'Find your API key under Settings on '
-                                      'intervals.icu. In the browser it is '
-                                      'only held for this tab — browsers have '
-                                      'no secure place to keep it, so you '
-                                      'will re-enter it after a reload.',
+                                ? l10n.apiKeyHelpSecure
+                                : l10n.apiKeyHelpInsecure,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: colorScheme.onSurfaceVariant,
@@ -148,8 +143,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             controller: _apiKeyController,
                             obscureText: true,
                             enabled: !_connecting,
-                            decoration: const InputDecoration(
-                              labelText: 'Intervals.icu API key',
+                            decoration: InputDecoration(
+                              labelText: l10n.intervalsApiKeyLabel,
                             ),
                           ),
                           if (_error != null) ...[
@@ -176,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           strokeWidth: 2.5,
                                         ),
                                       )
-                                    : const Text('Connect'),
+                                    : Text(l10n.connectButton),
                               ),
                             ),
                           ),
@@ -201,9 +196,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: colorScheme.primary,
                     ),
                   ),
-                  title: const Text(
-                    'Settings',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  title: Text(
+                    l10n.titleSettings,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(

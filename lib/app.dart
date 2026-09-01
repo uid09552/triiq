@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'l10n/app_localizations.dart';
+import 'locale_controller.dart';
 import 'theme_controller.dart';
 import 'widgets/main_shell.dart';
 
@@ -9,12 +12,23 @@ class TriiqApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: ThemeController.instance,
+      listenable: Listenable.merge([
+        ThemeController.instance,
+        LocaleController.instance,
+      ]),
       builder: (context, _) => MaterialApp(
         title: 'TriIQ',
         themeMode: ThemeController.instance.mode,
         theme: _buildTheme(Brightness.light),
         darkTheme: _buildTheme(Brightness.dark),
+        locale: LocaleController.instance.locale,
+        supportedLocales: LocaleController.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         home: const MainShell(),
       ),
     );

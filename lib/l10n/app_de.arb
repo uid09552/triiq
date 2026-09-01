@@ -1,0 +1,411 @@
+{
+  "@@locale": "de",
+
+  "navToday": "Heute",
+  "navCalendar": "Kalender",
+  "navChat": "Chat",
+  "navStatistics": "Statistik",
+  "navMore": "Mehr",
+  "profileAndSettingsTooltip": "Profil & Einstellungen",
+
+  "titleProfile": "Profil",
+  "titleSettings": "Einstellungen",
+  "titleSync": "Synchronisierung",
+  "titleActivities": "Aktivitäten",
+  "titleActivity": "Aktivität",
+  "titleAthlete": "Athlet",
+  "titlePlannedTraining": "Geplantes Training",
+  "titleTrainNow": "Jetzt trainieren",
+
+  "refreshTooltip": "Aktualisieren",
+  "openSettingsButton": "Einstellungen öffnen",
+  "openProfileButton": "Profil öffnen",
+  "notConnected": "Nicht verbunden",
+  "connectedLabel": "Verbunden",
+  "syncedWithIntervals": "Synchronisiert mit Intervals.icu",
+  "activityFallback": "Aktivität",
+  "plannedSessionFallback": "Geplante Einheit",
+
+  "heroActivitiesStatus": "{count, plural, =0{Bereit fürs Training} =1{1 Aktivität heute protokolliert} other{{count} Aktivitäten heute protokolliert}}",
+  "@heroActivitiesStatus": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "notConnectedToIntervals": "Nicht mit Intervals.icu verbunden",
+  "noWorkoutLoggedToday": "Heute noch kein Training protokolliert",
+  "finishSettingUp": "Einrichtung abschließen",
+  "connectIntervalsPrompt": "Verbinde dein Intervals.icu-Konto, um deine Trainingsdaten zu sehen.",
+  "setupLlmPrompt": "Richte einen LLM-Anbieter (Claude oder Ollama) ein, um mit dem Trainingsassistenten zu chatten.",
+  "syncFailed": "Synchronisierung fehlgeschlagen",
+  "tssToday": "TSS heute",
+  "tssWeek": "TSS Woche",
+  "ctlLabel": "CTL",
+  "atlLabel": "ATL",
+  "todaysActivities": "Heutige Aktivitäten",
+  "todaysTraining": "Heutiges Training",
+  "tomorrowsTraining": "Morgiges Training",
+  "nothingPlannedToday": "Für heute nichts geplant — Ruhetag.",
+  "nothingPlannedTomorrow": "Für morgen noch nichts geplant.",
+  "connectToSeePlan": "Verbinde dein Intervals.icu-Konto, um deinen Plan zu sehen.",
+  "connectInProfile": "Verbinde dein Intervals.icu-Konto im Profil",
+  "noTargetSet": "Kein Ziel festgelegt",
+
+  "sportLabel": "Sportart",
+  "sportRun": "Laufen",
+  "sportRide": "Rad",
+  "sportSwim": "Schwimmen",
+  "durationMinutes": "Dauer — {minutes} Min.",
+  "@durationMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "minutesShort": "{minutes} Min.",
+  "@minutesShort": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "intensityLabel": "Intensität",
+  "intensityRecovery": "Erholung",
+  "intensityEndurance": "Ausdauer",
+  "intensityIntervals": "Intervalle",
+  "trainNowEventTitle": "{intensity} {sport}-Training",
+  "@trainNowEventTitle": {
+    "placeholders": {
+      "intensity": { "type": "String" },
+      "sport": { "type": "String" }
+    }
+  },
+  "llmNeededForProposal": "Richte in den Einstellungen einen LLM-Anbieter ein, um einen Vorschlag zu erhalten.",
+  "proposeTraining": "Training vorschlagen",
+  "askAgain": "Erneut fragen",
+  "addToGoogleCalendar": "Zu Google Kalender hinzufügen",
+  "couldNotOpenGoogleCalendar": "Google Kalender konnte nicht geöffnet werden.",
+  "thinkingEllipsis": "Denkt nach…",
+  "toolFailedSuffix": "{label} — fehlgeschlagen",
+  "@toolFailedSuffix": {
+    "placeholders": { "label": { "type": "String" } }
+  },
+  "toolRunningGeneric": "{name} wird ausgeführt…",
+  "@toolRunningGeneric": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "trainNowToolChecking": "Profil und zwischengespeicherte Daten werden geprüft…",
+  "trainNowToolDailyLoad": "Tägliche Belastung und Wellness werden gelesen…",
+  "trainNowToolActivities": "Letzte Aktivitäten werden gelesen…",
+  "trainNowToolPlanned": "Geplante Einheiten werden gelesen…",
+  "trainNowToolSummary": "Letzte 7 Tage werden zusammengefasst…",
+  "trainNowToolGuidance": "Trainingsreferenz wird konsultiert…",
+  "trainNowToolSyncing": "Synchronisierung mit Intervals.icu…",
+
+  "tssHistoryTitle": "TSS — letzte 42 Tage",
+  "totalLabel": "Gesamt",
+  "avgPerDay": "Ø / Tag",
+  "avgPerWeek": "Ø / Woche",
+  "dailyTss": "Täglicher TSS",
+  "tapBarForDetails": "Tippe auf einen Balken für Datum und Wert.",
+  "selectedDayTss": "{date} · {tss} TSS",
+  "@selectedDayTss": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "tss": { "type": "int" }
+    }
+  },
+
+  "connectForAthleteDetails": "Verbinde dein Intervals.icu-Konto im Profil, um deine Athletendetails zu sehen.",
+  "athleteIdLine": "Athleten-ID {id} · synchronisiert mit Intervals.icu",
+  "@athleteIdLine": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "bodyAndWellness": "Körper & Wellness",
+  "noWellnessCached": "Noch keine Wellness-Daten zwischengespeichert.",
+  "weightLabel": "Gewicht",
+  "restingHrLabel": "Ruhepuls",
+  "hrvLabel": "HRV",
+  "thresholdsTitle": "Schwellenwerte",
+  "noActivitiesForThresholds": "Noch keine Aktivitäten zwischengespeichert, daher konnten keine sportartspezifischen Schwellenwerte gelesen werden.",
+  "thresholdPaceLabel": "Schwellenpace",
+  "weightAsAnalysedLabel": "Gewicht (bei Analyse)",
+  "asOfDate": "Stand {date}",
+  "@asOfDate": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "calendarMonth": "Monat",
+  "calendarWeek": "Woche",
+  "todayTooltip": "Heute",
+  "noTrainingData": "Keine Trainingsdaten",
+  "nothingPlannedOrLogged": "An diesem Tag nichts geplant oder protokolliert.",
+  "plannedStatus": "Geplant",
+  "completedStatus": "Abgeschlossen",
+
+  "messageAgentHint": "Nachricht an den Trainingsassistenten…",
+  "askAboutTraining": "Frage nach deinem Training, Fortschritt oder Plan",
+  "pickLlmProviderToChat": "Wähle einen LLM-Anbieter in den Einstellungen, um zu chatten",
+  "noReplyFromModel": "Keine Antwort vom Modell erhalten.",
+  "chatToolChecking": "Profil und zwischengespeicherte Daten werden geprüft…",
+  "chatToolDailyLoad": "Tägliche Belastung und Wellness werden gelesen…",
+  "chatToolActivities": "Aktivitäten werden gelesen…",
+  "chatToolPlanned": "Geplante Einheiten werden gelesen…",
+  "chatToolSummary": "Training wird zusammengefasst…",
+  "chatToolGuidance": "Trainingsreferenz wird konsultiert…",
+  "chatToolSyncing": "Synchronisierung mit Intervals.icu…",
+
+  "appearanceTitle": "Erscheinungsbild",
+  "appearanceSystem": "System",
+  "appearanceLight": "Hell",
+  "appearanceDark": "Dunkel",
+  "languageTitle": "Sprache",
+  "languageSystem": "System",
+  "notificationsTitle": "Benachrichtigungen",
+  "enableNotifications": "Benachrichtigungen aktivieren",
+  "notificationsSubtitle": "Abschluss der Synchronisierung und Antworten des Trainingsassistenten",
+  "dailyTrainingReminder": "Tägliche Trainingserinnerung",
+  "notificationPermissionDenied": "Die Benachrichtigungsberechtigung wurde verweigert. Aktiviere sie für TriIQ in den Geräteeinstellungen, um dies einzuschalten.",
+  "reminderNeedsBackground": "Die tägliche Erinnerung erfordert, dass die App im Hintergrund erreichbar bleibt — das ist auf dieser Plattform nicht verfügbar.",
+  "syncSectionTitle": "Synchronisierung",
+  "autoSyncDescription": "Diesen Monat automatisch aktualisieren, solange die App geöffnet ist, höchstens so oft wie:",
+  "autoSyncMinutes": "{minutes} Min.",
+  "@autoSyncMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "autoSyncHours": "{hours} Std.",
+  "@autoSyncHours": {
+    "placeholders": { "hours": { "type": "int" } }
+  },
+  "llmProviderTitle": "LLM-Anbieter",
+  "claudeLabel": "Claude",
+  "ollamaLabel": "Ollama",
+  "claudeApiKeyLabel": "Claude-API-Schlüssel",
+  "claudeKeyStoredHint": "Ein Schlüssel ist gespeichert — gib einen neuen ein, um ihn zu ersetzen",
+  "showTooltip": "Anzeigen",
+  "hideTooltip": "Verbergen",
+  "saveKeyButton": "Schlüssel speichern",
+  "clearButton": "Löschen",
+  "claudeModelLabel": "Claude-Modell",
+  "claudeKeySecureHelp": "Der Schlüssel wird im Anmeldeinformationsspeicher deines Betriebssystems gespeichert und nur an Anthropic gesendet. Die Nutzung wird deinem eigenen Anthropic-Konto in Rechnung gestellt.",
+  "claudeKeyInsecureHelp": "Dieser Build kann den Schlüssel nicht sicher speichern, daher wird er nur für diese Sitzung vorgehalten und du musst ihn nach einem Neuladen erneut eingeben.",
+  "ollamaServerUrlLabel": "Ollama-Server-URL",
+  "ollamaCloudApiKeyLabel": "Ollama-Cloud-API-Schlüssel",
+  "ollamaApiKeyOptionalLabel": "Ollama-API-Schlüssel (optional)",
+  "ollamaKeyStoredHint": "Ein Schlüssel ist gespeichert — gib einen neuen ein, um ihn zu ersetzen",
+  "getAKeyButton": "Schlüssel holen",
+  "testConnectionButton": "Verbindung testen",
+  "ollamaModelLabel": "Ollama-Modell",
+  "ollamaKeySecureHelp": "Der Schlüssel wird im Anmeldeinformationsspeicher deines Betriebssystems gespeichert und nur an Ollama Cloud gesendet.",
+  "ollamaKeyInsecureHelp": "Dieser Build kann den Schlüssel nicht sicher speichern, daher wird er nur für diese Sitzung vorgehalten und du musst ihn nach einem Neuladen erneut eingeben.",
+  "ollamaLocalHelp": "Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen.",
+  "claudeKeySavedMessage": "Claude-API-Schlüssel gespeichert.",
+  "claudeKeyRemovedMessage": "Claude-API-Schlüssel entfernt.",
+  "ollamaKeyRemovedMessage": "Ollama-API-Schlüssel entfernt.",
+  "couldNotOpenUrl": "{url} konnte nicht geöffnet werden",
+  "@couldNotOpenUrl": {
+    "placeholders": { "url": { "type": "String" } }
+  },
+  "ollamaKeySavedPrefix": "Ollama-API-Schlüssel gespeichert",
+  "connectedPrefix": "Verbunden",
+  "connectedModelsMessage": "{prefix} — {count, plural, =0{verbunden, aber auf diesem Server sind noch keine Modelle verfügbar.} =1{1 Modell verfügbar.} other{{count} Modelle verfügbar.}}",
+  "@connectedModelsMessage": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "couldNotConnectKeyNotSaved": "Verbindung fehlgeschlagen: {error}. Schlüssel nicht gespeichert.",
+  "@couldNotConnectKeyNotSaved": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "couldNotConnect": "Verbindung fehlgeschlagen: {error}",
+  "@couldNotConnect": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "profileHeaderChecking": "Gespeicherte Verbindung wird geprüft…",
+  "intervalsConnectionTitle": "Intervals.icu-Verbindung",
+  "checkingForSavedKey": "Suche nach gespeichertem API-Schlüssel…",
+  "disconnectButton": "Trennen",
+  "apiKeyHelpSecure": "Deinen API-Schlüssel findest du unter Einstellungen auf intervals.icu. Er wird im sicheren Anmeldeinformationsspeicher dieses Geräts aufbewahrt.",
+  "apiKeyHelpInsecure": "Deinen API-Schlüssel findest du unter Einstellungen auf intervals.icu. Im Browser wird er nur für diesen Tab vorgehalten — Browser haben keinen sicheren Speicherort dafür, daher musst du ihn nach einem Neuladen erneut eingeben.",
+  "intervalsApiKeyLabel": "Intervals.icu-API-Schlüssel",
+  "connectButton": "Verbinden",
+  "couldNotConnectGeneric": "Verbindung fehlgeschlagen: {error}",
+  "@couldNotConnectGeneric": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "moreSyncSubtitle": "Trainingsdaten von Intervals.icu abrufen",
+  "moreActivitiesSubtitle": "Alle zwischengespeicherten Aktivitäten",
+  "trainingPlansTitle": "Trainingspläne",
+  "gearTitle": "Ausrüstung",
+  "comingSoon": "Demnächst verfügbar",
+
+  "syncNotConnectedTitle": "Nicht verbunden",
+  "syncNotConnectedBody": "Verbinde dein Intervals.icu-Konto im Profil, bevor du synchronisierst.",
+  "localCacheTitle": "Lokaler Zwischenspeicher",
+  "localCacheBody": "Aktivitäten zwischengespeichert von {oldest} bis {newest}\nZuletzt synchronisiert {lastSynced}",
+  "@localCacheBody": {
+    "placeholders": {
+      "oldest": { "type": "String" },
+      "newest": { "type": "String" },
+      "lastSynced": { "type": "String" }
+    }
+  },
+  "syncedMessage": "{activities} Aktivitäten synchronisiert, {wellness} Wellness-Datensätze.",
+  "@syncedMessage": {
+    "placeholders": {
+      "activities": { "type": "int" },
+      "wellness": { "type": "int" }
+    }
+  },
+  "syncFailedMessage": "Synchronisierung fehlgeschlagen: {error}",
+  "@syncFailedMessage": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "syncScopeToday": "Heute",
+  "syncScopeMonth": "Dieser Monat",
+  "syncScopeYear": "Dieses Jahr",
+  "syncScopeAll": "Alles (Erstsynchronisierung)",
+
+  "noActivitiesCachedConnected": "Noch keine Aktivitäten zwischengespeichert — versuche Synchronisierung unter Mehr.",
+  "noActivitiesCachedDisconnected": "Verbinde dein Intervals.icu-Konto, um deine Aktivitäten zu sehen.",
+  "noActivitiesOfType": "Keine {sport}-Aktivitäten gespeichert — synchronisiere unter Mehr.",
+  "@noActivitiesOfType": {
+    "placeholders": { "sport": { "type": "String" } }
+  },
+  "showAllActivities": "Alle Aktivitäten anzeigen",
+  "tssSuffix": "TSS",
+  "openInIntervals": "In Intervals.icu öffnen",
+  "timeInZone": "Zeit in Zone",
+  "distanceLabel": "Distanz",
+  "durationLabel": "Dauer",
+  "elevationGainLabel": "Höhenmeter",
+  "avgHrLabel": "Ø Puls",
+  "maxHrLabel": "Max. Puls",
+  "avgPowerNpLabel": "Ø Leistung (NP)",
+  "avgPowerLabel": "Ø Leistung",
+  "caloriesLabel": "Kalorien",
+  "plannedTssLabel": "Geplanter TSS",
+  "locationLabel": "Ort",
+  "indoorLabel": "Indoor",
+  "workoutTitle": "Workout",
+
+  "statsNotConnected": "Nicht mit Intervals.icu verbunden",
+  "volumeTitle": "Umfang",
+  "thisWeek": "Diese Woche",
+  "thisMonth": "Dieser Monat",
+  "thisYear": "Dieses Jahr",
+
+  "rangeDaysShort": "{days} T",
+  "@rangeDaysShort": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "rangeOneYear": "1 J",
+  "noDataCachedForRange": "Für diesen Zeitraum sind noch keine Daten gespeichert.",
+  "selectedDayValue": "{date}: {value}",
+  "@selectedDayValue": {
+    "placeholders": { "date": { "type": "String" }, "value": { "type": "String" } }
+  },
+  "tapChartForDay": "Für einen einzelnen Tag auf das Diagramm tippen.",
+  "currentLabel": "Aktuell",
+  "changeLabel": "Änderung",
+  "avgLabel": "Durchschnitt",
+  "rangeLabel": "Tief – hoch",
+  "whatThisMeans": "Was das bedeutet",
+  "metricCtlTitle": "Fitness (CTL)",
+  "metricAtlTitle": "Ermüdung (ATL)",
+  "metricFormTitle": "Form (TSB)",
+  "metricRampTitle": "Anstiegsrate",
+  "formLabel": "Form",
+  "rampRateLabel": "Anstieg",
+  "metricCtlExplainer": "CTL ist ein gewichteter 42-Tage-Durchschnitt deiner Trainingsbelastung: wie viel Training du verarbeitet hast — kein Maß für Fitness oder Gesundheit. Der Wert kann steigen, während du dich immer tiefer eingräbst.",
+  "metricAtlExplainer": "ATL ist derselbe Durchschnitt über 7 Tage — die Belastung, die noch in den Beinen steckt. Er steigt und fällt schnell; ein hoher ATL in einem harten Block ist normal und für sich genommen kein Warnsignal.",
+  "metricFormExplainer": "Form ist CTL minus ATL. Positiv heißt: weniger frische Belastung als üblich, negativ heißt: das Training der letzten Tage war hart. Negative Form ist der Bereich, in dem Fitness entsteht — sie ist keine Diagnose.",
+  "metricRampExplainer": "Die Anstiegsrate zeigt, wie schnell sich CTL verändert. Es gibt keinen allgemein sicheren Wert — beurteile ihn an deiner eigenen Historie, deinem Laufumfang und daran, wie du schläfst und dich erholst.",
+  "ftpValue": "FTP {watts} W",
+  "@ftpValue": {
+    "placeholders": { "watts": { "type": "int" } }
+  },
+  "weeklyGoalProgress": "{completed} von {planned} TSS diese Woche · {remaining} verbleiben",
+  "@weeklyGoalProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "planned": { "type": "int" },
+      "remaining": { "type": "int" }
+    }
+  },
+  "weeklyGoalReached": "{completed} von {planned} TSS diese Woche · Ziel erreicht",
+  "@weeklyGoalReached": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "planned": { "type": "int" }
+    }
+  },
+  "ofPlanned": "von {planned}",
+  "@ofPlanned": {
+    "placeholders": { "planned": { "type": "int" } }
+  },
+  "weeklyLoadTitle": "Wochenbelastung",
+  "fourWeekTrend": "4-Wochen-Trend",
+  "completedVsPlanned": "Absolviert vs. geplant",
+  "selectedWeekLoad": "Woche ab {week}: {completed} TSS absolviert, {planned} geplant",
+  "@selectedWeekLoad": {
+    "placeholders": { "week": { "type": "String" }, "completed": { "type": "int" }, "planned": { "type": "int" } }
+  },
+  "tapBarForWeek": "Für eine Woche auf einen Balken tippen.",
+  "weekSessionsAndTime": "{sessions} Einheiten · {time}",
+  "@weekSessionsAndTime": {
+    "placeholders": { "sessions": { "type": "int" }, "time": { "type": "String" } }
+  },
+  "completedLegend": "Absolviert",
+  "plannedLegend": "Geplant",
+
+  "fitnessTrendTitle": "Fitness-Verlauf",
+  "bySportTitle": "Nach Sportart",
+  "sessionsCount": "{count, plural, =1{1 Einheit} other{{count} Einheiten}}",
+  "@sessionsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "indoorFtpLabel": "Indoor-FTP",
+  "ageYears": "{years} J.",
+  "@ageYears": {
+    "placeholders": { "years": { "type": "int" } }
+  },
+  "thresholdsFromSettings": "Aus deinen aktuellen Intervals.icu-Sporteinstellungen.",
+  "thresholdsFromActivity": "Aus deiner zuletzt ausgewerteten Aktivität gelesen.",
+  "newChatTitle": "Neuen Chat starten?",
+  "newChatConfirm": "Damit wird das Gespräch gelöscht. Chats werden nirgends gespeichert.",
+  "newChatButton": "Neuer Chat",
+  "cancelButton": "Abbrechen",
+  "createButton": "Erstellen",
+  "messagesCount": "{count, plural, =1{1 Nachricht} other{{count} Nachrichten}}",
+  "@messagesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "chatSuggestionLastWeek": "Wie war die letzte Woche?",
+  "chatSuggestionRecovered": "Bin ich erholt genug für Intervalle?",
+  "chatSuggestionIntensity": "Ist meine Intensität wirklich 80/20?",
+  "createInIntervals": "In Intervals.icu erstellen",
+  "connectToCreateWorkout": "Verbinde Intervals.icu, um das in deinen Kalender zu legen.",
+  "preparingWorkout": "Workout wird vorbereitet …",
+  "couldNotStructureWorkout": "Das Modell hat kein Workout geliefert, das sich erstellen lässt. Frag noch einmal.",
+  "couldNotCreateWorkout": "Workout konnte nicht erstellt werden: {error}",
+  "@couldNotCreateWorkout": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "workoutCreated": "„{name}“ wurde in deinen Intervals.icu-Kalender eingetragen.",
+  "@workoutCreated": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "deleteButton": "Löschen",
+  "deleteTooltip": "Löschen",
+  "deletePlannedWorkoutTitle": "Diese Einheit löschen?",
+  "deletePlannedWorkoutConfirm": "„{name}“ wird aus deinem Intervals.icu-Kalender entfernt. Das lässt sich nicht rückgängig machen.",
+  "@deletePlannedWorkoutConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "workoutDeleted": "„{name}“ wurde aus deinem Intervals.icu-Kalender gelöscht.",
+  "@workoutDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "couldNotDeleteWorkout": "Workout konnte nicht gelöscht werden: {error}",
+  "@couldNotDeleteWorkout": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "workoutParsedByIntervals": "Intervals.icu macht aus diesen Schritten ein strukturiertes Workout; nicht Erkennbares bleibt als Beschreibung stehen."
+}

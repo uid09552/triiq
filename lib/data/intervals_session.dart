@@ -22,6 +22,13 @@ class IntervalsSession extends ChangeNotifier {
   String? athleteId;
   String? athleteName;
 
+  /// The full athlete record — profile picture, body stats and the per-sport
+  /// settings (FTP, LTHR, max HR, threshold pace, zones) that Intervals.icu
+  /// holds *now*, as opposed to the ones frozen into each past activity.
+  /// Loaded after [connect] succeeds; `null` until then, and never fatal —
+  /// a connection that works is not lost because this second call failed.
+  WithSportSettings? athlete;
+
   /// True while [restore] is checking a saved key on app startup, so the UI
   /// can show a neutral "checking" state instead of flashing "not connected"
   /// right before flipping to connected.
@@ -35,6 +42,33 @@ class IntervalsSession extends ChangeNotifier {
 
   /// The authenticated client, or `null` if not connected.
   IntervallsClient? get client => _client;
+
+  /// Absolute URL of the athlete's profile picture, or `null` if they have
+  /// none. Intervals.icu returns either a full URL (pictures synced from
+  /// Strava) or a site-relative path, so relative ones are resolved here
+  /// rather than in every widget that shows an avatar.
+  String? get athleteAvatarUrl {
+    final picture = athlete?.profileMedium;
+    if (picture == null || picture.isEmpty) return null;
+    if (picture.startsWith('http://') || picture.startsWith('https://')) {
+      return picture;
+    }
+    return 'https://intervals.icu'
+        '${picture.startsWith('/') ? '' : '/'}$picture';
+  }
+
+  /// The athlete's settings for [sport] (`Ride`, `Run`, `Swim`, …), or
+  /// `null` if they have none configured for it.
+  SportSettings? settingsForSport(String sport) {
+    final normalized = sport.toLowerCase();
+    for (final settings in athlete?.sportSettings ?? const <SportSettings>[]) {
+      final types = settings.types ?? const [];
+      if (types.any((type) => type.value.toLowerCase() == normalized)) {
+        return settings;
+      }
+    }
+    return null;
+  }
 
   /// If a previously-verified API key is in the vault, re-validates it (via
   /// [connect]) so the session comes back after an app restart. Safe to call
@@ -83,6 +117,23 @@ class IntervalsSession extends ChangeNotifier {
     athleteId = athlete!.id;
     athleteName = athlete.name;
     notifyListeners();
+
+    await refreshAthlete();
+  }
+
+  /// Reloads the full athlete record (picture, body stats, per-sport
+  /// settings). Best-effort: a failure leaves the previous record in place
+  /// and the session connected, since none of this is needed to sync.
+  Future<void> refreshAthlete() async {
+    final client = _client;
+    if (client == null) return;
+    try {
+      final response = await client.getAthletenApi().getAthlete(id: '0');
+      athlete = response.data;
+      notifyListeners();
+    } catch (error) {
+      debugPrint('IntervalsSession: could not load athlete details: $error');
+    }
   }
 
   Future<void> disconnect() async {
@@ -90,6 +141,7 @@ class IntervalsSession extends ChangeNotifier {
     _client = null;
     athleteId = null;
     athleteName = null;
+    athlete = null;
     notifyListeners();
   }
 }

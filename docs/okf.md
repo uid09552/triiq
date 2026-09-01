@@ -8,7 +8,7 @@ name: TriIQ
 tagline: AI training-analysis app for endurance athletes
 status: early skeleton — see the status matrix below
 updated: 2026-08-30
-stack: Flutter (Dart), no custom backend
+stack: Flutter (Dart) + LangChain.dart, no custom backend
 ---
 
 # TriIQ — Open Knowledge Format
@@ -18,8 +18,9 @@ stack: Flutter (Dart), no custom backend
 ### What it is
 
 TriIQ is a client-only mobile/desktop app that connects an athlete's
-[Intervals.icu](https://intervals.icu) training data to an LLM (Claude, or a
-local/self-hosted model via Ollama), so the athlete can:
+[Intervals.icu](https://intervals.icu) training data to an LLM (Claude, or
+Ollama — Ollama Cloud by default, or a local/self-hosted server), so the
+athlete can:
 
 - see today's training and load metrics at a glance,
 - browse a calendar of planned vs. completed training,
@@ -36,7 +37,9 @@ local/self-hosted model via Ollama), so the athlete can:
   local SQLite database, so screens read from disk and the app stays usable
   (for previously-synced data) without a live connection.
 - **LLM-agnostic.** The user picks Claude or Ollama in Settings; the agent
-  layer (planned) is built to be provider-agnostic via LangChain.
+  layer is provider-agnostic via LangChain.dart, and
+  `lib/agent/chat_model_factory.dart` is the only file that names either
+  provider.
 - **The generated API client is a dependency, not hand-written code.**
   `lib/client/intervalls/` is produced from `openapi.json` and should be
   regenerated, not edited (two documented exceptions aside — see CLAUDE.md).
@@ -46,7 +49,7 @@ local/self-hosted model via Ollama), so the athlete can:
 | Dependency | Purpose | Auth |
 |---|---|---|
 | [Intervals.icu API](https://intervals.icu/api/v1/docs.html) (`openapi.json`) | Source of truth for activities, wellness, workouts | HTTP Basic: username `API_KEY`, password = the user's Intervals.icu API key |
-| LLM provider (Claude API or a local Ollama server) | Powers the chat/agent | Claude: API key. Ollama: server URL, no key |
+| LLM provider (Claude API, or Ollama — Ollama Cloud by default, or a local/self-hosted server) | Powers the chat/agent | Claude: API key. Ollama Cloud: API key (`ollama.com/settings/keys`). Local Ollama: none |
 
 ### Status matrix
 
@@ -55,16 +58,21 @@ local/self-hosted model via Ollama), so the athlete can:
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — API key is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen) |
-| Today screen | ✅ Real data (TSS/CTL/ATL, today's activities) once connected |
-| Calendar screen | 🚧 UI only — month/week toggle works, no real data wired |
-| Statistics screen | 🚧 UI only — chart is a placeholder box |
-| Chat screen | 🚧 UI only — echoes a static "not connected" reply, no LLM call |
+| Today screen | ✅ Real data once connected — six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; activities and planned sessions tappable through to full detail |
+| Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
+| Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail + "Open in Intervals.icu" |
+| Calendar screen | ✅ Implemented — month/week views read planned events + completed activities from the cache, colour-coded, tap-through to detail |
+| Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache |
+| Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over |
+| "Train now" | ✅ Implemented — pick sport/duration/intensity on Today, the agent proposes a session using the last 7 days of TSS/CTL/ATL |
+| Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
 | Appearance (light/dark/system theme) | ✅ Implemented — Settings → Appearance, applies instantly, in-memory only |
-| Settings — LLM provider | 🚧 UI only — provider picker, nothing persisted |
-| LangChain agent | ❌ Not started |
-| MCP server/client | ❌ Not started |
+| Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
+| LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
+| MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
 | Training-plan calculation | ❌ Not started |
-| LLM credential persistence | ❌ Not started — Claude/Ollama settings are in-memory only, lost on restart |
+| LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
+| Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
 
 ## 2. Architecture
@@ -76,15 +84,19 @@ local/self-hosted model via Ollama), so the athlete can:
    │  reads/writes via
    ▼
  Data layer (lib/data)
-   │  IntervalsSession (auth/session)
+   │  IntervalsSession (auth/session + athlete record)
    │  SyncService (orchestrates fetch + cache)
+   │  IntervalsWorkoutService (the one upward write: create a planned workout)
    │  Repositories (SQLite CRUD)
    ▼
  Generated API client (lib/client/intervalls) ──▶ Intervals.icu (HTTPS)
 
- (planned, not yet built)
- Chat screen ──▶ LangChain agent ──▶ MCP client ──▶ same generated client ──▶ Intervals.icu
-                                  └─▶ LLM provider (Claude API / Ollama)
+ Chat screen ──▶ TrainingAgent (lib/agent)
+                   │
+                   ├─▶ LangChain chat model ──▶ Claude API / Ollama server
+                   │
+                   └─▶ TrainingDataTools ──┬─▶ Repositories ──▶ SQLite cache
+                                           └─▶ SyncService ──▶ Intervals.icu
 ```
 
 Today's screens call into `lib/data/`, never into `lib/client/intervalls/`
@@ -94,8 +106,10 @@ the single read path for the UI.
 ### Navigation
 
 `MainShell` (`lib/widgets/main_shell.dart`) is a `Scaffold` with:
-- a top `AppBar` whose right-corner avatar button pushes `ProfileScreen`
-  (connect/disconnect Intervals.icu, link to Settings);
+- a top `AppBar` whose right-corner avatar button — the athlete's own
+  Intervals.icu profile picture once connected, their initial otherwise —
+  pushes `ProfileScreen` (connect/disconnect Intervals.icu, link to
+  Settings);
 - a bottom `NavigationBar` with five destinations, kept alive via
   `IndexedStack`: **Today**, **Calendar**, **Chat**, **Statistics**, **More**.
 - **More** is the submenu: Profile, Settings, **Sync**, plus disabled
@@ -119,6 +133,17 @@ the single read path for the UI.
   `isRestoring` lets the UI (Profile, Today) show a neutral "checking"
   state instead of flashing "not connected" first. `disconnect()` clears
   both the in-memory session and the stored key.
+- Once connected, the session also loads the **full athlete record**
+  (`getAthlete(id: '0')` → `WithSportSettings`) into `IntervalsSession.athlete`:
+  profile picture, city/country, date of birth, current weight and resting
+  HR, and the per-sport settings (FTP, indoor FTP, W', LTHR, max HR,
+  threshold pace, zones). It is deliberately best-effort — a failure logs and
+  leaves the session connected, because none of it is needed to sync.
+  `athleteAvatarUrl` resolves the picture (Intervals.icu returns either an
+  absolute URL or a site-relative path) and `settingsForSport('Ride')` looks
+  up one sport's settings. `AthleteAvatar` (`lib/widgets/athlete_avatar.dart`)
+  renders it anywhere an avatar is shown — app bar, Today, athlete details —
+  falling back to the athlete's initial.
 - `SyncService` (`lib/data/sync/sync_service.dart`) fetches
   `listWellnessRecords` / `listActivities` for a date range and upserts them
   via the repositories. `SyncScope` is `today | month | year | all`, each
@@ -134,17 +159,167 @@ the single read path for the UI.
   covers the week's TSS total and tomorrow's session. On open (and on any
   connection change) it uses `syncTodayWindowIfMissing()`, a no-op once
   today's wellness row is cached; pull-to-refresh and the refresh button in
-  the header use `syncTodayWindow()`, which always refetches. A failed fetch
-  does not blank the screen — it falls through to the cache and shows the
-  error alongside.
+  the header use `refreshMonthWindow()`, which widens the range to the whole
+  current month (`SyncService.monthWindow()` — the month, extended when the
+  current week or tomorrow spills past its edges). The Calendar and
+  Statistics tabs stay alive next to Today in the shell's `IndexedStack`, so
+  a refresh that actually fetched also calls
+  `AutoSyncService.notifyCacheChanged()` and both reload from the freshly
+  filled cache instead of showing last hour's month. A failed fetch does not
+  blank the screen — it falls through to the cache and shows the error
+  alongside.
+- **Pull-to-refresh is bounded** (`refreshRange()`, used by Today and
+  Statistics): at most one fetch per `SyncService.refreshMinGap` (10s)
+  app-wide, and the gesture stops waiting after `refreshTimeout` (10s)
+  rather than spinning on a connection that never answers. The request it
+  gave up on carries on in the background and its rows still land in the
+  cache for the next load. A throttled-away refresh is not an error: it
+  returns `false`, the screen re-reads the cache, and nothing is announced
+  to the other tabs.
+- **No two syncs run at once.** Every screen holds its own `SyncService`,
+  so `syncRange()` coordinates through static state: a request for a range
+  already in flight joins that fetch instead of issuing a second one, and a
+  request for a different range queues behind whatever is running. Without
+  it, a pull-to-refresh landing on top of the background auto-sync would
+  fire the same three requests twice over.
+- The **Calendar** screen syncs the range it is showing. Navigating between
+  months uses `syncRangeIfMissing()` (a month already looked at is free);
+  *switching to the tab* uses `syncRangeIfStale()`, which refetches unless
+  the cache was refreshed within `SyncService.staleAfter` (1 minute), so
+  arriving on the calendar shows current data without a round-trip per tab
+  bounce; the refresh button in the header always refetches. The screen
+  learns it became visible from the `active` flag `MainShell` passes it —
+  `IndexedStack` keeps it alive, so nothing else would tell it.
+- `AutoSyncService` (`lib/data/sync/auto_sync_service.dart`) keeps an open
+  app fresh: while it's in the foreground it re-syncs the **current month**
+  on a timer, throttled to `SyncSettings.autoSyncIntervalMinutes` (Settings →
+  Sync, default 5). It stops while backgrounded — there's no reliable way to
+  wake a closed app on this schedule, and this is not meant to be a
+  background sync job. It's a `ChangeNotifier` as well as a
+  `WidgetsBindingObserver`, because the screens `IndexedStack` keeps alive
+  (Today, Calendar, Statistics) don't re-run their own load on a tab switch
+  and need telling when fresh data landed behind their back.
+- **Coming back to the app** is the moment staleness is most visible (the
+  athlete just finished a ride and opened TriIQ), so `didChangeAppLifecycleState`
+  re-syncs the current month whenever the last sync is older than
+  `AutoSyncService.resumeStaleAfter` (5 minutes) — independently of a longer
+  configured interval. On a cold start the in-memory timestamp is empty, so
+  the check falls back to `SyncStateRepository`'s `last_synced_at`: relaunching
+  inside the window doesn't cost a fetch the interval has already ruled out.
+- **Creating a workout** from Train now writes upstream and then pulls back
+  down the whole month the session landed in (`SyncService.syncMonth`), plus
+  the Today window when that reaches past the month's edge, and calls
+  `AutoSyncService.notifyCacheChanged()` so the live Today and Calendar
+  screens reload from the cache instead of waiting for the next timer tick.
 - The **Sync** screen (More → Sync) exposes the same scopes as manual
   buttons, showing the cached activities date range from `SyncStateRepository`.
+
+### The training agent
+
+`lib/agent/` is the chat brain: a LangChain.dart chat model, a set of tools
+over the local cache, and the loop that lets the model call them until it can
+answer.
+
+| File | Role |
+|---|---|
+| `llm_settings.dart` | The provider choice, model names, Ollama URL, and both API keys, persisted and shared with Settings |
+| `chat_model_factory.dart` | Builds the provider's `BaseChatModel` with the tools bound. **The only file that names Claude or Ollama** |
+| `ollama_connection.dart` | `fetchOllamaModels()` — hits `/api/tags` to test a URL/key and list real models. Used by Settings, not by the agent path |
+| `system_prompt.dart` | The standing instructions, plus the per-message runtime context block |
+| `tools/training_data_tools.dart` | The seven tools the model can call |
+| `training_agent.dart` | The tool-calling loop and the event stream the Chat screen renders |
+
+**Why the loop is hand-written.** LangChain.dart 0.9 ships an
+`AgentExecutor`, but it drives a `BaseActionAgent` and the concrete
+implementations of that were provider-tied and are no longer in the package.
+Running the loop directly is ~40 lines, keeps the conversation in native
+`ChatMessage`s (so each provider's own tool-call format is used instead of a
+stringified scratchpad), and lets partial replies stream to the UI. It stops
+after `maxIterations` (8) model turns and carries at most 40 messages of
+history, never cutting a tool result away from the assistant turn that asked
+for it — both providers reject an orphaned tool result.
+
+**The tools read the cache, not the API.** Answering a question costs no
+Intervals.icu round-trips and works offline. `sync_from_intervals` is the one
+exception, and the model is told to reach for it only when
+`get_athlete_context` shows the dates it needs aren't cached.
+
+| Tool | Returns |
+|---|---|
+| `get_athlete_context` | Today's date, athlete identity, cached date ranges, and current thresholds per sport |
+| `get_daily_metrics` | Per day: CTL, ATL, TSB, ramp rate, resting HR, HRV, sleep, weight, subjective scores |
+| `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
+| `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
+| `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
+| `get_training_guidance` | Matching sections of `training-philosophy.md` |
+| `sync_from_intervals` | Fetches a date range into the cache (the only networked tool) |
+
+Thresholds are a case worth calling out: they aren't cached in their own
+right, but every activity carries the FTP/LTHR/max-HR/pace and zone
+boundaries that were in force when it was analysed, so the newest activity
+per sport *is* the athlete's current setup — no extra API call needed.
+
+Tool results are JSON with nulls and empty collections stripped: an activity
+has ~180 possible fields and shipping the empty ones would cost more context
+than the data. Bad arguments (a malformed date, a range longer than the tool
+returns) come back as an `error` string rather than an exception, because a
+sentence is something the model can read and retry around. Every tool caps
+its range, and `get_activities` caps its row count, so one call can't blow
+the context window.
+
+**Intensity distribution** is the one derived figure. Intervals.icu reports
+time-in-zone against the athlete's own 3–7 zone setup; the tools fold that
+into the three-domain model the training reference uses (low / moderate /
+high), preferring power zone times, then heart rate, then pace. Sessions
+with no zone data at all are counted separately rather than silently
+dropped, and a bucket where nothing had zone data says the distribution
+can't be checked — an 80/20 answer computed from load alone would be
+invented.
+
+#### The system prompt
+
+Two system messages per request. The first, `trainingAgentSystemPrompt`, is
+fixed and deliberately about *epistemics* rather than physiology:
+
+- **Never state a number that didn't come from a tool** in this
+  conversation — no estimates, no remembered examples, no filling gaps with
+  typical values.
+- **Call `get_athlete_context` first.** Never assume today's date or the
+  athlete's thresholds.
+- **Ask for the smallest range**, and prefer the summary tool over raw
+  activities.
+- **Name the gaps** — missing wellness days, rides without power, sessions
+  without zone times — rather than answering as if they weren't there.
+- **Read the metrics carefully**: CTL is context, not a target; TSB is not
+  an overtraining diagnostic; ramp rate has no universally safe value; load
+  isn't comparable across sports; a single day of HRV means little, and only
+  a convergence of signals over several days does.
+- **Answer short**: lead with the answer, then the evidence with units and
+  dates, one recommendation, inference labelled as inference.
+- **Boundaries**: not a doctor; symptoms, suspected injury, disordered
+  eating or low energy availability go to a professional.
+
+The physiology itself is *not* in the prompt — it lives in
+`training-philosophy.md`, bundled as a Flutter asset and reached through
+`get_training_guidance`. That keeps it editable without touching code, and
+keeps ~20k tokens of reference material off every single request, which
+matters most for the small local models Ollama users run.
+
+The second message, `buildRuntimeContext`, is regenerated per message and
+carries today's date and weekday, the athlete identity, whether Intervals.icu
+is connected, which ranges are cached, and the active provider/model. On
+Ollama it appends a note to keep tool arguments strict — small local models
+drift there far more than Claude does.
 
 ### Credential storage
 
 `SecureKeyStore` (`lib/data/secure_key_store.dart`) wraps
 `flutter_secure_storage` and is the only place a secret is written. One named
-secret per instance, so the not-yet-persisted LLM credentials can reuse it.
+secret per instance: `intervals_api_key` for Intervals.icu, `claude_api_key`
+for the Claude API, `ollama_api_key` for Ollama Cloud. Non-secrets — the
+provider choice, model names, the Ollama URL — go to `shared_preferences`
+instead (`LlmSettings`), because encrypting a hostname buys nothing and the
+vault is the thing most likely to be unavailable.
 Each platform gets the OS credential vault rather than a file or shared
 preferences, and the ciphertext is bound to this app and this OS user:
 
@@ -169,6 +344,36 @@ security, against XSS, a malicious extension, or anyone with devtools open.
 A `HttpOnly` cookie would be the real answer, but that needs a backend to set
 it and the app talks to Intervals.icu directly. Profile's help text changes
 to say so when `IntervalsSession.remembersApiKey` is false.
+
+### Ollama: cloud vs. local, and the connection test
+
+`LlmSettings.defaultOllamaBaseUrl` is `https://ollama.com` (Ollama Cloud),
+not a local server — `isOllamaCloud` checks the URL's host and is what
+Settings and `isConfigured` key off of. Cloud needs the API key from
+`ollama.com/settings/keys` (Settings has a "Get a key" link straight there,
+shown only when `isOllamaCloud`); pointed at a local/self-hosted server
+instead, no key is needed and `isConfigured` doesn't require one.
+
+Unlike Claude — whose only cheap way to validate a key is spending tokens on
+a real message, so its key just gets saved unconditionally — Ollama's
+`/api/tags` is a free connectivity check. `fetchOllamaModels()`
+(`ollama_connection.dart`) calls it, so Settings can:
+- **test before saving**: pressing "Save key" tests first and only persists
+  the key if `/api/tags` succeeds — a bad key is never stored, same
+  principle as `IntervalsSession.connect`;
+- **list real models**: a successful test replaces the static suggestion
+  chips (`LlmSettings.ollamaModelSuggestions`, headlined by the default,
+  `gpt-oss:120b`) with whatever the server actually reports, via
+  `map['model']`/`map['name']` from each entry in the response;
+- **"Test connection"**: a separate button runs the same check without
+  saving anything, for a local server (no key to save) or to refresh the
+  model list later. Settings also fires this silently (no error surfaced)
+  once on open if a connection already looks configured, so a returning
+  visit shows live models without the user pressing anything.
+
+An empty-but-200 response (server reachable, nothing pulled yet) is treated
+as success, not failure — the distinction that matters here is "reachable"
+vs. "not", not "has models".
 
 ### Sync verification
 
@@ -250,6 +455,221 @@ wraps `MaterialApp` in a `ListenableBuilder` on it, so changing the mode
 `IntervalsSession`, this choice is **not** persisted yet — it resets to
 `system` on restart.
 
+### App icon
+
+`assets/icon/` holds the source design — hand-authored SVG, not a
+third-party asset:
+- `icon.svg` / `icon.png` (1024×1024, full-bleed) — a white heartbeat/pulse
+  glyph on the same `primary` → `tertiary` diagonal gradient
+  (`#6750E4` → `#F45B8D`) used for the hero cards on Today/Profile. Used as
+  the source for iOS, Windows, and web.
+- `icon_foreground.svg` / `icon_foreground.png` (1024×1024, transparent) —
+  the same glyph scaled down so it stays inside Android's adaptive-icon
+  safe zone (the center ~66%, since circular launcher masks crop the most).
+  Paired with `adaptive_icon_background: "#6750E4"` (solid, not the
+  gradient — Android's parallax effect on adaptive-icon layers reads badly
+  with gradients, so this is a deliberate simplification for that platform
+  only).
+
+Platform assets (Android `mipmap`/`drawable` + `colors.xml`, iOS
+`AppIcon.appiconset`, Windows `app_icon.ico`, web `icons/` +
+`favicon.png` + `manifest.json`) are generated, not hand-edited — from the
+PNGs, via [`flutter_launcher_icons`](https://pub.dev/packages/flutter_launcher_icons)
+(config lives under the `flutter_launcher_icons:` key in `pubspec.yaml`).
+The PNGs are rendered from the SVGs with `sharp` (Node; a local install,
+not a project dependency — no Dart-ecosystem SVG rasterizer was available).
+There's no `macos/` or `linux/` platform folder in this project currently,
+so those icon targets are skipped; re-run `dart run flutter_launcher_icons`
+after any of:
+- editing `assets/icon/*.svg` (re-render to PNG first — see below),
+- adding those platform folders back,
+- `flutter create .` regenerating platform folders (it resets icons to the
+  Flutter default).
+
+To re-render the PNGs after editing an SVG (from the repo root, with Node
+available):
+
+```bash
+node -e "
+const sharp = require('sharp');
+sharp('assets/icon/icon.svg', {density: 384}).resize(1024,1024).png().toFile('assets/icon/icon.png');
+sharp('assets/icon/icon_foreground.svg', {density: 384}).resize(1024,1024).png().toFile('assets/icon/icon_foreground.png');
+"
+dart run flutter_launcher_icons
+```
+
+(`npm install sharp` first, in whatever directory you run that from — it
+doesn't need to be inside this repo.)
+
+### Notifications
+
+`lib/notifications/` — sync completion, agent replies, and a daily training
+reminder. Same per-platform-backend pattern as `SecureKeyStore`, because no
+single plugin covers this app's platforms:
+
+- `notification_service.dart` — `NotificationService.instance` picks the
+  backend at construction: `flutter_local_notifications` on Android/iOS
+  (all three notification kinds, including the daily reminder — scheduled
+  through the OS alarm system via `zonedSchedule`, so it fires even with the
+  app closed); `local_notifier` on Windows (immediate notifications only —
+  sync/agent — since there's no reliable way to wake a *closed* desktop app
+  on a schedule without native work well beyond this feature's weight); a
+  no-op elsewhere (web). `supportsScheduledReminder` tells the UI whether to
+  offer the reminder toggle at all.
+  - The daily reminder's "local time" is a `tz.Location` built from
+    `DateTime.now().timeZoneOffset` at init, **not** a real IANA zone —
+    `flutter_timezone`, the obvious package for that, currently fails to
+    build on Android under this project's AGP version (a
+    project-evaluation-order clash in its Gradle setup). A fixed offset is
+    wrong only in the narrow window right as DST flips, self-correcting on
+    the next app start, which is an acceptable trade against a dependency
+    that doesn't build. Worth revisiting if a fixed version resolves it.
+- `notification_settings.dart` — `NotificationSettings.instance`
+  (`ChangeNotifier` + `shared_preferences`, same shape as the
+  non-secret half of `LlmSettings`): whether notifications are enabled at
+  all, and the daily reminder's enabled flag + time.
+- `app_lifecycle_tracker.dart` — a `WidgetsBindingObserver` registered in
+  `main()`, so `isForeground` is readable from plain Dart code. The agent-
+  reply notification only fires when this is `false` — otherwise the reply
+  is already visible in the chat bubble and a notification would just be
+  noise.
+- Settings → **Notifications**: the master toggle calls
+  `requestPermission()` (the actual OS prompt on Android 13+/iOS; a no-op
+  `true` elsewhere) before persisting `enabled`; a denied prompt leaves the
+  toggle off with an explanatory SnackBar. The daily-reminder sub-toggle and
+  time picker only render when both `enabled` and
+  `supportsScheduledReminder` are true.
+- Trigger points: `SyncScreen._run()` fires `showSyncComplete` after a
+  manual sync; `ChatScreen._finish()` fires `showAgentReply` when a reply
+  completes without error, the app isn't foreground, and notifications are
+  enabled.
+
+Android manifest additions this needed: `POST_NOTIFICATIONS` (the
+permission the runtime prompt is asking about), `RECEIVE_BOOT_COMPLETED`
+plus `flutter_local_notifications`'s two receivers (so the reminder alarm
+survives a reboot), and `android/app/build.gradle.kts` needed
+`isCoreLibraryDesugaringEnabled = true` + a `coreLibraryDesugaring`
+dependency (`flutter_local_notifications` requires it). The reminder is
+scheduled `inexactAllowWhileIdle` specifically to avoid needing
+`SCHEDULE_EXACT_ALARM`, a user-granted special permission that's overkill
+for a training reminder's precision needs.
+
+Not yet done: Windows build untested (Android is — a debug APK with this
+feature builds and the manifest/Gradle changes above are what made it
+work); iOS untested on either count, consistent with iOS's general status
+in this repo (builds, isn't a focus).
+
+### Activities
+
+`lib/screens/activities/` — the full activity list and the detail view,
+both reading straight from the SQLite cache (no separate network call).
+
+- `activities_screen.dart` — `ActivitiesScreen`: `ActivitiesRepository.getAll()`
+  (added alongside the existing `getByDate`/`getRange`), most recent first,
+  rendered as `ListTile` rows rather than a literal `DataTable` — a table
+  widget doesn't fit this app's card/list visual language or a phone
+  width, and a `ListTile` row (icon, name, date · distance · duration,
+  trailing TSS) carries the same information at a glance. Tapping a row
+  pushes `ActivityDetailScreen`.
+- `activity_detail_screen.dart` — `ActivityDetailScreen(activity: LocalActivity)`.
+  `LocalActivity` only promotes a handful of fields to SQLite columns (see
+  Local storage); this screen needs far more (HR, power, elevation, zone
+  times), so it calls `LocalActivity.toActivity()` — `Activity.fromJson(raw)`
+  — to get the *entire* API response back as a typed `Activity`, rather than
+  either widening the schema or hand-parsing JSON keys. `_StatGrid` builds
+  its tiles from whichever of those fields are actually non-null (a swim
+  has no power, a strength session has no distance), and `_ZoneTimeChart`
+  is a small hand-rolled horizontal-bar widget — this app has no charting
+  package, and one bar shape didn't justify adding one — fed from
+  `icuZoneTimes` (self-labelled) falling back to `icuHrZoneTimes` (plain
+  seconds-per-zone, labelled generically Z1..Zn) when present.
+  - **Open in Intervals.icu**: `launchUrl('https://intervals.icu/activities/{id}',
+    mode: LaunchMode.externalApplication)` via `url_launcher`. Deliberately
+    `externalApplication`, not the default: that mode hands the link to the
+    OS the same way tapping it anywhere else would, so it opens the
+    Intervals.icu app if one's installed and registered for that link
+    (Android App Links / iOS Universal Links), and the browser otherwise —
+    this app doesn't need to know which.
+- Reached from **More → Activities**, from tapping any activity in Today's
+  "Today's activities" card (`_TodayActivities` in `today_screen.dart`), and
+  from a sport row on Statistics, which passes `ActivitiesScreen(initialType:
+  ...)` to open the list filtered to that sport. The filter is in-memory over
+  the cached rows and shows as a chip under the app-bar title; clearing the
+  chip goes back to every sport.
+- `activity_icons.dart` — shared formatting/icon helpers (`activityTypeIcon`,
+  `formatIsoDate`, `formatDurationSecs`, `formatDistanceMeters`) used by
+  both screens and by Today, so the three don't drift.
+
+### Charts
+
+There is no charting package. The app needs exactly two shapes, and both
+live in `lib/widgets/charts/`:
+
+- `SimpleBarChart` (`bar_chart.dart`) — vertical bars with an optional
+  translucent "ghost" bar behind each one for a target, tap/drag selection,
+  and an x-label every n-th bar. Used for daily TSS (42 bars, weekly labels)
+  and weekly completed-vs-planned load.
+- `MetricLineChart` (`line_chart.dart`) — one or more series on a shared
+  y-scale, with gridlines and their values, an optional filled area under
+  the lead series, an optional rule at zero (Form and ramp rate cross it),
+  and selection. `null` entries are **gaps, not zeroes**: a day with no
+  wellness record is not a day of zero fitness, and joining across it would
+  draw a slope that never happened. `ChartLegend` renders the key.
+
+A package would be a dependency, a theme to fight and a licence to check for
+something that is a few dozen lines of `CustomPainter` either way. Both take
+their colours from the active `ColorScheme`, so they follow the app theme
+(and dark mode) without a second palette to maintain. The older
+`_ZoneTimeChart` on the activity detail screen predates these and stays
+where it is — it's a horizontal one-off.
+
+### Load metric screens
+
+Every tile on Today opens something:
+
+| Tile | Opens | Shows |
+|---|---|---|
+| TSS today | `TssHistoryScreen` | 42 daily bars, completed against planned, with total / avg per day / avg per week |
+| TSS week | `WeeklyLoadScreen` | 12 weekly bars, completed against planned, this week's total, 12-week average, 4-week trend |
+| CTL, ATL, Form, Ramp | `MetricHistoryScreen(metric:)` | the metric over 30/90/365 days as a line (CTL and ATL charted against each other), with current / change / average / low–high, and a plain-language note on what the metric does and doesn't say |
+
+`MetricHistoryScreen` is one screen for four metrics (`LoadMetric`), and Form
+is derived (`CTL - ATL`) rather than stored — Intervals.icu doesn't return a
+TSB field. The range picker changes only what is charted; nothing on these
+screens fetches, so they are instant and work offline.
+
+### Creating workouts on Intervals.icu
+
+`IntervalsWorkoutService` (`lib/data/intervals_workout_service.dart`) is the
+only place in the app that *creates* something upstream — everything else
+syncs downwards — which is why it sits apart from `SyncService`. It POSTs an
+`EventEx` (`category: WORKOUT`, today's date at local midnight, sport, name,
+description, duration, load) via `createEvent(upsertOnUid: false)`.
+
+The workout itself goes in `description` in Intervals.icu's **native step
+syntax** (`- 15m 60%`, `3x`, …), which Intervals.icu parses server-side into
+a structured workout; anything it can't parse it keeps as the session's
+description, so an odd line degrades to a note instead of failing the
+request. The app deliberately does not try to validate that syntax locally.
+
+Getting there from a prose proposal is two steps, in `TrainNowScreen`:
+
+1. `workoutStructuringPrompt` (`lib/agent/workout_draft_parser.dart`) asks
+   the *same* agent conversation to re-express what it just proposed as one
+   JSON object, with the workout in step syntax. A second turn rather than
+   part of the original prompt: the athlete reads the prose first and only
+   pays for this if they decide to keep it.
+2. `parseWorkoutDraft` locates the JSON object in the reply — models wrap it
+   in prose or a code fence more often than not, so it scans for the
+   outermost `{…}`, tracking brace depth and ignoring braces inside strings —
+   and returns `null` rather than a guess when there's nothing usable.
+
+The draft is then shown in full (name, targets, every line of the workout)
+in a bottom sheet before anything is written: creating an entry in someone's
+training log isn't undoable from this app, and the step syntax is the
+agent's work, not the athlete's. After a successful create, the Today window
+is re-synced so the new session appears immediately.
+
 ## 3. User documentation
 
 ### Connecting your Intervals.icu account
@@ -270,41 +690,173 @@ wraps `MaterialApp` in a `ListenableBuilder` on it, so changing the mode
 
 ### Today
 
-Shows today's date's cached data: a hero card summarizing today's
-activity/activities (or "Ready to train" if none), TSS/CTL/ATL tiles, and
-an athlete status card. Pull to refresh re-runs the sync check. The first
-time this screen loads after connecting, it automatically fetches and
-caches today's data if it isn't already stored locally.
+Shows today's date's cached data: a hero card with today's date and a
+summary of today's activity/activities (or "Ready to train" if none), six
+load tiles, a "Today's activities" card, today's and tomorrow's planned
+training, and an athlete card. Pull to refresh (or the refresh button in the
+hero) re-syncs the whole current month, so the Calendar and Statistics tabs
+are current too when you switch to them. Repeating the gesture is cheap: it
+never starts a second fetch next to one already running, does nothing at all
+within 10 seconds of the last one, and stops waiting after 10 seconds if the
+network doesn't answer. The first time this screen loads after connecting,
+it automatically fetches and caches today's data if it isn't already stored
+locally.
+
+**The tiles.** TSS today and TSS week each show what was planned underneath
+("of 420"); CTL, ATL, Form and Ramp each show how far they've moved since
+the same day last week. Tap any of them for the chart behind it — daily TSS
+bars, weekly completed-vs-planned bars, or the metric's own curve over 30,
+90 or 365 days with a note explaining what it means. Nothing there fetches,
+so it all works offline.
+
+**The athlete card** shows your Intervals.icu profile picture and, once your
+sport settings have loaded, your ride and run FTP. Tap it for the full
+athlete view: picture, where you are, your age, your latest weight, resting
+HR and HRV, and your thresholds per sport — FTP, indoor FTP, W', LTHR, max
+HR and threshold pace. Each row says where the number came from: your
+current Intervals.icu sport settings, or the most recent activity that was
+analysed with it.
+
+Tap any activity in "Today's activities" for its full detail view — see
+Activities below. Tap a planned session in "Today's training" or
+"Tomorrow's training" for its own detail view (`PlannedWorkoutDetailScreen`
+— prescribed duration/distance/TSS and the workout description, the
+not-yet-happened counterpart to an activity's detail screen). That screen
+also offers **Add to Google Calendar** (pre-filled, all-day unless the
+session has a time of day) and **Delete**, which removes it from
+Intervals.icu after a confirmation.
+
+If Intervals.icu isn't connected and/or no LLM provider is configured yet, a
+**Finish setting up** card appears with a button straight to Profile and/or
+Settings — so a first launch isn't just a wall of "not connected" labels.
 
 ### Calendar
 
-Toggle between **Month** and **Week** views (currently placeholders —
-no real Intervals.icu data wired in yet; will show planned vs. completed
-trainings once implemented).
+Toggle between **Month** and **Week** views. Each day shows a tiny icon per
+session — tertiary-coloured for planned (from `events`) and primary-coloured
+for completed (from `activities`) — reading from the local cache the same
+way Today does, syncing the visible range from Intervals.icu if it isn't
+cached yet, and refetching it when it has gone stale (see the sync notes
+above; the header's refresh button forces it). Tap a day to see its planned
+and completed sessions below the grid/list; tap one of those to open its
+full detail (`PlannedWorkoutDetailScreen` or `ActivityDetailScreen`).
+
+Planned sessions carry a **delete** button in that day list, and the same
+action sits on their detail screen — both go through
+`confirmAndDeletePlannedWorkout` (`lib/screens/activities/planned_workout_actions.dart`):
+a confirmation dialog, then `IntervalsWorkoutService.deletePlannedWorkout`
+(the API's `others: false`, so a session created as part of a plan doesn't
+take the rest of the batch with it), then `EventsRepository.deleteById` and
+`AutoSyncService.notifyCacheChanged()` so every live screen drops it without
+a refetch. Completed activities have no delete: they are a record of what
+happened, not a plan to change.
 
 ### Chat
 
-A chat UI for asking the training agent about your data. Currently every
-message gets a static "agent not connected yet" reply — no LLM or MCP
-integration exists yet (see Status matrix).
+Ask the training agent about your own data — "how was last week", "am I
+recovered enough for intervals tomorrow", "is my intensity distribution
+actually 80/20". It answers from the locally cached Intervals.icu data,
+reading it through tools rather than guessing: while it works, a line under
+the transcript names what it's doing ("Reading your daily load and
+wellness…"), and the reply streams in as the model writes it.
+
+Set up a provider in **Settings → LLM provider** first; until then the
+screen says so, with an **Open Settings** button straight there. What the
+agent can see is limited to what's been synced, so sync the range you want
+to ask about (it will offer to sync a missing range itself when connected).
+Replies render as formatted markdown — headings, lists, and tables with
+borders and bold headers — rather than raw source. An empty chat offers a
+few starter questions you can tap instead of typing.
+
+**New chat** (top right of the transcript) clears the conversation and the
+agent's own memory of it, after asking — the next question starts from
+scratch. Conversation history lives in memory only either way: it's gone
+when the app restarts.
+
+### Train now
+
+From Today, tap **Train now** to pick a sport (run/ride/swim), duration and
+intensity (recovery/endurance/intervals), then **Propose training**. This
+sends the same [training agent](#the-training-agent) a prompt built from
+those choices, instructed to check the last 7 days of TSS/CTL/ATL/ramp rate
+with its own tools before proposing — so a fatigued week gets a lighter
+prescription, not a canned template. The proposal streams in as markdown,
+same rendering as Chat; **Ask again** re-runs it. Needs an LLM provider
+configured, same as Chat.
+
+Once a session has been proposed there are two ways to keep it:
+
+- **Create in Intervals.icu** puts it on today's calendar as a real planned
+  workout. The agent first converts what it proposed into Intervals.icu's
+  workout syntax, and you get to see the whole thing — name, sport, duration,
+  estimated TSS and every step — before anything is written; **Create** does
+  it, anything else cancels. Intervals.icu turns those steps into a
+  structured workout, and whatever it can't parse stays as the description.
+  Afterwards the app re-syncs, so the session appears on Today and Calendar
+  straight away. Needs Intervals.icu connected.
+- **Add to Google Calendar** opens a pre-filled event in your browser
+  instead, for when you just want it in your day.
 
 ### Statistics
 
-Training-stress and volume overview (currently placeholders — chart is a
-static box, volume tiles show `—`).
+Everything over a window you choose — 30 days, 90 days or a year:
+
+- **Fitness trend** — your CTL and ATL curves against each other.
+- **Completed vs planned** — one bar per week, actual load in front of the
+  planned load behind it. Tap a bar for that week's numbers.
+- **Volume** — distance and time for this week, this month and this year to
+  date.
+- **By sport** — sessions, time, distance and load per sport over the
+  window, with each sport's share of your total training time. Tap a sport
+  to open the Activities list filtered to it (rows for activities with no
+  type don't open anything — there is nothing to filter by).
+
+It all reads the local cache, so the range picker is instant and works
+offline; pull to refresh to re-sync the current month first. If a chart is
+empty, the range simply hasn't been synced yet — use **More → Sync** to
+fetch more history.
 
 ### More
 
-Submenu for Profile, Settings, and **Sync**, plus disabled placeholders
-for upcoming features (training plans, gear).
+Submenu for Profile, Settings, **Sync**, and **Activities**, plus disabled
+placeholders for upcoming features (training plans, gear).
+
+### Activities
+
+Every cached activity, most recent first — filtered to one sport when you
+arrive from a sport row on Statistics, with a chip you can clear to see the
+rest. Tap one for distance, duration,
+TSS, elevation, heart rate, power, calories (whichever of those the
+activity actually has), and a time-in-zone chart when zone data is
+present. **Open in Intervals.icu** at the bottom goes to that activity's
+full page on intervals.icu — for anything this screen doesn't show:
+interval detection, the power/HR curve, the map, comments.
 
 ### Settings
 
 - **Appearance**: pick System, Light, or Dark. Applies instantly across the
   whole app; resets to System on restart (not persisted yet).
-- **LLM provider**: choose Claude or Ollama and enter the corresponding
-  credential (Claude API key, or an Ollama server URL). Not persisted yet,
-  and not wired to any agent yet.
+- **Notifications**: the master toggle prompts for the OS notification
+  permission (Android 13+/iOS) and, once granted, turns on sync-completion
+  and training-agent-reply notifications. With it on and on a platform that
+  supports scheduling (Android/iOS — not Windows), a **daily training
+  reminder** toggle and time picker appear underneath.
+- **LLM provider**: choose Claude or Ollama, and configure it.
+  - **Claude** needs an API key from `console.anthropic.com`. It's stored in
+    your OS credential vault (same place as the Intervals.icu key) and sent
+    only to Anthropic; usage is billed to your own Anthropic account.
+  - **Ollama** defaults to Ollama Cloud (`https://ollama.com`), which needs
+    an API key — **Get a key** next to the field opens
+    `ollama.com/settings/keys`. Pressing **Save key** tests the connection
+    first and only stores it if that succeeds; the model field's suggestion
+    chips then switch from generic defaults to whatever's actually
+    available on your account. Point the server URL at a local/self-hosted
+    instance instead (e.g. `http://localhost:11434`) and no key is needed —
+    use **Test connection** to check reachability and list its models the
+    same way. Either way the model must support tool calling, or the agent
+    can't read your training data at all; the default is `gpt-oss:120b`.
+  All of this is remembered across restarts, and changing it takes effect on
+  your next message.
 
 ### Sync
 
@@ -322,14 +874,28 @@ card at the top shows the currently cached date range.
 
 ## 4. Known gaps / next steps
 
-- Persist the LLM provider settings (Claude API key / Ollama URL) and the
-  Appearance choice. The Claude key should go through `SecureKeyStore` under
-  its own name; the Ollama URL and Appearance are not secrets and can use
-  ordinary preferences.
-- Wire Calendar and Statistics to the local cache (they already have the
-  repositories available; just not connected yet).
-- Build the LangChain agent + MCP server/client, and connect the Chat
-  screen and Settings' LLM provider choice to it.
+- Persist the Appearance choice (the LLM settings now persist; this one
+  still resets to System on restart).
+- The workout step syntax sent by **Create in Intervals.icu** is written by
+  the model and validated only server-side: if Intervals.icu can't parse a
+  line it silently keeps it as description text instead of a step. A local
+  parser (or reading back `push_errors` from the created event) would tell
+  the athlete which it was.
+- Created workouts always land on *today*. Picking another day, or editing
+  the draft before creating it, isn't wired up.
+- Persist chat history, so a conversation survives an app restart.
+- Expose the agent's tools over MCP as well as in-process, so an external
+  client (Claude Desktop, an editor) could query the same cache. The tool
+  layer is already a clean seam for it — `TrainingDataTools` has no Flutter
+  dependency beyond loading the reference asset.
+- No token/cost accounting: a Claude conversation bills the user's own
+  account with nothing in the UI saying how much.
 - Local SQLite storage on web (needs a wasm-backed `sqflite` variant).
 - Web has no local cache: `sqflite` needs a wasm-backed implementation
   there, so sync is Android/Windows only (see Sync & local cache).
+- Revisit `flutter_timezone` for the daily reminder once a version exists
+  that builds under this project's AGP — the fixed-offset workaround in
+  `NotificationService` is fine but not exact across a DST change.
+- No daily-reminder scheduling on Windows (see Notifications) — would need
+  real background-wake support, e.g. a Task Scheduler entry, which is a
+  separate, heavier piece of work.

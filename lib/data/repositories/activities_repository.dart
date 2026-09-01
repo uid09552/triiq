@@ -34,6 +34,13 @@ class ActivitiesRepository {
     return rows.map(LocalActivity.fromMap).toList();
   }
 
+  /// All cached activities, most recent first — for the Activities list.
+  Future<List<LocalActivity>> getAll() async {
+    final db = await _database.database;
+    final rows = await db.query('activities', orderBy: 'date DESC, id DESC');
+    return rows.map(LocalActivity.fromMap).toList();
+  }
+
   Future<List<LocalActivity>> getRange(String oldest, String newest) async {
     final db = await _database.database;
     final rows = await db.query(
