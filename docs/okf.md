@@ -57,7 +57,7 @@ athlete can:
 |---|---|
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — API key is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch |
-| Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen) |
+| Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
 | Today screen | ✅ Real data once connected — six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail + "Open in Intervals.icu" |
@@ -70,7 +70,7 @@ athlete can:
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
-| Training-plan calculation | ❌ Not started |
+| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; deterministic engine (`lib/plan`), preview before anything is written to Intervals.icu |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -112,8 +112,8 @@ the single read path for the UI.
   Settings);
 - a bottom `NavigationBar` with five destinations, kept alive via
   `IndexedStack`: **Today**, **Calendar**, **Chat**, **Statistics**, **More**.
-- **More** is the submenu: Profile, Settings, **Sync**, plus disabled
-  placeholders for future features (training plans, gear).
+- **More** is the submenu: Profile, Settings, **Sync**, **Training plan**, plus a disabled
+  placeholder for gear.
 
 ### Session & sync
 
@@ -194,11 +194,35 @@ the single read path for the UI.
   app fresh: while it's in the foreground it re-syncs the **current month**
   on a timer, throttled to `SyncSettings.autoSyncIntervalMinutes` (Settings →
   Sync, default 5). It stops while backgrounded — there's no reliable way to
-  wake a closed app on this schedule, and this is not meant to be a
-  background sync job. It's a `ChangeNotifier` as well as a
+  wake a closed app on this schedule; closed-app refreshes are the nightly
+  background sync below. It's a `ChangeNotifier` as well as a
   `WidgetsBindingObserver`, because the screens `IndexedStack` keeps alive
   (Today, Calendar, Statistics) don't re-run their own load on a tab switch
   and need telling when fresh data landed behind their back.
+- **Opening the app syncs today at once.** On start, on every resume and —
+  for a cold start, where the saved key is still being checked — the moment
+  the session connects, `AutoSyncService.syncToday()` fetches today's
+  wellness, activities and events, ignoring the interval and stale
+  throttles (it still joins an identical fetch in flight). It does not stamp
+  the month throttle, because today alone doesn't refresh the month.
+- **Nightly background sync (Android).** `lib/data/sync/background_sync.dart`
+  registers one WorkManager periodic job (24 h period, 3 h flex, so it runs
+  between about 02:00 and 05:00 local time) with `NetworkType.connected` and
+  `requiresBatteryNotLow`. `BackgroundSyncRunner` (the testable core, wired
+  to real storage by `BackgroundSyncRunner.live()` in the background
+  isolate) syncs `SyncService.todayWindow()` — the Monday–Sunday week, plus
+  Monday when today is Sunday — unless the cache was refreshed within the
+  last 6 hours, in which case it makes no request. It restores the stored
+  key itself; a network error keeps the key, a 401/403 does not. Outcomes
+  and a consecutive-failure counter go to `SyncSettings` (Settings → Sync
+  shows the last run and result). The athlete is notified once after three
+  failures in a row, and once when the key is rejected; the job always
+  reports success to WorkManager so a dead network or revoked key is retried
+  the next night, not with backoff. The toggle is in Settings → Sync
+  (default on) and registration is re-applied at every launch
+  (`ExistingPeriodicWorkPolicy.keep`, so reopening the app never pushes the
+  schedule back). **Windows and web have no closed-app wake**: the toggle is
+  replaced by a note and sync stays foreground-only.
 - **Coming back to the app** is the moment staleness is most visible (the
   athlete just finished a ride and opened TriIQ), so `didChangeAppLifecycleState`
   re-syncs the current month whenever the last sync is older than
@@ -818,8 +842,48 @@ fetch more history.
 
 ### More
 
-Submenu for Profile, Settings, **Sync**, and **Activities**, plus disabled
-placeholders for upcoming features (training plans, gear).
+Submenu for Profile, Settings, **Sync**, **Activities** and **Training
+plan**, plus a disabled placeholder for gear.
+
+### Training plan
+
+**More → Training plan.** Set a **goal** first: target (long distance or
+short event), sport (Run, Ride or **Triathlon**), training days, weekly
+hours, an optional event date, and the **plan length** (2-16 weeks; by
+default 8, or the weeks until the event). For triathlon, set the **sport
+mix** — each sport's share of the weekly load in 5% steps, totalling 100%
+(default Swim 15 / Bike 50 / Run 35). A sport at 0% gets no sessions.
+
+**Weekly load** is a graph with one point per week. 100% is the proposed
+load: a steady ramp from your recent weekly load (mean of the last 4
+weeks), at most +10% a week by default, held flat when it would need more
+than your weekly hours or raise CTL faster than the ramp limit. No recovery
+weeks are added for you.
+
+- **Drag** anywhere in a week's column, up or down. The point moves with
+  your finger (it doesn't jump to it), snaps to 5% steps between 80% and
+  120% with a small vibration, and a label shows the week, %, TSS and the
+  change from the week before. On a phone with many weeks the graph scrolls
+  sideways; a sideways swipe scrolls, an up/down drag edits.
+- **Tap** a week to select it, then use **−/+** (5% each) or the arrow keys
+  on Windows (left/right to change week). **Undo** reverts the last change;
+  **Reset** (after a confirmation) puts every week back to 100%.
+- A week more than 10% below the week before it becomes a **recovery
+  week** (recovery sessions, shorter long session) — drop a week to about
+  80% for that.
+- A week you push above the weekly ramp, the CTL ramp limit or your hours
+  turns red and says which; it is a warning, not a block. Returning to the
+  proposal after a dip is not counted as a jump.
+
+The graph is saved into the goal as you edit it, and keeps its percentages
+when a sync changes your baseline. **Generate plan** builds exactly what
+the graph shows and opens a preview of every session; nothing is written
+until you confirm. Each plan week then shows its target against planned
+(or done) TSS, the load per sport for triathlon, the 80/20 split, any
+warnings, and a **Monday-Sunday row** of its sessions as sport-coloured
+tiles (minutes and TSS; tap one for its steps). Triathlon weeks hold at
+most two sessions a day with the long ride and long run on different days;
+with few training days Z2 sessions are dropped first.
 
 ### Activities
 
@@ -841,6 +905,12 @@ interval detection, the power/HR curve, the map, comments.
   and training-agent-reply notifications. With it on and on a platform that
   supports scheduling (Android/iOS — not Windows), a **daily training
   reminder** toggle and time picker appear underneath.
+- **Sync**: how often the open app refreshes the current month, and (Android)
+  the **nightly background sync** switch. With it on, TriIQ refreshes the
+  current week once a night, even when closed — only with a network and a
+  battery that isn't low — and shows when it last ran and how it went. Opening
+  the app always fetches today straight away. On Windows the app only syncs
+  while it is open.
 - **LLM provider**: choose Claude or Ollama, and configure it.
   - **Claude** needs an API key from `console.anthropic.com`. It's stored in
     your OS credential vault (same place as the Intervals.icu key) and sent
@@ -881,8 +951,13 @@ card at the top shows the currently cached date range.
   line it silently keeps it as description text instead of a step. A local
   parser (or reading back `push_errors` from the created event) would tell
   the athlete which it was.
-- Created workouts always land on *today*. Picking another day, or editing
-  the draft before creating it, isn't wired up.
+- "Train now" workouts always land on *today* (plan sessions have their own
+  dates and can be moved in the plan preview).
+- Training plans: no automatic taper or race-peak shaping, no brick
+  sessions, one ramp cap for all sports. Swim templates use % of threshold
+  swim pace and the engine's own TSS estimate, which is rougher than for
+  ride and run. Sessions can't be edited individually in the week calendar
+  (only moved in the preview).
 - Persist chat history, so a conversation survives an app restart.
 - Expose the agent's tools over MCP as well as in-process, so an external
   client (Claude Desktop, an editor) could query the same cache. The tool
@@ -896,6 +971,374 @@ card at the top shows the currently cached date range.
 - Revisit `flutter_timezone` for the daily reminder once a version exists
   that builds under this project's AGP — the fixed-offset workaround in
   `NotificationService` is fine but not exact across a DST change.
+- No background sync on Windows (same missing closed-app wake as the daily
+  reminder below); the nightly job is Android only.
 - No daily-reminder scheduling on Windows (see Notifications) — would need
   real background-wake support, e.g. a Task Scheduler entry, which is a
   separate, heavier piece of work.
+
+## 5. Training knowledge
+
+The rules and session templates the plan engine (`lib/plan/`) and the chat
+agent (`get_session_template`) read. This file is bundled as an app asset; the
+parser (`KnowledgeRepository`) reads **only** fenced blocks whose info string
+is `okf-rules`, `okf-goal` or `okf-template`. Everything else here is prose
+for humans. Each block is one JSON object (valid YAML as well). A block that
+fails to parse is skipped and reported; the engine falls back to built-in
+defaults rather than generate from half a rule set.
+
+The numbers below are **defaults, not universal truths** — the multipliers,
+the ramp limits and the tolerance are starting points the athlete can
+override (per-goal ramp limits are editable on the Plan screen). Physiology
+background lives in `training-philosophy.md`; this section only holds what the
+engine needs to be deterministic.
+
+### 5.1 Block rules
+
+A plan runs 2-16 weeks (default 8, or the weeks until the event). Every
+non-recovery week has the same session types per sport (Z2 base, one interval
+session, one long session; swim has no long session); only the volume
+changes. The engine **proposes** a steady ramp from the athlete's baseline
+weekly load (the mean of the last 4 completed weeks): each week is at most
+`maxWeeklyIncrease` above the one before, and also held below `maxCtlRamp`
+(projected CTL gain per week) and the weekly hours budget. No recovery weeks
+are inserted; the athlete shapes the curve in the load graph (80-120% of the
+proposal per week), and a week below `recoveryThreshold` of the week before
+it is built from recovery templates. `weekPhases`/`weekMultipliers` describe
+the classic 4-week shape for the agent's explanations; the curve does not use
+them. `lowIntensityTarget` is the
+80/20 share of time spent at low intensity, `lowIntensityTolerance` how far
+below it a week may fall before it is flagged (more easy time than the target
+is not a problem).
+
+```okf-rules
+{
+  "weekPhases": ["build", "build_plus", "peak", "recovery"],
+  "weekMultipliers": [1.0, 1.08, 1.15, 0.6],
+  "maxWeeklyIncrease": 0.10,
+  "maxCtlRamp": 7.0,
+  "lowIntensityTarget": 0.8,
+  "lowIntensityTolerance": 0.05,
+  "minHistoryWeeks": 4,
+  "recoveryThreshold": 0.9
+}
+```
+
+### 5.2 Goals
+
+A goal splits a week's load between its session slots. `count` is how many
+sessions of that slot per week; `share` is the slot's fraction of the week's
+load (shares sum to 1). When the athlete has fewer training days than
+sessions, Z2 sessions are dropped first.
+
+```okf-goal
+{
+  "id": "long_distance",
+  "label": "Long distance",
+  "slots": {
+    "z2": { "count": 2, "share": 0.30 },
+    "intervals": { "count": 1, "share": 0.30 },
+    "long": { "count": 1, "share": 0.40 }
+  }
+}
+```
+
+```okf-goal
+{
+  "id": "short_event",
+  "label": "Short event (speed)",
+  "slots": {
+    "z2": { "count": 2, "share": 0.30 },
+    "intervals": { "count": 1, "share": 0.40 },
+    "long": { "count": 1, "share": 0.30 }
+  }
+}
+```
+
+### 5.3 Session templates
+
+One template per goal, slot and phase. Duration is **derived**, not stored:
+`slot load share x week load / tssPerHour`. `lowShare` is the fraction of the
+session's time at low intensity (Z1-Z2) and feeds the 80/20 check. `steps` are
+a structure the engine turns into Intervals.icu step syntax:
+
+- `{"kind": "fixed", "minutes": 10, "pct": 60}` — a fixed step;
+- `{"kind": "fill", "pct": 68}` — takes whatever time is left;
+- `{"kind": "repeat", "work": {...}, "rest": {...}, "min": 3, "max": 8}` — as
+  many work/rest pairs as fit the remaining time, between `min` and `max`.
+
+`pct` is a number, or `{"Ride": .., "Run": ..}` when the same effort needs a
+different figure per sport (Ride: % of FTP; Run: % of threshold pace).
+`sports` lists the Intervals.icu sports a template is for; without it a
+template serves Ride and Run. Swim templates say `"sports": ["Swim"]` and use
+% of threshold swim pace (CSS).
+
+```okf-template
+{
+  "id": "long_distance.z2",
+  "goal": "long_distance", "slot": "z2",
+  "phases": ["build", "build_plus", "peak", "recovery"],
+  "name": "Z2 endurance",
+  "tssPerHour": 50, "lowShare": 1.0,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 68, "Run": 82}},
+    {"kind": "fixed", "minutes": 5, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.intervals.build",
+  "goal": "long_distance", "slot": "intervals",
+  "phases": ["build"],
+  "name": "Tempo-threshold intervals",
+  "tssPerHour": 75, "lowShare": 0.5,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 3, "max": 5,
+     "work": {"minutes": 8, "pct": {"Ride": 90, "Run": 95}},
+     "rest": {"minutes": 4, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.intervals.build_plus",
+  "goal": "long_distance", "slot": "intervals",
+  "phases": ["build_plus"],
+  "name": "Threshold intervals",
+  "tssPerHour": 75, "lowShare": 0.5,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 3, "max": 5,
+     "work": {"minutes": 10, "pct": {"Ride": 95, "Run": 98}},
+     "rest": {"minutes": 4, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.intervals.peak",
+  "goal": "long_distance", "slot": "intervals",
+  "phases": ["peak"],
+  "name": "Threshold and over-under intervals",
+  "tssPerHour": 78, "lowShare": 0.5,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 3, "max": 5,
+     "work": {"minutes": 12, "pct": {"Ride": 98, "Run": 100}},
+     "rest": {"minutes": 4, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.intervals.recovery",
+  "goal": "long_distance", "slot": "intervals",
+  "phases": ["recovery"],
+  "name": "Easy aerobic with short strides",
+  "tssPerHour": 55, "lowShare": 0.9,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 65, "Run": 80}},
+    {"kind": "repeat", "min": 4, "max": 6,
+     "work": {"minutes": 1, "pct": {"Ride": 110, "Run": 105}},
+     "rest": {"minutes": 2, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 5, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.long",
+  "goal": "long_distance", "slot": "long",
+  "phases": ["build", "build_plus", "peak", "recovery"],
+  "name": "Long endurance",
+  "tssPerHour": 58, "lowShare": 0.8,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 70, "Run": 84}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.z2",
+  "goal": "short_event", "slot": "z2",
+  "phases": ["build", "build_plus", "peak", "recovery"],
+  "name": "Z2 endurance",
+  "tssPerHour": 50, "lowShare": 1.0,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 68, "Run": 82}},
+    {"kind": "fixed", "minutes": 5, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.intervals",
+  "goal": "short_event", "slot": "intervals",
+  "phases": ["build", "build_plus", "peak"],
+  "name": "VO2max intervals",
+  "tssPerHour": 80, "lowShare": 0.55,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 4, "max": 8,
+     "work": {"minutes": 3, "pct": {"Ride": 115, "Run": 108}},
+     "rest": {"minutes": 3, "pct": {"Ride": 45, "Run": 65}}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.intervals.recovery",
+  "goal": "short_event", "slot": "intervals",
+  "phases": ["recovery"],
+  "name": "Easy aerobic with short strides",
+  "tssPerHour": 55, "lowShare": 0.9,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 65, "Run": 80}},
+    {"kind": "repeat", "min": 4, "max": 6,
+     "work": {"minutes": 1, "pct": {"Ride": 110, "Run": 105}},
+     "rest": {"minutes": 2, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 5, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.long",
+  "goal": "short_event", "slot": "long",
+  "phases": ["build", "build_plus", "peak", "recovery"],
+  "name": "Long endurance",
+  "tssPerHour": 58, "lowShare": 0.85,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 70, "Run": 84}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+#### Swim (triathlon)
+
+A triathlon plan gives swim a Z2 and an interval session per week (no long
+swim); the shares of the goal's `z2` and `intervals` slots are renormalised
+between the two.
+
+```okf-template
+{
+  "id": "long_distance.swim.z2",
+  "goal": "long_distance", "slot": "z2", "sports": ["Swim"],
+  "phases": ["build", "build_plus", "peak", "recovery"],
+  "name": "Aerobic swim",
+  "tssPerHour": 40, "lowShare": 1.0,
+  "steps": [
+    {"kind": "fixed", "minutes": 5, "pct": 75},
+    {"kind": "fill", "pct": 82},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.swim.intervals",
+  "goal": "long_distance", "slot": "intervals", "sports": ["Swim"],
+  "phases": ["build", "build_plus", "peak"],
+  "name": "Threshold swim",
+  "tssPerHour": 55, "lowShare": 0.55,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": 75},
+    {"kind": "repeat", "min": 4, "max": 10,
+     "work": {"minutes": 3, "pct": 98},
+     "rest": {"minutes": 1, "pct": 70}},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.swim.intervals.recovery",
+  "goal": "long_distance", "slot": "intervals", "sports": ["Swim"],
+  "phases": ["recovery"],
+  "name": "Easy technique swim",
+  "tssPerHour": 38, "lowShare": 0.9,
+  "steps": [
+    {"kind": "fixed", "minutes": 5, "pct": 75},
+    {"kind": "fill", "pct": 80},
+    {"kind": "repeat", "min": 4, "max": 6,
+     "work": {"minutes": 1, "pct": 95},
+     "rest": {"minutes": 1, "pct": 70}},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.swim.z2",
+  "goal": "short_event", "slot": "z2", "sports": ["Swim"],
+  "phases": ["build", "build_plus", "peak", "recovery"],
+  "name": "Aerobic swim",
+  "tssPerHour": 40, "lowShare": 1.0,
+  "steps": [
+    {"kind": "fixed", "minutes": 5, "pct": 75},
+    {"kind": "fill", "pct": 82},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.swim.intervals",
+  "goal": "short_event", "slot": "intervals", "sports": ["Swim"],
+  "phases": ["build", "build_plus", "peak"],
+  "name": "Speed swim",
+  "tssPerHour": 60, "lowShare": 0.55,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": 75},
+    {"kind": "repeat", "min": 6, "max": 12,
+     "work": {"minutes": 2, "pct": 103},
+     "rest": {"minutes": 1, "pct": 70}},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.swim.intervals.recovery",
+  "goal": "short_event", "slot": "intervals", "sports": ["Swim"],
+  "phases": ["recovery"],
+  "name": "Easy technique swim",
+  "tssPerHour": 38, "lowShare": 0.9,
+  "steps": [
+    {"kind": "fixed", "minutes": 5, "pct": 75},
+    {"kind": "fill", "pct": 80},
+    {"kind": "repeat", "min": 4, "max": 6,
+     "work": {"minutes": 1, "pct": 95},
+     "rest": {"minutes": 1, "pct": 70}},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```

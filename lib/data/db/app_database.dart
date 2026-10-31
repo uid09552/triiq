@@ -55,7 +55,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onUpgrade: (db, oldVersion, newVersion) async {
         // v2 added planned calendar entries. Existing caches only held what
         // already happened, so the table is simply created empty and filled
@@ -63,6 +63,12 @@ class AppDatabase {
         if (oldVersion < 2) {
           await db.execute(_createEventsTable);
           await db.execute(_createEventsDateIndex);
+        }
+        // v3 added training plans. Nothing to migrate: the tables start empty.
+        if (oldVersion < 3) {
+          await db.execute(_createPlansTable);
+          await db.execute(_createPlanSessionsTable);
+          await db.execute(_createPlanSessionsPlanIndex);
         }
       },
       onCreate: (db, version) async {
@@ -96,6 +102,9 @@ class AppDatabase {
         );
         await db.execute(_createEventsTable);
         await db.execute(_createEventsDateIndex);
+        await db.execute(_createPlansTable);
+        await db.execute(_createPlanSessionsTable);
+        await db.execute(_createPlanSessionsPlanIndex);
         await db.execute('''
           CREATE TABLE sync_state (
             scope TEXT PRIMARY KEY,
@@ -129,6 +138,46 @@ class AppDatabase {
 
   static const _createEventsDateIndex =
       'CREATE INDEX idx_events_date ON events(date)';
+
+  /// A generated training plan. `meta` holds the per-week targets and limits
+  /// as JSON — they are only ever read back whole.
+  static const _createPlansTable = '''
+    CREATE TABLE plans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      goal_type TEXT NOT NULL,
+      sport TEXT NOT NULL,
+      start_date TEXT NOT NULL,
+      baseline_load REAL NOT NULL,
+      status TEXT NOT NULL,
+      meta TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  ''';
+
+  /// One session of a plan, with the ids of the Intervals.icu event and
+  /// device-calendar event it was written to (if it was).
+  static const _createPlanSessionsTable = '''
+    CREATE TABLE plan_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      plan_id INTEGER NOT NULL,
+      week_index INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      slot TEXT NOT NULL,
+      template_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      sport TEXT NOT NULL,
+      minutes INTEGER NOT NULL,
+      load INTEGER NOT NULL,
+      low_minutes REAL NOT NULL,
+      description TEXT NOT NULL,
+      intervals_event_id TEXT,
+      calendar_event_id TEXT,
+      status TEXT NOT NULL
+    )
+  ''';
+
+  static const _createPlanSessionsPlanIndex =
+      'CREATE INDEX idx_plan_sessions_plan ON plan_sessions(plan_id)';
 
   Future<String> _resolvePath() async {
     if (_overridePath != null) return _overridePath;

@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../agent/llm_settings.dart';
 import '../../agent/ollama_connection.dart';
+import '../../data/sync/background_sync.dart';
+import '../../data/sync/background_sync_runner.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
 import '../../locale_controller.dart';
@@ -687,9 +689,85 @@ class _AutoSyncSection extends StatelessWidget {
                   ),
               ],
             ),
+            const SizedBox(height: 16),
+            _BackgroundSyncControls(settings: _settings),
           ],
         );
       },
+    );
+  }
+}
+
+/// The nightly background-sync toggle and what its last run did. Android
+/// only — elsewhere nothing can wake a closed app, so it says so instead of
+/// offering a switch that would do nothing.
+class _BackgroundSyncControls extends StatefulWidget {
+  const _BackgroundSyncControls({required this.settings});
+
+  final SyncSettings settings;
+
+  @override
+  State<_BackgroundSyncControls> createState() =>
+      _BackgroundSyncControlsState();
+}
+
+class _BackgroundSyncControlsState extends State<_BackgroundSyncControls> {
+  SyncSettings get settings => widget.settings;
+
+  @override
+  void initState() {
+    super.initState();
+    // The last run is written by the background isolate, so re-read it from
+    // disk whenever Settings opens.
+    settings.load();
+  }
+
+  String _result(AppLocalizations l10n, String? name) {
+    final outcome = BackgroundSyncOutcome.values.asNameMap()[name];
+    return switch (outcome) {
+      BackgroundSyncOutcome.success => l10n.backgroundResultSuccess,
+      BackgroundSyncOutcome.skippedFresh => l10n.backgroundResultSkippedFresh,
+      BackgroundSyncOutcome.authRejected => l10n.backgroundResultAuthRejected,
+      BackgroundSyncOutcome.notConnected => l10n.backgroundResultNotConnected,
+      _ => l10n.backgroundResultFailed,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final muted = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    if (!BackgroundSync.isSupported) {
+      return Text(l10n.backgroundSyncUnsupported, style: muted);
+    }
+    final lastRun = settings.backgroundLastRunAt;
+    final material = MaterialLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.backgroundSyncTitle),
+          subtitle: Text(l10n.backgroundSyncDescription),
+          value: settings.backgroundSyncEnabled,
+          onChanged: (value) async {
+            await settings.setBackgroundSyncEnabled(value);
+            await BackgroundSync.instance.apply();
+          },
+        ),
+        Text(
+          lastRun == null
+              ? l10n.backgroundSyncNoRun
+              : l10n.backgroundSyncLastRun(
+                  '${material.formatShortDate(lastRun)} '
+                  '${material.formatTimeOfDay(TimeOfDay.fromDateTime(lastRun))}',
+                  _result(l10n, settings.backgroundLastResult),
+                ),
+          style: muted,
+        ),
+      ],
     );
   }
 }

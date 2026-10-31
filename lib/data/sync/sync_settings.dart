@@ -13,6 +13,10 @@ class SyncSettings extends ChangeNotifier {
   factory SyncSettings.forTesting() = SyncSettings._;
 
   static const _autoSyncIntervalKey = 'sync.auto_interval_minutes';
+  static const _backgroundEnabledKey = 'sync.background_enabled';
+  static const _backgroundLastRunKey = 'sync.background_last_run';
+  static const _backgroundLastResultKey = 'sync.background_last_result';
+  static const _backgroundFailuresKey = 'sync.background_failures';
 
   static const defaultAutoSyncIntervalMinutes = 5;
   static const minAutoSyncIntervalMinutes = 1;
@@ -24,9 +28,31 @@ class SyncSettings extends ChangeNotifier {
   int autoSyncIntervalMinutes = defaultAutoSyncIntervalMinutes;
   bool isLoaded = false;
 
+  /// Whether the nightly background sync is on (Android only; the control is
+  /// hidden elsewhere). On by default — it only ever runs once connected.
+  bool backgroundSyncEnabled = true;
+
+  /// When the last background run finished, and how it went (a
+  /// `BackgroundSyncOutcome.name`). Written from the background isolate.
+  DateTime? backgroundLastRunAt;
+  String? backgroundLastResult;
+
+  /// Consecutive background runs that failed; reset by a success.
+  int backgroundFailures = 0;
+
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      // The background isolate writes these from its own copy of the
+      // preferences cache, so re-read from disk before trusting ours.
+      await prefs.reload();
+      backgroundSyncEnabled = prefs.getBool(_backgroundEnabledKey) ?? true;
+      final lastRun = prefs.getInt(_backgroundLastRunKey);
+      backgroundLastRunAt = lastRun == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(lastRun);
+      backgroundLastResult = prefs.getString(_backgroundLastResultKey);
+      backgroundFailures = prefs.getInt(_backgroundFailuresKey) ?? 0;
       autoSyncIntervalMinutes =
           (prefs.getInt(_autoSyncIntervalKey) ?? defaultAutoSyncIntervalMinutes)
               .clamp(minAutoSyncIntervalMinutes, maxAutoSyncIntervalMinutes);
@@ -51,6 +77,38 @@ class SyncSettings extends ChangeNotifier {
       await prefs.setInt(_autoSyncIntervalKey, clamped);
     } catch (error) {
       debugPrint('SyncSettings: cannot persist auto-sync interval: $error');
+    }
+  }
+
+  Future<void> setBackgroundSyncEnabled(bool enabled) async {
+    if (enabled == backgroundSyncEnabled) return;
+    backgroundSyncEnabled = enabled;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_backgroundEnabledKey, enabled);
+    } catch (error) {
+      debugPrint('SyncSettings: cannot persist background sync flag: $error');
+    }
+  }
+
+  /// Records the outcome of a background run. [failed] counts toward
+  /// [backgroundFailures]; anything else resets it.
+  Future<void> recordBackgroundRun(String result, {required bool failed}) async {
+    backgroundLastRunAt = DateTime.now();
+    backgroundLastResult = result;
+    backgroundFailures = failed ? backgroundFailures + 1 : 0;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(
+        _backgroundLastRunKey,
+        backgroundLastRunAt!.millisecondsSinceEpoch,
+      );
+      await prefs.setString(_backgroundLastResultKey, result);
+      await prefs.setInt(_backgroundFailuresKey, backgroundFailures);
+    } catch (error) {
+      debugPrint('SyncSettings: cannot persist background run: $error');
     }
   }
 }

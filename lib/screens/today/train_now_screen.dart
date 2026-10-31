@@ -62,6 +62,12 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   double _durationMinutes = 60;
   _Intensity _intensity = _Intensity.endurance;
 
+  /// Revealed by a separate button rather than always shown — most requests
+  /// need nothing beyond sport/duration/intensity, so the field stays out of
+  /// the way until asked for.
+  bool _showCustomPrompt = false;
+  final _customPromptController = TextEditingController();
+
   TrainingAgent? _agent;
   StreamSubscription<AgentEvent>? _subscription;
   String _reply = '';
@@ -85,6 +91,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   @override
   void dispose() {
     _subscription?.cancel();
+    _customPromptController.dispose();
     super.dispose();
   }
 
@@ -115,22 +122,32 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 
   String _buildPrompt() {
     final minutes = _durationMinutes.round();
+    final customPrompt = _customPromptController.text.trim();
     return 'Propose ${_intensity.promptWord} $_sport session lasting about '
         '$minutes minutes for me to do right now. Before proposing, check my '
         'training load from the last 7 days (TSS, CTL, ATL, ramp rate) with '
         'your tools and take it into account — back off the prescription if '
-        "the data suggests I'm not recovered, and say so. Reply with a "
-        'structured plan (warm-up, main set, cool-down where relevant) '
-        'where every interval carries its own concrete target (% of FTP, % '
-        'of threshold pace, or — for swimming — a pace per 100m or explicit '
-        'effort), an estimated TSS, and a one-line rationale citing the '
-        'data you found.'
+        "the data suggests I'm not recovered, and say so. Reply with the "
+        'session as a markdown table, one row per segment (warm-up, each '
+        'interval or set, cool-down), with exactly these two columns and '
+        'nothing else — more columns make the table unreadable on a '
+        'phone: "Duration" (the segment name plus its time or distance, '
+        'e.g. "Warm-up — 10m" or "3x8min"), "Session" (everything else '
+        'about that segment in one cell — the concrete target: % of FTP, % '
+        'of threshold pace, or for swimming a pace per 100m or explicit '
+        'effort; any equipment, e.g. paddles, pull buoy, fins; and any '
+        'other note worth flagging). After the table, add one line with '
+        'the estimated total TSS and a one-line rationale citing the data '
+        'you found.'
         '${_sport == 'Swim' ? ' Vary the session: about one swim session in '
               'three or four, build the main set around technique instead of '
               'straight swimming — name a specific drill and/or piece of '
               'equipment (paddles, pull buoy, fins) rather than just '
               '"swim". Only do this when it fits the requested intensity and '
-              "duration, and don't force it into a hard interval session." : ''}';
+              "duration, and don't force it into a hard interval session." : ''}'
+        '${customPrompt.isEmpty ? '' : ' Additional instructions from me, '
+              'which take priority over the defaults above where they '
+              'conflict: "$customPrompt".'}';
   }
 
   void _onEvent(AgentEvent event) {
@@ -347,6 +364,47 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                 ? null
                 : (selection) => setState(() => _intensity = selection.first),
           ),
+          const SizedBox(height: 12),
+          if (!_showCustomPrompt)
+            OutlinedButton.icon(
+              onPressed: _isBusy
+                  ? null
+                  : () => setState(() => _showCustomPrompt = true),
+              icon: const Icon(Icons.tune),
+              label: Text(l10n.addCustomInstructions),
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.customInstructionsLabel,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                IconButton(
+                  onPressed: _isBusy
+                      ? null
+                      : () => setState(() {
+                          _showCustomPrompt = false;
+                          _customPromptController.clear();
+                        }),
+                  tooltip: l10n.removeCustomInstructions,
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            TextField(
+              controller: _customPromptController,
+              enabled: !_isBusy,
+              maxLines: 3,
+              maxLength: 300,
+              decoration: InputDecoration(
+                hintText: l10n.customInstructionsHint,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           if (!configured) ...[
             Text(

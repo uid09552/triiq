@@ -179,6 +179,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get intensityIntervals => 'Intervals';
 
   @override
+  String get addCustomInstructions => 'Add custom instructions';
+
+  @override
+  String get customInstructionsLabel => 'Custom instructions';
+
+  @override
+  String get removeCustomInstructions => 'Remove custom instructions';
+
+  @override
+  String get customInstructionsHint =>
+      'e.g. \"keep the run flat, I want to save my legs for a race Saturday\"';
+
+  @override
   String trainNowEventTitle(String intensity, String sport) {
     return '$intensity $sport session';
   }
@@ -408,6 +421,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String autoSyncHours(int hours) {
     return '$hours h';
   }
+
+  @override
+  String get backgroundSyncTitle => 'Nightly background sync';
+
+  @override
+  String get backgroundSyncDescription =>
+      'Refresh the current week overnight even when the app is closed. It runs about once a day, only with a network connection and when the battery isn\'t low.';
+
+  @override
+  String get backgroundSyncNoRun => 'No background run yet.';
+
+  @override
+  String backgroundSyncLastRun(String when, String result) {
+    return 'Last run: $when – $result';
+  }
+
+  @override
+  String get backgroundResultSuccess => 'synced';
+
+  @override
+  String get backgroundResultSkippedFresh => 'skipped, data was fresh';
+
+  @override
+  String get backgroundResultAuthRejected =>
+      'key rejected, reconnect in Profile';
+
+  @override
+  String get backgroundResultFailed => 'failed, will retry tomorrow';
+
+  @override
+  String get backgroundResultNotConnected => 'not connected';
+
+  @override
+  String get backgroundSyncUnsupported =>
+      'Background sync is not available on this platform. Data refreshes while the app is open.';
 
   @override
   String get llmProviderTitle => 'LLM provider';
@@ -919,4 +967,356 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get workoutParsedByIntervals =>
       'Intervals.icu turns these steps into a structured workout; anything it can\'t parse stays as the description.';
+
+  @override
+  String get morePlanSubtitle =>
+      'A load curve and weekly calendar toward your goal';
+
+  @override
+  String get planGoalTitle => 'Goal';
+
+  @override
+  String get planNoGoal =>
+      'Set a goal and TriIQ proposes a training block from your recent training.';
+
+  @override
+  String get planSetGoal => 'Set goal';
+
+  @override
+  String get planEditGoal => 'Edit goal';
+
+  @override
+  String planGoalSummary(String target, String sport, int days, String hours) {
+    return '$target · $sport · $days days · $hours h/week';
+  }
+
+  @override
+  String get planGoalTarget => 'Target';
+
+  @override
+  String get planGoalSport => 'Sport';
+
+  @override
+  String get planGoalDays => 'Training days';
+
+  @override
+  String planGoalHours(String hours) {
+    return 'Weekly hours: $hours';
+  }
+
+  @override
+  String get planGoalEventDate => 'Event date (optional)';
+
+  @override
+  String get planGoalClearDate => 'Clear date';
+
+  @override
+  String get planGoalBaseline => 'Typical weekly load in TSS (optional)';
+
+  @override
+  String get planGoalBaselineHelp =>
+      'Used when there is not enough synced history.';
+
+  @override
+  String get planGoalLimitsTitle => 'Ramp limits';
+
+  @override
+  String get planGoalMaxIncrease => 'Max weekly load increase (%)';
+
+  @override
+  String get planGoalMaxRamp => 'Max CTL gain per week';
+
+  @override
+  String get planGoalLimitsNote =>
+      'These are starting points, not universally safe values. Adjust them to how you respond.';
+
+  @override
+  String get planSaveButton => 'Save';
+
+  @override
+  String get planGenerate => 'Generate plan';
+
+  @override
+  String get planRegenerate => 'Regenerate';
+
+  @override
+  String get planRemoveUpcoming => 'Remove upcoming sessions';
+
+  @override
+  String get planRemoveTitle => 'Remove upcoming sessions?';
+
+  @override
+  String get planRemoveBody =>
+      'Sessions from today on are deleted from your Intervals.icu calendar. Completed and past sessions stay.';
+
+  @override
+  String planRemoved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions removed',
+      one: '1 session removed',
+      zero: 'No sessions to remove',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get planNeedsBaselineTitle => 'A baseline is needed';
+
+  @override
+  String get planBaselineDialogField => 'Weekly load (TSS)';
+
+  @override
+  String get planContinueButton => 'Continue';
+
+  @override
+  String planGenerateFailed(String message) {
+    return 'Could not build a plan: $message';
+  }
+
+  @override
+  String get planPreviewTitle => 'Review your plan';
+
+  @override
+  String get planPreviewNote =>
+      'Nothing is created until you confirm. Tap a date to move a session.';
+
+  @override
+  String get planConfirmButton => 'Create plan';
+
+  @override
+  String get planCreateCalendarToo => 'Also add to my phone calendar';
+
+  @override
+  String planCreatedAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions created',
+      one: '1 session created',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planCreatedPartial(int created, int failed) {
+    return '$created created, $failed failed';
+  }
+
+  @override
+  String planRetryFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Retry $count failed sessions',
+      one: 'Retry 1 failed session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get planNotConnected =>
+      'Connect Intervals.icu in Profile to create a plan.';
+
+  @override
+  String planWeekLabel(int number, String phase) {
+    return 'Week $number · $phase';
+  }
+
+  @override
+  String get planThisWeek => 'This week';
+
+  @override
+  String get planPhaseBuild => 'Build';
+
+  @override
+  String get planPhaseBuildPlus => 'Build+';
+
+  @override
+  String get planPhasePeak => 'Peak';
+
+  @override
+  String get planPhaseRecovery => 'Recovery';
+
+  @override
+  String planTargetVsActual(int actual, int target) {
+    return '$actual of $target TSS';
+  }
+
+  @override
+  String planTargetOnly(int target) {
+    return 'Target $target TSS';
+  }
+
+  @override
+  String planEasyShare(int percent) {
+    return '$percent% easy';
+  }
+
+  @override
+  String get planOutside8020 => 'Below the 80/20 target';
+
+  @override
+  String get planLimitedIncrease => 'Held back by the weekly increase limit';
+
+  @override
+  String get planLimitedCtl => 'Held back by the CTL ramp limit';
+
+  @override
+  String get planLimitedHours => 'Held back by your weekly hours';
+
+  @override
+  String get planKnowledgeWarning =>
+      'Some training knowledge could not be read, so built-in defaults were used.';
+
+  @override
+  String get planSessionFailed => 'Not created';
+
+  @override
+  String planSessionMinutes(int minutes, int load) {
+    return '$minutes min · $load TSS';
+  }
+
+  @override
+  String get planAddToCalendar => 'Add plan to calendar';
+
+  @override
+  String planCalendarDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events added to your calendar',
+      one: '1 event added to your calendar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get planCalendarDenied => 'Calendar access was denied.';
+
+  @override
+  String get planCalendarPickTitle => 'Choose a calendar';
+
+  @override
+  String get planCalendarNone => 'No writable calendar found.';
+
+  @override
+  String get planOpenSingle => 'Add to Google Calendar';
+
+  @override
+  String get sportTriathlon => 'Triathlon';
+
+  @override
+  String planGoalWeeks(int weeks) {
+    return 'Plan length: $weeks weeks';
+  }
+
+  @override
+  String get planGoalWeeksDefault =>
+      'Default: 8 weeks, or the weeks until your event.';
+
+  @override
+  String get planGoalWeeksAuto => 'Use default';
+
+  @override
+  String get planGoalMixTitle => 'Sport mix (share of weekly load)';
+
+  @override
+  String planGoalMixTotal(int total) {
+    return 'Total $total%';
+  }
+
+  @override
+  String planGoalMixShare(String sport, int percent) {
+    return '$sport: $percent%';
+  }
+
+  @override
+  String get planCurveTitle => 'Weekly load';
+
+  @override
+  String get planCurveHint =>
+      'Drag a week up or down, 80–120% of the proposal. Drop a week to about 80% for recovery.';
+
+  @override
+  String planCurveProposal(int percent, int baseline) {
+    return '100% = proposed load: up to +$percent% a week from $baseline TSS. A default, not a rule.';
+  }
+
+  @override
+  String get planCurveNeedsBaseline =>
+      'Not enough synced history to propose a load. Enter a typical weekly load in the goal.';
+
+  @override
+  String planCurveWeekShort(int week) {
+    return 'W$week';
+  }
+
+  @override
+  String planCurveDragLabel(int week, int percent, int tss) {
+    return 'Week $week · $percent% · $tss TSS';
+  }
+
+  @override
+  String planCurveDelta(String delta) {
+    return '$delta% vs. previous week';
+  }
+
+  @override
+  String get planCurveSelectHint => 'Tap a week to fine-tune it.';
+
+  @override
+  String get planCurveIncrease => 'Increase by 5%';
+
+  @override
+  String get planCurveDecrease => 'Decrease by 5%';
+
+  @override
+  String get planCurveUndo => 'Undo';
+
+  @override
+  String get planCurveReset => 'Reset';
+
+  @override
+  String get planCurveResetTitle => 'Reset the load curve?';
+
+  @override
+  String get planCurveResetBody =>
+      'Every week goes back to 100% of the proposal.';
+
+  @override
+  String planCurveWeekSemantics(int week, int tss) {
+    return 'Week $week, $tss TSS';
+  }
+
+  @override
+  String planWarnRamp(int percent) {
+    return 'More than +$percent% over the last build week';
+  }
+
+  @override
+  String get planWarnCtl => 'Above the CTL ramp limit';
+
+  @override
+  String get planWarnHours => 'Needs more than your weekly hours';
+
+  @override
+  String planWeekBySport(String sport, int tss) {
+    return '$sport $tss';
+  }
+
+  @override
+  String planTargetPlanned(int target, int planned) {
+    return 'Target $target · planned $planned TSS';
+  }
+
+  @override
+  String planCurveFactor(int percent) {
+    return '$percent% of proposal';
+  }
+
+  @override
+  String get planNotEnoughDays =>
+      'Your training days cannot hold this week. Add a day or set a sport to 0%.';
 }

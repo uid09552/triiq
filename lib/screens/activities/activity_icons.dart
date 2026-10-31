@@ -24,6 +24,23 @@ IconData activityTypeIcon(String? type) {
   return Icons.sports_score_outlined;
 }
 
+/// A colour per triathlon sport, readable on the light and dark surface;
+/// other sports get the theme's secondary colour.
+Color sportColor(String? type, ColorScheme scheme) {
+  final dark = scheme.brightness == Brightness.dark;
+  final normalized = (type ?? '').toLowerCase();
+  if (normalized.contains('swim')) {
+    return dark ? const Color(0xFF6EC6FF) : const Color(0xFF0277BD);
+  }
+  if (normalized.contains('ride') || normalized.contains('bike')) {
+    return dark ? const Color(0xFFFFB74D) : const Color(0xFFE65100);
+  }
+  if (normalized.contains('run')) {
+    return dark ? const Color(0xFF81C784) : const Color(0xFF2E7D32);
+  }
+  return scheme.secondary;
+}
+
 /// Formats an ISO `yyyy-MM-dd` string (as stored in `LocalActivity.date`)
 /// as e.g. `Aug 30, 2026`, without pulling in `package:intl` for one format.
 String formatIsoDate(String isoDate) {

@@ -1,5 +1,7 @@
 import 'package:url_launcher/url_launcher.dart';
 
+import 'markdown_to_text.dart';
+
 /// Opens Google Calendar's "add event" flow with the given details
 /// prefilled, via the `calendar.google.com/calendar/render` URL — no OAuth
 /// or Google API client needed, in keeping with this app's "no custom
@@ -10,6 +12,10 @@ import 'package:url_launcher/url_launcher.dart';
 /// activity detail screen for the same pattern), so it opens the Google
 /// Calendar app when one's installed and registered for it, and the browser
 /// otherwise. Returns whether the link was launched.
+///
+/// [description] is run through [markdownToPlainText] first — Google
+/// Calendar's description field doesn't render Markdown, so an agent reply
+/// passed straight through would show up with literal `**`, `#` and `|`.
 ///
 /// Set [allDay] for something with no time of day — a planned session
 /// Intervals.icu stores at midnight belongs on the day, not at 00:00.
@@ -32,7 +38,7 @@ Future<bool> launchGoogleCalendarEvent({
     'action': 'TEMPLATE',
     'text': title,
     'dates': dates,
-    'details': description,
+    'details': markdownToPlainText(description),
   });
   return launchUrl(uri, mode: LaunchMode.externalApplication);
 }

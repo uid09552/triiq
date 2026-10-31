@@ -15,6 +15,11 @@ import 'sync_settings.dart';
 /// way to wake a closed/backgrounded app on this schedule, and this is meant
 /// to keep an open app fresh, not to be a background sync job.
 ///
+/// Opening the app also syncs *today* straight away — wellness, activities
+/// and planned events, ignoring the throttles — because that is when the
+/// athlete is looking for the ride they just finished. On a cold start the
+/// session is still being restored, so that sync fires when it connects.
+///
 /// Coming back to the app is the one moment where staleness is most likely
 /// and most visible (the athlete just finished a ride and opened TriIQ), so
 /// a resume re-syncs the current month whenever the last sync is more than
@@ -53,19 +58,52 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
   Timer? _timer;
   DateTime? _lastSyncAt;
   bool _syncing = false;
+  bool _syncingToday = false;
   bool _started = false;
+  bool _wasConnected = false;
 
   void start() {
     if (_started) return;
     _started = true;
     WidgetsBinding.instance.addObserver(this);
     SyncSettings.instance.addListener(_restartTimer);
+    _session.addListener(_onSessionChanged);
+    _wasConnected = _session.isConnected;
+    unawaited(syncToday());
     _restartTimer();
+  }
+
+  /// The cold-start case: the app opened before the saved key was checked,
+  /// so "open" only becomes syncable once the session connects.
+  void _onSessionChanged() {
+    final connected = _session.isConnected;
+    if (connected && !_wasConnected) unawaited(syncToday());
+    _wasConnected = connected;
+  }
+
+  /// Fetches just today, now. Not throttled by the configured interval (the
+  /// whole point is that opening the app is fresh), but still joins any
+  /// identical fetch in flight via `SyncService`. Failures are swallowed —
+  /// the screens show the cache, and the timer or a pull-to-refresh retries.
+  Future<void> syncToday() async {
+    if (_syncingToday || !_session.isConnected) return;
+    _syncingToday = true;
+    try {
+      await _syncService.syncScope(SyncScope.today);
+      // Deliberately not `_lastSyncAt`: that throttles the month sync, which
+      // today alone doesn't satisfy.
+      notifyListeners();
+    } catch (error) {
+      debugPrint('AutoSyncService: today sync failed: $error');
+    } finally {
+      _syncingToday = false;
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      unawaited(syncToday());
       // Reopening the app: refresh sooner than a long configured interval
       // would, so the first screen isn't showing this morning's data.
       _restartTimer(minGap: resumeStaleAfter);

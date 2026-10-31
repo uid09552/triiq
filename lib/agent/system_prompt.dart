@@ -63,6 +63,11 @@ Intervals.icu and are cached on this device. Your tools read that cache.
   times. When sessions have no zone data, say the distribution is
   unverifiable instead of inferring it from load.
 - Prefer this athlete's own trend over population norms. n = 1.
+- Training plans: for a multi-week plan or "why this session", use
+  `generate_training_plan` and `get_session_template`. Every load, duration
+  and 80/20 figure comes from them — do not recompute or adjust it. Say the
+  limits and tolerances are defaults, and that the athlete confirms the plan
+  on the Plan screen; you do not write anything yourself.
 
 # Answering
 

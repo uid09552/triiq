@@ -13,6 +13,8 @@ class PlannedWorkoutDraft {
     this.durationSeconds,
     this.load,
     this.indoor = false,
+    this.tags,
+    this.externalId,
   });
 
   final String name;
@@ -30,6 +32,21 @@ class PlannedWorkoutDraft {
   final int? durationSeconds;
   final int? load;
   final bool indoor;
+
+  /// Intervals.icu tags, e.g. the plan a session belongs to, so it can be
+  /// found again.
+  final List<String>? tags;
+
+  /// The creator's own id for the entry (a plan session), kept by
+  /// Intervals.icu alongside it.
+  final String? externalId;
+}
+
+/// What the plan code needs from Intervals.icu — an interface so plan writing
+/// can be tested without a network.
+abstract class PlannedWorkoutWriter {
+  Future<Event> createPlannedWorkout(PlannedWorkoutDraft draft);
+  Future<void> deletePlannedWorkout(String eventId);
 }
 
 /// Writes planned workouts to Intervals.icu.
@@ -37,7 +54,7 @@ class PlannedWorkoutDraft {
 /// The one place in the app that *creates* something upstream rather than
 /// reading: everything else syncs down into the local cache. Kept separate
 /// from [SyncService] for that reason.
-class IntervalsWorkoutService {
+class IntervalsWorkoutService implements PlannedWorkoutWriter {
   IntervalsWorkoutService({IntervalsSession? session})
     : _session = session ?? IntervalsSession.instance;
 
@@ -46,6 +63,7 @@ class IntervalsWorkoutService {
   /// Creates [draft] on the athlete's calendar and returns the event
   /// Intervals.icu made of it — including the load and duration it computed
   /// from the structure, which may differ from what was asked for.
+  @override
   Future<Event> createPlannedWorkout(PlannedWorkoutDraft draft) async {
     final client = _session.client;
     final athleteId = _session.athleteId;
@@ -68,6 +86,8 @@ class IntervalsWorkoutService {
         indoor: draft.indoor,
         movingTime: draft.durationSeconds,
         icuTrainingLoad: draft.load,
+        tags: draft.tags,
+        externalId: draft.externalId,
       ),
     );
 
@@ -84,6 +104,7 @@ class IntervalsWorkoutService {
   /// `others: false` — Intervals.icu can delete everything added in the same
   /// batch (a whole plan week) along with the entry, which is never what
   /// picking one session and confirming a deletion means here.
+  @override
   Future<void> deletePlannedWorkout(String eventId) async {
     final client = _session.client;
     final athleteId = _session.athleteId;

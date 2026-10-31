@@ -6,6 +6,7 @@ import 'agent/llm_settings.dart';
 import 'app.dart';
 import 'data/intervals_session.dart';
 import 'data/sync/auto_sync_service.dart';
+import 'data/sync/background_sync.dart';
 import 'data/sync/sync_settings.dart';
 import 'locale_controller.dart';
 import 'notifications/app_lifecycle_tracker.dart';
@@ -24,7 +25,11 @@ void main() {
   unawaited(LlmSettings.instance.load());
   // Auto-sync the current month while the app is open, throttled to the
   // user's configured interval (default 5 minutes) — see AutoSyncService.
-  unawaited(SyncSettings.instance.load());
+  // Then make the nightly background sync match the saved on/off choice
+  // (Android only; a no-op elsewhere).
+  unawaited(
+    SyncSettings.instance.load().then((_) => BackgroundSync.instance.apply()),
+  );
   AutoSyncService.instance.start();
   // The chosen app language (System/English/German) — TriiqApp listens and
   // rebuilds once it resolves.

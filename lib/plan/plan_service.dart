@@ -1,0 +1,145 @@
+import '../data/intervals_workout_service.dart';
+import '../data/repositories/activities_repository.dart';
+import '../data/repositories/plans_repository.dart';
+import '../util/dates.dart';
+import 'knowledge.dart';
+import 'load_curve.dart';
+import 'plan_engine.dart';
+import 'plan_inputs.dart';
+import 'plan_models.dart';
+import 'plan_writer.dart';
+
+/// Everything the Plan screen does, in one place: generate a block from the
+/// cache, store it, write it to Intervals.icu, and take its future part off
+/// again. The screen only decides when.
+class PlanService {
+  PlanService({
+    KnowledgeRepository? knowledge,
+    PlanInputsLoader? inputs,
+    PlansRepository? plans,
+    ActivitiesRepository? activities,
+    PlanWriter? writer,
+    GoalStore? goals,
+  }) : knowledge = knowledge ?? KnowledgeRepository(),
+       _inputs = inputs ?? PlanInputsLoader(),
+       plans = plans ?? PlansRepository(),
+       _activities = activities ?? ActivitiesRepository(),
+       goals = goals ?? GoalStore() {
+    this.writer =
+        writer ??
+        PlanWriter(workouts: IntervalsWorkoutService(), plans: this.plans);
+  }
+
+  final KnowledgeRepository knowledge;
+  final PlansRepository plans;
+  final GoalStore goals;
+  final PlanInputsLoader _inputs;
+  final ActivitiesRepository _activities;
+  late final PlanWriter writer;
+
+  /// The Monday a new block should start on: next Monday, or this week's
+  /// Monday when [today] is one (a plan made on Monday starts that day).
+  static DateTime defaultStart(DateTime today) {
+    final day = dateOnly(today);
+    return day.weekday == DateTime.monday
+        ? day
+        : day.add(Duration(days: 8 - day.weekday));
+  }
+
+  /// What the load graph is drawn within for [goal]: the baseline, ramp,
+  /// CTL and hours limits from the cache — or why there are none yet.
+  Future<({CurveLimits? limits, PlanFailure? failure, int weeks})> curve(
+    Goal goal, {
+    DateTime? start,
+    DateTime? today,
+  }) async {
+    final now = today ?? DateTime.now();
+    final monday = start ?? defaultStart(now);
+    final loaded = await knowledge.load();
+    final inputs = await _inputs.load(monday);
+    final found = PlanEngine(loaded).limitsFor(
+      goal: goal,
+      recentWeeklyLoads: inputs.weeklyLoads,
+      currentCtl: inputs.currentCtl,
+      today: now,
+    );
+    return (
+      limits: found.limits,
+      failure: found.failure,
+      weeks: goal.planWeeks(monday),
+    );
+  }
+
+  Future<PlanResult> generate(
+    Goal goal, {
+    DateTime? start,
+    DateTime? today,
+  }) async {
+    final now = today ?? DateTime.now();
+    final monday = start ?? defaultStart(now);
+    final loaded = await knowledge.load();
+    final inputs = await _inputs.load(monday);
+    return PlanEngine(loaded).generate(
+      goal: goal,
+      startDate: monday,
+      recentWeeklyLoads: inputs.weeklyLoads,
+      currentCtl: inputs.currentCtl,
+      today: now,
+    );
+  }
+
+  /// Completed load per plan week (TSS), for target-versus-actual. Weeks
+  /// that haven't started have no actual yet.
+  Future<List<int?>> actualLoads(TrainingPlan plan, {DateTime? today}) async {
+    final now = dateOnly(today ?? DateTime.now());
+    final result = <int?>[];
+    for (final week in plan.weeks) {
+      if (week.startDate.isAfter(now)) {
+        result.add(null);
+        continue;
+      }
+      final rows = await _activities.getRange(
+        isoDate(week.startDate),
+        isoDate(week.startDate.add(const Duration(days: 6))),
+      );
+      result.add(rows.fold<int>(0, (sum, a) => sum + (a.trainingLoad ?? 0)));
+    }
+    return result;
+  }
+
+  /// Saves [draft] as the current plan and writes it to Intervals.icu. A
+  /// previous plan's upcoming sessions are removed first; its past ones stay
+  /// as history.
+  Future<({TrainingPlan plan, PlanWriteReport report})> confirm(
+    TrainingPlan draft, {
+    TrainingPlan? replacing,
+    DateTime? today,
+  }) async {
+    if (replacing != null) {
+      await removeUpcoming(replacing, today: today);
+    }
+    final saved = await plans.save(draft);
+    final report = await writer.write(saved);
+    final current = await plans.getById(saved.id!);
+    return (plan: current ?? saved, report: report);
+  }
+
+  /// Retries only the sessions that failed to reach Intervals.icu.
+  Future<({TrainingPlan plan, PlanWriteReport report})> retry(
+    TrainingPlan plan,
+  ) async {
+    final report = await writer.write(plan);
+    return (plan: (await plans.getById(plan.id!)) ?? plan, report: report);
+  }
+
+  /// Deletes [plan]'s sessions from today on (upstream and locally). The
+  /// plan itself is marked removed when nothing of it is left to keep.
+  Future<int> removeUpcoming(TrainingPlan plan, {DateTime? today}) async {
+    final removed = await writer.removeFrom(plan, today ?? DateTime.now());
+    final remaining = await plans.getById(plan.id!);
+    if (remaining == null || remaining.sessions.isEmpty) {
+      await plans.setStatus(plan.id!, PlanStatus.removed);
+    }
+    return removed;
+  }
+}

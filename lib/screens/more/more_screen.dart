@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../activities/activities_screen.dart';
+import '../plan/plan_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_screen.dart';
@@ -49,13 +50,16 @@ class MoreScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const ActivitiesScreen()),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         _MoreTile(
           icon: Icons.event_note_outlined,
           title: l10n.trainingPlansTitle,
-          subtitle: l10n.comingSoon,
-          enabled: false,
+          subtitle: l10n.morePlanSubtitle,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const PlanScreen()),
+          ),
         ),
+        const SizedBox(height: 20),
         const SizedBox(height: 10),
         _MoreTile(
           icon: Icons.fitness_center_outlined,

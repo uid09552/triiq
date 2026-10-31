@@ -404,6 +404,30 @@ abstract class AppLocalizations {
   /// **'Intervals'**
   String get intensityIntervals;
 
+  /// No description provided for @addCustomInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom instructions'**
+  String get addCustomInstructions;
+
+  /// No description provided for @customInstructionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom instructions'**
+  String get customInstructionsLabel;
+
+  /// No description provided for @removeCustomInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove custom instructions'**
+  String get removeCustomInstructions;
+
+  /// No description provided for @customInstructionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. \"keep the run flat, I want to save my legs for a race Saturday\"'**
+  String get customInstructionsHint;
+
   /// No description provided for @trainNowEventTitle.
   ///
   /// In en, this message translates to:
@@ -817,6 +841,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{hours} h'**
   String autoSyncHours(int hours);
+
+  /// No description provided for @backgroundSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nightly background sync'**
+  String get backgroundSyncTitle;
+
+  /// No description provided for @backgroundSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh the current week overnight even when the app is closed. It runs about once a day, only with a network connection and when the battery isn\'t low.'**
+  String get backgroundSyncDescription;
+
+  /// No description provided for @backgroundSyncNoRun.
+  ///
+  /// In en, this message translates to:
+  /// **'No background run yet.'**
+  String get backgroundSyncNoRun;
+
+  /// No description provided for @backgroundSyncLastRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run: {when} – {result}'**
+  String backgroundSyncLastRun(String when, String result);
+
+  /// No description provided for @backgroundResultSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'synced'**
+  String get backgroundResultSuccess;
+
+  /// No description provided for @backgroundResultSkippedFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'skipped, data was fresh'**
+  String get backgroundResultSkippedFresh;
+
+  /// No description provided for @backgroundResultAuthRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'key rejected, reconnect in Profile'**
+  String get backgroundResultAuthRejected;
+
+  /// No description provided for @backgroundResultFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'failed, will retry tomorrow'**
+  String get backgroundResultFailed;
+
+  /// No description provided for @backgroundResultNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'not connected'**
+  String get backgroundResultNotConnected;
+
+  /// No description provided for @backgroundSyncUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Background sync is not available on this platform. Data refreshes while the app is open.'**
+  String get backgroundSyncUnsupported;
 
   /// No description provided for @llmProviderTitle.
   ///
@@ -1657,6 +1741,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Intervals.icu turns these steps into a structured workout; anything it can\'t parse stays as the description.'**
   String get workoutParsedByIntervals;
+
+  /// No description provided for @morePlanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A load curve and weekly calendar toward your goal'**
+  String get morePlanSubtitle;
+
+  /// No description provided for @planGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get planGoalTitle;
+
+  /// No description provided for @planNoGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal and TriIQ proposes a training block from your recent training.'**
+  String get planNoGoal;
+
+  /// No description provided for @planSetGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set goal'**
+  String get planSetGoal;
+
+  /// No description provided for @planEditGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit goal'**
+  String get planEditGoal;
+
+  /// No description provided for @planGoalSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{target} · {sport} · {days} days · {hours} h/week'**
+  String planGoalSummary(String target, String sport, int days, String hours);
+
+  /// No description provided for @planGoalTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get planGoalTarget;
+
+  /// No description provided for @planGoalSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get planGoalSport;
+
+  /// No description provided for @planGoalDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Training days'**
+  String get planGoalDays;
+
+  /// No description provided for @planGoalHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly hours: {hours}'**
+  String planGoalHours(String hours);
+
+  /// No description provided for @planGoalEventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Event date (optional)'**
+  String get planGoalEventDate;
+
+  /// No description provided for @planGoalClearDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear date'**
+  String get planGoalClearDate;
+
+  /// No description provided for @planGoalBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical weekly load in TSS (optional)'**
+  String get planGoalBaseline;
+
+  /// No description provided for @planGoalBaselineHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when there is not enough synced history.'**
+  String get planGoalBaselineHelp;
+
+  /// No description provided for @planGoalLimitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramp limits'**
+  String get planGoalLimitsTitle;
+
+  /// No description provided for @planGoalMaxIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Max weekly load increase (%)'**
+  String get planGoalMaxIncrease;
+
+  /// No description provided for @planGoalMaxRamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Max CTL gain per week'**
+  String get planGoalMaxRamp;
+
+  /// No description provided for @planGoalLimitsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'These are starting points, not universally safe values. Adjust them to how you respond.'**
+  String get planGoalLimitsNote;
+
+  /// No description provided for @planSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get planSaveButton;
+
+  /// No description provided for @planGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate plan'**
+  String get planGenerate;
+
+  /// No description provided for @planRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate'**
+  String get planRegenerate;
+
+  /// No description provided for @planRemoveUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove upcoming sessions'**
+  String get planRemoveUpcoming;
+
+  /// No description provided for @planRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove upcoming sessions?'**
+  String get planRemoveTitle;
+
+  /// No description provided for @planRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions from today on are deleted from your Intervals.icu calendar. Completed and past sessions stay.'**
+  String get planRemoveBody;
+
+  /// No description provided for @planRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No sessions to remove} =1{1 session removed} other{{count} sessions removed}}'**
+  String planRemoved(int count);
+
+  /// No description provided for @planNeedsBaselineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A baseline is needed'**
+  String get planNeedsBaselineTitle;
+
+  /// No description provided for @planBaselineDialogField.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly load (TSS)'**
+  String get planBaselineDialogField;
+
+  /// No description provided for @planContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get planContinueButton;
+
+  /// No description provided for @planGenerateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not build a plan: {message}'**
+  String planGenerateFailed(String message);
+
+  /// No description provided for @planPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your plan'**
+  String get planPreviewTitle;
+
+  /// No description provided for @planPreviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is created until you confirm. Tap a date to move a session.'**
+  String get planPreviewNote;
+
+  /// No description provided for @planConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create plan'**
+  String get planConfirmButton;
+
+  /// No description provided for @planCreateCalendarToo.
+  ///
+  /// In en, this message translates to:
+  /// **'Also add to my phone calendar'**
+  String get planCreateCalendarToo;
+
+  /// No description provided for @planCreatedAll.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 session created} other{{count} sessions created}}'**
+  String planCreatedAll(int count);
+
+  /// No description provided for @planCreatedPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{created} created, {failed} failed'**
+  String planCreatedPartial(int created, int failed);
+
+  /// No description provided for @planRetryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Retry 1 failed session} other{Retry {count} failed sessions}}'**
+  String planRetryFailed(int count);
+
+  /// No description provided for @planNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu in Profile to create a plan.'**
+  String get planNotConnected;
+
+  /// No description provided for @planWeekLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {number} · {phase}'**
+  String planWeekLabel(int number, String phase);
+
+  /// No description provided for @planThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get planThisWeek;
+
+  /// No description provided for @planPhaseBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get planPhaseBuild;
+
+  /// No description provided for @planPhaseBuildPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Build+'**
+  String get planPhaseBuildPlus;
+
+  /// No description provided for @planPhasePeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak'**
+  String get planPhasePeak;
+
+  /// No description provided for @planPhaseRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery'**
+  String get planPhaseRecovery;
+
+  /// No description provided for @planTargetVsActual.
+  ///
+  /// In en, this message translates to:
+  /// **'{actual} of {target} TSS'**
+  String planTargetVsActual(int actual, int target);
+
+  /// No description provided for @planTargetOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Target {target} TSS'**
+  String planTargetOnly(int target);
+
+  /// No description provided for @planEasyShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% easy'**
+  String planEasyShare(int percent);
+
+  /// No description provided for @planOutside8020.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the 80/20 target'**
+  String get planOutside8020;
+
+  /// No description provided for @planLimitedIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Held back by the weekly increase limit'**
+  String get planLimitedIncrease;
+
+  /// No description provided for @planLimitedCtl.
+  ///
+  /// In en, this message translates to:
+  /// **'Held back by the CTL ramp limit'**
+  String get planLimitedCtl;
+
+  /// No description provided for @planLimitedHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Held back by your weekly hours'**
+  String get planLimitedHours;
+
+  /// No description provided for @planKnowledgeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Some training knowledge could not be read, so built-in defaults were used.'**
+  String get planKnowledgeWarning;
+
+  /// No description provided for @planSessionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not created'**
+  String get planSessionFailed;
+
+  /// No description provided for @planSessionMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min · {load} TSS'**
+  String planSessionMinutes(int minutes, int load);
+
+  /// No description provided for @planAddToCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Add plan to calendar'**
+  String get planAddToCalendar;
+
+  /// No description provided for @planCalendarDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 event added to your calendar} other{{count} events added to your calendar}}'**
+  String planCalendarDone(int count);
+
+  /// No description provided for @planCalendarDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar access was denied.'**
+  String get planCalendarDenied;
+
+  /// No description provided for @planCalendarPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a calendar'**
+  String get planCalendarPickTitle;
+
+  /// No description provided for @planCalendarNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No writable calendar found.'**
+  String get planCalendarNone;
+
+  /// No description provided for @planOpenSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Google Calendar'**
+  String get planOpenSingle;
+
+  /// No description provided for @sportTriathlon.
+  ///
+  /// In en, this message translates to:
+  /// **'Triathlon'**
+  String get sportTriathlon;
+
+  /// No description provided for @planGoalWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan length: {weeks} weeks'**
+  String planGoalWeeks(int weeks);
+
+  /// No description provided for @planGoalWeeksDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default: 8 weeks, or the weeks until your event.'**
+  String get planGoalWeeksDefault;
+
+  /// No description provided for @planGoalWeeksAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use default'**
+  String get planGoalWeeksAuto;
+
+  /// No description provided for @planGoalMixTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport mix (share of weekly load)'**
+  String get planGoalMixTitle;
+
+  /// No description provided for @planGoalMixTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {total}%'**
+  String planGoalMixTotal(int total);
+
+  /// No description provided for @planGoalMixShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport}: {percent}%'**
+  String planGoalMixShare(String sport, int percent);
+
+  /// No description provided for @planCurveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly load'**
+  String get planCurveTitle;
+
+  /// No description provided for @planCurveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag a week up or down, 80–120% of the proposal. Drop a week to about 80% for recovery.'**
+  String get planCurveHint;
+
+  /// No description provided for @planCurveProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'100% = proposed load: up to +{percent}% a week from {baseline} TSS. A default, not a rule.'**
+  String planCurveProposal(int percent, int baseline);
+
+  /// No description provided for @planCurveNeedsBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough synced history to propose a load. Enter a typical weekly load in the goal.'**
+  String get planCurveNeedsBaseline;
+
+  /// No description provided for @planCurveWeekShort.
+  ///
+  /// In en, this message translates to:
+  /// **'W{week}'**
+  String planCurveWeekShort(int week);
+
+  /// No description provided for @planCurveDragLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week} · {percent}% · {tss} TSS'**
+  String planCurveDragLabel(int week, int percent, int tss);
+
+  /// No description provided for @planCurveDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta}% vs. previous week'**
+  String planCurveDelta(String delta);
+
+  /// No description provided for @planCurveSelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a week to fine-tune it.'**
+  String get planCurveSelectHint;
+
+  /// No description provided for @planCurveIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase by 5%'**
+  String get planCurveIncrease;
+
+  /// No description provided for @planCurveDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease by 5%'**
+  String get planCurveDecrease;
+
+  /// No description provided for @planCurveUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get planCurveUndo;
+
+  /// No description provided for @planCurveReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get planCurveReset;
+
+  /// No description provided for @planCurveResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset the load curve?'**
+  String get planCurveResetTitle;
+
+  /// No description provided for @planCurveResetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week goes back to 100% of the proposal.'**
+  String get planCurveResetBody;
+
+  /// No description provided for @planCurveWeekSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}, {tss} TSS'**
+  String planCurveWeekSemantics(int week, int tss);
+
+  /// No description provided for @planWarnRamp.
+  ///
+  /// In en, this message translates to:
+  /// **'More than +{percent}% over the last build week'**
+  String planWarnRamp(int percent);
+
+  /// No description provided for @planWarnCtl.
+  ///
+  /// In en, this message translates to:
+  /// **'Above the CTL ramp limit'**
+  String get planWarnCtl;
+
+  /// No description provided for @planWarnHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs more than your weekly hours'**
+  String get planWarnHours;
+
+  /// No description provided for @planWeekBySport.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} {tss}'**
+  String planWeekBySport(String sport, int tss);
+
+  /// No description provided for @planTargetPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Target {target} · planned {planned} TSS'**
+  String planTargetPlanned(int target, int planned);
+
+  /// No description provided for @planCurveFactor.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of proposal'**
+  String planCurveFactor(int percent);
+
+  /// No description provided for @planNotEnoughDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training days cannot hold this week. Add a day or set a sport to 0%.'**
+  String get planNotEnoughDays;
 }
 
 class _AppLocalizationsDelegate

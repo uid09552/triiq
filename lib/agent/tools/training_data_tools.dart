@@ -12,6 +12,11 @@ import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/sync_state_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/sync_service.dart';
+import '../../plan/knowledge.dart';
+import '../../plan/plan_engine.dart';
+import '../../plan/plan_inputs.dart';
+import '../../plan/plan_models.dart';
+import '../../util/dates.dart';
 
 /// The tools the training agent can call.
 ///
@@ -33,7 +38,19 @@ class TrainingDataTools {
     SyncService? syncService,
     DateTime Function()? clock,
     Future<String> Function()? loadTrainingGuidance,
-  }) : _session = session ?? IntervalsSession.instance,
+    KnowledgeRepository? knowledgeRepository,
+    GoalStore? goalStore,
+    PlanInputsLoader? planInputs,
+  }) : _knowledge = knowledgeRepository ?? KnowledgeRepository(),
+       _goalStore = goalStore ?? GoalStore(),
+       _planInputs =
+           planInputs ??
+           PlanInputsLoader(
+             activities: activitiesRepository,
+             wellness: wellnessRepository,
+             syncState: syncStateRepository,
+           ),
+       _session = session ?? IntervalsSession.instance,
        _wellnessRepository = wellnessRepository ?? WellnessRepository(),
        _activitiesRepository = activitiesRepository ?? ActivitiesRepository(),
        _eventsRepository = eventsRepository ?? EventsRepository(),
@@ -51,6 +68,9 @@ class TrainingDataTools {
   final SyncService _syncService;
   final DateTime Function() _clock;
   final Future<String> Function() _loadTrainingGuidance;
+  final KnowledgeRepository _knowledge;
+  final GoalStore _goalStore;
+  final PlanInputsLoader _planInputs;
 
   /// Scopes tracked by `SyncStateRepository`, in the order they're reported.
   static const _syncScopes = ['activities', 'wellness', 'events'];
@@ -180,6 +200,100 @@ class TrainingDataTools {
         },
       },
       run: (args) => _trainingGuidance(args),
+    ),
+    _tool(
+      name: 'generate_training_plan',
+      description:
+          'Builds a training plan of 2-16 weeks with the plan engine: a '
+          'proposed weekly load that ramps steadily from the athlete\'s '
+          'recent completed load (default max +10%/week, held by CTL and '
+          'hours limits), scaled per week by the load graph\'s factors; the '
+          'sessions per weekday (per sport for triathlon) and the 80/20 '
+          'check per week. ALL plan numbers come from here — never compute '
+          'or adjust them yourself. Omitted arguments fall back to the '
+          'athlete\'s saved goal, including the load graph. Nothing is '
+          'written anywhere; the athlete confirms a plan on the Plan screen. '
+          'Returns an error naming what is missing (for example a baseline '
+          'weekly load) or which argument is invalid.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'goal_type': {
+            'type': 'string',
+            'description': 'For example long_distance or short_event.',
+          },
+          'sport': {
+            'type': 'string',
+            'description': 'Run, Ride or Triathlon.',
+          },
+          'weeks': {
+            'type': 'integer',
+            'description':
+                'Plan length, 2-16. Default: 8, or the weeks until the '
+                'event date.',
+          },
+          'sport_mix': {
+            'type': 'object',
+            'description':
+                'Triathlon only: % of weekly load per sport, 5% steps, '
+                'total 100, e.g. {"Swim": 15, "Ride": 50, "Run": 35}.',
+          },
+          'load_factors': {
+            'type': 'array',
+            'items': {'type': 'number'},
+            'description':
+                'Per week, 0.8-1.2: share of the proposed load (1.0 = the '
+                'proposal). A week >10% below the one before becomes a '
+                'recovery week.',
+          },
+          'weekdays': {
+            'type': 'array',
+            'items': {'type': 'integer'},
+            'description': 'Training days, Monday=1 .. Sunday=7.',
+          },
+          'weekly_hours': {'type': 'number'},
+          'baseline_weekly_load': {
+            'type': 'number',
+            'description':
+                'Typical weekly TSS, only when history is too short.',
+          },
+          'start_date': {
+            'type': 'string',
+            'description':
+                'YYYY-MM-DD; moved to that week\'s Monday. Default: next '
+                'Monday.',
+          },
+        },
+      },
+      run: (args) => _generatePlan(args),
+    ),
+    _tool(
+      name: 'get_session_template',
+      description:
+          'The session recipe behind a plan session: name, intended '
+          'intensity mix, the steps, plus the block rules (week multipliers, '
+          '80/20 target). Use it to explain why a session looks the way it '
+          'does. With no arguments it lists the known goals, slots and '
+          'phases.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'goal_type': {'type': 'string'},
+          'slot': {
+            'type': 'string',
+            'description': 'z2, intervals or long.',
+          },
+          'phase': {
+            'type': 'string',
+            'description': 'build, build_plus, peak or recovery.',
+          },
+          'sport': {
+            'type': 'string',
+            'description': 'Run, Ride or Swim (default Run).',
+          },
+        },
+      },
+      run: (args) => _sessionTemplate(args),
     ),
     _tool(
       name: 'sync_from_intervals',
@@ -539,6 +653,208 @@ class TrainingDataTools {
           .toList(),
     };
   }
+
+  Future<Map<String, dynamic>> _generatePlan(Map<String, dynamic> args) async {
+    final knowledge = await _knowledge.load();
+    final saved = await _goalStore.load();
+
+    final goalType = (args['goal_type'] as String?) ?? saved?.targetType;
+    final weekdays = (args['weekdays'] as List?)
+        ?.map((d) => (d as num).toInt())
+        .toSet();
+    final hours = (args['weekly_hours'] as num?)?.toDouble();
+    if (goalType == null ||
+        (weekdays ?? saved?.weekdays) == null ||
+        (hours ?? saved?.weeklyHours) == null) {
+      return {
+        'error':
+            'No saved goal and not enough arguments. Ask the athlete for '
+            'goal_type, weekdays and weekly_hours, then call again.',
+        'known_goals': knowledge.goals.keys.toList(),
+      };
+    }
+    final weeksArg = args['weeks'];
+    if (weeksArg != null && weeksArg is! num) {
+      return {'error': 'weeks must be a whole number from 2 to 16.'};
+    }
+    Map<String, int>? mix;
+    final mixArg = args['sport_mix'];
+    if (mixArg != null) {
+      if (mixArg is! Map ||
+          mixArg.values.any((v) => v is! num) ||
+          mixArg.keys.any((k) => !Goal.triathlonSports.contains(k))) {
+        return {
+          'error':
+              'sport_mix must map Swim, Ride and Run to whole percentages, '
+              'e.g. {"Swim": 15, "Ride": 50, "Run": 35}.',
+        };
+      }
+      mix = {
+        for (final s in Goal.triathlonSports)
+          s: ((mixArg[s] as num?) ?? 0).toInt(),
+      };
+    }
+    List<double>? factors;
+    final factorsArg = args['load_factors'];
+    if (factorsArg != null) {
+      if (factorsArg is! List || factorsArg.any((f) => f is! num)) {
+        return {
+          'error':
+              'load_factors must be a list of numbers, one per week, each '
+              '0.8 to 1.2 (share of the proposed load).',
+        };
+      }
+      factors = [for (final f in factorsArg) (f as num).toDouble()];
+    }
+
+    final goal = Goal(
+      targetType: goalType,
+      weekdays: weekdays ?? saved!.weekdays,
+      weeklyHours: hours ?? saved!.weeklyHours,
+      sport: (args['sport'] as String?) ?? saved?.sport ?? 'Run',
+      eventDate: saved?.eventDate,
+      baselineWeeklyLoad:
+          (args['baseline_weekly_load'] as num?)?.toDouble() ??
+          saved?.baselineWeeklyLoad,
+      maxWeeklyIncrease: saved?.maxWeeklyIncrease,
+      maxCtlRamp: saved?.maxCtlRamp,
+      weeks: (weeksArg as num?)?.toInt() ?? saved?.weeks,
+      sportMix: mix ?? saved?.sportMix ?? Goal.defaultSportMix,
+      loadFactors: factors ?? saved?.loadFactors ?? const [],
+    );
+
+    final now = _clock();
+    final requested = _parseDate(args['start_date']);
+    final start = requested != null
+        ? startOfWeek(requested)
+        : startOfWeek(now).add(const Duration(days: 7));
+    final inputs = await _planInputs.load(start);
+    final result = PlanEngine(knowledge).generate(
+      goal: goal,
+      startDate: start,
+      recentWeeklyLoads: inputs.weeklyLoads,
+      currentCtl: inputs.currentCtl,
+      today: now,
+    );
+
+    final failure = result.failure;
+    if (failure != null) {
+      return {'error': failure.message, 'reason': failure.kind.name};
+    }
+    final plan = result.plan!;
+    return {
+      'goal_type': plan.goalType,
+      'sport': plan.sport,
+      'start_date': _isoDate(plan.startDate),
+      'baseline_weekly_load': plan.baselineLoad.round(),
+      if (plan.sportMix.isNotEmpty) 'sport_mix': plan.sportMix,
+      'weeks': [
+        for (final week in plan.weeks)
+          {
+            'phase': week.phase,
+            'start_date': _isoDate(week.startDate),
+            'proposed_load': week.requestedLoad.round(),
+            'load_factor': week.factor,
+            'target_load': week.targetLoad.round(),
+            if (week.limit != WeekLimit.none) 'limited_by': week.limit.name,
+            if (week.warnings.isNotEmpty)
+              'above_limits': [for (final l in week.warnings) l.name],
+            'planned_load': week.plannedLoad,
+            if (plan.sportMix.isNotEmpty) 'planned_load_by_sport': week.loadBySport,
+            'planned_minutes': week.totalMinutes,
+            'low_intensity_share': week.lowShare == null
+                ? null
+                : double.parse(week.lowShare!.toStringAsFixed(2)),
+            'outside_80_20': week.outsideTolerance,
+            if (week.projectedCtlEnd != null)
+              'projected_ctl_end': double.parse(
+                week.projectedCtlEnd!.toStringAsFixed(1),
+              ),
+            'sessions': [
+              for (final s in week.sessions)
+                {
+                  'date': _isoDate(s.date),
+                  'sport': s.sport,
+                  'slot': s.slot.name,
+                  'name': s.name,
+                  'minutes': s.minutes,
+                  'load': s.load,
+                },
+            ],
+          },
+      ],
+      'note':
+          'Engine output. proposed_load is a steady ramp (max weekly '
+          'increase) held by the CTL and hours limits; target_load is that '
+          'times the athlete\'s load_factor from the load graph. above_limits '
+          'lists limits an athlete-set week exceeds (shown, not enforced). '
+          'Ramp limits and the 80/20 tolerance are defaults from the '
+          'training knowledge, not universal values. The athlete reviews and '
+          'confirms the plan on the Plan screen.',
+    };
+  }
+
+  Future<Map<String, dynamic>> _sessionTemplate(
+    Map<String, dynamic> args,
+  ) async {
+    final knowledge = await _knowledge.load();
+    final rules = knowledge.rules;
+    final ruleSummary = {
+      'phases': rules.weekPhases,
+      'week_multipliers': rules.weekMultipliers,
+      'low_intensity_target': rules.lowIntensityTarget,
+      'low_intensity_tolerance': rules.lowIntensityTolerance,
+      'max_weekly_increase': rules.maxWeeklyIncrease,
+      'max_ctl_ramp': rules.maxCtlRamp,
+      'recovery_threshold': rules.recoveryThreshold,
+    };
+
+    final goalType = args['goal_type'] as String?;
+    final slotName = args['slot'] as String?;
+    final phase = args['phase'] as String?;
+    if (goalType == null || slotName == null || phase == null) {
+      return {
+        'goals': knowledge.goals.keys.toList(),
+        'slots': SessionSlot.values.map((s) => s.name).toList(),
+        'phases': rules.weekPhases,
+        'rules': ruleSummary,
+        'note': 'Pass goal_type, slot and phase to get one template.',
+      };
+    }
+    final slot = SessionSlot.values.asNameMap()[slotName];
+    if (slot == null) {
+      return {'error': 'Unknown slot "$slotName". Use z2, intervals or long.'};
+    }
+    try {
+      final t = knowledge.templateFor(
+        goalType,
+        slot,
+        phase,
+        sport: (args['sport'] as String?) ?? 'Run',
+      );
+      return {
+        'id': t.id,
+        'name': t.name,
+        'goal_type': t.goal,
+        'slot': t.slot.name,
+        'phase': phase,
+        'tss_per_hour_assumed': t.tssPerHour,
+        'low_intensity_share_of_time': t.lowShare,
+        'structure': [for (final s in t.steps) _describeStep(s)],
+        'rules': ruleSummary,
+      };
+    } on MissingTemplateException catch (error) {
+      return {'error': error.toString()};
+    }
+  }
+
+  static String _describeStep(StepSpec step) => switch (step) {
+    FixedStep() => '${step.effort.minutes} min fixed',
+    FillStep() => 'remaining time, steady',
+    RepeatStep() =>
+      '${step.min}-${step.max} x (${step.work.minutes} min hard / '
+          '${step.rest.minutes} min easy)',
+  };
 
   Future<Map<String, dynamic>> _syncFromIntervals(
     Map<String, dynamic> args,

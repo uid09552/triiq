@@ -4,6 +4,21 @@ import 'package:flutter/foundation.dart';
 import '../client/intervalls/intervalls_client.dart';
 import 'secure_key_store.dart';
 
+/// Why [IntervalsSession.restore] did not end up connected.
+enum RestoreFailure {
+  /// Restore succeeded, or has not run.
+  none,
+
+  /// No key was stored.
+  noKey,
+
+  /// Intervals.icu rejected the stored key (401/403) and it was deleted.
+  rejected,
+
+  /// The key could not be checked (offline, timeout, 5xx); it was kept.
+  network,
+}
+
 /// Holds the current Intervals.icu connection: the authenticated
 /// [IntervallsClient] plus the athlete identity, shared across screens.
 ///
@@ -15,6 +30,22 @@ class IntervalsSession extends ChangeNotifier {
   IntervalsSession._();
 
   static final IntervalsSession instance = IntervalsSession._();
+
+  @visibleForTesting
+  factory IntervalsSession.forTesting({bool connected = false}) =>
+      IntervalsSession._().._setConnectedForTesting(connected);
+
+  void _setConnectedForTesting(bool connected) {
+    _client = connected ? IntervallsClient() : null;
+  }
+
+  /// Flips a [forTesting] session between connected and not, notifying
+  /// listeners like the real [connect]/[disconnect] do.
+  @visibleForTesting
+  void debugSetConnected(bool connected) {
+    _setConnectedForTesting(connected);
+    notifyListeners();
+  }
 
   static final _apiKeyStore = SecureKeyStore('intervals_api_key');
 
@@ -33,6 +64,10 @@ class IntervalsSession extends ChangeNotifier {
   /// can show a neutral "checking" state instead of flashing "not connected"
   /// right before flipping to connected.
   bool isRestoring = true;
+
+  /// Why the last [restore] did not connect — lets a background run tell a
+  /// revoked key (needs the athlete) from a flaky network (just retry).
+  RestoreFailure lastRestoreFailure = RestoreFailure.none;
 
   bool get isConnected => _client != null;
 
@@ -74,10 +109,13 @@ class IntervalsSession extends ChangeNotifier {
   /// [connect]) so the session comes back after an app restart. Safe to call
   /// once at startup; never throws.
   Future<void> restore() async {
+    lastRestoreFailure = RestoreFailure.none;
     try {
       final savedKey = await _apiKeyStore.read();
       if (savedKey != null) {
         await connect(savedKey);
+      } else {
+        lastRestoreFailure = RestoreFailure.noKey;
       }
     } on DioException catch (error) {
       // Only drop the key when Intervals.icu actively rejects it (revoked or
@@ -87,9 +125,13 @@ class IntervalsSession extends ChangeNotifier {
       final status = error.response?.statusCode;
       if (status == 401 || status == 403) {
         await _apiKeyStore.delete();
+        lastRestoreFailure = RestoreFailure.rejected;
+      } else {
+        lastRestoreFailure = RestoreFailure.network;
       }
     } catch (_) {
       await _apiKeyStore.delete();
+      lastRestoreFailure = RestoreFailure.rejected;
     } finally {
       isRestoring = false;
       notifyListeners();

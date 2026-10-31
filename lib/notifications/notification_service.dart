@@ -55,10 +55,20 @@ abstract class NotificationService {
 
   Future<void> showAgentReply(String preview);
 
+  /// Tells the athlete the nightly background sync keeps failing. With
+  /// [reconnectNeeded] it is because Intervals.icu rejected the stored key,
+  /// which only they can fix.
+  Future<void> showSyncProblem({required bool reconnectNeeded});
+
   Future<void> scheduleDailyReminder(TimeOfDay time);
 
   Future<void> cancelDailyReminder();
 }
+
+String _syncProblemBody(bool reconnectNeeded) => reconnectNeeded
+    ? 'Intervals.icu rejected your API key. Open TriIQ and reconnect.'
+    : 'The nightly sync has failed several times in a row. '
+          'Your data is still available offline.';
 
 class _NoopNotificationService implements NotificationService {
   @override
@@ -80,6 +90,9 @@ class _NoopNotificationService implements NotificationService {
   Future<void> showAgentReply(String preview) async {}
 
   @override
+  Future<void> showSyncProblem({required bool reconnectNeeded}) async {}
+
+  @override
   Future<void> scheduleDailyReminder(TimeOfDay time) async {}
 
   @override
@@ -97,6 +110,7 @@ class _MobileNotificationService implements NotificationService {
   static const _syncNotificationId = 1;
   static const _agentNotificationId = 2;
   static const _reminderNotificationId = 3;
+  static const _syncProblemNotificationId = 4;
 
   static const _syncDetails = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -204,6 +218,16 @@ class _MobileNotificationService implements NotificationService {
   @override
   Future<void> showAgentReply(String preview) async {
     await _show(_agentNotificationId, 'Training agent', preview, _agentDetails);
+  }
+
+  @override
+  Future<void> showSyncProblem({required bool reconnectNeeded}) async {
+    await _show(
+      _syncProblemNotificationId,
+      'Sync problem',
+      _syncProblemBody(reconnectNeeded),
+      _syncDetails,
+    );
   }
 
   Future<void> _show(
@@ -323,6 +347,11 @@ class _WindowsNotificationService implements NotificationService {
   @override
   Future<void> showAgentReply(String preview) async {
     await _notify('Training agent', preview);
+  }
+
+  @override
+  Future<void> showSyncProblem({required bool reconnectNeeded}) async {
+    await _notify('Sync problem', _syncProblemBody(reconnectNeeded));
   }
 
   Future<void> _notify(String title, String body) async {
