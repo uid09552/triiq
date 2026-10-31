@@ -106,4 +106,42 @@ void main() {
     expect(snapFactor(0.5), 0.8);
     expect(snapFactor(1.4), 1.2);
   });
+
+  group('hold weeks', () {
+    const hold = CurveLimits(
+      baseline: 300,
+      rampCap: 0.10,
+      maxCtlRamp: 7,
+      recoveryThreshold: 0.9,
+      holdEvery: 4,
+    );
+
+    test('every 4th week keeps the previous load', () {
+      final p = proposeCurve(hold, 8);
+      expect(p.loads.map((l) => l.round()), [
+        330, 363, 399, 399, 439, 483, 531, 531,
+      ]);
+    });
+
+    test('the hours ceiling still wins', () {
+      final p = proposeCurve(
+        const CurveLimits(
+          baseline: 300,
+          rampCap: 0.10,
+          maxCtlRamp: 7,
+          recoveryThreshold: 0.9,
+          holdEvery: 4,
+          hoursCeilings: {'build': 350},
+        ),
+        5,
+      );
+      expect(p.loads.map((l) => l.round()), [330, 350, 350, 350, 350]);
+    });
+
+    test('a hold week is not a ramp jump or a recovery', () {
+      final p = proposeCurve(hold, 4).loads;
+      expect(flagWeeks(hold, p, proposal: p), everyElement(isEmpty));
+      expect(phasesFor(hold, p), everyElement('build'));
+    });
+  });
 }

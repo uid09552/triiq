@@ -109,7 +109,11 @@ class MonthlyCalendarView extends StatelessWidget {
   ) {
     final markers = <(String? type, Color color)>[
       for (final event in (events ?? const []).where((e) => e.isTraining))
-        (event.type, colorScheme.tertiary),
+        (
+          event.type,
+          // TriIQ plan sessions vs Intervals.icu events.
+          event.isPlanSession ? colorScheme.secondary : colorScheme.tertiary,
+        ),
       for (final activity in activities ?? const [])
         (activity.type, colorScheme.primary),
     ];

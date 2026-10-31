@@ -4,13 +4,15 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../agent/llm_settings.dart';
 import '../../data/intervals_session.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/plan_changes.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../data/models/local_wellness.dart';
+import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
-import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
+import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
 import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
@@ -37,7 +39,17 @@ import 'weekly_load_screen.dart';
 /// stays fast. Display always reads from SQLite, so the screen works
 /// offline once synced.
 class TodayScreen extends StatefulWidget {
-  const TodayScreen({super.key});
+  const TodayScreen({
+    super.key,
+    this.wellnessRepository,
+    this.activitiesRepository,
+    this.plannedItems,
+  });
+
+  /// Test seams; the app uses the defaults.
+  final WellnessRepository? wellnessRepository;
+  final ActivitiesRepository? activitiesRepository;
+  final PlannedItemsRepository? plannedItems;
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -46,9 +58,12 @@ class TodayScreen extends StatefulWidget {
 class _TodayScreenState extends State<TodayScreen> {
   final _session = IntervalsSession.instance;
   final _syncService = SyncService();
-  final _wellnessRepository = WellnessRepository();
-  final _activitiesRepository = ActivitiesRepository();
-  final _eventsRepository = EventsRepository();
+  late final _wellnessRepository =
+      widget.wellnessRepository ?? WellnessRepository();
+  late final _activitiesRepository =
+      widget.activitiesRepository ?? ActivitiesRepository();
+  late final _eventsRepository =
+      widget.plannedItems ?? PlannedItemsRepository();
 
   bool _loading = true;
   String? _error;
@@ -73,6 +88,8 @@ class _TodayScreenState extends State<TodayScreen> {
     super.initState();
     _session.addListener(_load);
     AutoSyncService.instance.addListener(_onCacheChanged);
+    PlanChanges.instance.addListener(_onCacheChanged);
+    SyncSettings.instance.addListener(_onCacheChanged);
     _load();
   }
 
@@ -80,6 +97,8 @@ class _TodayScreenState extends State<TodayScreen> {
   void dispose() {
     _session.removeListener(_load);
     AutoSyncService.instance.removeListener(_onCacheChanged);
+    PlanChanges.instance.removeListener(_onCacheChanged);
+    SyncSettings.instance.removeListener(_onCacheChanged);
     super.dispose();
   }
 
@@ -333,7 +352,8 @@ class _TodayScreenState extends State<TodayScreen> {
                 // What today's session (or rest day) means for the week's
                 // plan as a whole — the "am I still on track" line the
                 // planned-vs-completed numbers alone don't spell out.
-                if (connected && _weekPlannedLoad > 0) ...[
+                // Shown without a connection too: a TriIQ plan is local.
+                if (_weekPlannedLoad > 0) ...[
                   _WeeklyGoalProgress(
                     completed: _weekLoad,
                     planned: _weekPlannedLoad,

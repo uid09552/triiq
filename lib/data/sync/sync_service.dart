@@ -7,6 +7,7 @@ import '../repositories/events_repository.dart';
 import '../repositories/sync_state_repository.dart';
 import '../repositories/wellness_repository.dart';
 import 'sync_scope.dart';
+import 'sync_settings.dart';
 
 class SyncResult {
   const SyncResult({
@@ -30,12 +31,16 @@ class SyncService {
     ActivitiesRepository? activitiesRepository,
     EventsRepository? eventsRepository,
     SyncStateRepository? syncStateRepository,
-  }) : _session = session ?? IntervalsSession.instance,
+    Future<bool> Function()? copyEvents,
+  }) : _copyEvents = copyEvents ?? SyncSettings.readCopyIntervalsEvents,
+       _session = session ?? IntervalsSession.instance,
        _wellnessRepository = wellnessRepository ?? WellnessRepository(),
        _activitiesRepository = activitiesRepository ?? ActivitiesRepository(),
        _eventsRepository = eventsRepository ?? EventsRepository(),
        _syncStateRepository = syncStateRepository ?? SyncStateRepository();
 
+  /// Whether planned events are copied from Intervals.icu (Settings → Calendar).
+  final Future<bool> Function() _copyEvents;
   final IntervalsSession _session;
   final WellnessRepository _wellnessRepository;
   final ActivitiesRepository _activitiesRepository;
@@ -112,18 +117,24 @@ class SyncService {
         .toList();
     await _activitiesRepository.upsertAll(activityRecords);
 
-    // Planned calendar entries. `format` completes the `/events{format}`
-    // path; empty means the default JSON representation.
-    final eventsResponse = await client.getVeranstaltungenApi().listEvents(
-      id: athleteId,
-      format: '',
-      oldest: oldestStr,
-      newest: newestStr,
-    );
-    final eventRecords = (eventsResponse.data ?? const [])
-        .map(LocalEvent.fromApi)
-        .toList();
-    await _eventsRepository.replaceRange(oldestStr, newestStr, eventRecords);
+    // Planned calendar entries, unless the athlete switched copying off —
+    // then the cached ones are left as they are (hidden, not deleted).
+    // `format` completes the `/events{format}` path; empty means the
+    // default JSON representation.
+    final copyEvents = await _copyEvents();
+    var eventRecords = const <LocalEvent>[];
+    if (copyEvents) {
+      final eventsResponse = await client.getVeranstaltungenApi().listEvents(
+        id: athleteId,
+        format: '',
+        oldest: oldestStr,
+        newest: newestStr,
+      );
+      eventRecords = (eventsResponse.data ?? const [])
+          .map(LocalEvent.fromApi)
+          .toList();
+      await _eventsRepository.replaceRange(oldestStr, newestStr, eventRecords);
+    }
 
     await _syncStateRepository.recordSync(
       'wellness',
@@ -135,11 +146,15 @@ class SyncService {
       oldest: oldestStr,
       newest: newestStr,
     );
-    await _syncStateRepository.recordSync(
-      'events',
-      oldest: oldestStr,
-      newest: newestStr,
-    );
+    // Not fetched means not known to be fresh: turning copying back on
+    // then syncs these dates instead of trusting a stale cache.
+    if (copyEvents) {
+      await _syncStateRepository.recordSync(
+        'events',
+        oldest: oldestStr,
+        newest: newestStr,
+      );
+    }
 
     return SyncResult(
       wellnessCount: wellnessRecords.length,

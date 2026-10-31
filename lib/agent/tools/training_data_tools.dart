@@ -7,16 +7,22 @@ import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../data/models/local_wellness.dart';
+import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
 import '../../data/repositories/events_repository.dart';
+import '../../data/repositories/plans_repository.dart';
 import '../../data/repositories/sync_state_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/sync_service.dart';
+import '../../evaluation/intensity.dart';
 import '../../plan/knowledge.dart';
 import '../../plan/plan_engine.dart';
 import '../../plan/plan_inputs.dart';
 import '../../plan/plan_models.dart';
+import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
+import '../plan_proposals.dart';
+import 'plan_assistant_tools.dart';
 
 /// The tools the training agent can call.
 ///
@@ -34,6 +40,7 @@ class TrainingDataTools {
     WellnessRepository? wellnessRepository,
     ActivitiesRepository? activitiesRepository,
     EventsRepository? eventsRepository,
+    PlansRepository? plansRepository,
     SyncStateRepository? syncStateRepository,
     SyncService? syncService,
     DateTime Function()? clock,
@@ -41,6 +48,7 @@ class TrainingDataTools {
     KnowledgeRepository? knowledgeRepository,
     GoalStore? goalStore,
     PlanInputsLoader? planInputs,
+    PlanProposals? proposals,
   }) : _knowledge = knowledgeRepository ?? KnowledgeRepository(),
        _goalStore = goalStore ?? GoalStore(),
        _planInputs =
@@ -53,7 +61,12 @@ class TrainingDataTools {
        _session = session ?? IntervalsSession.instance,
        _wellnessRepository = wellnessRepository ?? WellnessRepository(),
        _activitiesRepository = activitiesRepository ?? ActivitiesRepository(),
-       _eventsRepository = eventsRepository ?? EventsRepository(),
+       _eventsRepository = PlannedItemsRepository(
+         events: eventsRepository ?? EventsRepository(),
+         plans: plansRepository ?? PlansRepository(),
+       ),
+       _plans = plansRepository ?? PlansRepository(),
+       _proposals = proposals ?? PlanProposals.instance,
        _syncStateRepository = syncStateRepository ?? SyncStateRepository(),
        _syncService = syncService ?? SyncService(),
        _clock = clock ?? DateTime.now,
@@ -63,7 +76,8 @@ class TrainingDataTools {
   final IntervalsSession _session;
   final WellnessRepository _wellnessRepository;
   final ActivitiesRepository _activitiesRepository;
-  final EventsRepository _eventsRepository;
+  /// Planned items: the TriIQ plan plus, when copied, Intervals.icu events.
+  final PlannedItemsRepository _eventsRepository;
   final SyncStateRepository _syncStateRepository;
   final SyncService _syncService;
   final DateTime Function() _clock;
@@ -71,6 +85,21 @@ class TrainingDataTools {
   final KnowledgeRepository _knowledge;
   final GoalStore _goalStore;
   final PlanInputsLoader _planInputs;
+  final PlansRepository _plans;
+  final PlanProposals _proposals;
+
+  /// Reading the plan and making proposals on it (no writes).
+  late final PlanAssistantTools _planTools = PlanAssistantTools(
+    service: PlanService(
+      knowledge: _knowledge,
+      inputs: _planInputs,
+      plans: _plans,
+      activities: _activitiesRepository,
+      goals: _goalStore,
+    ),
+    proposals: _proposals,
+    clock: _clock,
+  );
 
   /// Scopes tracked by `SyncStateRepository`, in the order they're reported.
   static const _syncScopes = ['activities', 'wellness', 'events'];
@@ -296,6 +325,95 @@ class TrainingDataTools {
       run: (args) => _sessionTemplate(args),
     ),
     _tool(
+      name: 'get_training_plan',
+      description:
+          'The athlete\'s saved goal, the load graph (per week: proposed '
+          'TSS, target TSS, share of the proposal, allowed TSS range, phase, '
+          'limits exceeded) and the current plan: weeks with target, planned '
+          'and actual TSS, and every session with its session_id, date, '
+          'sport, type, minutes, TSS and whether it was sent to '
+          'Intervals.icu. Read-only. Call it before proposing any change to '
+          'the graph or a session.',
+      schema: const {'type': 'object', 'properties': {}},
+      run: (_) => _planTools.getTrainingPlan(),
+    ),
+    _tool(
+      name: 'propose_load_curve',
+      description:
+          'Proposes a change to the load graph — the athlete applies or '
+          'dismisses it with a card; nothing is saved by this call. Edits '
+          'apply on top of the saved graph: set_weeks (TSS or percent of '
+          'the proposal, each week within its allowed range on a 5-TSS '
+          'grid), recovery_weeks (each set to the bottom of its range), '
+          'weeks (plan length 2-16), sport_mix (triathlon), ramp_percent '
+          '(weekly increase 0-15), hold_every_4th, reset. Returns '
+          'the resulting graph with phases and warnings, or an error naming '
+          'the allowed range.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'set_weeks': {
+            'type': 'array',
+            'items': {
+              'type': 'object',
+              'properties': {
+                'week': {'type': 'integer', 'description': '1-based.'},
+                'tss': {'type': 'number'},
+                'percent': {
+                  'type': 'number',
+                  'description': 'Share of the proposed TSS, 80-120.',
+                },
+              },
+            },
+          },
+          'recovery_weeks': {
+            'type': 'array',
+            'items': {'type': 'integer'},
+            'description': '1-based weeks to drop to recovery level.',
+          },
+          'weeks': {'type': 'integer'},
+          'sport_mix': {
+            'type': 'object',
+            'description': '{"Swim": 15, "Ride": 50, "Run": 35}',
+          },
+          'reset': {'type': 'boolean'},
+          'ramp_percent': {
+            'type': 'integer',
+            'description': 'Weekly increase of the proposal, 0-15.',
+          },
+          'hold_every_4th': {
+            'type': 'boolean',
+            'description': 'Hold weeks 4, 8, 12... flat (default on).',
+          },
+        },
+      },
+      run: (args) => _planTools.proposeLoadCurve(args),
+    ),
+    _tool(
+      name: 'propose_session_change',
+      description:
+          'Proposes moving one session of the current plan to another date '
+          'inside the plan, or removing it. Only sessions from today on. '
+          'The athlete applies or dismisses it with a card; nothing changes '
+          'from this call. Use session_id from get_training_plan.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'session_id': {'type': 'integer'},
+          'action': {
+            'type': 'string',
+            'enum': ['move', 'remove'],
+          },
+          'date': {
+            'type': 'string',
+            'description': 'YYYY-MM-DD, for a move.',
+          },
+        },
+        'required': ['session_id', 'action'],
+      },
+      run: (args) => _planTools.proposeSessionChange(args),
+    ),
+    _tool(
       name: 'sync_from_intervals',
       description:
           'Fetches a date range from Intervals.icu into the local cache. The '
@@ -461,7 +579,7 @@ class TrainingDataTools {
 
   Map<String, dynamic> _activityRow(LocalActivity activity) {
     final raw = activity.raw;
-    final intensity = _intensitySeconds(raw);
+    final intensity = intensityOf(raw);
     return _compact({
       'id': activity.id,
       'date': activity.date,
@@ -528,6 +646,8 @@ class TrainingDataTools {
     'planned_time_s': event.plannedTime,
     'planned_distance_m': _round(event.plannedDistance),
     'indoor': event.indoor,
+    if (event.isPlanSession) 'source': 'triiq_plan',
+    if (event.isPlanSession) 'sent_to_intervals': event.planSessionSent,
   });
 
   Future<Map<String, dynamic>> _trainingSummary(
@@ -559,7 +679,7 @@ class TrainingDataTools {
     }
 
     for (final activity in activities) {
-      final bucket = bucketFor(activity.date)..add(activity, _intensitySeconds);
+      final bucket = bucketFor(activity.date)..add(activity, intensityOf);
       bucket.end = _maxIso(bucket.end, activity.date);
     }
     for (final event in events) {
@@ -598,7 +718,12 @@ class TrainingDataTools {
     try {
       document = await _loadTrainingGuidance();
     } catch (error) {
-      return {'error': 'The training reference could not be read: $error'};
+      return {
+        'error':
+            'No training reference is installed '
+            '(assets/knowledge/training-philosophy.md). Answer from the '
+            'data and say that the reference is missing.',
+      };
     }
 
     final sections = _splitSections(document);
@@ -641,7 +766,7 @@ class TrainingDataTools {
 
     return {
       'topic': topic,
-      'source': 'training-philosophy.md (the athlete\'s own reference)',
+      'source': "the athlete's own training reference",
       'matches': scored
           .take(3)
           .map(
@@ -742,7 +867,13 @@ class TrainingDataTools {
       return {'error': failure.message, 'reason': failure.kind.name};
     }
     final plan = result.plan!;
+    final proposalId = await _planTools.registerPlanDraft(
+      goal,
+      'take a ${plan.weeks.length}-week ${plan.sport} plan starting '
+      '${_isoDate(plan.startDate)}',
+    );
     return {
+      'proposal_id': proposalId,
       'goal_type': plan.goalType,
       'sport': plan.sport,
       'start_date': _isoDate(plan.startDate),
@@ -789,8 +920,9 @@ class TrainingDataTools {
           'times the athlete\'s load_factor from the load graph. above_limits '
           'lists limits an athlete-set week exceeds (shown, not enforced). '
           'Ramp limits and the 80/20 tolerance are defaults from the '
-          'training knowledge, not universal values. The athlete reviews and '
-          'confirms the plan on the Plan screen.',
+          'training knowledge, not universal values. Nothing is saved: the '
+          'athlete sees a card under your reply; Apply opens the plan '
+          'preview, where they take the plan (or open the Plan screen).',
     };
   }
 
@@ -949,7 +1081,7 @@ class TrainingDataTools {
   }
 
   static Future<String> _loadTrainingGuidanceAsset() =>
-      rootBundle.loadString('training-philosophy.md');
+      rootBundle.loadString('assets/knowledge/training-philosophy.md');
 
   /// Splits the reference document on its level-1 headings.
   static List<_GuidanceSection> _splitSections(String document) {
@@ -975,58 +1107,6 @@ class TrainingDataTools {
     }
     flush();
     return sections;
-  }
-
-  /// Time in each intensity domain for one activity, or `null` when the
-  /// activity carries no zone times at all (manual entries, sessions with
-  /// neither power nor HR).
-  static _IntensitySeconds? _intensitySeconds(Map<String, dynamic> raw) {
-    final power = _zoneTimeSeconds(raw['icu_zone_times']);
-    if (power != null) return _split(power, 'power');
-    final hr = _zoneTimeSeconds(raw['icu_hr_zone_times']);
-    if (hr != null) return _split(hr, 'heart rate');
-    final pace = _zoneTimeSeconds(raw['pace_zone_times']);
-    if (pace != null) return _split(pace, 'pace');
-    return null;
-  }
-
-  /// Intervals.icu reports power zone times as `[{id, secs}]` and HR/pace
-  /// zone times as a plain `[secs]`.
-  static List<int>? _zoneTimeSeconds(Object? value) {
-    if (value is! List || value.isEmpty) return null;
-    final seconds = <int>[];
-    for (final entry in value) {
-      if (entry is num) {
-        seconds.add(entry.toInt());
-      } else if (entry is Map && entry['secs'] is num) {
-        seconds.add((entry['secs'] as num).toInt());
-      } else {
-        return null;
-      }
-    }
-    return seconds.any((s) => s > 0) ? seconds : null;
-  }
-
-  static _IntensitySeconds _split(List<int> zones, String source) {
-    int sum(int from, int to) {
-      var total = 0;
-      for (var i = from; i < to && i < zones.length; i++) {
-        total += zones[i];
-      }
-      return total;
-    }
-
-    // Three-zone physiology mapped onto however many zones the athlete's
-    // settings use: the two easiest zones sit below the first threshold,
-    // the next two span the threshold domain, the rest are above it.
-    if (zones.length <= 3) {
-      return _IntensitySeconds(sum(0, 1), sum(1, 2), sum(2, zones.length),
-          source);
-    }
-    if (zones.length == 4) {
-      return _IntensitySeconds(sum(0, 2), sum(2, 3), sum(3, 4), source);
-    }
-    return _IntensitySeconds(sum(0, 2), sum(2, 4), sum(4, zones.length), source);
   }
 
   /// Drops nulls and empty collections so tool output stays readable.
@@ -1094,17 +1174,6 @@ class _Range {
   final String? error;
 }
 
-class _IntensitySeconds {
-  const _IntensitySeconds(this.low, this.moderate, this.high, this.source);
-
-  final int low;
-  final int moderate;
-  final int high;
-
-  /// Which zone series the split came from — power, heart rate or pace.
-  final String source;
-}
-
 class _GuidanceSection {
   _GuidanceSection(this.title, this.body);
 
@@ -1151,7 +1220,7 @@ class _Bucket {
 
   void add(
     LocalActivity activity,
-    _IntensitySeconds? Function(Map<String, dynamic> raw) intensityOf,
+    IntensitySplit? Function(Map<String, dynamic> raw) intensityOf,
   ) {
     sessions++;
     load += activity.trainingLoad ?? 0;

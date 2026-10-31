@@ -4,11 +4,14 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
+import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
-import '../../data/repositories/events_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_service.dart';
+import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/plan_changes.dart';
+import '../../widgets/main_navigation.dart';
 import 'calendar_day_detail.dart';
 import 'monthly_calendar_view.dart';
 import 'weekly_calendar_view.dart';
@@ -51,7 +54,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final _session = IntervalsSession.instance;
   final _syncService = SyncService();
   final _activitiesRepository = ActivitiesRepository();
-  final _eventsRepository = EventsRepository();
+  final _eventsRepository = PlannedItemsRepository();
 
   CalendarViewMode _mode = CalendarViewMode.month;
   late DateTime _focusedDate;
@@ -70,7 +73,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _selectedDate = today;
     _session.addListener(_load);
     AutoSyncService.instance.addListener(_load);
+    // A taken/changed plan and the copy switch change what is planned
+    // without any sync happening.
+    PlanChanges.instance.addListener(_load);
+    SyncSettings.instance.addListener(_load);
+    MainNavigation.instance.addListener(_onNavigate);
+    _onNavigate(load: false);
     _load();
+  }
+
+  int _focusSeq = 0;
+
+  /// Another screen asked for a date (Take as plan → the plan's week 1).
+  void _onNavigate({bool load = true}) {
+    final focus = MainNavigation.instance.calendarFocus;
+    if (focus == null || focus.seq == _focusSeq) return;
+    _focusSeq = focus.seq;
+    _focusedDate = focus.date;
+    _selectedDate = focus.date;
+    if (load) {
+      setState(() {});
+      _load();
+    }
   }
 
   @override
@@ -85,6 +109,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void dispose() {
     _session.removeListener(_load);
     AutoSyncService.instance.removeListener(_load);
+    PlanChanges.instance.removeListener(_load);
+    SyncSettings.instance.removeListener(_load);
+    MainNavigation.instance.removeListener(_onNavigate);
     super.dispose();
   }
 

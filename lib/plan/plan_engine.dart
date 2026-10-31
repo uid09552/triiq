@@ -14,7 +14,8 @@ class PlanEngine {
 
   final TrainingKnowledge knowledge;
 
-  /// Most sessions placed on one day of a triathlon week.
+  /// The default most sessions on one day of a triathlon week (the goal can
+  /// lower it).
   static const maxSessionsPerDay = 2;
 
   /// The limits a plan for [goal] is drawn within, or why there are none.
@@ -80,6 +81,7 @@ class PlanEngine {
         rampCap: goal.maxWeeklyIncrease ?? rules.maxWeeklyIncrease,
         maxCtlRamp: goal.maxCtlRamp ?? rules.maxCtlRamp,
         recoveryThreshold: rules.recoveryThreshold,
+        holdEvery: goal.holdEvery4th ? rules.holdEveryWeeks : 0,
         ctl: currentCtl,
         hoursCeilings: ceilings,
       ),
@@ -121,6 +123,7 @@ class PlanEngine {
     for (var i = 0; i < count; i++) {
       final weekStart = monday.add(Duration(days: 7 * i));
       final List<PlanSession> sessions;
+      final List<String> notes;
       try {
         final built = _buildSessions(
           goal: goal,
@@ -131,7 +134,8 @@ class PlanEngine {
           weekLoad: targets[i],
         );
         if (built == null) return PlanResult.failure(_notEnoughDays(goal));
-        sessions = built;
+        sessions = built.sessions;
+        notes = built.notes;
       } on MissingTemplateException catch (error) {
         return PlanResult.failure(
           PlanFailure(PlanFailureKind.missingTemplate, error.toString()),
@@ -158,6 +162,7 @@ class PlanEngine {
           sessions: sessions,
           lowIntensityTarget: rules.lowIntensityTarget,
           lowIntensityTolerance: rules.lowIntensityTolerance,
+          notes: notes,
         ),
       );
     }
@@ -177,7 +182,8 @@ class PlanEngine {
   PlanFailure _notEnoughDays(Goal goal) => PlanFailure(
     PlanFailureKind.notEnoughDays,
     '${goal.weekdays.length} training days cannot hold this week\'s '
-    'sessions (at most $maxSessionsPerDay a day). Add a training day or set '
+    'sessions (at most ${goal.effectiveMaxPerDay} a day). Add a training day, '
+    'allow more sessions a day or set '
     'a sport to 0%.',
   );
 
@@ -196,17 +202,39 @@ class PlanEngine {
   List<_Entry>? _weekEntries(Goal goal, GoalProfile profile) {
     final shares = goal.sportShares;
     final days = goal.weekdays.length;
-    final capacity = goal.isTriathlon ? days * maxSessionsPerDay : days;
+    final capacity = days * goal.effectiveMaxPerDay;
+
+    // The athlete's session mix when set, the goal type's template otherwise.
+    final custom = goal.slotShares;
+    double slotShare(SessionSlot s) => custom == null
+        ? profile.slots[s]!.share
+        : (custom[s.name] ?? 0) / 100;
 
     // Slot counts per sport; swim has no long session.
     final counts = <String, Map<SessionSlot, int>>{
       for (final sport in shares.keys)
         sport: {
           for (final e in profile.slots.entries)
-            if (!(sport == 'Swim' && e.key == SessionSlot.long))
+            if (!(sport == 'Swim' && e.key == SessionSlot.long) &&
+                slotShare(e.key) > 0)
               e.key: sport == 'Swim' ? 1 : e.value.count,
         },
     };
+
+    // A mix that leaves a sport nothing (e.g. all long, for swim) falls back
+    // to the template's slots for that sport rather than dropping its load.
+    final fallback = <String>{};
+    for (final sport in counts.keys) {
+      if (counts[sport]!.isNotEmpty) continue;
+      fallback.add(sport);
+      counts[sport] = {
+        for (final e in profile.slots.entries)
+          if (!(sport == 'Swim' && e.key == SessionSlot.long))
+            e.key: sport == 'Swim' ? 1 : e.value.count,
+      };
+    }
+    double shareFor(String sport, SessionSlot s) =>
+        fallback.contains(sport) ? profile.slots[s]!.share : slotShare(s);
 
     // Too many sessions: drop Z2 first, round robin over sports, but never a
     // sport's last session.
@@ -242,9 +270,9 @@ class PlanEngine {
         // Renormalise slot shares over the slots this sport kept.
         final shareTotal = c.entries
             .where((e) => e.value > 0)
-            .fold<double>(0, (sum, e) => sum + profile.slots[e.key]!.share);
+            .fold<double>(0, (sum, e) => sum + shareFor(sport, e.key));
         final fraction =
-            shares[sport]! * profile.slots[slot]!.share / shareTotal / n;
+            shares[sport]! * shareFor(sport, slot) / shareTotal / n;
         for (var k = 0; k < n; k++) {
           entries.add(_Entry(sport, slot, fraction));
         }
@@ -269,7 +297,7 @@ class PlanEngine {
     return hoursPerLoad > 0 ? goal.weeklyHours / hoursPerLoad : double.infinity;
   }
 
-  List<PlanSession>? _buildSessions({
+  ({List<PlanSession> sessions, List<String> notes})? _buildSessions({
     required Goal goal,
     required List<_Entry> entries,
     required String phase,
@@ -277,9 +305,8 @@ class PlanEngine {
     required DateTime weekStart,
     required double weekLoad,
   }) {
-    final days = goal.isTriathlon
-        ? _placeMultiSport(goal.weekdays, entries)
-        : _chooseDays(goal.weekdays, [for (final e in entries) e.slot]);
+    final placement = _place(goal, entries);
+    final days = placement.days;
     if (days == null) return null;
 
     final sessions = <PlanSession>[];
@@ -311,7 +338,7 @@ class PlanEngine {
       );
     }
     sessions.sort((a, b) => a.date.compareTo(b.date));
-    return sessions;
+    return (sessions: sessions, notes: placement.notes);
   }
 
   int _roundTo5(double minutes) => math.max(20, (minutes / 5).round() * 5);
@@ -363,12 +390,60 @@ class PlanEngine {
     return math.min(diff, 7 - diff);
   }
 
-  /// Places a triathlon week, [entries] in their order (long, intervals,
-  /// Z2): at most [maxSessionsPerDay] a day, the long sessions on different
-  /// days, hard sessions spread out, one sport per day where possible.
-  /// Greedy and deterministic; `null` when a session finds no day.
-  List<int>? _placeMultiSport(Set<int> available, List<_Entry> entries) {
-    final days = available.toList()..sort();
+  /// Where each of [entries] goes, and which of the athlete's preferences
+  /// the week couldn't honour (as [PlanWeek.notes] codes). A single-sport
+  /// goal with no preferences keeps the original spread-out placement, so
+  /// existing plans don't move; everything else is placed by cost.
+  ({List<int>? days, List<String> notes}) _place(
+    Goal goal,
+    List<_Entry> entries,
+  ) {
+    final hasPreferences =
+        goal.longDays.isNotEmpty ||
+        goal.intervalDays.isNotEmpty ||
+        goal.maxSessionsPerDay != null;
+    if (!goal.isTriathlon && !hasPreferences) {
+      return (
+        days: _chooseDays(goal.weekdays, [for (final e in entries) e.slot]),
+        notes: const [],
+      );
+    }
+    final days = _placeByCost(goal, entries);
+    if (days == null) return (days: null, notes: const []);
+
+    final notes = <String>[];
+    for (var i = 0; i < entries.length; i++) {
+      final e = entries[i];
+      final wanted = goal.longDays[e.sport];
+      if (e.slot == SessionSlot.long && wanted != null && days[i] != wanted) {
+        notes.add('$noteLongDay:${e.sport}');
+      }
+    }
+    final intervalIndexes = [
+      for (var i = 0; i < entries.length; i++)
+        if (entries[i].slot == SessionSlot.intervals) i,
+    ];
+    if (goal.intervalDays.isNotEmpty &&
+        intervalIndexes.isNotEmpty &&
+        !intervalIndexes.any((i) => goal.intervalDays.contains(days[i]))) {
+      notes.add(noteIntervalDay);
+    }
+    return (days: days, notes: notes);
+  }
+
+  /// [PlanWeek.notes] codes: a long-session day (`longDay:<sport>`) or the
+  /// interval days that the week couldn't honour.
+  static const noteLongDay = 'longDay';
+  static const noteIntervalDay = 'intervalDay';
+
+  /// Places [entries] in their order (long, intervals, Z2): at most the
+  /// goal's sessions per day, long sessions on different days, a sport's
+  /// intervals and long session never on one day, preferred days first,
+  /// hard sessions spread out, one sport per day where possible. Greedy and
+  /// deterministic; `null` when a session finds no day.
+  List<int>? _placeByCost(Goal goal, List<_Entry> entries) {
+    final days = goal.weekdays.toList()..sort();
+    final perDay = goal.effectiveMaxPerDay;
     final placed = <int, List<_Entry>>{for (final d in days) d: []};
     final result = <int>[];
     for (final entry in entries) {
@@ -376,13 +451,25 @@ class PlanEngine {
       var bestCost = double.infinity;
       for (final day in days) {
         final there = placed[day]!;
-        if (there.length >= maxSessionsPerDay) continue;
+        if (there.length >= perDay) continue;
         if (entry.slot == SessionSlot.long &&
             there.any((e) => e.slot == SessionSlot.long)) {
           continue;
         }
+        if (entry.isHard &&
+            there.any((e) => e.sport == entry.sport && e.isHard)) {
+          continue;
+        }
         var cost = 10.0 * there.length;
         if (there.any((e) => e.sport == entry.sport)) cost += 1000;
+        if (entry.slot == SessionSlot.long &&
+            goal.longDays[entry.sport] == day) {
+          cost -= 200;
+        }
+        if (entry.slot == SessionSlot.intervals &&
+            goal.intervalDays.contains(day)) {
+          cost -= 100;
+        }
         if (entry.isHard) {
           cost += 50.0 * there.where((e) => e.isHard).length;
           for (final other in days) {

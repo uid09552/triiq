@@ -13,6 +13,7 @@ import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
+import 'package:triiq/data/sync/sync_settings.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/plan/plan_engine.dart';
@@ -23,6 +24,7 @@ import 'package:triiq/plan/plan_writer.dart';
 import 'package:triiq/screens/plan/goal_editor_screen.dart';
 import 'package:triiq/screens/plan/plan_screen.dart';
 import 'package:triiq/util/dates.dart';
+import 'package:triiq/widgets/main_navigation.dart';
 
 class _RecordingWorkouts implements PlannedWorkoutWriter {
   final created = <PlannedWorkoutDraft>[];
@@ -32,6 +34,9 @@ class _RecordingWorkouts implements PlannedWorkoutWriter {
     created.add(draft);
     return Event(id: created.length);
   }
+
+  @override
+  Future<void> updatePlannedWorkoutDate(String eventId, DateTime date) async {}
 
   @override
   Future<void> deletePlannedWorkout(String eventId) async {}
@@ -94,7 +99,20 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   }
 
-  Future<void> open(WidgetTester tester, {Widget? home}) async {
+  Future<void> ioWait(WidgetTester tester) async {
+    for (var i = 0; i < 10; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 40)),
+      );
+      await tester.pump();
+    }
+  }
+
+  Future<void> open(
+    WidgetTester tester, {
+    Widget? home,
+    SyncSettings? settings,
+  }) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -103,7 +121,7 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
-        home: home ?? PlanScreen(service: service),
+        home: home ?? PlanScreen(service: service, settings: settings),
       ),
     );
     await settle(tester);
@@ -163,15 +181,15 @@ void main() {
 
     expect(find.text('Weekly load'), findsOneWidget);
     expect(
-      find.textContaining('up to +10% a week from 250 TSS'),
+      find.textContaining('from 250 TSS, up to +10% a week'),
       findsOneWidget,
     );
 
-    // Two 5% steps down on week 2 (182 px plot / 8 steps).
+    // Drag week 2 (proposed 302.5 TSS) down by about 40 TSS.
     final column = find.byKey(const ValueKey('load-week-1'));
     final gesture = await tester.startGesture(tester.getCenter(column));
     for (var i = 0; i < 6; i++) {
-      await gesture.moveBy(const Offset(0, 182 / 8 * 2 / 6));
+      await gesture.moveBy(const Offset(0, 30 / 6));
       await tester.pump();
     }
     await gesture.up();
@@ -180,7 +198,10 @@ void main() {
     );
 
     final saved = await tester.runAsync(service.goals.load);
-    expect(saved!.loadFactors.take(2), [1.0, 0.9]);
+    final week2 = saved!.loadFactors[1] * 302.5;
+    expect(saved.loadFactors[0], 1.0);
+    expect(week2, lessThan(302.5));
+    expect(week2 % 5, anyOf(closeTo(0, 1e-6), closeTo(5, 1e-6)));
   });
 
   testWidgets('cancelling the preview creates nothing', (tester) async {
@@ -200,21 +221,40 @@ void main() {
     expect(await tester.runAsync(plans.getCurrent), isNull);
   });
 
-  testWidgets('confirming the preview writes every session with the curve',
-      (tester) async {
-    IntervalsSession.instance.debugSetConnected(true);
-    await tester.runAsync(
-      () => service.goals.save(runGoal.copyWith(loadFactors: [1, 1, 1, 0.8])),
-    );
-    await open(tester);
-
+  Future<void> takePlan(WidgetTester tester, SyncSettings settings) async {
+    await open(tester, settings: settings);
     await tester.tap(find.text('Generate plan'));
     await settle(tester);
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.text('Create plan'));
+    await tester.tap(find.text('Take as plan'));
     for (var i = 0; i < 4; i++) {
       await settle(tester);
     }
+  }
+
+  testWidgets('take as plan with sending on: saved, Calendar opened, sent',
+      (tester) async {
+    IntervalsSession.instance.debugSetConnected(true);
+    MainNavigation.instance.debugReset();
+    await tester.runAsync(
+      () => service.goals.save(runGoal.copyWith(loadFactors: [1, 1, 1, 0.8])),
+    );
+
+    await takePlan(tester, SyncSettings.forTesting());
+    // Sending runs in the background after the screen moved on.
+    for (var i = 0;
+        i < 60 && find.byType(SnackBar).evaluate().isEmpty;
+        i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Three days x four weeks.
     expect(workouts.created.length, 12);
@@ -222,6 +262,39 @@ void main() {
     expect(saved!.status, PlanStatus.active);
     expect(saved.weeks[3].factor, 0.8);
     expect(saved.weeks[3].phase, 'recovery');
+    expect(MainNavigation.instance.requestedTab, MainNavigation.calendarTab);
+    expect(MainNavigation.instance.calendarFocus!.date, saved.startDate);
+    expect(find.text('12 sessions created'), findsOneWidget);
+  });
+
+  testWidgets('take as plan with sending off keeps the plan local',
+      (tester) async {
+    IntervalsSession.instance.debugSetConnected(true);
+    MainNavigation.instance.debugReset();
+    await tester.runAsync(() => service.goals.save(runGoal));
+    final settings = SyncSettings.forTesting();
+    await tester.runAsync(() => settings.setSendPlanToIntervals(false));
+
+    await takePlan(tester, settings);
+
+    expect(workouts.created, isEmpty);
+    final saved = await tester.runAsync(plans.getCurrent);
+    expect(saved!.sessions, hasLength(12));
+    expect(saved.sessions.every((s) => s.intervalsEventId == null), isTrue);
+    expect(MainNavigation.instance.calendarFocus!.date, saved.startDate);
+    expect(find.text('Plan saved in TriIQ.'), findsOneWidget);
+  });
+
+  testWidgets('a plan can be taken without an Intervals.icu connection',
+      (tester) async {
+    MainNavigation.instance.debugReset();
+    await tester.runAsync(() => service.goals.save(runGoal));
+
+    await takePlan(tester, SyncSettings.forTesting());
+
+    expect(workouts.created, isEmpty);
+    expect(await tester.runAsync(plans.getCurrent), isNotNull);
+    expect(find.textContaining('Connect Intervals.icu to send it'), findsOneWidget);
   });
 
   testWidgets('a triathlon plan shows sport tiles and load per sport',
@@ -286,7 +359,10 @@ void main() {
 
     await tester.tap(find.text('Triathlon'));
     await tester.pumpAndSettle();
-    expect(find.text('Total 100%'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('goal-mix-total'))).data,
+      'Total 100%',
+    );
 
     // Swim slider to the far right: 100% swim, total 185%.
     await tester.drag(
@@ -301,5 +377,75 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('adds up to 185%'), findsOneWidget);
     expect(popped, isNull);
+  });
+
+  testWidgets('ramp slider and hold switch reshape the proposal and save',
+      (tester) async {
+    await tester.runAsync(
+      () => service.goals.save(
+        runGoal.copyWith(weeks: 4, loadFactors: [1, 0.9]),
+      ),
+    );
+    await open(tester);
+
+    final slider = tester.widget<Slider>(find.byKey(const ValueKey('curve-ramp')));
+    expect(slider.value, 10);
+    expect(find.text('Weekly increase: 10%'), findsOneWidget);
+
+    slider.onChanged!(5);
+    slider.onChangeEnd!(5);
+    await ioWait(tester);
+    await settle(tester);
+
+    expect(find.text('Weekly increase: 5%'), findsOneWidget);
+    final saved = await tester.runAsync(service.goals.load);
+    expect(saved!.maxWeeklyIncrease, closeTo(0.05, 1e-9));
+    // The dragged week keeps its share of the new proposal.
+    expect(saved.loadFactors[1], 0.9);
+    final semantics = tester.getSemantics(
+      find.byKey(const ValueKey('load-week-1')),
+    );
+    // 250 x 1.05^2 = 275.6, at 90% = 248.
+    expect(semantics.getSemanticsData().value, '248 TSS');
+
+    // Hold on by default: week 4 = week 3; off: it ramps.
+    String week(int i) => tester
+        .getSemantics(find.byKey(ValueKey('load-week-$i')))
+        .getSemanticsData()
+        .value;
+    expect(week(3), week(2));
+    await tester.tap(find.byKey(const ValueKey('curve-hold')));
+    await ioWait(tester);
+    await settle(tester);
+    expect(week(3), isNot(week(2)));
+    expect((await tester.runAsync(service.goals.load))!.holdEvery4th, isFalse);
+  });
+
+  testWidgets('a week that missed a preference says so', (tester) async {
+    final monday = startOfWeek(DateTime.now());
+    final plan = PlanEngine(knowledge)
+        .generate(
+          goal: const Goal(
+            targetType: 'long_distance',
+            weekdays: {2, 4, 6},
+            weeklyHours: 20,
+            baselineWeeklyLoad: 300,
+            weeks: 2,
+            longDays: {'Run': 2},
+            intervalDays: {2},
+          ),
+          startDate: monday,
+          recentWeeklyLoads: null,
+          today: DateTime.now(),
+        )
+        .plan!;
+    await tester.runAsync(() => plans.save(plan));
+
+    await open(tester);
+
+    expect(
+      find.text("The intervals couldn't go on a preferred interval day."),
+      findsWidgets,
+    );
   });
 }

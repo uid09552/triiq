@@ -19,6 +19,7 @@ class CurveLimits {
     required this.recoveryThreshold,
     this.ctl,
     this.hoursCeilings = const {},
+    this.holdEvery = 0,
   });
 
   /// Weekly load the plan builds from (TSS).
@@ -33,6 +34,10 @@ class CurveLimits {
 
   /// CTL when the plan starts; `null` disables the CTL limit.
   final double? ctl;
+
+  /// Every [holdEvery]th proposed week keeps the previous week's load
+  /// instead of ramping; 0 turns the hold off.
+  final int holdEvery;
 
   /// The most load the hours budget can carry, per phase.
   final Map<String, double> hoursCeilings;
@@ -71,7 +76,8 @@ LoadProposal proposeCurve(CurveLimits limits, int weeks) {
   var previous = limits.baseline;
   var ctl = limits.ctl;
   for (var i = 0; i < weeks; i++) {
-    var load = previous * (1 + limits.rampCap);
+    final hold = limits.holdEvery > 0 && (i + 1) % limits.holdEvery == 0;
+    var load = hold ? previous : previous * (1 + limits.rampCap);
     var limit = WeekLimit.none;
     if (ctl != null) {
       final ceiling = limits.ctlCeiling(ctl);

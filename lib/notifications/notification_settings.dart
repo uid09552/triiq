@@ -17,6 +17,7 @@ class NotificationSettings extends ChangeNotifier {
   static const _dailyReminderEnabledKey = 'notifications.daily_reminder';
   static const _dailyReminderHourKey = 'notifications.daily_reminder_hour';
   static const _dailyReminderMinuteKey = 'notifications.daily_reminder_minute';
+  static const _insightsPopupKey = 'insights.popup_enabled';
 
   static const defaultReminderTime = TimeOfDay(hour: 7, minute: 0);
 
@@ -25,6 +26,10 @@ class NotificationSettings extends ChangeNotifier {
   /// permission has also been granted — see `NotificationService.requestPermission`.
   bool enabled = false;
   bool dailyReminderEnabled = false;
+
+  /// Whether opening the app shows today's new sessions with their
+  /// analysis. On by default; independent of OS notifications.
+  bool insightsPopupEnabled = true;
   TimeOfDay dailyReminderTime = defaultReminderTime;
   bool isLoaded = false;
 
@@ -33,6 +38,7 @@ class NotificationSettings extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       enabled = prefs.getBool(_enabledKey) ?? false;
       dailyReminderEnabled = prefs.getBool(_dailyReminderEnabledKey) ?? false;
+      insightsPopupEnabled = prefs.getBool(_insightsPopupKey) ?? true;
       dailyReminderTime = TimeOfDay(
         hour: prefs.getInt(_dailyReminderHourKey) ?? defaultReminderTime.hour,
         minute:
@@ -52,6 +58,13 @@ class NotificationSettings extends ChangeNotifier {
     enabled = value;
     notifyListeners();
     await _writeBool(_enabledKey, value);
+  }
+
+  Future<void> setInsightsPopupEnabled(bool value) async {
+    if (value == insightsPopupEnabled) return;
+    insightsPopupEnabled = value;
+    notifyListeners();
+    await _writeBool(_insightsPopupKey, value);
   }
 
   Future<void> setDailyReminderEnabled(bool value) async {

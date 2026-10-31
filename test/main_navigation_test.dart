@@ -1,0 +1,29 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:triiq/app.dart';
+import 'package:triiq/widgets/main_navigation.dart';
+
+void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    MainNavigation.instance.debugReset();
+  });
+
+  testWidgets('openCalendar selects the Calendar tab and shows the date',
+      (tester) async {
+    await tester.pumpWidget(const TriiqApp());
+    await tester.pump();
+
+    NavigationBar bar() => tester.widget(find.byType(NavigationBar));
+    expect(bar().selectedIndex, MainNavigation.todayTab);
+
+    MainNavigation.instance.openCalendar(DateTime(2027, 3, 10, 15));
+    await tester.pump();
+    await tester.pump();
+
+    expect(bar().selectedIndex, MainNavigation.calendarTab);
+    expect(find.text('March 2027'), findsOneWidget);
+    expect(MainNavigation.instance.calendarFocus!.date, DateTime(2027, 3, 10));
+  });
+}

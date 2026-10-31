@@ -12,6 +12,7 @@ import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../theme_controller.dart';
 import '../../widgets/section_card.dart';
+import 'calendar_settings_section.dart';
 
 /// App settings: appearance and the LLM provider the chat agent talks to.
 ///
@@ -152,6 +153,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.sync_outlined,
               title: l10n.syncSectionTitle,
               child: const _AutoSyncSection(),
+            ),
+            const SizedBox(height: 16),
+            SectionCard(
+              icon: Icons.calendar_month_outlined,
+              title: l10n.calendarSettingsTitle,
+              child: CalendarSettingsSection(),
             ),
             const SizedBox(height: 16),
             SectionCard(
@@ -641,6 +648,16 @@ class _NotificationsSection extends StatelessWidget {
                   ),
                 ),
               ),
+            const Divider(height: 1),
+            // In-app, so independent of the OS notification permission.
+            SwitchListTile(
+              key: const ValueKey('insights-popup'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.insightsPopupSetting),
+              subtitle: Text(l10n.insightsPopupSettingHelp),
+              value: _settings.insightsPopupEnabled,
+              onChanged: _settings.setInsightsPopupEnabled,
+            ),
           ],
         );
       },
@@ -690,7 +707,7 @@ class _AutoSyncSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            _BackgroundSyncControls(settings: _settings),
+            BackgroundSyncControls(settings: _settings),
           ],
         );
       },
@@ -701,17 +718,18 @@ class _AutoSyncSection extends StatelessWidget {
 /// The nightly background-sync toggle and what its last run did. Android
 /// only — elsewhere nothing can wake a closed app, so it says so instead of
 /// offering a switch that would do nothing.
-class _BackgroundSyncControls extends StatefulWidget {
-  const _BackgroundSyncControls({required this.settings});
+/// The nightly background-sync switch and its last run (Android only).
+class BackgroundSyncControls extends StatefulWidget {
+  const BackgroundSyncControls({super.key, required this.settings});
 
   final SyncSettings settings;
 
   @override
-  State<_BackgroundSyncControls> createState() =>
-      _BackgroundSyncControlsState();
+  State<BackgroundSyncControls> createState() =>
+      BackgroundSyncControlsState();
 }
 
-class _BackgroundSyncControlsState extends State<_BackgroundSyncControls> {
+class BackgroundSyncControlsState extends State<BackgroundSyncControls> {
   SyncSettings get settings => widget.settings;
 
   @override
@@ -734,7 +752,12 @@ class _BackgroundSyncControlsState extends State<_BackgroundSyncControls> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: settings,
+    builder: (context, _) => _build(context),
+  );
+
+  Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final muted = Theme.of(context).textTheme.bodySmall?.copyWith(
       color: Theme.of(context).colorScheme.onSurfaceVariant,

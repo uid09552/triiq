@@ -60,17 +60,18 @@ athlete can:
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
 | Today screen | ✅ Real data once connected — six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
-| Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail + "Open in Intervals.icu" |
-| Calendar screen | ✅ Implemented — month/week views read planned events + completed activities from the cache, colour-coded, tap-through to detail |
+| Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
+| New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
+| Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail |
 | Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache |
-| Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over |
-| "Train now" | ✅ Implemented — pick sport/duration/intensity on Today, the agent proposes a session using the last 7 days of TSS/CTL/ATL |
+| Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
+| "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
 | Appearance (light/dark/system theme) | ✅ Implemented — Settings → Appearance, applies instantly, in-memory only |
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
-| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; deterministic engine (`lib/plan`), preview before anything is written to Intervals.icu |
+| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -275,8 +276,24 @@ exception, and the model is told to reach for it only when
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
-| `get_training_guidance` | Matching sections of `training-philosophy.md` |
+| `get_training_guidance` | Matching sections of the optional `assets/knowledge/training-philosophy.md` |
 | `sync_from_intervals` | Fetches a date range into the cache (the only networked tool) |
+| `get_training_plan` | The saved goal, the load graph per week (proposed/target TSS, share, allowed range, phase, limits exceeded) and the current plan's weeks and sessions with their `session_id` |
+| `generate_training_plan` | A plan built by the engine from the goal (and any weeks / load factors / sport mix passed) — plus a **proposal** to take it |
+| `propose_load_curve` | A **proposal** for the load graph: week TSS or percent (inside each week's band), recovery weeks, plan length, sport mix, weekly increase (`ramp_percent`), hold weeks, reset — with the resulting graph, or an error naming the allowed range |
+| `propose_session_change` | A **proposal** to move a plan session to another date in the plan, or remove it (today onwards only) |
+| `get_session_template` | The template behind a plan session, and the block rules |
+
+**Proposals, not writes.** The three proposing tools never change
+anything: they register a proposal (`lib/agent/plan_proposals.dart`, in
+memory for this app run) and return its `proposal_id`. The agent loop then
+emits an `AgentProposal` event and the chat shows a card. Only the athlete's
+**Apply** makes the change, through `PlanActions` (`lib/plan/plan_actions.dart`)
+— Intervals.icu first, the local plan on success — or, for a plan, the same
+preview → **Take as plan** flow as the Plan screen. Each proposal records a
+fingerprint of the goal and plan it was made from; if either changed since,
+Apply refuses it as out of date. What the athlete did with each proposal is
+prepended to their next message so the model builds on the real state.
 
 Thresholds are a case worth calling out: they aren't cached in their own
 right, but every activity carries the FTP/LTHR/max-HR/pace and zone
@@ -324,7 +341,9 @@ fixed and deliberately about *epistemics* rather than physiology:
   eating or low energy availability go to a professional.
 
 The physiology itself is *not* in the prompt — it lives in
-`training-philosophy.md`, bundled as a Flutter asset and reached through
+`assets/knowledge/training-philosophy.md` — an optional, user-supplied
+asset that is not in the repository (see `assets/knowledge/README.md`;
+without it the tool says no reference is installed) — reached through
 `get_training_guidance`. That keeps it editable without touching code, and
 keeps ~20k tokens of reference material off every single request, which
 matters most for the small local models Ollama users run.
@@ -623,6 +642,28 @@ both reading straight from the SQLite cache (no separate network call).
 - `activity_icons.dart` — shared formatting/icon helpers (`activityTypeIcon`,
   `formatIsoDate`, `formatDurationSecs`, `formatDistanceMeters`) used by
   both screens and by Today, so the three don't drift.
+- **Insights** (`lib/evaluation/insights.dart`, `lib/screens/insights/`).
+  `personalBests(raw)` reads `icu_achievements` defensively (unknown shapes
+  are dropped, a power best needs its duration); `efficiencyTrend` compares
+  an easy session's `icu_efficiency_factor` with the median of the same
+  sport's easy sessions over the last 42 days (needs ≥ 4);
+  `recoveryHint` maps TSS to hours via the knowledge `recoveryHours` bands,
+  adds 12 h when form is below `recoveryFormPenaltyBelow`, caps at 72 h and
+  flags a conflict when recovery runs past 10:00 tomorrow and tomorrow's
+  planned session is hard (only for today's session).
+  `SessionInsightsLoader` gathers the inputs; `InsightsCard` renders them
+  under the diagram on `ActivityDetailScreen`, which also marks today's
+  session as seen.
+- **New-training pop-up.** `AutoSyncService.openSyncDone` fires after the
+  today-sync run on start, connect and resume (not after periodic syncs).
+  `NewTrainingTrigger` (wrapping `MainShell`) then asks
+  `NewTrainingInsights.unseenToday()` — today's activities minus
+  `SeenSessionsStore` (prefs `insights.seen`, today's ids only, reset on a
+  new day) — and, if any and the shell's route is current, shows
+  `NewTrainingSheet`: one page per session, newest first, with the
+  evaluation and insights. Closing it marks every shown session as seen.
+  **Details** opens the activity; **Find alternative** (recovery conflict)
+  opens Train Now for tomorrow (`TrainNowScreen(today: ...)`).
 
 ### Charts
 
@@ -757,8 +798,15 @@ Settings — so a first launch isn't just a wall of "not connected" labels.
 ### Calendar
 
 Toggle between **Month** and **Week** views. Each day shows a tiny icon per
-session — tertiary-coloured for planned (from `events`) and primary-coloured
-for completed (from `activities`) — reading from the local cache the same
+session — tertiary-coloured for Intervals.icu planned events, secondary for
+TriIQ plan sessions, primary for completed activities — reading planned
+items from `PlannedItemsRepository` (`lib/data/planned_items.dart`: the
+current plan's sessions plus, when Settings → Calendar copies them, the
+cached `events`; a sent session shows once, as its synced event) and
+completed ones from `activities`. Today and Statistics read planned load
+from the same source. A plan session in the day list says whether it was
+sent to Intervals.icu and opens its steps; it is managed on the Plan screen
+(no delete here). Data is read from the local cache the same
 way Today does, syncing the visible range from Intervals.icu if it isn't
 cached yet, and refetching it when it has gone stale (see the sync notes
 above; the header's refresh button forces it). Tap a day to see its planned
@@ -792,6 +840,20 @@ Replies render as formatted markdown — headings, lists, and tables with
 borders and bold headers — rather than raw source. An empty chat offers a
 few starter questions you can tap instead of typing.
 
+The agent can also work on your **training plan**: ask "what's on this
+week?", "make week 4 a recovery week", "move Saturday's long ride to
+Sunday" or "build me a 10-week triathlon plan". It reads the plan first,
+then **proposes** the change — a card under its reply shows what would
+change (a small load graph with the changed weeks highlighted, or the
+session's old → new date) with **Apply** and **Dismiss**. Nothing changes
+until you tap Apply: a graph change is saved into your goal (the Plan
+screen updates at once), a session move or removal also changes it in
+Intervals.icu when it is there (that needs a connection and **Send plan to
+Intervals.icu** on), and a plan opens the plan preview, where you take it.
+A card made before you edited the graph or plan says it is out of date
+instead of overwriting your edit; a failed apply shows why and offers
+**Retry**. Proposals last until the app restarts.
+
 **New chat** (top right of the transcript) clears the conversation and the
 agent's own memory of it, after asking — the next question starts from
 scratch. Conversation history lives in memory only either way: it's gone
@@ -799,7 +861,19 @@ when the app restarts.
 
 ### Train now
 
-From Today, tap **Train now** to pick a sport (run/ride/swim), duration and
+From Today, tap **Train now**. If anything is planned for today — a TriIQ
+plan session or (when copied) an Intervals.icu event — it is shown first
+under **Planned today**: sport, name, duration, TSS, where it comes from
+(*TriIQ plan* with a sent / only-in-TriIQ icon, or *Intervals.icu*) and its
+steps (long ones collapse; **Show all steps**). With two or more, tap one
+to choose which you want an alternative for. The main button then reads
+**Find alternative**: sport, duration and intensity start from the chosen
+session (you can change them), and the agent gets that session as its
+reference — aim for a similar training effect and load, unless your recent
+load says otherwise. With nothing planned the button reads **Propose
+training** and works as before.
+
+Otherwise, pick a sport (run/ride/swim), duration and
 intensity (recovery/endurance/intervals), then **Propose training**. This
 sends the same [training agent](#the-training-agent) a prompt built from
 those choices, instructed to check the last 7 days of TSS/CTL/ATL/ramp rate
@@ -818,6 +892,19 @@ Once a session has been proposed there are two ways to keep it:
   structured workout, and whatever it can't parse stays as the description.
   Afterwards the app re-syncs, so the session appears on Today and Calendar
   straight away. Needs Intervals.icu connected.
+
+  For an alternative, the preview also asks **Replace today's session**
+  (default) or **Add alongside**. Replacing a TriIQ plan session changes
+  that session in place — same plan, week and date — so the Plan screen
+  and Calendar show the new one; if it was in Intervals.icu, the new
+  workout is created there and the old event deleted (this needs a
+  connection and **Send plan to Intervals.icu** on, otherwise it is
+  refused rather than leave the old one behind). A session that is only in
+  TriIQ is changed locally, also offline. Replacing an Intervals.icu event
+  creates the new workout, then deletes the old one; if that delete fails
+  you are told both now exist. When the agent's workout has no TSS, the
+  session keeps its old TSS, marked as estimated. **Add alongside** leaves
+  the planned session as it is.
 - **Add to Google Calendar** opens a pre-filled event in your browser
   instead, for when you just want it in your day.
 
@@ -842,8 +929,18 @@ fetch more history.
 
 ### More
 
-Submenu for Profile, Settings, **Sync**, **Activities** and **Training
-plan**, plus a disabled placeholder for gear.
+Submenu for Profile, Settings, **Sync**, **Activities**, **Training
+plan** and **Weekly review**, plus a disabled placeholder for gear.
+
+**Weekly review** (More) takes one week at a time (arrows to move): each
+day's planned and done sessions with missed ones marked, the share of
+planned sessions done and the planned versus done TSS, the week's 80/20
+split with a flag when easy time is below the tolerance (and how many
+sessions had no zone data), the load against the 4-week average and the
+CTL / ATL / form change. It is computed from the cache and works offline.
+With an LLM provider set up, a short **Next week** note from the trainer
+follows, labelled as an inference; **Discuss in Chat** carries the week's
+figures over.
 
 ### Training plan
 
@@ -854,35 +951,57 @@ default 8, or the weeks until the event). For triathlon, set the **sport
 mix** — each sport's share of the weekly load in 5% steps, totalling 100%
 (default Swim 15 / Bike 50 / Run 35). A sport at 0% gets no sessions.
 
-**Weekly load** is a graph with one point per week. 100% is the proposed
-load: a steady ramp from your recent weekly load (mean of the last 4
-weeks), at most +10% a week by default, held flat when it would need more
-than your weekly hours or raise CTL faster than the ramp limit. No recovery
-weeks are added for you.
+**Weekly load** is a graph with one point per week on a **TSS axis**. The
+dashed line is the proposed load: a ramp from your recent weekly load (mean
+of the last 4 weeks), held flat when it would need more than your weekly
+hours or raise CTL faster than the ramp limit. Set the **weekly increase**
+with the slider above the graph (0–15%, default 10%); with **Hold every 4th
+week** on (the default) weeks 4, 8, 12… keep the previous week's load
+instead of ramping. Both redraw the proposal at once and are saved in the
+goal; weeks you dragged keep their share of the new proposal. No recovery
+dips are added for you. Each week has a shaded band — 80% to 120% of its
+proposal — that it can be moved within.
+
+The goal editor also sets the **session mix** — Z2 / Intervals / Long
+shares of each sport's weekly load (5% steps, total 100%; by default the
+goal type's mix, with a button to go back to it). An interval session never
+grows beyond what its template's repeats allow, and a hard mix shows up in
+the week's 80/20 warning. **Preferences**: a long-session day per sport
+(long ride and long run on different days), preferred interval days, and the
+most sessions per day (1 or 2). Unticking a training day drops the
+preferences on it. Placement uses preferred days when they are free; when a
+week can't, its card says which preference it missed.
 
 - **Drag** anywhere in a week's column, up or down. The point moves with
-  your finger (it doesn't jump to it), snaps to 5% steps between 80% and
-  120% with a small vibration, and a label shows the week, %, TSS and the
+  your finger (it doesn't jump to it), snaps to 5 TSS with a small
+  vibration, and a label shows the week, TSS, share of the proposal and the
   change from the week before. On a phone with many weeks the graph scrolls
   sideways; a sideways swipe scrolls, an up/down drag edits.
-- **Tap** a week to select it, then use **−/+** (5% each) or the arrow keys
-  on Windows (left/right to change week). **Undo** reverts the last change;
-  **Reset** (after a confirmation) puts every week back to 100%.
+- **Tap** a week to select it, then use **−/+** (5 TSS each) or the arrow
+  keys on Windows (5 TSS, Shift 25 TSS; left/right to change week).
+  **Undo** reverts the last change; **Reset** (after a confirmation) puts
+  every week back on the proposal.
 - A week more than 10% below the week before it becomes a **recovery
-  week** (recovery sessions, shorter long session) — drop a week to about
-  80% for that.
+  week** (recovery sessions, shorter long session).
 - A week you push above the weekly ramp, the CTL ramp limit or your hours
   turns red and says which; it is a warning, not a block. Returning to the
   proposal after a dip is not counted as a jump.
 
-The graph is saved into the goal as you edit it, and keeps its percentages
-when a sync changes your baseline. **Generate plan** builds exactly what
-the graph shows and opens a preview of every session; nothing is written
-until you confirm. Each plan week then shows its target against planned
+The graph is saved into the goal (as each week's share of the proposal) as
+you edit it, so a sync that changes your baseline moves the TSS with it.
+**Generate plan** builds exactly what the graph shows and opens a preview
+of every session; nothing is saved until you tap **Take as plan**. That
+stores the plan in TriIQ, closes the Plan screen and opens the **Calendar**
+tab at the plan's first week, where the sessions show straight away
+(marked *TriIQ plan*). With **Send plan to Intervals.icu** on (Settings →
+Calendar) they are then created there in the background; a snackbar
+reports the result and offers **Retry** for any that failed. Planning works
+without an Intervals.icu connection: enter a typical weekly load in the
+goal and the plan stays in TriIQ. Each plan week then shows its target against planned
 (or done) TSS, the load per sport for triathlon, the 80/20 split, any
 warnings, and a **Monday-Sunday row** of its sessions as sport-coloured
 tiles (minutes and TSS; tap one for its steps). Triathlon weeks hold at
-most two sessions a day with the long ride and long run on different days;
+most two sessions a day by default (your limit if you set one) with the long ride and long run on different days;
 with few training days Z2 sessions are dropped first.
 
 ### Activities
@@ -893,8 +1012,46 @@ rest. Tap one for distance, duration,
 TSS, elevation, heart rate, power, calories (whichever of those the
 activity actually has), and a time-in-zone chart when zone data is
 present. **Open in Intervals.icu** at the bottom goes to that activity's
-full page on intervals.icu — for anything this screen doesn't show:
-interval detection, the power/HR curve, the map, comments.
+full page on intervals.icu — for what this screen doesn't show (the map,
+power curves, comments).
+
+**Evaluation.** Above the time series, the session is judged against the
+planned session it matches (same day and sport; of several, the nearest in
+duration): **On target**, **Too hard**, **Too easy** or **Cut short**, always
+with the figures behind it — e.g. "45 of 60 planned minutes", or "planned
+easy, but 33% of the time was above the first threshold (limit 25%)" — and
+planned versus actual minutes and TSS. The intensity split folds the zone
+times into low / moderate / high (the same folding the agent uses); without
+zone times it says the split can't be assessed rather than guess. Aerobic
+decoupling is shown only for a steady session of an hour or more. All of
+this is code (`lib/evaluation/session_evaluator.dart`); thresholds follow
+the 80/20 rule in the training knowledge. **Ask the trainer** opens Chat
+with the session and its evaluation attached (shown as an "About: …" chip,
+not as a message).
+
+**Over time.** The power, heart-rate, speed, cadence and altitude streams
+are fetched from Intervals.icu the first time you open an activity and
+cached in SQLite (`activity_streams`), so later opens work offline. Toggle
+streams with the chips; each is drawn on its own scale, work intervals are
+shaded, and pressing or dragging shows every stream's value at that moment.
+Long rides are downsampled before painting. Detected intervals are listed
+with duration and average power / HR / pace. A manual entry without
+streams says so; a failed fetch offers **Retry**. A planned session's detail
+screen shows **Done: …** with planned versus actual when an activity
+matched it.
+
+**Insights.** Below the diagram: new personal bests from this session (with
+the previous best when known), for an easy session its efficiency against
+your recent easy sessions of the same sport ("+4% vs. the last 6 weeks", or
+too few sessions to say), and for today's session roughly how long recovery
+takes. When that runs into a hard session planned for tomorrow, **Find
+alternative** opens Train now for tomorrow.
+
+**New training pop-up.** When you open the app and the sync brings in a
+session from today you haven't looked at, it pops up once: one page per
+session (swipe between them) with its evaluation and insights. **OK** closes
+it and it won't show again; opening the session's detail counts too. Turn it
+off under Settings → Notifications.
 
 ### Settings
 
@@ -911,6 +1068,14 @@ interval detection, the power/HR curve, the map, comments.
   battery that isn't low — and shows when it last ran and how it went. Opening
   the app always fetches today straight away. On Windows the app only syncs
   while it is open.
+- **Calendar**: two independent switches, both on by default.
+  **Send plan to Intervals.icu** — off keeps taken plans in TriIQ only;
+  turning it back on offers to send the current plan's upcoming sessions
+  that aren't there yet. **Copy planned events from Intervals.icu** — off
+  stops every sync (manual, automatic, nightly) from fetching planned events
+  and hides the cached ones (they are kept, not deleted); Calendar, Today
+  and Statistics then show only TriIQ plan sessions and completed
+  activities. Turning it on shows them again and syncs the current month.
 - **LLM provider**: choose Claude or Ollama, and configure it.
   - **Claude** needs an API key from `console.anthropic.com`. It's stored in
     your OS credential vault (same place as the Intervals.icu key) and sent
@@ -953,6 +1118,11 @@ card at the top shows the currently cached date range.
   the athlete which it was.
 - "Train now" workouts always land on *today* (plan sessions have their own
   dates and can be moved in the plan preview).
+- Plan sessions can't be written to the phone's own calendar yet: the
+  `device_calendar` plugin (3.9.0) fails to build under this project's
+  Android Gradle Plugin (no `namespace`), the same problem as
+  `flutter_timezone`. Each session's sheet offers **Add to Google Calendar**
+  (a pre-filled link) instead.
 - Training plans: no automatic taper or race-peak shaping, no brick
   sessions, one ramp cap for all sports. Swim templates use % of threshold
   swim pace and the engine's own TSS estimate, which is rougher than for
@@ -990,7 +1160,7 @@ defaults rather than generate from half a rule set.
 The numbers below are **defaults, not universal truths** — the multipliers,
 the ramp limits and the tolerance are starting points the athlete can
 override (per-goal ramp limits are editable on the Plan screen). Physiology
-background lives in `training-philosophy.md`; this section only holds what the
+background lives in the optional training reference (`assets/knowledge/`); this section only holds what the
 engine needs to be deterministic.
 
 ### 5.1 Block rules
@@ -998,10 +1168,12 @@ engine needs to be deterministic.
 A plan runs 2-16 weeks (default 8, or the weeks until the event). Every
 non-recovery week has the same session types per sport (Z2 base, one interval
 session, one long session; swim has no long session); only the volume
-changes. The engine **proposes** a steady ramp from the athlete's baseline
+changes. The engine **proposes** a ramp from the athlete's baseline
 weekly load (the mean of the last 4 completed weeks): each week is at most
 `maxWeeklyIncrease` above the one before, and also held below `maxCtlRamp`
-(projected CTL gain per week) and the weekly hours budget. No recovery weeks
+(projected CTL gain per week) and the weekly hours budget; every
+`holdEveryWeeks`th week (default 4) keeps the previous week's load when the
+goal keeps the hold on. No recovery dips
 are inserted; the athlete shapes the curve in the load graph (80-120% of the
 proposal per week), and a week below `recoveryThreshold` of the week before
 it is built from recovery templates. `weekPhases`/`weekMultipliers` describe
@@ -1009,7 +1181,9 @@ the classic 4-week shape for the agent's explanations; the curve does not use
 them. `lowIntensityTarget` is the
 80/20 share of time spent at low intensity, `lowIntensityTolerance` how far
 below it a week may fall before it is flagged (more easy time than the target
-is not a problem).
+is not a problem). `recoveryHours` maps a session's TSS to recovery hours
+(`[upTo, hours]`, `null` = above the last band); `recoveryFormPenaltyBelow`
+adds 12 h when form (CTL − ATL) is below it.
 
 ```okf-rules
 {
@@ -1020,7 +1194,10 @@ is not a problem).
   "lowIntensityTarget": 0.8,
   "lowIntensityTolerance": 0.05,
   "minHistoryWeeks": 4,
-  "recoveryThreshold": 0.9
+  "recoveryThreshold": 0.9,
+  "holdEveryWeeks": 4,
+  "recoveryHours": [[50, 12], [100, 24], [200, 36], [null, 48]],
+  "recoveryFormPenaltyBelow": -20
 }
 ```
 

@@ -3,12 +3,14 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
+import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
-import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
+import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/plan_changes.dart';
 import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
 import '../../widgets/charts/bar_chart.dart';
@@ -40,7 +42,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   final _session = IntervalsSession.instance;
   final _syncService = SyncService();
   final _activitiesRepository = ActivitiesRepository();
-  final _eventsRepository = EventsRepository();
+  final _eventsRepository = PlannedItemsRepository();
   final _wellnessRepository = WellnessRepository();
 
   int _days = 90;
@@ -60,6 +62,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     super.initState();
     _session.addListener(_load);
     AutoSyncService.instance.addListener(_load);
+    PlanChanges.instance.addListener(_load);
+    SyncSettings.instance.addListener(_load);
     _load();
   }
 
@@ -67,6 +71,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   void dispose() {
     _session.removeListener(_load);
     AutoSyncService.instance.removeListener(_load);
+    PlanChanges.instance.removeListener(_load);
+    SyncSettings.instance.removeListener(_load);
     super.dispose();
   }
 

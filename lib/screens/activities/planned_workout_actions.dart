@@ -104,7 +104,10 @@ Future<void> addPlannedWorkoutToGoogleCalendar(
 
 /// Deleting writes upstream, so it's only offered against a live session.
 bool canDeletePlannedWorkout(LocalEvent event) =>
-    IntervalsSession.instance.isConnected && event.id.isNotEmpty;
+    IntervalsSession.instance.isConnected &&
+    event.id.isNotEmpty &&
+    // TriIQ plan sessions are managed on the Plan screen.
+    !event.isPlanSession;
 
 String plannedWorkoutTitle(AppLocalizations l10n, LocalEvent event) =>
     event.name ?? event.type ?? l10n.plannedSessionFallback;

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../agent/chat_handoff.dart';
 import '../../agent/chat_model_factory.dart';
 import '../../agent/llm_settings.dart';
+import '../../agent/plan_proposals.dart';
 import '../../agent/training_agent.dart';
 import '../../l10n/app_localizations.dart';
 import '../../notifications/app_lifecycle_tracker.dart';
@@ -11,6 +13,7 @@ import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../widgets/markdown_reply.dart';
 import '../settings/settings_screen.dart';
+import 'proposal_card.dart';
 
 class _ChatMessage {
   _ChatMessage({required this.fromUser, this.text = '', this.isError = false});
@@ -19,6 +22,9 @@ class _ChatMessage {
   String text;
   final bool fromUser;
   final bool isError;
+
+  /// Changes the agent proposed during this reply, shown as cards under it.
+  final proposals = <PlanProposal>[];
 }
 
 /// Chat with the training-analysis agent about your Intervals.icu data.
@@ -45,17 +51,24 @@ class _ChatScreenState extends State<ChatScreen> {
   StreamSubscription<AgentEvent>? _subscription;
   String? _activity;
 
+  /// What the athlete came here to ask about (from "Ask the trainer"),
+  /// attached to the agent's context rather than shown as a message.
+  ChatTopic? _topic;
+
   bool get _isBusy => _subscription != null;
 
   @override
   void initState() {
     super.initState();
     _settings.addListener(_onSettingsChanged);
+    ChatHandoff.instance.addListener(_takeTopic);
+    _takeTopic();
   }
 
   @override
   void dispose() {
     _settings.removeListener(_onSettingsChanged);
+    ChatHandoff.instance.removeListener(_takeTopic);
     _subscription?.cancel();
     _controller.dispose();
     _scrollController.dispose();
@@ -98,7 +111,14 @@ class _ChatScreenState extends State<ChatScreen> {
       _messages.clear();
       _activity = null;
       _agent = null;
+      _topic = null;
     });
+  }
+
+  void _takeTopic() {
+    final topic = ChatHandoff.instance.take();
+    if (topic == null) return;
+    setState(() => _topic = topic);
   }
 
   void _sendText(String text) {
@@ -121,6 +141,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToEnd();
 
     final agent = _agent ??= TrainingAgent();
+    agent.attachedContext = _topic?.context;
     try {
       _subscription = agent
           .send(text)
@@ -150,6 +171,8 @@ class _ChatScreenState extends State<ChatScreen> {
           _activity = failed
               ? l10n.toolFailedSuffix(_describeTool(l10n, name))
               : null;
+        case AgentProposal(:final proposal):
+          reply.proposals.add(proposal);
       }
     });
     _scrollToEnd();
@@ -195,6 +218,9 @@ class _ChatScreenState extends State<ChatScreen> {
         'get_training_summary' => l10n.chatToolSummary,
         'get_training_guidance' => l10n.chatToolGuidance,
         'sync_from_intervals' => l10n.chatToolSyncing,
+        'get_training_plan' => l10n.chatToolPlanRead,
+        'propose_load_curve' || 'propose_session_change' ||
+        'generate_training_plan' => l10n.chatToolProposing,
         _ => l10n.toolRunningGeneric(name),
       };
 
@@ -241,11 +267,30 @@ class _ChatScreenState extends State<ChatScreen> {
                   controller: _scrollController,
                   padding: const EdgeInsets.all(16),
                   itemCount: _messages.length,
-                  itemBuilder: (context, index) =>
-                      _ChatBubble(message: _messages[index]),
+                  itemBuilder: (context, index) => _MessageWithProposals(
+                    message: _messages[index],
+                  ),
                 ),
         ),
         if (_activity != null) _ActivityLine(label: _activity!),
+        if (_topic != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: InputChip(
+                key: const ValueKey('chat-topic'),
+                avatar: const Icon(Icons.fact_check_outlined, size: 18),
+                label: Text(l10n.chatAbout(_topic!.title)),
+                onDeleted: _isBusy
+                    ? null
+                    : () => setState(() {
+                        _topic = null;
+                        _agent?.attachedContext = null;
+                      }),
+              ),
+            ),
+          ),
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -474,6 +519,26 @@ class _ChatBubble extends StatelessWidget {
             ? [bubble, const SizedBox(width: 8), avatar]
             : [avatar, const SizedBox(width: 8), bubble],
       ),
+    );
+  }
+}
+
+/// A message bubble with, for a reply, the proposals it made underneath.
+class _MessageWithProposals extends StatelessWidget {
+  const _MessageWithProposals({required this.message});
+
+  final _ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    if (message.proposals.isEmpty) return _ChatBubble(message: message);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _ChatBubble(message: message),
+        for (final p in message.proposals) ProposalCard(proposal: p),
+        const SizedBox(height: 8),
+      ],
     );
   }
 }

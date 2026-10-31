@@ -9,7 +9,9 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:triiq/data/db/app_database.dart';
 import 'package:triiq/data/intervals_session.dart';
+import 'package:triiq/data/intervals_workout_service.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
+import 'package:triiq/evaluation/insights.dart';
 import 'package:triiq/data/repositories/events_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
@@ -245,6 +247,63 @@ void main() {
       _formatDate(weekEnd),
     );
     expect(stored.map((e) => e.id), isNot(contains('stale-ghost-event')));
+  });
+
+  test('moving a created workout keeps its steps', skip: _skip, () async {
+    await IntervalsSession.instance.connect(_apiKey);
+    final service = IntervalsWorkoutService();
+    final day = DateTime.now().add(const Duration(days: 30));
+    final moved = day.add(const Duration(days: 1));
+
+    final created = await service.createPlannedWorkout(
+      PlannedWorkoutDraft(
+        name: 'TriIQ live test: move me',
+        sport: 'Ride',
+        description: '- 10m 55%\n- 20m 70%\n- 5m 50%',
+        date: day,
+        durationSeconds: 35 * 60,
+      ),
+    );
+    final id = created.id!.toString();
+    try {
+      await service.updatePlannedWorkoutDate(id, moved);
+
+      final client = IntervalsSession.instance.client!;
+      final event = (await client.getVeranstaltungenApi().showEvent(
+        id: IntervalsSession.instance.athleteId!,
+        eventId: created.id!,
+      )).data!;
+      expect(event.startDateLocal, startsWith(_formatDate(moved)));
+      expect(event.name, 'TriIQ live test: move me');
+      expect(event.description, contains('20m 70%'));
+    } finally {
+      await service.deletePlannedWorkout(id);
+    }
+  });
+
+  test('real icu_achievements parse into best efforts', skip: _skip,
+      () async {
+    await IntervalsSession.instance.connect(_apiKey);
+    final now = DateTime.now();
+    await syncService.syncRange(now.subtract(const Duration(days: 365)), now);
+    final all = await activitiesRepository.getRange(
+      _formatDate(now.subtract(const Duration(days: 365))),
+      _formatDate(now),
+    );
+    final withAchievements = all.where(
+      (a) => a.raw['icu_achievements'] is List &&
+          (a.raw['icu_achievements'] as List).isNotEmpty,
+    );
+    if (withAchievements.isEmpty) {
+      // ignore: avoid_print
+      print('No activity with icu_achievements in the last year.');
+      return;
+    }
+    final sample = withAchievements.first;
+    // ignore: avoid_print
+    print('icu_achievements of ${sample.id}: ${sample.raw['icu_achievements']}');
+    expect(personalBests(sample.raw), isNotEmpty,
+        reason: 'the parser should read the real payload');
   });
 }
 

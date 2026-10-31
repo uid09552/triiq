@@ -28,6 +28,9 @@ class _FakeWorkouts implements PlannedWorkoutWriter {
   }
 
   @override
+  Future<void> updatePlannedWorkoutDate(String eventId, DateTime date) async {}
+
+  @override
   Future<void> deletePlannedWorkout(String eventId) async {
     if (missingUpstream.contains(eventId)) {
       throw DioException(

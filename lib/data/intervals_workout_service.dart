@@ -47,6 +47,10 @@ class PlannedWorkoutDraft {
 abstract class PlannedWorkoutWriter {
   Future<Event> createPlannedWorkout(PlannedWorkoutDraft draft);
   Future<void> deletePlannedWorkout(String eventId);
+
+  /// Moves the planned entry with [eventId] to [date], leaving everything
+  /// else about it as it is.
+  Future<void> updatePlannedWorkoutDate(String eventId, DateTime date);
 }
 
 /// Writes planned workouts to Intervals.icu.
@@ -122,6 +126,27 @@ class IntervalsWorkoutService implements PlannedWorkoutWriter {
       id: athleteId,
       eventId: numericId,
       others: false,
+    );
+  }
+
+  /// Moves the planned entry [eventId] to [date]. Only the date is sent:
+  /// the client omits null fields, so the workout's steps, load and name
+  /// stay as Intervals.icu has them.
+  @override
+  Future<void> updatePlannedWorkoutDate(String eventId, DateTime date) async {
+    final client = _session.client;
+    final athleteId = _session.athleteId;
+    if (client == null || athleteId == null) {
+      throw StateError('Not connected to Intervals.icu.');
+    }
+    final numericId = int.tryParse(eventId);
+    if (numericId == null) {
+      throw StateError('“$eventId” is not an Intervals.icu event id.');
+    }
+    await client.getVeranstaltungenApi().updateEvent(
+      id: athleteId,
+      eventId: numericId,
+      eventEx: EventEx(startDateLocal: '${isoDate(date)}T00:00:00'),
     );
   }
 }

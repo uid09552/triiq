@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../evaluation/insights.dart';
+
 /// Where the knowledge lives: section 5 of the app spec, bundled as an asset.
 const knowledgeAssetPath = 'docs/okf.md';
 
@@ -17,6 +19,8 @@ class PlanRules {
     required this.lowIntensityTolerance,
     required this.minHistoryWeeks,
     this.recoveryThreshold = 0.9,
+    this.holdEveryWeeks = 4,
+    this.recovery = const RecoveryRules(),
   });
 
   /// The classic 4-week shape. The load curve no longer uses it; kept so
@@ -26,6 +30,14 @@ class PlanRules {
 
   /// Largest week-over-week load increase, as a fraction (0.10 = +10%).
   final double maxWeeklyIncrease;
+
+  /// The proposal holds every this-many-th week flat (when the goal keeps
+  /// the hold on).
+  final int holdEveryWeeks;
+
+  /// How long a session takes to recover from (an estimate shown after a
+  /// session; not used by the plan engine).
+  final RecoveryRules recovery;
 
   /// A week below this fraction of the week before it is a recovery week.
   final double recoveryThreshold;
@@ -71,8 +83,31 @@ class PlanRules {
       minHistoryWeeks: (json['minHistoryWeeks'] as num).toInt(),
       recoveryThreshold:
           (json['recoveryThreshold'] as num?)?.toDouble() ?? 0.9,
+      holdEveryWeeks: (json['holdEveryWeeks'] as num?)?.toInt() ?? 4,
+      recovery: _recoveryRules(json),
     );
   }
+}
+
+/// `recoveryHours` as `[[maxTss, hours], ..., [null, hours]]`, plus
+/// `recoveryFormPenaltyBelow`; the defaults when absent.
+RecoveryRules _recoveryRules(Map<String, dynamic> json) {
+  const fallback = RecoveryRules();
+  final raw = json['recoveryHours'];
+  final bands = <RecoveryBand>[];
+  if (raw is List) {
+    for (final b in raw) {
+      if (b is List && b.length == 2 && b[1] is num) {
+        bands.add(RecoveryBand((b[0] as num?)?.toInt(), (b[1] as num).toInt()));
+      }
+    }
+  }
+  return RecoveryRules(
+    bands: bands.isEmpty ? fallback.bands : bands,
+    formPenaltyBelow:
+        (json['recoveryFormPenaltyBelow'] as num?)?.toDouble() ??
+        fallback.formPenaltyBelow,
+  );
 }
 
 /// The session types a week is built from, in the order they are placed.

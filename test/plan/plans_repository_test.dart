@@ -200,4 +200,61 @@ void main() {
     expect(back.sportMix, Goal.defaultSportMix);
     expect(back.sessions.map((s) => s.sport).toSet(), {'Swim', 'Ride', 'Run'});
   });
+
+  test('replaceSessionContent swaps content, keeps plan, week and date',
+      () async {
+    final saved = await repo.save(makePlan());
+    final before = saved.weeks[1].sessions.first;
+
+    await repo.replaceSessionContent(
+      before.id!,
+      sport: 'Run',
+      name: 'Easy run alternative',
+      minutes: 45,
+      load: 40,
+      lowMinutes: 36,
+      description: '- 45m 75% Pace',
+      intervalsEventId: '777',
+      status: PlanSessionStatus.created,
+    );
+
+    final after = (await repo.getSession(before.id!))!;
+    expect(after.name, 'Easy run alternative');
+    expect(after.sport, 'Run');
+    expect(after.minutes, 45);
+    expect(after.load, 40);
+    expect(after.intervalsEventId, '777');
+    expect(after.status, PlanSessionStatus.created);
+    expect(after.weekIndex, before.weekIndex);
+    expect(after.date, before.date);
+    expect(after.slot, before.slot);
+    final plan = (await repo.getCurrent())!;
+    expect(plan.id, saved.id);
+    expect(plan.sessions.length, saved.sessions.length);
+  });
+
+  test('week notes round-trip', () async {
+    final plan = PlanEngine(
+      TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
+    ).generate(
+      goal: const Goal(
+        targetType: 'long_distance',
+        weekdays: {2, 4, 6},
+        weeklyHours: 20,
+        baselineWeeklyLoad: 300,
+        weeks: 2,
+        longDays: {'Run': 2},
+        intervalDays: {2},
+      ),
+      startDate: DateTime(2026, 8, 31),
+      recentWeeklyLoads: null,
+      today: DateTime(2026, 8, 26),
+    ).plan!;
+    expect(plan.weeks.first.notes, isNotEmpty);
+
+    await repo.save(plan);
+    final back = (await repo.getCurrent())!;
+
+    expect(back.weeks.first.notes, plan.weeks.first.notes);
+  });
 }

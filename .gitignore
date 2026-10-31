@@ -82,3 +82,8 @@ openapi-generator-cli*.jar
 triiq.db
 triiq.db-shm
 triiq.db-wal
+
+# Personal / third-party material kept out of the public repo.
+todo.txt
+assets/knowledge/*
+!assets/knowledge/README.md

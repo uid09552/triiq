@@ -38,7 +38,12 @@ class BackgroundSync {
   static final BackgroundSync instance = BackgroundSync._();
 
   /// Whether this platform can run work with the app closed.
-  static bool get isSupported => !kIsWeb && Platform.isAndroid;
+  static bool get isSupported =>
+      debugSupported ?? (!kIsWeb && Platform.isAndroid);
+
+  /// Tests set this to exercise the Android-only UI on any host.
+  @visibleForTesting
+  static bool? debugSupported;
 
   /// The nightly window: the run happens between these local hours.
   static const windowStartHour = 2;

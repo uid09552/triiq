@@ -47,8 +47,15 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
   /// default (8 weeks or the weeks until the event).
   int? _weeks;
   late Map<String, int> _mix;
+
+  /// Session mix in %; [_slotsTouched] tells a chosen mix from the template
+  /// shown as a starting point (which stays `null` in the goal).
+  late Map<String, int> _slots;
+  bool _slotsTouched = false;
+  late Map<String, int> _longDays;
+  late Set<int> _intervalDays;
+  int? _perDay;
   final _baseline = TextEditingController();
-  final _increase = TextEditingController();
   final _ramp = TextEditingController();
   String? _error;
 
@@ -65,11 +72,14 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     _weeks = goal?.weeks;
     _mix = {...?goal?.sportMix};
     if (_mix.isEmpty) _mix = {...Goal.defaultSportMix};
+    final custom = goal?.slotShares;
+    _slotsTouched = custom != null;
+    _slots = custom != null ? {...custom} : _templateSlots(_target);
+    _longDays = {...?goal?.longDays};
+    _intervalDays = {...?goal?.intervalDays};
+    _perDay = goal?.maxSessionsPerDay;
     if (goal?.baselineWeeklyLoad != null) {
       _baseline.text = goal!.baselineWeeklyLoad!.round().toString();
-    }
-    if (goal?.maxWeeklyIncrease != null) {
-      _increase.text = (goal!.maxWeeklyIncrease! * 100).round().toString();
     }
     if (goal?.maxCtlRamp != null) _ramp.text = goal!.maxCtlRamp.toString();
   }
@@ -77,7 +87,6 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
   @override
   void dispose() {
     _baseline.dispose();
-    _increase.dispose();
     _ramp.dispose();
     super.dispose();
   }
@@ -93,8 +102,35 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     if (picked != null) setState(() => _eventDate = picked);
   }
 
+  /// The goal type's template shares, in % on the 5% grid.
+  Map<String, int> _templateSlots(String target) {
+    final profile = widget.knowledge.goals[target];
+    final result = {
+      for (final k in Goal.slotKeys)
+        k: ((profile?.slots[SessionSlot.values.byName(k)]?.share ?? 0) * 20)
+                .round() *
+            5,
+    };
+    // Rounding may leave the total off 100: give the difference to Z2.
+    final total = result.values.fold(0, (a, b) => a + b);
+    result['z2'] = result['z2']! + 100 - total;
+    return result;
+  }
+
+  void _toggleDay(int day, bool on) {
+    setState(() {
+      if (on) {
+        _days.add(day);
+      } else {
+        _days.remove(day);
+        // A preference on a day that is no longer trained goes with it.
+        _longDays.removeWhere((_, d) => d == day);
+        _intervalDays.remove(day);
+      }
+    });
+  }
+
   void _save() {
-    final increase = double.tryParse(_increase.text.replaceAll(',', '.'));
     final goal = Goal(
       targetType: _target,
       sport: _sport,
@@ -102,14 +138,20 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
       weeklyHours: _hours,
       eventDate: _eventDate,
       baselineWeeklyLoad: double.tryParse(_baseline.text.replaceAll(',', '.')),
-      maxWeeklyIncrease: increase == null ? null : increase / 100,
+      // Set with the ramp slider on the Weekly load card.
+      maxWeeklyIncrease: widget.initial?.maxWeeklyIncrease,
       maxCtlRamp: double.tryParse(_ramp.text.replaceAll(',', '.')),
       weeks: _weeks,
       sportMix: _mix,
       // The load graph's shape survives a goal edit; extra weeks start at
       // 100% and dropped weeks are cut off when the plan is drawn.
       loadFactors: widget.initial?.loadFactors ?? const [],
-    );
+      holdEvery4th: widget.initial?.holdEvery4th ?? true,
+      slotShares: _slotsTouched ? _slots : null,
+      longDays: _longDays,
+      intervalDays: _intervalDays,
+      maxSessionsPerDay: _perDay,
+    ).withoutStalePreferences();
     final problem = goal.validate(today: DateTime.now());
     if (problem != null) {
       setState(() => _error = problem);
@@ -138,7 +180,11 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
               for (final goal in widget.knowledge.goals.values)
                 DropdownMenuItem(value: goal.id, child: Text(goal.label)),
             ],
-            onChanged: (value) => setState(() => _target = value ?? _target),
+            onChanged: (value) => setState(() {
+              _target = value ?? _target;
+              // A new goal type brings its template mix unless one was chosen.
+              if (!_slotsTouched) _slots = _templateSlots(_target);
+            }),
           ),
           const SizedBox(height: 20),
           Text(l10n.planGoalSport, style: theme.textTheme.titleSmall),
@@ -170,9 +216,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
                     ),
                   ),
                   selected: _days.contains(day),
-                  onSelected: (on) => setState(
-                    () => on ? _days.add(day) : _days.remove(day),
-                  ),
+                  onSelected: (on) => _toggleDay(day, on),
                 ),
             ],
           ),
@@ -216,6 +260,10 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
           const SizedBox(height: 20),
           _weeksEditor(l10n, theme),
           const SizedBox(height: 20),
+          _slotsEditor(l10n, theme),
+          const SizedBox(height: 20),
+          _preferencesEditor(l10n, theme),
+          const SizedBox(height: 20),
           TextField(
             controller: _baseline,
             keyboardType: TextInputType.number,
@@ -228,16 +276,6 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
           const SizedBox(height: 20),
           Text(l10n.planGoalLimitsTitle, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),
-          TextField(
-            controller: _increase,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: l10n.planGoalMaxIncrease,
-              hintText: '${(widget.defaults.maxWeeklyIncrease * 100).round()}',
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
           TextField(
             controller: _ramp,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -368,6 +406,142 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
               ),
             ],
           ),
+      ],
+    );
+  }
+
+  Widget _slotsEditor(AppLocalizations l10n, ThemeData theme) {
+    final scheme = theme.colorScheme;
+    final total = Goal.slotKeys.fold<int>(0, (s, k) => s + (_slots[k] ?? 0));
+    String label(String k) => switch (k) {
+      'z2' => l10n.slotZ2,
+      'intervals' => l10n.slotIntervals,
+      _ => l10n.slotLong,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.planGoalSlotsTitle,
+                style: theme.textTheme.titleSmall,
+              ),
+            ),
+            Text(
+              l10n.planGoalMixTotal(total),
+              key: const ValueKey('goal-slots-total'),
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: total == 100 ? scheme.primary : scheme.error,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        for (final k in Goal.slotKeys)
+          Row(
+            children: [
+              SizedBox(
+                width: 130,
+                child: Text('${label(k)}: ${_slots[k] ?? 0}%'),
+              ),
+              Expanded(
+                child: Slider(
+                  key: ValueKey('goal-slot-$k'),
+                  value: (_slots[k] ?? 0).toDouble(),
+                  max: 100,
+                  divisions: 20,
+                  label: '${_slots[k] ?? 0}%',
+                  onChanged: (v) => setState(() {
+                    _slots[k] = v.round();
+                    _slotsTouched = true;
+                  }),
+                ),
+              ),
+            ],
+          ),
+        if (_slotsTouched)
+          TextButton(
+            onPressed: () => setState(() {
+              _slots = _templateSlots(_target);
+              _slotsTouched = false;
+            }),
+            child: Text(l10n.planGoalSlotsReset),
+          ),
+      ],
+    );
+  }
+
+  Widget _preferencesEditor(AppLocalizations l10n, ThemeData theme) {
+    final locale = Localizations.localeOf(context).toString();
+    final monday = DateTime(2024, 1, 1);
+    String dayName(int d) =>
+        DateFormat.E(locale).format(monday.add(Duration(days: d - 1)));
+    final days = _days.toList()..sort();
+    final longSports = _sport == Goal.triathlon
+        ? const ['Ride', 'Run']
+        : [_sport];
+    final perDay =
+        _perDay ?? (_sport == Goal.triathlon ? 2 : 1);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.planGoalPrefsTitle, style: theme.textTheme.titleSmall),
+        for (final sport in longSports) ...[
+          const SizedBox(height: 8),
+          Text(l10n.planGoalLongDay(sportLabel(l10n, sport))),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              ChoiceChip(
+                label: Text(l10n.planGoalAnyDay),
+                selected: _longDays[sport] == null,
+                onSelected: (_) => setState(() => _longDays.remove(sport)),
+              ),
+              for (final d in days)
+                ChoiceChip(
+                  key: ValueKey('long-day-$sport-$d'),
+                  label: Text(dayName(d)),
+                  selected: _longDays[sport] == d,
+                  onSelected: (_) => setState(() => _longDays[sport] = d),
+                ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 12),
+        Text(l10n.planGoalIntervalDays),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final d in days)
+              FilterChip(
+                key: ValueKey('interval-day-$d'),
+                label: Text(dayName(d)),
+                selected: _intervalDays.contains(d),
+                onSelected: (on) => setState(
+                  () => on ? _intervalDays.add(d) : _intervalDays.remove(d),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(l10n.planGoalPerDay),
+        const SizedBox(height: 4),
+        SegmentedButton<int>(
+          key: const ValueKey('per-day'),
+          segments: const [
+            ButtonSegment(value: 1, label: Text('1')),
+            ButtonSegment(value: 2, label: Text('2')),
+          ],
+          selected: {perDay},
+          onSelectionChanged: (s) => setState(() => _perDay = s.first),
+        ),
       ],
     );
   }

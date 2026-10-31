@@ -47,6 +47,19 @@ class EventsRepository {
     await db.delete('events', where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Which of [ids] are cached, whatever their date.
+  Future<Set<String>> existingIds(Set<String> ids) async {
+    if (ids.isEmpty) return const {};
+    final db = await _database.database;
+    final rows = await db.query(
+      'events',
+      columns: ['id'],
+      where: 'id IN (${List.filled(ids.length, '?').join(',')})',
+      whereArgs: ids.toList(),
+    );
+    return {for (final r in rows) r['id'] as String};
+  }
+
   Future<List<LocalEvent>> getByDate(String date) async {
     final db = await _database.database;
     final rows = await db.query(

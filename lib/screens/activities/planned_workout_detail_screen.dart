@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../data/models/local_event.dart';
+import '../../data/repositories/activities_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
+import 'activity_detail_screen.dart';
 import 'activity_icons.dart';
 import 'planned_workout_actions.dart';
+import 'session_analysis.dart';
 
 /// A *planned* calendar entry's details — the counterpart to
 /// [ActivityDetailScreen] for something that hasn't happened yet.
@@ -13,7 +16,14 @@ import 'planned_workout_actions.dart';
 /// Pops `true` when the session was deleted, so whoever pushed it knows the
 /// entry it was showing is gone.
 class PlannedWorkoutDetailScreen extends StatefulWidget {
-  const PlannedWorkoutDetailScreen({super.key, required this.event});
+  const PlannedWorkoutDetailScreen({
+    super.key,
+    required this.event,
+    this.activities,
+  });
+
+  /// Test seam; the app uses the default.
+  final ActivitiesRepository? activities;
 
   final LocalEvent event;
 
@@ -152,6 +162,15 @@ class _PlannedWorkoutDetailScreenState
               children: tiles,
             ),
           ],
+          PlannedActualCard(
+            event: event,
+            activities: widget.activities,
+            onOpen: (a) => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ActivityDetailScreen(activity: a),
+              ),
+            ),
+          ),
           if (event.description != null && event.description!.trim().isNotEmpty) ...[
             const SizedBox(height: 16),
             SectionCard(

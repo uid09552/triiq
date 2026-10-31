@@ -50,7 +50,7 @@ class LoadCurveController extends ChangeNotifier {
   }
 
   /// New limits or length, e.g. after a sync or a goal edit. Factors keep
-  /// their percentages; absolute loads follow the new proposal.
+  /// their share of the proposal; TSS follows the new proposal.
   void update({required CurveLimits limits, required int weeks}) {
     _limits = limits;
     _proposal = proposeCurve(limits, weeks);
@@ -72,12 +72,41 @@ class LoadCurveController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sets [index] to [factor], snapped to the 5% grid. Returns whether the
-  /// snapped value changed — the editor ticks a haptic on `true`.
-  bool drag(int index, double factor) {
-    final snapped = snapFactor(factor);
-    if (_factors[index] == snapped) return false;
-    _factors[index] = snapped;
+  /// Grid the graph snaps to, in TSS.
+  static const tssStep = 5.0;
+
+  /// The TSS week [index] may be set to: 80-120% of its proposal, edges
+  /// rounded inwards to the 5-TSS grid (the raw edges if that leaves
+  /// nothing, for a tiny proposal).
+  ({double low, double high}) bandFor(int index) {
+    final p = _proposal.loads[index];
+    final low = (p * Goal.minFactor / tssStep).ceil() * tssStep;
+    final high = (p * Goal.maxFactor / tssStep).floor() * tssStep;
+    return low <= high
+        ? (low: low, high: high)
+        : (low: p * Goal.minFactor, high: p * Goal.maxFactor);
+  }
+
+  /// [tss] on the 5-TSS grid, inside week [index]'s band.
+  double snapTss(int index, double tss) {
+    final band = bandFor(index);
+    final snapped = (tss / tssStep).round() * tssStep;
+    return snapped.clamp(band.low, band.high).toDouble();
+  }
+
+  bool _setTss(int index, double tss) {
+    final p = _proposal.loads[index];
+    if (p <= 0) return false;
+    final factor = snapTss(index, tss) / p;
+    if ((_factors[index] - factor).abs() < 1e-9) return false;
+    _factors[index] = factor;
+    return true;
+  }
+
+  /// Sets week [index] to [tss], snapped into its band. Returns whether the
+  /// value changed — the editor ticks a haptic on `true`.
+  bool dragTss(int index, double tss) {
+    if (!_setTss(index, tss)) return false;
     notifyListeners();
     return true;
   }
@@ -88,12 +117,11 @@ class LoadCurveController extends ChangeNotifier {
     if (before != null && !listEquals(before, _factors)) _undo.add(before);
   }
 
-  /// Moves [index] by [steps] 5% steps (buttons, arrow keys, screen reader).
-  bool step(int index, int steps) {
-    final snapped = snapFactor(_factors[index] + steps * Goal.factorStep);
-    if (_factors[index] == snapped) return false;
-    _undo.add(List.of(_factors));
-    _factors[index] = snapped;
+  /// Moves week [index] by [delta] TSS (buttons, arrow keys, screen reader).
+  bool stepTss(int index, double delta) {
+    final before = List.of(_factors);
+    if (!_setTss(index, targets[index] + delta)) return false;
+    _undo.add(before);
     _selected = index;
     notifyListeners();
     return true;
@@ -112,8 +140,12 @@ class LoadCurveController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Stored factors trimmed or padded to [weeks] and clamped to 80-120%.
+  /// Not snapped: a factor set in TSS is whatever share that TSS was.
   static List<double> _fit(List<double> factors, int weeks) => [
     for (var i = 0; i < weeks; i++)
-      i < factors.length ? snapFactor(factors[i]) : 1.0,
+      i < factors.length
+          ? factors[i].clamp(Goal.minFactor, Goal.maxFactor).toDouble()
+          : 1.0,
   ];
 }

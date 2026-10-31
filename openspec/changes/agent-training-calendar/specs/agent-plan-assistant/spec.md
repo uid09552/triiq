@@ -18,25 +18,25 @@ The agent SHALL have a read-only tool that returns the saved goal, the load grap
 - **THEN** the tool reports that there is no goal, and the agent asks for the goal details instead of inventing a plan
 
 ### Requirement: Proposing load-graph changes
-The agent SHALL be able to propose changes to the load graph: set one or more weeks to a percentage, make weeks recovery weeks, change the plan length, change the triathlon sport mix, or reset to the proposal. The tool SHALL apply the same bounds and validation as the graph editor (80–120% in 5% steps, 2–16 weeks, mix totalling 100%), and SHALL return the resulting curve with phases and warnings. It MUST NOT change the saved goal.
+The agent SHALL be able to propose changes to the load graph: set one or more weeks to a TSS value (or a share of the proposal), make weeks recovery weeks, change the plan length, change the triathlon sport mix, or reset to the proposal. The tool SHALL apply the same bounds and validation as the graph editor (each week within its 80–120% band on the 5-TSS grid, 2–16 weeks, mix totalling 100%), and SHALL return the resulting curve (per week: proposed TSS, target TSS, share, phase, warnings). It MUST NOT change the saved goal.
 
 #### Scenario: Recovery week request
 - **WHEN** the athlete says "make week 4 a recovery week"
-- **THEN** the proposal sets week 4 to 80%, shows week 4 as a recovery week with its new TSS, and the saved graph is unchanged until the athlete applies it
+- **THEN** the proposal sets week 4 to the bottom of its band (about 80% of its proposed TSS, on the 5-TSS grid), shows week 4 as a recovery week with its new TSS, and the saved graph is unchanged until the athlete applies it
 
 #### Scenario: Out-of-range request
-- **WHEN** the agent asks for week 2 at 140%
-- **THEN** the tool returns an error naming the allowed range and no proposal is created
+- **WHEN** the agent asks for week 2 at 140% of its proposal (or a TSS above its band)
+- **THEN** the tool returns an error naming the allowed TSS range and no proposal is created
 
 ### Requirement: Proposing a plan
-Generating a plan through the agent SHALL return a proposal for the plan built from the saved goal plus any pending graph changes the agent includes. Applying it SHALL open the existing plan preview, where the athlete creates the plan. Nothing is written to Intervals.icu before the athlete confirms there.
+Generating a plan through the agent SHALL return a proposal for the plan built from the saved goal plus any pending graph changes the agent includes. Applying it SHALL open the existing plan preview, where the athlete takes the plan (Take as plan: saved locally, Calendar opened, sent to Intervals.icu when that setting is on). Nothing is saved or written before the athlete confirms there.
 
 #### Scenario: Generate from chat
 - **WHEN** the athlete applies a plan proposal from chat
-- **THEN** the plan preview opens with the proposed sessions, and cancelling it writes nothing
+- **THEN** the plan preview opens with the proposed sessions, and cancelling it saves and writes nothing
 
 ### Requirement: Proposing session moves and removals
-The agent SHALL be able to propose moving a session of the current plan to another date in the same plan, or removing it. Only future sessions that are not completed SHALL be eligible. Applying a move SHALL update the session's date locally and, if it exists in Intervals.icu, update that event's date. Applying a removal SHALL delete it locally and in Intervals.icu. Both SHALL re-sync the affected dates.
+The agent SHALL be able to propose moving a session of the current plan to another date in the same plan, or removing it. Only future sessions that are not completed SHALL be eligible. Applying a move SHALL update the session's date locally and, if it exists in Intervals.icu, update that event's date (refused while it is in Intervals.icu but offline or sending is off, as for Train Now replacements). Applying a removal SHALL delete it locally and in Intervals.icu. Both SHALL re-sync the affected dates.
 
 #### Scenario: Move a long ride
 - **WHEN** the athlete applies a proposal to move Saturday's long ride to Sunday

@@ -59,6 +59,24 @@ class LocalEvent {
       category == 'RACE_B' ||
       category == 'RACE_C';
 
+  /// `raw` key that marks an entry built from a TriIQ plan session rather
+  /// than synced from Intervals.icu (see `PlannedItemsRepository`).
+  static const planSessionKey = 'triiq_plan_session';
+  static const planSentKey = 'triiq_plan_sent';
+  static const planSlotKey = 'triiq_plan_slot';
+
+  /// Whether this is one of TriIQ's own plan sessions.
+  bool get isPlanSession => raw[planSessionKey] != null;
+
+  /// The `plan_sessions` row id, for a plan session.
+  int? get planSessionId => (raw[planSessionKey] as num?)?.toInt();
+
+  /// For a plan session: whether it was created in Intervals.icu.
+  bool get planSessionSent => raw[planSentKey] == true;
+
+  /// For a plan session: its slot name (`z2`, `intervals`, `long`).
+  String? get planSessionSlot => raw[planSlotKey] as String?;
+
   /// When the entry starts, from `start_date_local`, falling back to the
   /// cached day. Null only if neither parses.
   DateTime? get startsAt =>

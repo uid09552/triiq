@@ -32,8 +32,16 @@ class IntervalsSession extends ChangeNotifier {
   static final IntervalsSession instance = IntervalsSession._();
 
   @visibleForTesting
-  factory IntervalsSession.forTesting({bool connected = false}) =>
-      IntervalsSession._().._setConnectedForTesting(connected);
+  factory IntervalsSession.forTesting({
+    bool connected = false,
+    IntervallsClient? client,
+    String? athleteId,
+  }) {
+    final session = IntervalsSession._().._setConnectedForTesting(connected);
+    if (client != null) session._client = client;
+    session.athleteId = athleteId;
+    return session;
+  }
 
   void _setConnectedForTesting(bool connected) {
     _client = connected ? IntervallsClient() : null;

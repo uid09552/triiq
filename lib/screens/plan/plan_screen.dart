@@ -1,31 +1,39 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/intervals_session.dart';
 import '../../data/sync/auto_sync_service.dart';
+import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/knowledge.dart';
 import '../../plan/load_curve.dart';
 import '../../plan/load_curve_controller.dart';
+import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
-import '../../plan/plan_writer.dart';
-import '../../util/calendar_export.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/load_curve_editor.dart';
 import '../activities/activity_icons.dart';
 import '../profile/profile_screen.dart';
 import 'goal_editor_screen.dart';
 import 'plan_labels.dart';
-import 'plan_preview_sheet.dart';
+import 'plan_session_sheet.dart';
+import 'plan_take_flow.dart';
 
 /// The training plan: the goal, the load graph, and the current block with
 /// each week's target against what was actually done, its 80/20 split and a
 /// Monday-Sunday calendar row.
 class PlanScreen extends StatefulWidget {
-  const PlanScreen({super.key, PlanService? service}) : _service = service;
+  const PlanScreen({super.key, PlanService? service, SyncSettings? settings})
+    : _service = service,
+      _settingsOverride = settings;
 
   final PlanService? _service;
+  final SyncSettings? _settingsOverride;
+
+  SyncSettings get _settings => _settingsOverride ?? SyncSettings.instance;
 
   @override
   State<PlanScreen> createState() => _PlanScreenState();
@@ -50,12 +58,14 @@ class _PlanScreenState extends State<PlanScreen> {
   void initState() {
     super.initState();
     AutoSyncService.instance.addListener(_load);
+    PlanChanges.instance.addListener(_load);
     _load();
   }
 
   @override
   void dispose() {
     AutoSyncService.instance.removeListener(_load);
+    PlanChanges.instance.removeListener(_load);
     _curve?.dispose();
     super.dispose();
   }
@@ -115,6 +125,30 @@ class _PlanScreenState extends State<PlanScreen> {
     await _service.goals.save(updated);
   }
 
+  /// Ramp slider / hold switch: redraw the proposal at once (each week
+  /// keeps its share), and store it in the goal when [save].
+  Future<void> _setProgression({
+    double? ramp,
+    bool? hold,
+    bool save = true,
+  }) async {
+    final goal = _goal;
+    if (goal == null) return;
+    final updated = goal.copyWith(
+      maxWeeklyIncrease: ramp,
+      holdEvery4th: hold,
+      loadFactors: _curve?.factors,
+    );
+    setState(() => _goal = updated);
+    final curve = await _service.curve(updated);
+    final limits = curve.limits;
+    if (!mounted) return;
+    if (limits != null) {
+      setState(() => _curve?.update(limits: limits, weeks: curve.weeks));
+    }
+    if (save) await _service.goals.save(updated);
+  }
+
   void _say(String message) => ScaffoldMessenger.of(
     context,
   ).showSnackBar(SnackBar(content: Text(message)));
@@ -143,10 +177,6 @@ class _PlanScreenState extends State<PlanScreen> {
 
   Future<void> _generate() async {
     final l10n = AppLocalizations.of(context)!;
-    if (!IntervalsSession.instance.isConnected) {
-      _say(l10n.planNotConnected);
-      return;
-    }
     var goal = _goal;
     if (goal == null) {
       await _editGoal();
@@ -178,21 +208,16 @@ class _PlanScreenState extends State<PlanScreen> {
       }
       if (!mounted) return;
       setState(() => _busy = false);
-      final confirmed = await showModalBottomSheet<PlanPreviewResult>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (_) => PlanPreviewSheet(plan: result.plan!),
-      );
-      if (confirmed == null || !mounted) return;
-
-      setState(() => _busy = true);
-      final outcome = await _service.confirm(
-        confirmed.plan,
+      // Take as plan: saved locally, shown in the Calendar right away;
+      // sending to Intervals.icu (when on) follows in the background.
+      await previewAndTakePlan(
+        context,
+        service: _service,
+        draft: result.plan!,
         replacing: _plan,
+        settings: widget._settings,
+        onTaking: () => setState(() => _busy = true),
       );
-      if (!mounted) return;
-      _say(_reportMessage(l10n, outcome.report));
     } catch (error) {
       if (mounted) _say(l10n.planGenerateFailed('$error'));
     } finally {
@@ -200,11 +225,6 @@ class _PlanScreenState extends State<PlanScreen> {
       await _load();
     }
   }
-
-  String _reportMessage(AppLocalizations l10n, PlanWriteReport report) =>
-      report.allCreated
-      ? l10n.planCreatedAll(report.created.length)
-      : l10n.planCreatedPartial(report.created.length, report.failed.length);
 
   Future<double?> _askBaseline(String message) {
     final l10n = AppLocalizations.of(context)!;
@@ -258,7 +278,7 @@ class _PlanScreenState extends State<PlanScreen> {
     setState(() => _busy = true);
     try {
       final outcome = await _service.retry(plan);
-      if (mounted) _say(_reportMessage(l10n, outcome.report));
+      if (mounted) _say(planWriteReportMessage(l10n, outcome.report));
     } catch (error) {
       if (mounted) _say(l10n.planGenerateFailed('$error'));
     } finally {
@@ -308,7 +328,9 @@ class _PlanScreenState extends State<PlanScreen> {
     final plan = _plan;
     final knowledge = _knowledge;
     final failedCount =
-        plan?.sessions.where((s) => s.status == PlanSessionStatus.failed).length ??
+        plan?.sessions
+            .where((s) => s.status == PlanSessionStatus.failed)
+            .length ??
         0;
 
     return Scaffold(
@@ -330,6 +352,10 @@ class _PlanScreenState extends State<PlanScreen> {
                     failure: _curveFailure,
                     onChanged: _saveCurve,
                     onEditGoal: _busy ? null : _editGoal,
+                    hold: _goal!.holdEvery4th,
+                    onRamp: (v, {required save}) =>
+                        _setProgression(ramp: v, save: save),
+                    onHold: (v) => _setProgression(hold: v),
                   ),
                 ],
                 if (knowledge != null && knowledge.warnings.isNotEmpty) ...[
@@ -475,12 +501,18 @@ class _CurveCard extends StatelessWidget {
     required this.failure,
     required this.onChanged,
     required this.onEditGoal,
+    required this.hold,
+    required this.onRamp,
+    required this.onHold,
   });
 
   final LoadCurveController? controller;
   final PlanFailure? failure;
   final VoidCallback onChanged;
   final VoidCallback? onEditGoal;
+  final bool hold;
+  final void Function(double ramp, {required bool save}) onRamp;
+  final ValueChanged<bool> onHold;
 
   @override
   Widget build(BuildContext context) {
@@ -535,6 +567,31 @@ class _CurveCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  l10n.planCurveRampValue((c.limits.rampCap * 100).round()),
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+              Slider(
+                key: const ValueKey('curve-ramp'),
+                value: (c.limits.rampCap * 100).clamp(0, 15).toDouble(),
+                max: 15,
+                divisions: 15,
+                label: '${(c.limits.rampCap * 100).round()}%',
+                onChanged: (v) => onRamp(v / 100, save: false),
+                onChangeEnd: (v) => onRamp(v / 100, save: true),
+              ),
+              SwitchListTile(
+                key: const ValueKey('curve-hold'),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                dense: true,
+                title: Text(l10n.planCurveHold),
+                subtitle: Text(l10n.planCurveHoldHelp, style: muted),
+                value: hold,
+                onChanged: onHold,
+              ),
               LoadCurveEditor(controller: c, onChanged: onChanged),
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
@@ -671,8 +728,11 @@ class _WeekCard extends StatelessWidget {
                   Text(l10n.planEasyShare((share * 100).round()), style: muted),
                   if (week.outsideTolerance) ...[
                     const SizedBox(width: 8),
-                    Icon(Icons.warning_amber_rounded,
-                        size: 16, color: scheme.error),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: scheme.error,
+                    ),
                     const SizedBox(width: 4),
                     Flexible(
                       child: Text(
@@ -689,8 +749,11 @@ class _WeekCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber_rounded,
-                        size: 16, color: scheme.error),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: scheme.error,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -699,6 +762,23 @@ class _WeekCard extends StatelessWidget {
                           color: scheme.error,
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            for (final note in week.notes)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(planNoteLabel(l10n, note), style: muted),
                     ),
                   ],
                 ),
@@ -718,66 +798,8 @@ class _WeekCard extends StatelessWidget {
     );
   }
 
-  void _openSession(BuildContext context, PlanSession session) {
-    final l10n = AppLocalizations.of(context)!;
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                session.name,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(l10n.planSessionMinutes(session.minutes, session.load)),
-              const SizedBox(height: 12),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: SelectableText(
-                      session.description,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => launchGoogleCalendarEvent(
-                  title: session.name,
-                  description: session.description,
-                  start: session.date,
-                  duration: Duration(minutes: session.minutes),
-                  allDay: true,
-                ),
-                icon: const Icon(Icons.event_outlined),
-                label: Text(l10n.planOpenSingle),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  void _openSession(BuildContext context, PlanSession session) =>
+      showPlanSessionSheetFor(context, session);
 }
 
 /// Seven day columns, Monday first, each with that day's sessions as
@@ -898,7 +920,9 @@ class _SessionTile extends StatelessWidget {
             child: Column(
               children: [
                 Icon(
-                  failed ? Icons.error_outline : activityTypeIcon(session.sport),
+                  failed
+                      ? Icons.error_outline
+                      : activityTypeIcon(session.sport),
                   size: 16,
                   color: failed ? scheme.error : color,
                 ),

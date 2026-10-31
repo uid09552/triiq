@@ -62,6 +62,18 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
   bool _started = false;
   bool _wasConnected = false;
 
+  final _openSyncs = StreamController<void>.broadcast();
+
+  /// Fires after the today-sync that opening or returning to the app runs
+  /// — also when it was skipped or failed (offline), since the cache is
+  /// what gets shown either way. Not fired by the periodic sync.
+  Stream<void> get openSyncDone => _openSyncs.stream;
+
+  Future<void> _openSync() async {
+    await syncToday();
+    _openSyncs.add(null);
+  }
+
   void start() {
     if (_started) return;
     _started = true;
@@ -69,7 +81,7 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
     SyncSettings.instance.addListener(_restartTimer);
     _session.addListener(_onSessionChanged);
     _wasConnected = _session.isConnected;
-    unawaited(syncToday());
+    unawaited(_openSync());
     _restartTimer();
   }
 
@@ -77,7 +89,7 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
   /// so "open" only becomes syncable once the session connects.
   void _onSessionChanged() {
     final connected = _session.isConnected;
-    if (connected && !_wasConnected) unawaited(syncToday());
+    if (connected && !_wasConnected) unawaited(_openSync());
     _wasConnected = connected;
   }
 
@@ -103,7 +115,7 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      unawaited(syncToday());
+      unawaited(_openSync());
       // Reopening the app: refresh sooner than a long configured interval
       // would, so the first screen isn't showing this morning's data.
       _restartTimer(minGap: resumeStaleAfter);

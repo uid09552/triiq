@@ -1,5 +1,5 @@
 name: triiq
-description: "A new Flutter project."
+description: "Endurance and triathlon training companion for Intervals.icu."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -135,9 +135,10 @@ flutter:
   generate: true
 
   assets:
-    # The training reference the agent quotes from, via its
+    # Optional training reference the agent quotes from (not in git — see
+    # assets/knowledge/README.md), via its
     # `get_training_guidance` tool (lib/agent/tools).
-    - training-philosophy.md
+    - assets/knowledge/
     # The app spec doubles as the plan engine's rule and session-template
     # source (section 5, "Training knowledge") — see lib/plan/knowledge.dart.
     - docs/okf.md

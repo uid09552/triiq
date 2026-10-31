@@ -94,6 +94,60 @@ class PlansRepository {
     );
   }
 
+  /// Swaps what session [id] *is* — sport, name, duration, load, steps —
+  /// keeping its plan, week, slot and date. What "replace today's session
+  /// with an alternative" needs; [intervalsEventId] and [status] describe
+  /// where the new content lives.
+  Future<void> replaceSessionContent(
+    int id, {
+    required String sport,
+    required String name,
+    required int minutes,
+    required int load,
+    required double lowMinutes,
+    required String description,
+    required String? intervalsEventId,
+    required PlanSessionStatus status,
+  }) async {
+    final db = await _database.database;
+    await db.update(
+      'plan_sessions',
+      {
+        'sport': sport,
+        'name': name,
+        'minutes': minutes,
+        'load': load,
+        'low_minutes': lowMinutes,
+        'description': description,
+        'intervals_event_id': intervalsEventId,
+        'status': status.name,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int?> planIdOfSession(int sessionId) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'plan_sessions',
+      columns: ['plan_id'],
+      where: 'id = ?',
+      whereArgs: [sessionId],
+    );
+    return rows.isEmpty ? null : rows.first['plan_id'] as int;
+  }
+
+  Future<PlanSession?> getSession(int id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'plan_sessions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return rows.isEmpty ? null : _sessionFromMap(rows.first);
+  }
+
   Future<void> deleteSession(int id) async {
     final db = await _database.database;
     await db.delete('plan_sessions', where: 'id = ?', whereArgs: [id]);
@@ -181,6 +235,7 @@ class PlansRepository {
     'lowIntensityTolerance': w.lowIntensityTolerance,
     'factor': w.factor,
     'warnings': [for (final l in w.warnings) l.name],
+    'notes': w.notes,
   };
 
   PlanWeek _weekFromJson(Map<String, dynamic> j, List<PlanSession> sessions) =>
@@ -200,5 +255,8 @@ class PlansRepository {
           for (final name in j['warnings'] as List? ?? const [])
             WeekLimit.values.byName(name as String),
         },
+        notes: [
+          for (final n in j['notes'] as List? ?? const []) n as String,
+        ],
       );
 }

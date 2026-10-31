@@ -7,6 +7,7 @@ import 'load_curve.dart';
 import 'plan_engine.dart';
 import 'plan_inputs.dart';
 import 'plan_models.dart';
+import 'plan_changes.dart';
 import 'plan_writer.dart';
 
 /// Everything the Plan screen does, in one place: generate a block from the
@@ -124,6 +125,55 @@ class PlanService {
     return (plan: current ?? saved, report: report);
   }
 
+  /// **Take as plan**: stores [draft] as the current plan, locally only. A
+  /// previous plan's upcoming sessions are removed first; its past ones
+  /// stay as history. The Calendar shows the result straight away; sending
+  /// to Intervals.icu is [send], when the athlete has that on.
+  Future<TrainingPlan> take(
+    TrainingPlan draft, {
+    TrainingPlan? replacing,
+    DateTime? today,
+  }) async {
+    if (replacing != null) {
+      await removeUpcoming(replacing, today: today);
+    }
+    final saved = await plans.save(draft.copyWith(status: PlanStatus.active));
+    PlanChanges.instance.notify();
+    return saved;
+  }
+
+  /// Creates [plan]'s sessions that aren't on Intervals.icu yet — from
+  /// [from] on, when given. Safe to call again: it retries only what failed.
+  Future<({TrainingPlan plan, PlanWriteReport report})> send(
+    TrainingPlan plan, {
+    DateTime? from,
+  }) async {
+    try {
+      final report = await writer.write(plan, from: from);
+      return (plan: (await plans.getById(plan.id!)) ?? plan, report: report);
+    } finally {
+      PlanChanges.instance.notify();
+    }
+  }
+
+  /// The current plan's sessions from [today] on that are not on
+  /// Intervals.icu — what turning sending on would send.
+  Future<({TrainingPlan? plan, int count})> unsentUpcoming({
+    DateTime? today,
+  }) async {
+    final plan = await plans.getCurrent();
+    if (plan == null) return (plan: null, count: 0);
+    final cutoff = dateOnly(today ?? DateTime.now());
+    final count = plan.sessions
+        .where(
+          (s) =>
+              s.status != PlanSessionStatus.created &&
+              !s.date.isBefore(cutoff),
+        )
+        .length;
+    return (plan: plan, count: count);
+  }
+
   /// Retries only the sessions that failed to reach Intervals.icu.
   Future<({TrainingPlan plan, PlanWriteReport report})> retry(
     TrainingPlan plan,
@@ -140,6 +190,7 @@ class PlanService {
     if (remaining == null || remaining.sessions.isEmpty) {
       await plans.setStatus(plan.id!, PlanStatus.removed);
     }
+    PlanChanges.instance.notify();
     return removed;
   }
 }

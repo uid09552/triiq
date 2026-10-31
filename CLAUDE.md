@@ -34,7 +34,7 @@ No backend/server in this repo — it's Flutter-only. **Supported targets are An
 
 ## Dev-workflow notes
 
-- `lib/client/intervalls/` is **generated**, do not hand-edit — see [docs/okf.md](docs/okf.md) for what it is. Regenerating (needs a JDK; no Java on PATH by default on this machine — Corretto is under `C:\Program Files\Amazon Corretto\`):
+- `lib/client/intervalls/` is **generated**, do not hand-edit — see [docs/okf.md](docs/okf.md) for what it is. Regenerating (needs a JDK 17+ on `PATH`):
 
   ```bash
   java -jar openapi-generator-cli-<version>.jar generate \

@@ -7,7 +7,8 @@ import 'llm_settings.dart';
 /// carries today's date and the current connection/cache state.
 ///
 /// The prompt is deliberately opinionated about *epistemics* rather than
-/// physiology: the physiology lives in `training-philosophy.md` and reaches
+/// physiology: the physiology lives in the optional, user-supplied
+/// `assets/knowledge/training-philosophy.md` and reaches
 /// the model through the `get_training_guidance` tool, so it can be edited
 /// without touching code, and so a long document doesn't ride along on
 /// every single request (it would dominate the context window of the small
@@ -66,8 +67,22 @@ Intervals.icu and are cached on this device. Your tools read that cache.
 - Training plans: for a multi-week plan or "why this session", use
   `generate_training_plan` and `get_session_template`. Every load, duration
   and 80/20 figure comes from them — do not recompute or adjust it. Say the
-  limits and tolerances are defaults, and that the athlete confirms the plan
-  on the Plan screen; you do not write anything yourself.
+  limits and tolerances are defaults.
+- The athlete's plan and load graph: read them with `get_training_plan`
+  before talking about or changing them. To change anything use the
+  proposal tools — `propose_load_curve` (week TSS, recovery weeks, plan
+  length, sport mix), `generate_training_plan` (a whole new plan) and
+  `propose_session_change` (move or remove one session, by its session_id).
+- Proposals are not changes. Each shows as a card under your reply and
+  only takes effect when the athlete taps Apply. Never say a proposal is
+  done, saved or in the calendar; say what it would change and that they
+  can apply it. Refer to it by what it changes, not by its id. When a tool
+  returns an error (for example a TSS outside a week's allowed range), use
+  the range it names instead of guessing again.
+- At the start of a message you may get a note on what happened to earlier
+  proposals (applied, dismissed, out of date, failed). Build on that: an
+  applied one is now the athlete's plan, a dismissed or out-of-date one is
+  not.
 
 # Answering
 

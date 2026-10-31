@@ -8,6 +8,7 @@ import '../activities/activity_detail_screen.dart';
 import '../activities/activity_icons.dart';
 import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
+import '../plan/plan_session_sheet.dart';
 import 'calendar_day_marker.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
@@ -44,7 +45,32 @@ class CalendarDayDetail extends StatelessWidget {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final event in plannedEvents)
+                for (final event in plannedEvents.where((e) => e.isPlanSession))
+                  _Row(
+                    key: ValueKey('plan-session-${event.planSessionId}'),
+                    color: colorScheme.secondary,
+                    type: event.type,
+                    title: plannedWorkoutTitle(l10n, event),
+                    subtitle:
+                        '${l10n.planSessionBadge} · '
+                        '${l10n.planSessionMinutes((event.plannedTime ?? 0) ~/ 60, event.plannedLoad ?? 0)}',
+                    onTap: () => showPlanSessionSheetForEvent(context, event),
+                    status: Tooltip(
+                      message: event.planSessionSent
+                          ? l10n.planSessionSent
+                          : l10n.planSessionLocalOnly,
+                      child: Icon(
+                        event.planSessionSent
+                            ? Icons.cloud_done_outlined
+                            : Icons.cloud_off_outlined,
+                        size: 18,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                for (final event in plannedEvents.where(
+                  (e) => !e.isPlanSession,
+                ))
                   _Row(
                     color: colorScheme.tertiary,
                     type: event.type,
@@ -52,7 +78,8 @@ class CalendarDayDetail extends StatelessWidget {
                     subtitle: l10n.plannedStatus,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => PlannedWorkoutDetailScreen(event: event),
+                        builder: (_) =>
+                            PlannedWorkoutDetailScreen(event: event),
                       ),
                     ),
                     // Deleting straight from the day's list, without opening
@@ -67,11 +94,13 @@ class CalendarDayDetail extends StatelessWidget {
                   _Row(
                     color: colorScheme.primary,
                     type: activity.type,
-                    title: activity.name ?? activity.type ?? l10n.activityFallback,
+                    title:
+                        activity.name ?? activity.type ?? l10n.activityFallback,
                     subtitle: l10n.completedStatus,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => ActivityDetailScreen(activity: activity),
+                        builder: (_) =>
+                            ActivityDetailScreen(activity: activity),
                       ),
                     ),
                   ),
@@ -88,6 +117,7 @@ class CalendarDayDetail extends StatelessWidget {
 
 class _Row extends StatelessWidget {
   const _Row({
+    super.key,
     required this.color,
     required this.type,
     required this.title,
@@ -95,7 +125,11 @@ class _Row extends StatelessWidget {
     required this.onTap,
     this.onDelete,
     this.deleteTooltip,
+    this.status,
   });
+
+  /// A small trailing indicator, e.g. whether a plan session was sent.
+  final Widget? status;
 
   final Color color;
   final String? type;
@@ -125,7 +159,10 @@ class _Row extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -136,6 +173,7 @@ class _Row extends StatelessWidget {
                 ],
               ),
             ),
+            if (status != null) ...[status!, const SizedBox(width: 8)],
             if (onDelete != null)
               IconButton(
                 onPressed: onDelete,
@@ -146,7 +184,10 @@ class _Row extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-            Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.chevron_right,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),

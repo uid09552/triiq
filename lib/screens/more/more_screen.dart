@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../activities/activities_screen.dart';
 import '../plan/plan_screen.dart';
+import '../statistics/weekly_review_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_screen.dart';
@@ -57,6 +58,15 @@ class MoreScreen extends StatelessWidget {
           subtitle: l10n.morePlanSubtitle,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const PlanScreen()),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _MoreTile(
+          icon: Icons.insights_outlined,
+          title: l10n.weeklyReviewTitle,
+          subtitle: l10n.moreReviewSubtitle,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const WeeklyReviewScreen()),
           ),
         ),
         const SizedBox(height: 20),

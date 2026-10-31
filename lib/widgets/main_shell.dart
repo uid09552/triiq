@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../data/sync/auto_sync_service.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/calendar/calendar_screen.dart';
 import '../screens/chat/chat_screen.dart';
+import '../screens/insights/new_training_trigger.dart';
 import '../screens/more/more_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/statistics/statistics_screen.dart';
 import '../screens/today/today_screen.dart';
 import 'athlete_avatar.dart';
+import 'main_navigation.dart';
 
 /// App shell: top bar with the profile/settings entry point on the right,
 /// bottom navigation for the five main sections.
@@ -24,7 +27,27 @@ class _MainShellState extends State<MainShell> {
   /// Position of the Calendar tab, which needs to know when it is the
   /// visible one — `IndexedStack` keeps every tab alive, so nothing else
   /// tells it that it came back on screen.
-  static const _calendarIndex = 1;
+  static const _calendarIndex = MainNavigation.calendarTab;
+
+  final _navigation = MainNavigation.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _navigation.addListener(_onNavigate);
+  }
+
+  @override
+  void dispose() {
+    _navigation.removeListener(_onNavigate);
+    super.dispose();
+  }
+
+  /// Another screen asked for a tab (e.g. Take as plan → Calendar).
+  void _onNavigate() {
+    final tab = _navigation.requestedTab;
+    if (tab != null && tab != _index) setState(() => _index = tab);
+  }
 
   List<Widget> get _screens => [
     const TodayScreen(),
@@ -46,67 +69,69 @@ class _MainShellState extends State<MainShell> {
       l10n.navMore,
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(titles[_index]),
-        actions: [
-          IconButton(
-            tooltip: l10n.profileAndSettingsTooltip,
-            // The athlete's own picture once connected — the fastest way to
-            // see at a glance which account the app is showing.
-            icon: const AthleteAvatar(size: 34),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+    // Today's new sessions pop up after the open-time sync.
+    return NewTrainingTrigger(
+      openSyncDone: AutoSyncService.instance.openSyncDone,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(titles[_index]),
+          actions: [
+            IconButton(
+              tooltip: l10n.profileAndSettingsTooltip,
+              // The athlete's own picture once connected — the fastest way to
+              // see at a glance which account the app is showing.
+              icon: const AthleteAvatar(size: 34),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
             ),
-          ),
-          const SizedBox(width: 12),
-        ],
-      ),
-      body: IndexedStack(index: _index, children: _screens),
-      bottomNavigationBar: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
+            const SizedBox(width: 12),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
-          child: NavigationBar(
-            selectedIndex: _index,
-            onDestinationSelected: (i) => setState(() => _index = i),
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.today_outlined),
-                selectedIcon: const Icon(Icons.today),
-                label: l10n.navToday,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.calendar_month_outlined),
-                selectedIcon: const Icon(Icons.calendar_month),
-                label: l10n.navCalendar,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.chat_bubble_outline),
-                selectedIcon: const Icon(Icons.chat_bubble),
-                label: l10n.navChat,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.bar_chart_outlined),
-                selectedIcon: const Icon(Icons.bar_chart),
-                label: l10n.navStatistics,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.more_horiz),
-                label: l10n.navMore,
+        body: IndexedStack(index: _index, children: _screens),
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.shadow.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
               ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: (i) => setState(() => _index = i),
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(Icons.today_outlined),
+                  selectedIcon: const Icon(Icons.today),
+                  label: l10n.navToday,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  selectedIcon: const Icon(Icons.calendar_month),
+                  label: l10n.navCalendar,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.chat_bubble_outline),
+                  selectedIcon: const Icon(Icons.chat_bubble),
+                  label: l10n.navChat,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.bar_chart_outlined),
+                  selectedIcon: const Icon(Icons.bar_chart),
+                  label: l10n.navStatistics,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.more_horiz),
+                  label: l10n.navMore,
+                ),
+              ],
+            ),
           ),
         ),
       ),

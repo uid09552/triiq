@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:langchain_core/chat_models.dart';
@@ -8,6 +9,7 @@ import 'package:langchain_core/tools.dart';
 import '../data/intervals_session.dart';
 import 'chat_model_factory.dart';
 import 'llm_settings.dart';
+import 'plan_proposals.dart';
 import 'system_prompt.dart';
 import 'tools/training_data_tools.dart';
 
@@ -40,6 +42,14 @@ class AgentToolFinished extends AgentEvent {
   final bool failed;
 }
 
+/// A tool registered a change for the athlete to apply or dismiss. Emitted
+/// right after that tool finished; the chat shows it as a card.
+class AgentProposal extends AgentEvent {
+  const AgentProposal(this.proposal);
+
+  final PlanProposal proposal;
+}
+
 /// The training-analysis agent: a chat model, the training-data tools, and
 /// the loop that lets the model call them until it can answer.
 ///
@@ -55,12 +65,14 @@ class TrainingAgent {
     IntervalsSession? session,
     TrainingDataTools? tools,
     DateTime Function()? clock,
+    PlanProposals? proposals,
     BaseChatModel Function(LlmSettings settings, List<ToolSpec> tools)?
     chatModelFactory,
   }) : _settings = settings ?? LlmSettings.instance,
        _session = session ?? IntervalsSession.instance,
        _tools = tools ?? TrainingDataTools(),
        _clock = clock ?? DateTime.now,
+       _proposals = proposals ?? PlanProposals.instance,
        _chatModelFactory =
            chatModelFactory ??
            ((settings, tools) => createChatModel(settings, tools: tools));
@@ -69,6 +81,7 @@ class TrainingAgent {
   final IntervalsSession _session;
   final TrainingDataTools _tools;
   final DateTime Function() _clock;
+  final PlanProposals _proposals;
   final BaseChatModel Function(LlmSettings, List<ToolSpec>) _chatModelFactory;
 
   /// How many model turns one question may take. Each tool round-trip costs
@@ -86,7 +99,14 @@ class TrainingAgent {
   @visibleForTesting
   List<ChatMessage> get history => List.unmodifiable(_history);
 
-  void reset() => _history.clear();
+  /// Extra system context for every turn from now on (a session the
+  /// athlete asked about), until [reset].
+  String? attachedContext;
+
+  void reset() {
+    _history.clear();
+    attachedContext = null;
+  }
 
   /// Answers [input], streaming text and tool activity as it goes.
   ///
@@ -99,12 +119,16 @@ class TrainingAgent {
     final model = _chatModelFactory(_settings, toolset);
     final byName = {for (final tool in toolset) tool.name: tool};
 
-    _history.add(ChatMessage.humanText(input));
+    _history.add(ChatMessage.humanText(_withOutcomes(input)));
     _trimHistory();
 
     final systemMessages = [
       ChatMessage.system(trainingAgentSystemPrompt),
       ChatMessage.system(await _runtimeContext()),
+      if (attachedContext != null)
+        ChatMessage.system(
+          '# The athlete is asking about this\n\n$attachedContext',
+        ),
     ];
 
     for (var iteration = 0; iteration < maxIterations; iteration++) {
@@ -135,6 +159,8 @@ class TrainingAgent {
           ),
         );
         yield AgentToolFinished(call.name, failed: failed);
+        final proposal = failed ? null : _proposalIn(result);
+        if (proposal != null) yield AgentProposal(proposal);
       }
       _trimHistory();
     }
@@ -165,6 +191,28 @@ class TrainingAgent {
     } catch (error) {
       debugPrint('TrainingAgent: tool "${call.name}" failed: $error');
       return ('{"error":${_jsonString('$error')}}', true);
+    }
+  }
+
+  /// [input] with a note on what the athlete did with earlier proposals
+  /// since the last turn, so the model never builds on a change that was
+  /// dismissed or claims one it only suggested.
+  String _withOutcomes(String input) {
+    final outcomes = _proposals.takeOutcomes();
+    if (outcomes.isEmpty) return input;
+    final lines = outcomes.map((o) => '- ${o.describe()}').join('\n');
+    return '[Since your last reply:\n$lines]\n\n$input';
+  }
+
+  /// The proposal a tool result announces with `proposal_id`, if any.
+  PlanProposal? _proposalIn(String result) {
+    if (!result.contains('proposal_id')) return null;
+    try {
+      final json = jsonDecode(result);
+      final id = json is Map ? json['proposal_id'] : null;
+      return id is String ? _proposals[id] : null;
+    } catch (_) {
+      return null;
     }
   }
 

@@ -99,7 +99,10 @@ class WeeklyCalendarView extends StatelessWidget {
                               for (final event in events)
                                 CalendarDayMarker(
                                   type: event.type,
-                                  color: colorScheme.tertiary,
+                                  // TriIQ plan sessions vs Intervals.icu events.
+                                  color: event.isPlanSession
+                                      ? colorScheme.secondary
+                                      : colorScheme.tertiary,
                                 ),
                               for (final activity in activities)
                                 CalendarDayMarker(

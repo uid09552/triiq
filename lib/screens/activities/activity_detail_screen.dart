@@ -1,23 +1,56 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../client/intervalls/intervalls_client.dart';
+import '../../agent/chat_handoff.dart';
 import '../../data/models/local_activity.dart';
+import '../../data/planned_items.dart';
+import '../../evaluation/new_training.dart';
+import '../../evaluation/session_evaluator.dart';
+import '../../evaluation/session_streams.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/section_card.dart';
+import '../../util/dates.dart';
+import '../../widgets/main_navigation.dart';
 import '../../widgets/stat_tile.dart';
 import 'activity_icons.dart';
+import '../insights/insights_card.dart';
+import '../today/train_now_screen.dart';
+import 'session_analysis.dart';
 
-/// One activity's stats, and a way out to the full analysis on
-/// intervals.icu (this app doesn't attempt to replace that — no interval
-/// detection, no power/HR curve, no map).
+/// One activity's stats, its evaluation against the plan, its streams over
+/// time, and a way out to the full analysis on
+/// intervals.icu (no power curve, no map here —
+/// that is what intervals.icu is for).
 class ActivityDetailScreen extends StatelessWidget {
-  const ActivityDetailScreen({super.key, required this.activity});
+  const ActivityDetailScreen({
+    super.key,
+    required this.activity,
+    this.streams,
+    this.plannedItems,
+    this.insights,
+    this.seenStore,
+  });
 
   final LocalActivity activity;
 
+  /// Test seams; the app uses the defaults.
+  final ActivityStreamsRepository? streams;
+  final PlannedItemsRepository? plannedItems;
+  final SessionInsightsLoader? insights;
+  final SeenSessionsStore? seenStore;
+
+  SeenSessionsStore get seen => seenStore ?? SeenSessionsStore();
+
   @override
   Widget build(BuildContext context) {
+    // Opening today's session counts as seeing it: it won't pop up again.
+    if (activity.date == isoDate(DateTime.now())) {
+      unawaited(seen.markSeen([activity.id]));
+    }
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     // The columns promoted to LocalActivity cover the list row; everything
@@ -97,6 +130,28 @@ class ActivityDetailScreen extends StatelessWidget {
               child: _ZoneTimeChart(zones: _zoneTimes(full)),
             ),
           ],
+          const SizedBox(height: 16),
+          SessionEvaluationCard(
+            activity: activity,
+            plannedItems: plannedItems,
+            onAskTrainer: (e) => _askTrainer(context, e),
+          ),
+          const SizedBox(height: 16),
+          SessionDiagramCard(activity: activity, streams: streams),
+          const SizedBox(height: 16),
+          InsightsCard(
+            activity: activity,
+            loader: insights,
+            onFindAlternative: (e) {
+              final day = DateTime.tryParse(e.date);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      TrainNowScreen(today: day == null ? null : () => day),
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
@@ -109,6 +164,53 @@ class ActivityDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Opens Chat about this session, with its figures and evaluation as
+  /// the agent's context.
+  void _askTrainer(BuildContext context, SessionEvaluation e) {
+    final split = e.split;
+    final plan = e.plan;
+    ChatHandoff.instance.open(
+      ChatTopic(
+        title: activity.name ?? activity.type ?? 'session',
+        context: jsonEncode({
+          'activity': {
+            'id': activity.id,
+            'date': activity.date,
+            'sport': activity.type,
+            'name': activity.name,
+            'minutes': activity.movingTime == null
+                ? null
+                : (activity.movingTime! / 60).round(),
+            'tss': activity.trainingLoad,
+          },
+          'evaluation': {
+            'verdict': e.verdict?.name,
+            'intent': e.intent.name,
+            if (split != null)
+              'intensity_seconds': {
+                'low': split.low,
+                'moderate': split.moderate,
+                'high': split.high,
+                'source': split.source,
+              },
+            'decoupling_percent': e.decouplingPercent,
+            if (plan != null)
+              'planned': {
+                'name': plan.planned.name,
+                'minutes': plan.plannedMinutes,
+                'tss': plan.plannedLoad,
+              },
+          },
+          'note':
+              'Computed by the app (session evaluation). Use these figures; '
+              'do not recompute them.',
+        }),
+      ),
+    );
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    MainNavigation.instance.openTab(MainNavigation.chatTab);
   }
 
   Future<void> _openInIntervals(BuildContext context) async {

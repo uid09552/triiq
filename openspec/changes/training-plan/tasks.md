@@ -17,25 +17,25 @@
 
 - [x] 3.1 Generalise `IntervalsWorkoutService.createWorkout` to take a date and plan tag; verify existing Train-now flow still passes its tests
 - [x] 3.2 Add bulk create with per-session result and delete-by-plan (future, not completed only); verify against a fake client plus, if a key is available, the live suite
-- [ ] 3.3 Re-sync affected range and `notifyCacheChanged()` after write; verify new sessions appear in Calendar without restart
+- [x] 3.3 Re-sync affected range and `notifyCacheChanged()` after write; verify new sessions appear in Calendar without restart
 
 ## 4. Agent integration
 
-- [ ] 4.1 Add `generate_training_plan` and `get_session_template` tools to `training_data_tools.dart`; verify tool-output tests and that bad arguments return an `error` string
+- [x] 4.1 Add `generate_training_plan` and `get_session_template` tools to `training_data_tools.dart`; verify tool-output tests and that bad arguments return an `error` string
 - [ ] 4.2 Add a session-detail prompt that fills slot steps in Intervals.icu syntax, reusing `parseWorkoutDraft`; verify parser tests for fenced and prose-wrapped replies
 
 ## 5. Plan UI
 
 - [ ] 5.1 Goal editor and Plan screen (timeline, current week highlight, target vs actual, split) under More → Training plan, en + de strings; verify widget test and manual check in light/dark
-- [ ] 5.2 Multi-session preview sheet with per-session date change, confirm/cancel; verify cancel writes nothing (test)
-- [ ] 5.3 Regenerate/remove actions with confirmation; verify completed activities are untouched (test)
+- [x] 5.2 Multi-session preview sheet with per-session date change, confirm/cancel; verify cancel writes nothing (test)
+- [x] 5.3 Regenerate/remove actions with confirmation; verify completed activities are untouched (test)
 
 ## 6. Calendar export
 
 - [ ] 6.1 Add device-calendar plugin and Android permissions; verify `flutter build apk --debug` succeeds (stop and report if it does not)
 - [ ] 6.2 Implement calendar picker, write/update/remove events with stored `calendar_event_id`, plain-text descriptions; verify on an Android device that no duplicate appears on re-export
-- [ ] 6.3 Keep the Google Calendar link as non-Android fallback; verify `markdownToPlainText` tests cover descriptions
+- [x] 6.3 Keep the Google Calendar link as non-Android fallback; verify `markdownToPlainText` tests cover descriptions
 
 ## 7. Docs
 
-- [ ] 7.1 Update `docs/okf.md` status matrix, architecture, user docs and known gaps for plans and calendar export; verify the "Training-plan calculation" row and gap list are current
+- [x] 7.1 Update `docs/okf.md` status matrix, architecture, user docs and known gaps for plans and calendar export; verify the "Training-plan calculation" row and gap list are current

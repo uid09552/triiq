@@ -55,7 +55,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onUpgrade: (db, oldVersion, newVersion) async {
         // v2 added planned calendar entries. Existing caches only held what
         // already happened, so the table is simply created empty and filled
@@ -69,6 +69,11 @@ class AppDatabase {
           await db.execute(_createPlansTable);
           await db.execute(_createPlanSessionsTable);
           await db.execute(_createPlanSessionsPlanIndex);
+        }
+        // v4 cached activity streams for the session diagram, fetched on
+        // demand: nothing to migrate.
+        if (oldVersion < 4) {
+          await db.execute(_createActivityStreamsTable);
         }
       },
       onCreate: (db, version) async {
@@ -105,6 +110,7 @@ class AppDatabase {
         await db.execute(_createPlansTable);
         await db.execute(_createPlanSessionsTable);
         await db.execute(_createPlanSessionsPlanIndex);
+        await db.execute(_createActivityStreamsTable);
         await db.execute('''
           CREATE TABLE sync_state (
             scope TEXT PRIMARY KEY,
@@ -141,6 +147,16 @@ class AppDatabase {
 
   /// A generated training plan. `meta` holds the per-week targets and limits
   /// as JSON — they are only ever read back whole.
+  /// One activity's streams (time series) and intervals, as fetched from
+  /// Intervals.icu when the athlete first opens its diagram.
+  static const _createActivityStreamsTable = '''
+    CREATE TABLE activity_streams (
+      activity_id TEXT PRIMARY KEY,
+      data TEXT NOT NULL,
+      fetched_at INTEGER NOT NULL
+    )
+  ''';
+
   static const _createPlansTable = '''
     CREATE TABLE plans (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

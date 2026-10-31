@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
-import '../../data/repositories/events_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
@@ -45,7 +45,7 @@ class WeeklyLoadScreen extends StatefulWidget {
 
 class _WeeklyLoadScreenState extends State<WeeklyLoadScreen> {
   final _activitiesRepository = ActivitiesRepository();
-  final _eventsRepository = EventsRepository();
+  final _eventsRepository = PlannedItemsRepository();
 
   bool _loading = true;
   List<_Week> _weeks = const [];

@@ -81,11 +81,25 @@ void main() {
       expect(p.weeks[0].requestedLoad, closeTo(330, 0.01));
     });
 
-    test('the proposal ramps 10% a week by default', () {
+    test('the proposal ramps 10% a week and holds every 4th week', () {
       final q =plan(goal(baseline: 300, hours: 40, weeks: 4), loads: null);
-      expect(q.weeks.map((w) => w.requestedLoad.round()), [330, 363, 399, 439]);
+      expect(q.weeks.map((w) => w.requestedLoad.round()), [330, 363, 399, 399]);
       expect(q.weeks.every((w) => w.factor == 1.0), isTrue);
       expect(q.weeks.every((w) => w.warnings.isEmpty), isTrue);
+    });
+
+    test('eight weeks hold weeks 4 and 8; the hold can be turned off', () {
+      final on = plan(goal(baseline: 300, hours: 60, weeks: 8), loads: null);
+      expect(on.weeks.map((w) => w.requestedLoad.round()), [
+        330, 363, 399, 399, 439, 483, 531, 531,
+      ]);
+      expect(on.weeks[3].phase, 'build', reason: 'a hold is not a recovery');
+
+      final off = plan(
+        goal(baseline: 300, hours: 60, weeks: 4).copyWith(holdEvery4th: false),
+        loads: null,
+      );
+      expect(off.weeks.map((w) => w.requestedLoad.round()), [330, 363, 399, 439]);
     });
 
     test('every build week has the same session types', () {
@@ -122,8 +136,8 @@ void main() {
         loads: null,
       );
 
-      expect(p.weeks[3].requestedLoad, closeTo(439.23, 0.01));
-      expect(p.weeks[3].targetLoad, closeTo(439.23 * 0.8, 0.01));
+      expect(p.weeks[3].requestedLoad, closeTo(399.3, 0.01), reason: 'hold');
+      expect(p.weeks[3].targetLoad, closeTo(399.3 * 0.8, 0.01));
       expect(p.weeks[3].factor, 0.8);
     });
 
@@ -245,7 +259,9 @@ void main() {
     });
 
     test('the hours budget holds later weeks at the budget', () {
-      final p = plan(goal(hours: 5, days: {1, 2, 4, 6}));
+      final p = plan(
+        goal(hours: 5, days: {1, 2, 4, 6}).copyWith(holdEvery4th: false),
+      );
 
       for (final week in p.weeks) {
         expect(week.totalMinutes / 60, lessThanOrEqualTo(5.5));
@@ -594,6 +610,145 @@ void main() {
       expect(result.plan, isNull);
       expect(result.failure!.kind, PlanFailureKind.missingTemplate);
       expect(result.failure!.message, contains('swim'));
+    });
+  });
+
+  group('session mix', () {
+    test('athlete shares drive each slot\'s load', () {
+      final g = goal(
+        baseline: 200 / 1.1,
+        hours: 40,
+        weeks: 2,
+        days: {1, 2, 4, 6},
+      ).copyWith(slotShares: {'z2': 20, 'intervals': 50, 'long': 30});
+      final week = plan(g, loads: null).weeks[0];
+      int load(SessionSlot slot) => week.sessions
+          .where((s) => s.slot == slot)
+          .fold(0, (a, s) => a + s.load);
+
+      expect(week.targetLoad, closeTo(200, 0.01));
+      final standard = plan(
+        goal(baseline: 200 / 1.1, hours: 40, weeks: 2, days: {1, 2, 4, 6}),
+        loads: null,
+      ).weeks[0];
+      final standardIntervals = standard.sessions
+          .where((s) => s.slot == SessionSlot.intervals)
+          .fold(0, (a, s) => a + s.load);
+      // More intervals than the template's 30%, up to what its repeats allow.
+      expect(load(SessionSlot.intervals), greaterThan(standardIntervals));
+      expect(load(SessionSlot.z2), lessThan(standard.sessions
+          .where((s) => s.slot == SessionSlot.z2)
+          .fold<int>(0, (a, s) => a + s.load)));
+      // More intensity means less easy time.
+      expect(week.lowShare!, lessThan(standard.lowShare!));
+    });
+
+    test('a slot at 0% gets no sessions; swim keeps sessions on all-long', () {
+      final run = plan(
+        goal(hours: 40, weeks: 2).copyWith(
+          slotShares: {'z2': 0, 'intervals': 40, 'long': 60},
+        ),
+      ).weeks[0];
+      expect(run.sessions.where((s) => s.slot == SessionSlot.z2), isEmpty);
+
+      final tri = plan(
+        goal(
+          sport: Goal.triathlon,
+          days: {1, 2, 3, 4, 5, 6},
+          hours: 40,
+          weeks: 2,
+          baseline: 400,
+        ).copyWith(slotShares: {'z2': 0, 'intervals': 0, 'long': 100}),
+        loads: null,
+      ).weeks[0];
+      expect(tri.sessions.where((s) => s.sport == 'Swim'), isNotEmpty);
+    });
+
+    test('without a custom mix nothing changes', () {
+      final a = plan(goal(days: {1, 2, 4, 6}));
+      final b = plan(goal(days: {1, 2, 4, 6}).copyWith(clearSlotShares: true));
+      expect(
+        a.sessions.map((s) => s.load).toList(),
+        b.sessions.map((s) => s.load).toList(),
+      );
+    });
+  });
+
+  group('preferences', () {
+    Goal tri(Set<int> days) => goal(
+      sport: Goal.triathlon,
+      days: days,
+      hours: 40,
+      weeks: 2,
+      baseline: 400,
+    );
+
+    test('long ride Saturday, long run Sunday', () {
+      final p = plan(
+        tri({1, 2, 3, 4, 5, 6, 7}).copyWith(longDays: {'Ride': 6, 'Run': 7}),
+        loads: null,
+      );
+      for (final week in p.weeks) {
+        DateTime longOf(String sport) => week.sessions
+            .firstWhere((s) => s.sport == sport && s.slot == SessionSlot.long)
+            .date;
+        expect(longOf('Ride').weekday, DateTime.saturday);
+        expect(longOf('Run').weekday, DateTime.sunday);
+        expect(week.notes, isEmpty);
+      }
+    });
+
+    test('Tuesday intervals for a single sport', () {
+      final p = plan(
+        goal(days: {2, 4, 6}, hours: 40).copyWith(intervalDays: {2}),
+      );
+      for (final week in p.weeks) {
+        final intervals = week.sessions.firstWhere(
+          (s) => s.slot == SessionSlot.intervals,
+        );
+        expect(intervals.date.weekday, DateTime.tuesday);
+        expect(
+          week.sessions.map((s) => s.date.weekday).toSet(),
+          hasLength(week.sessions.length),
+          reason: 'still one session a day',
+        );
+      }
+    });
+
+    test('a preference the week can\'t meet becomes a note', () {
+      // Intervals preferred on the long run's day: never on one day.
+      final p = plan(
+        goal(days: {2, 4, 6}, hours: 40).copyWith(
+          longDays: {'Run': 2},
+          intervalDays: {2},
+        ),
+      );
+      final week = p.weeks.first;
+      expect(
+        week.sessions.firstWhere((s) => s.slot == SessionSlot.long).date.weekday,
+        DateTime.tuesday,
+      );
+      expect(week.notes, contains(PlanEngine.noteIntervalDay));
+    });
+
+    test('one session a day for triathlon: fits 5 days, not 4', () {
+      final five = plan(
+        tri({1, 2, 3, 4, 6}).copyWith(maxSessionsPerDay: 1),
+        loads: null,
+      ).weeks.first;
+      expect(
+        five.sessions.map((s) => s.date.weekday).toSet(),
+        hasLength(five.sessions.length),
+      );
+
+      final four = engine.generate(
+        goal: tri({1, 2, 4, 6}).copyWith(maxSessionsPerDay: 1),
+        startDate: monday,
+        recentWeeklyLoads: null,
+        today: today,
+      );
+      expect(four.failure!.kind, PlanFailureKind.notEnoughDays);
+      expect(four.failure!.message, contains('at most 1 a day'));
     });
   });
 }

@@ -20,6 +20,11 @@ class Goal {
     this.weeks,
     this.sportMix = defaultSportMix,
     this.loadFactors = const [],
+    this.holdEvery4th = true,
+    this.slotShares,
+    this.longDays = const {},
+    this.intervalDays = const {},
+    this.maxSessionsPerDay,
   });
 
   /// A `GoalProfile.id` from the knowledge, e.g. `long_distance`.
@@ -54,6 +59,42 @@ class Goal {
   /// Per-week share of the proposed load the athlete set in the load graph,
   /// 0.80..1.20; weeks beyond the list are at 1.0.
   final List<double> loadFactors;
+
+  /// Whether every 4th proposed week holds the previous week's load
+  /// instead of ramping.
+  final bool holdEvery4th;
+
+  /// Share of each sport's weekly load per slot (`z2`, `intervals`,
+  /// `long`), in %; `null` uses the goal type's template shares.
+  final Map<String, int>? slotShares;
+
+  /// Preferred weekday (1-7) for the long session, by Intervals.icu sport.
+  final Map<String, int> longDays;
+
+  /// Preferred weekdays for interval sessions.
+  final Set<int> intervalDays;
+
+  /// Most sessions on one day; `null` means 2 for triathlon, 1 otherwise.
+  final int? maxSessionsPerDay;
+
+  static const slotKeys = ['z2', 'intervals', 'long'];
+
+  int get effectiveMaxPerDay => maxSessionsPerDay ?? (isTriathlon ? 2 : 1);
+
+  /// The sports a long-session day can be set for.
+  List<String> get longDaySports =>
+      isTriathlon ? const ['Ride', 'Run'] : [sport];
+
+  /// This goal with preferences for days that are no longer training days
+  /// (or sports no longer planned) dropped.
+  Goal withoutStalePreferences() => copyWith(
+    longDays: {
+      for (final e in longDays.entries)
+        if (weekdays.contains(e.value) && longDaySports.contains(e.key))
+          e.key: e.value,
+    },
+    intervalDays: intervalDays.where(weekdays.contains).toSet(),
+  );
 
   static const triathlon = 'Triathlon';
   static const sports = ['Run', 'Ride', triathlon];
@@ -139,6 +180,34 @@ class Goal {
         return 'Week load is 80% to 120% of the proposal.';
       }
     }
+    final shares = slotShares;
+    if (shares != null) {
+      final total = slotKeys.fold<int>(0, (sum, k) => sum + (shares[k] ?? 0));
+      if (total != 100) {
+        return 'The session mix adds up to $total%, not 100%.';
+      }
+      if (shares.entries.any(
+        (e) => !slotKeys.contains(e.key) || e.value < 0 || e.value % 5 != 0,
+      )) {
+        return 'Session shares are 0-100% in 5% steps.';
+      }
+    }
+    for (final e in longDays.entries) {
+      if (!weekdays.contains(e.value)) {
+        return 'The long-session day must be a training day.';
+      }
+    }
+    final longRide = longDays['Ride'];
+    if (isTriathlon && longRide != null && longRide == longDays['Run']) {
+      return 'The long ride and long run need different days.';
+    }
+    if (!weekdays.containsAll(intervalDays)) {
+      return 'Interval days must be training days.';
+    }
+    final perDay = maxSessionsPerDay;
+    if (perDay != null && perDay != 1 && perDay != 2) {
+      return 'At most 1 or 2 sessions a day.';
+    }
     final event = eventDate;
     if (event != null &&
         DateTime(event.year, event.month, event.day).isBefore(
@@ -163,6 +232,13 @@ class Goal {
     bool clearWeeks = false,
     Map<String, int>? sportMix,
     List<double>? loadFactors,
+    bool? holdEvery4th,
+    Map<String, int>? slotShares,
+    bool clearSlotShares = false,
+    Map<String, int>? longDays,
+    Set<int>? intervalDays,
+    int? maxSessionsPerDay,
+    bool clearMaxSessionsPerDay = false,
   }) => Goal(
     targetType: targetType ?? this.targetType,
     weekdays: weekdays ?? this.weekdays,
@@ -175,6 +251,13 @@ class Goal {
     weeks: clearWeeks ? null : weeks ?? this.weeks,
     sportMix: sportMix ?? this.sportMix,
     loadFactors: loadFactors ?? this.loadFactors,
+    holdEvery4th: holdEvery4th ?? this.holdEvery4th,
+    slotShares: clearSlotShares ? null : slotShares ?? this.slotShares,
+    longDays: longDays ?? this.longDays,
+    intervalDays: intervalDays ?? this.intervalDays,
+    maxSessionsPerDay: clearMaxSessionsPerDay
+        ? null
+        : maxSessionsPerDay ?? this.maxSessionsPerDay,
   );
 
   Map<String, dynamic> toJson() => {
@@ -189,6 +272,11 @@ class Goal {
     'weeks': weeks,
     'sportMix': sportMix,
     'loadFactors': loadFactors,
+    'holdEvery4th': holdEvery4th,
+    'slotShares': slotShares,
+    'longDays': longDays,
+    'intervalDays': intervalDays.toList()..sort(),
+    'maxSessionsPerDay': maxSessionsPerDay,
   };
 
   factory Goal.fromJson(Map<String, dynamic> json) => Goal(
@@ -213,6 +301,23 @@ class Goal {
       for (final f in json['loadFactors'] as List? ?? const [])
         (f as num).toDouble(),
     ],
+    holdEvery4th: json['holdEvery4th'] as bool? ?? true,
+    slotShares: json['slotShares'] == null
+        ? null
+        : {
+            for (final e in (json['slotShares'] as Map<String, dynamic>).entries)
+              e.key: (e.value as num).toInt(),
+          },
+    longDays: {
+      for (final e
+          in (json['longDays'] as Map<String, dynamic>? ?? const {}).entries)
+        e.key: (e.value as num).toInt(),
+    },
+    intervalDays: {
+      for (final d in json['intervalDays'] as List? ?? const [])
+        (d as num).toInt(),
+    },
+    maxSessionsPerDay: (json['maxSessionsPerDay'] as num?)?.toInt(),
   );
 }
 
@@ -328,6 +433,7 @@ class PlanWeek {
     required this.lowIntensityTolerance,
     this.factor = 1.0,
     this.warnings = const {},
+    this.notes = const [],
   });
 
   final int index;
@@ -348,6 +454,10 @@ class PlanWeek {
 
   /// Limits the athlete-set [targetLoad] goes beyond. Shown, not enforced.
   final Set<WeekLimit> warnings;
+
+  /// Preferences this week couldn't honour, as `PlanEngine` note codes
+  /// (`longDay:<sport>`, `intervalDay`).
+  final List<String> notes;
 
   /// Planned load per Intervals.icu sport.
   Map<String, int> get loadBySport {
@@ -395,6 +505,7 @@ class PlanWeek {
     lowIntensityTolerance: lowIntensityTolerance,
     factor: factor,
     warnings: warnings,
+    notes: notes,
   );
 }
 

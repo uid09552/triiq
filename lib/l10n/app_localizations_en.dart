@@ -1080,10 +1080,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planPreviewNote =>
-      'Nothing is created until you confirm. Tap a date to move a session.';
+      'Nothing is saved until you take the plan. Tap a date to move a session.';
 
   @override
-  String get planConfirmButton => 'Create plan';
+  String get planConfirmButton => 'Take as plan';
 
   @override
   String get planCreateCalendarToo => 'Also add to my phone calendar';
@@ -1117,7 +1117,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planNotConnected =>
-      'Connect Intervals.icu in Profile to create a plan.';
+      'Connect Intervals.icu in Profile to build from your history and send plans there.';
 
   @override
   String planWeekLabel(int number, String phase) {
@@ -1237,11 +1237,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planCurveHint =>
-      'Drag a week up or down, 80–120% of the proposal. Drop a week to about 80% for recovery.';
+      'Drag a week up or down within its shaded band (80–120% of the proposal). Lower a week by more than 10% for recovery.';
 
   @override
   String planCurveProposal(int percent, int baseline) {
-    return '100% = proposed load: up to +$percent% a week from $baseline TSS. A default, not a rule.';
+    return 'Dashed line = proposed load from $baseline TSS, up to +$percent% a week. A default, not a rule.';
   }
 
   @override
@@ -1255,7 +1255,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String planCurveDragLabel(int week, int percent, int tss) {
-    return 'Week $week · $percent% · $tss TSS';
+    return 'Week $week · $tss TSS · $percent%';
   }
 
   @override
@@ -1267,10 +1267,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planCurveSelectHint => 'Tap a week to fine-tune it.';
 
   @override
-  String get planCurveIncrease => 'Increase by 5%';
+  String get planCurveIncrease => 'Increase by 5 TSS';
 
   @override
-  String get planCurveDecrease => 'Decrease by 5%';
+  String get planCurveDecrease => 'Decrease by 5 TSS';
 
   @override
   String get planCurveUndo => 'Undo';
@@ -1282,12 +1282,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planCurveResetTitle => 'Reset the load curve?';
 
   @override
-  String get planCurveResetBody =>
-      'Every week goes back to 100% of the proposal.';
+  String get planCurveResetBody => 'Every week goes back to its proposed TSS.';
 
   @override
-  String planCurveWeekSemantics(int week, int tss) {
-    return 'Week $week, $tss TSS';
+  String planCurveWeekSemantics(int week, int percent) {
+    return 'Week $week, $percent% of proposal';
+  }
+
+  @override
+  String planCurveTssValue(int tss) {
+    return '$tss TSS';
   }
 
   @override
@@ -1315,6 +1319,523 @@ class AppLocalizationsEn extends AppLocalizations {
   String planCurveFactor(int percent) {
     return '$percent% of proposal';
   }
+
+  @override
+  String get planTakenLocal => 'Plan saved in TriIQ.';
+
+  @override
+  String get planTakenNotConnected =>
+      'Plan saved in TriIQ. Connect Intervals.icu to send it there.';
+
+  @override
+  String get retryButton => 'Retry';
+
+  @override
+  String get planSessionSent => 'Sent to Intervals.icu';
+
+  @override
+  String get planSessionLocalOnly => 'Only in TriIQ';
+
+  @override
+  String get planSessionBadge => 'TriIQ plan';
+
+  @override
+  String get plannedTodayTitle => 'Planned today';
+
+  @override
+  String get plannedSourceIntervals => 'Intervals.icu';
+
+  @override
+  String get showAllSteps => 'Show all steps';
+
+  @override
+  String get showLessSteps => 'Show less';
+
+  @override
+  String get findAlternative => 'Find alternative';
+
+  @override
+  String get replaceTodaySession => 'Replace today\'s session';
+
+  @override
+  String get addAlongside => 'Add alongside';
+
+  @override
+  String replacesSession(String name) {
+    return 'Replaces “$name”';
+  }
+
+  @override
+  String workoutReplaced(String name) {
+    return '$name replaces today\'s session';
+  }
+
+  @override
+  String get workoutReplacedLocal => 'Today\'s plan session changed in TriIQ';
+
+  @override
+  String get replaceBothExist =>
+      'The new workout was created, but the old one could not be deleted, so both are on your calendar. Delete the old one from the Calendar.';
+
+  @override
+  String get replaceRefusedSent =>
+      'This session is in Intervals.icu. Connect and turn on Send plan to Intervals.icu to replace it.';
+
+  @override
+  String get replaceRefusedOffline =>
+      'Connect Intervals.icu to replace this session.';
+
+  @override
+  String couldNotReplace(String error) {
+    return 'Could not replace the session: $error';
+  }
+
+  @override
+  String get planChangeMissing => 'That session is no longer in the plan.';
+
+  @override
+  String get planChangePast => 'That session or date is in the past.';
+
+  @override
+  String get planChangeOutsidePlan => 'That date is outside the plan\'s weeks.';
+
+  @override
+  String get planChangeInvalid => 'That change isn\'t valid for the goal.';
+
+  @override
+  String get proposalCurveTitle => 'Load graph change';
+
+  @override
+  String get proposalPlanTitle => 'New training plan';
+
+  @override
+  String get proposalMoveTitle => 'Move a session';
+
+  @override
+  String get proposalRemoveTitle => 'Remove a session';
+
+  @override
+  String get proposalApply => 'Apply';
+
+  @override
+  String get proposalDismiss => 'Dismiss';
+
+  @override
+  String get proposalApplied => 'Applied';
+
+  @override
+  String get proposalDismissed => 'Dismissed';
+
+  @override
+  String get proposalStale =>
+      'Out of date: your goal or plan changed since. Ask again.';
+
+  @override
+  String proposalFailed(String error) {
+    return 'Could not apply: $error';
+  }
+
+  @override
+  String get proposalPlanHint =>
+      'Apply opens the plan preview, where you take the plan.';
+
+  @override
+  String get chatToolPlanRead => 'Reading your plan…';
+
+  @override
+  String get chatToolProposing => 'Preparing a proposal…';
+
+  @override
+  String planCurveRampValue(int percent) {
+    return 'Weekly increase: $percent%';
+  }
+
+  @override
+  String get planCurveHold => 'Hold every 4th week';
+
+  @override
+  String get planCurveHoldHelp =>
+      'Weeks 4, 8, 12… keep the previous week\'s load instead of ramping.';
+
+  @override
+  String get planGoalSlotsTitle => 'Session mix (share of each sport\'s load)';
+
+  @override
+  String get slotZ2 => 'Z2';
+
+  @override
+  String get slotIntervals => 'Intervals';
+
+  @override
+  String get slotLong => 'Long';
+
+  @override
+  String get planGoalSlotsReset => 'Use the goal\'s default mix';
+
+  @override
+  String get planGoalPrefsTitle => 'Preferences';
+
+  @override
+  String planGoalLongDay(String sport) {
+    return 'Long $sport on';
+  }
+
+  @override
+  String get planGoalAnyDay => 'Any';
+
+  @override
+  String get planGoalIntervalDays => 'Interval days';
+
+  @override
+  String get planGoalPerDay => 'Most sessions per day';
+
+  @override
+  String planNoteLongDay(String sport) {
+    return 'The long $sport couldn\'t go on its preferred day.';
+  }
+
+  @override
+  String get planNoteIntervalDay =>
+      'The intervals couldn\'t go on a preferred interval day.';
+
+  @override
+  String get sessionDiagramTitle => 'Over time';
+
+  @override
+  String get sessionDiagramNoData =>
+      'This activity has no time-series data (for example a manual entry).';
+
+  @override
+  String sessionDiagramError(String error) {
+    return 'Could not load the time series: $error';
+  }
+
+  @override
+  String get sessionIntervalsTitle => 'Intervals';
+
+  @override
+  String sessionIntervalN(int n) {
+    return 'Interval $n';
+  }
+
+  @override
+  String get streamPower => 'Power';
+
+  @override
+  String get streamHeartRate => 'Heart rate';
+
+  @override
+  String get streamSpeed => 'Speed';
+
+  @override
+  String get streamCadence => 'Cadence';
+
+  @override
+  String get streamAltitude => 'Altitude';
+
+  @override
+  String get sessionEvaluationTitle => 'Evaluation';
+
+  @override
+  String get verdictOnTarget => 'On target';
+
+  @override
+  String get verdictTooHard => 'Too hard';
+
+  @override
+  String get verdictTooEasy => 'Too easy';
+
+  @override
+  String get verdictCutShort => 'Cut short';
+
+  @override
+  String get evalNoPlan => 'No planned session to compare with.';
+
+  @override
+  String evalReasonShort(int actual, int planned) {
+    return '$actual of $planned planned minutes';
+  }
+
+  @override
+  String evalReasonTooIntense(String share, String limit) {
+    return 'Planned easy, but $share of the time was above the first threshold (limit $limit)';
+  }
+
+  @override
+  String evalReasonNotIntense(String share, String minimum) {
+    return 'Planned hard, but only $share of the time was above the first threshold (at least $minimum expected)';
+  }
+
+  @override
+  String evalReasonLoad(int actual, int planned) {
+    return '$actual TSS against $planned planned';
+  }
+
+  @override
+  String evalPlannedVsActual(String name) {
+    return 'Planned: $name';
+  }
+
+  @override
+  String evalMinutes(int actual, int planned, String delta) {
+    return '$actual of $planned min ($delta)';
+  }
+
+  @override
+  String evalLoad(int actual, int planned, String delta) {
+    return '$actual of $planned TSS ($delta)';
+  }
+
+  @override
+  String get evalSplitTitle => 'Intensity split';
+
+  @override
+  String get evalSplitNotAssessable =>
+      'No zone times for this session, so its intensity split cannot be assessed.';
+
+  @override
+  String get domainLow => 'Low';
+
+  @override
+  String get domainModerate => 'Moderate';
+
+  @override
+  String get domainHigh => 'High';
+
+  @override
+  String evalDecoupling(String percent) {
+    return 'Aerobic decoupling: $percent%';
+  }
+
+  @override
+  String get evalDecouplingNotAssessable =>
+      'Aerobic decoupling: not assessable (needs a steady session of at least an hour).';
+
+  @override
+  String get evalThresholdsNote =>
+      'Thresholds follow the 80/20 rule in the training knowledge.';
+
+  @override
+  String get askTrainer => 'Ask the trainer';
+
+  @override
+  String chatAbout(String title) {
+    return 'About: $title';
+  }
+
+  @override
+  String plannedDoneTitle(String name) {
+    return 'Done: $name';
+  }
+
+  @override
+  String get plannedOpenActivity => 'Open the activity';
+
+  @override
+  String get weeklyReviewTitle => 'Weekly review';
+
+  @override
+  String get moreReviewSubtitle =>
+      'Plan vs done, 80/20 and load trend per week';
+
+  @override
+  String weeklyReviewTopic(String date) {
+    return 'Week of $date';
+  }
+
+  @override
+  String get previousWeek => 'Previous week';
+
+  @override
+  String get nextWeek => 'Next week';
+
+  @override
+  String get weeklyCompliance => 'Plan vs done';
+
+  @override
+  String get weeklyNothingPlanned => 'Nothing was planned this week.';
+
+  @override
+  String weeklyComplianceValue(int percent, int done, int planned) {
+    return '$percent% done ($done of $planned planned sessions)';
+  }
+
+  @override
+  String weeklyLoadValue(int load, int planned) {
+    return '$load of $planned planned TSS';
+  }
+
+  @override
+  String weeklyMissed(String name) {
+    return '✗ missed: $name';
+  }
+
+  @override
+  String get weeklySplitTitle => 'Intensity (80/20)';
+
+  @override
+  String weeklyOutside8020(int percent) {
+    return 'Only $percent% easy: below the 80/20 tolerance.';
+  }
+
+  @override
+  String weeklyNoZones(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions have no zone data and are not counted.',
+      one: '1 session has no zone data and is not counted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get weeklyTrendTitle => 'Load trend';
+
+  @override
+  String get weeklyNoHistory => 'Not enough earlier weeks cached to compare.';
+
+  @override
+  String weeklyVsRecent(String delta, int average) {
+    return '$delta% against the 4-week average of $average TSS';
+  }
+
+  @override
+  String weeklyFitness(String ctl, String atl, String form) {
+    return 'CTL $ctl, ATL $atl over the week; form $form';
+  }
+
+  @override
+  String get weeklyNoteTitle => 'Next week';
+
+  @override
+  String get weeklyNoteLabel =>
+      'Suggested by the trainer from the figures above (an inference, not a measurement).';
+
+  @override
+  String get weeklyOpenInChat => 'Discuss in Chat';
+
+  @override
+  String get insightsTitle => 'Insights';
+
+  @override
+  String get insightsBests => 'Personal bests';
+
+  @override
+  String bestPower(String duration, int watts) {
+    return 'Best $duration power $watts W';
+  }
+
+  @override
+  String bestTime(String distance, String time) {
+    return 'Fastest $distance: $time';
+  }
+
+  @override
+  String bestOther(String value) {
+    return 'Best effort $value';
+  }
+
+  @override
+  String bestWas(String best, String previous) {
+    return '$best (was $previous)';
+  }
+
+  @override
+  String get insightsEfficiency => 'Aerobic efficiency';
+
+  @override
+  String insightsEfficiencyChange(String value, String change, int sessions) {
+    return 'Efficiency factor $value: $change% against your 6-week median ($sessions easy sessions)';
+  }
+
+  @override
+  String insightsEfficiencyTooFew(String value, int min) {
+    return 'Efficiency factor $value. Not enough history yet (needs $min easy sessions in 6 weeks).';
+  }
+
+  @override
+  String get insightsRecovery => 'Recovery (estimate)';
+
+  @override
+  String insightsRecoveryHours(int hours) {
+    return 'About $hours hours';
+  }
+
+  @override
+  String insightsRecoveryRule(int tss) {
+    return 'From $tss TSS, by the recovery rule in the training knowledge.';
+  }
+
+  @override
+  String insightsRecoveryRuleForm(int tss, String form) {
+    return 'From $tss TSS, plus extra time because your form is $form, by the recovery rule in the training knowledge.';
+  }
+
+  @override
+  String insightsRecoveryConflict(String name) {
+    return 'That runs into tomorrow\'s $name. Consider an easier alternative.';
+  }
+
+  @override
+  String get newTrainingTitle => 'New training';
+
+  @override
+  String get newTrainingOk => 'OK';
+
+  @override
+  String get newTrainingDetails => 'Details';
+
+  @override
+  String get insightsPopupSetting => 'Show new training when opening the app';
+
+  @override
+  String get insightsPopupSettingHelp =>
+      'Today\'s new sessions with their analysis, once each.';
+
+  @override
+  String get calendarSettingsTitle => 'Calendar';
+
+  @override
+  String get calendarSendPlan => 'Send plan to Intervals.icu';
+
+  @override
+  String get calendarSendPlanHelp => 'Off keeps training plans in TriIQ only.';
+
+  @override
+  String get calendarCopyEvents => 'Copy planned events from Intervals.icu';
+
+  @override
+  String get calendarCopyEventsHelp =>
+      'Off hides workouts planned in Intervals.icu. Completed activities still sync.';
+
+  @override
+  String get calendarSendNowTitle => 'Send your plan now?';
+
+  @override
+  String calendarSendNowBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count upcoming plan sessions are only in TriIQ.',
+      one: '1 upcoming plan session is only in TriIQ.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String calendarSendNow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Send $count sessions',
+      one: 'Send 1 session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get calendarSendLater => 'Not now';
 
   @override
   String get planNotEnoughDays =>

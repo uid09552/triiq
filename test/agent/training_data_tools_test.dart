@@ -10,6 +10,7 @@ import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/models/local_wellness.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/data/repositories/events_repository.dart';
+import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
 
@@ -41,6 +42,7 @@ void main() {
       wellnessRepository: wellnessRepository,
       activitiesRepository: activitiesRepository,
       eventsRepository: eventsRepository,
+      plansRepository: PlansRepository(database: database),
       syncStateRepository: syncStateRepository,
       clock: () => now,
       loadTrainingGuidance: () async => _guidanceFixture,

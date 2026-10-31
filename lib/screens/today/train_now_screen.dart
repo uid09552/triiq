@@ -8,12 +8,20 @@ import '../../agent/training_agent.dart';
 import '../../agent/workout_draft_parser.dart';
 import '../../data/intervals_session.dart';
 import '../../data/intervals_workout_service.dart';
+import '../../data/models/local_event.dart';
+import '../../data/planned_items.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_service.dart';
+import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/plan_actions.dart';
+import '../../plan/plan_changes.dart';
 import '../../util/calendar_export.dart';
+import '../../util/dates.dart';
 import '../../widgets/markdown_reply.dart';
 import '../settings/settings_screen.dart';
+import '../plan/plan_labels.dart';
+import 'planned_session_card.dart';
 
 enum _Intensity { recovery, endurance, intervals }
 
@@ -46,17 +54,97 @@ const _sports = ['Run', 'Ride', 'Swim'];
 /// so the proposal is grounded in the athlete's actual last-7-days load
 /// (TSS/CTL/ATL) via the same tools, not a canned template.
 class TrainNowScreen extends StatefulWidget {
-  const TrainNowScreen({super.key});
+  const TrainNowScreen({
+    super.key,
+    this.plannedItems,
+    this.planActions,
+    this.today,
+    this.agentFactory,
+    this.workoutWriter,
+    this.syncService,
+  });
+
+  /// Test seams; the app uses the defaults.
+  final PlannedItemsRepository? plannedItems;
+  final PlanActions? planActions;
+  /// The day to plan for (default today): its planned sessions are shown
+  /// and a created workout lands on it.
+  final DateTime Function()? today;
+  final TrainingAgent Function()? agentFactory;
+  final PlannedWorkoutWriter? workoutWriter;
+  final SyncService? syncService;
+
+  /// Longest reference steps sent to the agent.
+  static const maxReferenceSteps = 1500;
+
+  /// The request for the agent. With [reference] — a session planned
+  /// today — it asks for an alternative to it rather than a fresh session.
+  @visibleForTesting
+  static String buildPrompt({
+    required String intensityWord,
+    required String sport,
+    required int minutes,
+    String customPrompt = '',
+    LocalEvent? reference,
+  }) {
+    final ref = reference;
+    var refText = '';
+    if (ref != null) {
+      var steps = (ref.description ?? '').trim();
+      if (steps.length > maxReferenceSteps) {
+        steps = '${steps.substring(0, maxReferenceSteps)} …';
+      }
+      final refMinutes = (ref.plannedTime ?? 0) ~/ 60;
+      refText =
+          'Today I have this session planned: ${ref.type ?? 'a session'} '
+          '"${ref.name ?? 'Planned session'}", $refMinutes min, about '
+          '${ref.plannedLoad ?? 'unknown'} TSS'
+          '${steps.isEmpty ? '' : ', steps:\n$steps\n'}. '
+          'I want an alternative to do instead of it: aim for a similar '
+          'training effect and load unless my recent load says otherwise, '
+          'and say why. The alternative must last about $minutes minutes. ';
+    }
+    return '$refText'
+        'Propose $intensityWord $sport session lasting about '
+        '$minutes minutes for me to do right now. Before proposing, check my '
+        'training load from the last 7 days (TSS, CTL, ATL, ramp rate) with '
+        'your tools and take it into account — back off the prescription if '
+        "the data suggests I'm not recovered, and say so. Reply with the "
+        'session as a markdown table, one row per segment (warm-up, each '
+        'interval or set, cool-down), with exactly these two columns and '
+        'nothing else — more columns make the table unreadable on a '
+        'phone: "Duration" (the segment name plus its time or distance, '
+        'e.g. "Warm-up — 10m" or "3x8min"), "Session" (everything else '
+        'about that segment in one cell — the concrete target: % of FTP, % '
+        'of threshold pace, or for swimming a pace per 100m or explicit '
+        'effort; any equipment, e.g. paddles, pull buoy, fins; and any '
+        'other note worth flagging). After the table, add one line with '
+        'the estimated total TSS and a one-line rationale citing the data '
+        'you found.'
+        '${sport == 'Swim' ? ' Vary the session: about one swim session in '
+              'three or four, build the main set around technique instead of '
+              'straight swimming — name a specific drill and/or piece of '
+              'equipment (paddles, pull buoy, fins) rather than just '
+              '"swim". Only do this when it fits the requested intensity and '
+              "duration, and don't force it into a hard interval session." : ''}'
+        '${customPrompt.isEmpty ? '' : ' Additional instructions from me, '
+              'which take priority over the defaults above where they '
+              'conflict: "$customPrompt".'}';
+  }
 
   @override
   State<TrainNowScreen> createState() => _TrainNowScreenState();
 }
 
+/// Whether a created proposal takes today's planned session's place.
+enum _CreateMode { replace, add }
+
 class _TrainNowScreenState extends State<TrainNowScreen> {
   final _settings = LlmSettings.instance;
   final _session = IntervalsSession.instance;
-  final _workoutService = IntervalsWorkoutService();
-  final _syncService = SyncService();
+  late final PlannedWorkoutWriter _workoutService =
+      widget.workoutWriter ?? IntervalsWorkoutService();
+  late final _syncService = widget.syncService ?? SyncService();
 
   String _sport = _sports.first;
   double _durationMinutes = 60;
@@ -88,8 +176,32 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 
   bool get _isBusy => _subscription != null;
 
+  late final _plannedItems = widget.plannedItems ?? PlannedItemsRepository();
+  late final _planActions = widget.planActions ?? PlanActions();
+
+  /// The day the session is for — today, or e.g. tomorrow when opened from
+  /// a recovery hint.
+  DateTime get _targetDay => (widget.today ?? DateTime.now)();
+
+  /// Today's planned training, and which one an alternative is for.
+  List<LocalEvent> _todays = const [];
+  bool _todaysLoaded = false;
+  int _selected = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    PlanChanges.instance.addListener(_loadTodays);
+    AutoSyncService.instance.addListener(_loadTodays);
+    SyncSettings.instance.addListener(_loadTodays);
+    _loadTodays();
+  }
+
   @override
   void dispose() {
+    PlanChanges.instance.removeListener(_loadTodays);
+    AutoSyncService.instance.removeListener(_loadTodays);
+    SyncSettings.instance.removeListener(_loadTodays);
     _subscription?.cancel();
     _customPromptController.dispose();
     super.dispose();
@@ -104,7 +216,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       _activity = null;
     });
 
-    final agent = _agent ??= TrainingAgent();
+    final agent = _agent ??= (widget.agentFactory ?? TrainingAgent.new)();
     try {
       _subscription = agent
           .send(_buildPrompt())
@@ -120,34 +232,77 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     setState(() {});
   }
 
-  String _buildPrompt() {
-    final minutes = _durationMinutes.round();
-    final customPrompt = _customPromptController.text.trim();
-    return 'Propose ${_intensity.promptWord} $_sport session lasting about '
-        '$minutes minutes for me to do right now. Before proposing, check my '
-        'training load from the last 7 days (TSS, CTL, ATL, ramp rate) with '
-        'your tools and take it into account — back off the prescription if '
-        "the data suggests I'm not recovered, and say so. Reply with the "
-        'session as a markdown table, one row per segment (warm-up, each '
-        'interval or set, cool-down), with exactly these two columns and '
-        'nothing else — more columns make the table unreadable on a '
-        'phone: "Duration" (the segment name plus its time or distance, '
-        'e.g. "Warm-up — 10m" or "3x8min"), "Session" (everything else '
-        'about that segment in one cell — the concrete target: % of FTP, % '
-        'of threshold pace, or for swimming a pace per 100m or explicit '
-        'effort; any equipment, e.g. paddles, pull buoy, fins; and any '
-        'other note worth flagging). After the table, add one line with '
-        'the estimated total TSS and a one-line rationale citing the data '
-        'you found.'
-        '${_sport == 'Swim' ? ' Vary the session: about one swim session in '
-              'three or four, build the main set around technique instead of '
-              'straight swimming — name a specific drill and/or piece of '
-              'equipment (paddles, pull buoy, fins) rather than just '
-              '"swim". Only do this when it fits the requested intensity and '
-              "duration, and don't force it into a hard interval session." : ''}'
-        '${customPrompt.isEmpty ? '' : ' Additional instructions from me, '
-              'which take priority over the defaults above where they '
-              'conflict: "$customPrompt".'}';
+  String _buildPrompt() => TrainNowScreen.buildPrompt(
+    intensityWord: _intensity.promptWord,
+    sport: _sport,
+    minutes: _durationMinutes.round(),
+    customPrompt: _customPromptController.text.trim(),
+    reference: _reference,
+  );
+
+  /// The session an alternative is asked for: the selected one of today's,
+  /// or `null` when nothing is planned.
+  LocalEvent? get _reference =>
+      _todays.isEmpty ? null : _todays[_selected.clamp(0, _todays.length - 1)];
+
+  Future<void> _loadTodays() async {
+    final now = (widget.today ?? DateTime.now)();
+    List<LocalEvent> items;
+    try {
+      items = (await _plannedItems.getByDate(isoDate(now)))
+          .where((e) => e.isTraining)
+          .toList();
+    } catch (error) {
+      debugPrint('TrainNow: cannot read today\'s plan: $error');
+      items = const [];
+    }
+    if (!mounted) return;
+    final firstLoad = !_todaysLoaded;
+    setState(() {
+      _todays = items;
+      _todaysLoaded = true;
+      if (_selected >= items.length) _selected = 0;
+    });
+    if (firstLoad && items.isNotEmpty) _applyPresets(items[_selected]);
+  }
+
+  /// Starts sport, duration and intensity from [e]; the athlete can still
+  /// change them.
+  void _applyPresets(LocalEvent e) {
+    final type = (e.type ?? '').toLowerCase();
+    final sport = type.contains('ride') || type.contains('bike')
+        ? 'Ride'
+        : type.contains('run')
+        ? 'Run'
+        : type.contains('swim')
+        ? 'Swim'
+        : _sport;
+    final minutes = (e.plannedTime ?? 0) / 60;
+    final name = (e.name ?? '').toLowerCase();
+    final intensity = e.planSessionSlot == 'intervals'
+        ? _Intensity.intervals
+        : name.contains('recovery') || name.contains('easy')
+        ? _Intensity.recovery
+        : e.planSessionSlot != null
+        ? _Intensity.endurance
+        : name.contains('interval') || name.contains('vo2')
+        ? _Intensity.intervals
+        : _Intensity.endurance;
+    setState(() {
+      _sport = sport;
+      if (minutes > 0) {
+        _durationMinutes = ((minutes / 15).round() * 15)
+            .clamp(15, 180)
+            .toDouble();
+      }
+      _intensity = intensity;
+    });
+  }
+
+  void _select(int index) {
+    if (index == _selected || _isBusy) return;
+    setState(() => _selected = index);
+    _applyPresets(_todays[index]);
   }
 
   void _onEvent(AgentEvent event) {
@@ -163,6 +318,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
           _activity = failed
               ? l10n.toolFailedSuffix(_describeTool(l10n, name))
               : null;
+        case AgentProposal():
+          // Train Now has no proposal cards; the chat does.
+          break;
       }
     });
   }
@@ -193,7 +351,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       final structured = await _collectReply(workoutStructuringPrompt);
       draft = parseWorkoutDraft(
         structured,
-        date: DateTime.now(),
+        date: _targetDay,
         fallbackSport: _sport,
         fallbackName: l10n.trainNowEventTitle(
           _intensity.label(l10n),
@@ -215,13 +373,22 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       return;
     }
 
-    final confirmed = await showModalBottomSheet<bool>(
+    final reference = _reference;
+    final mode = await showModalBottomSheet<_CreateMode>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (context) => _WorkoutPreviewSheet(draft: proposed),
+      builder: (context) => _WorkoutPreviewSheet(
+        draft: proposed,
+        replacing: reference,
+        canAdd: _session.isConnected,
+      ),
     );
-    if (confirmed != true || !mounted) return;
+    if (mode == null || !mounted) return;
+    if (mode == _CreateMode.replace && reference != null) {
+      await _replace(reference, proposed);
+      return;
+    }
 
     setState(() => _publishing = true);
     try {
@@ -251,10 +418,43 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     }
   }
 
+  /// Puts [draft] in [reference]'s place via [PlanActions], and says how
+  /// that went.
+  Future<void> _replace(LocalEvent reference, PlannedWorkoutDraft draft) async {
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _publishing = true);
+    try {
+      final outcome = await _planActions.replaceSession(reference, draft);
+      if (!mounted) return;
+      _showMessage(switch (outcome) {
+        ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
+        ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
+        ReplaceOutcome.bothExist => l10n.replaceBothExist,
+      });
+      await _loadTodays();
+    } on ReplaceRefusedException catch (error) {
+      if (!mounted) return;
+      _showMessage(refusalLabel(l10n, error));
+    } catch (error) {
+      if (mounted) _showMessage(l10n.couldNotReplace('$error'));
+    } finally {
+      if (mounted) setState(() => _publishing = false);
+    }
+  }
+
+  /// Whether the proposal can be created at all: in Intervals.icu when
+  /// connected, or as a replacement of a plan session that lives only in
+  /// TriIQ.
+  bool get _canCreate {
+    final ref = _reference;
+    return _session.isConnected ||
+        (ref != null && ref.isPlanSession && !ref.planSessionSent);
+  }
+
   /// Runs one more turn of the same conversation and returns the whole
   /// reply — the streaming UI has nothing to show for a format conversion.
   Future<String> _collectReply(String prompt) async {
-    final agent = _agent ??= TrainingAgent();
+    final agent = _agent ??= (widget.agentFactory ?? TrainingAgent.new)();
     final buffer = StringBuffer();
     await for (final event in agent.send(prompt)) {
       if (event is AgentTextDelta) buffer.write(event.text);
@@ -274,7 +474,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
         _sportLabel(l10n, _sport),
       ),
       description: _reply,
-      start: DateTime.now(),
+      start: _targetDay,
       duration: Duration(minutes: _durationMinutes.round()),
     );
     if (!launched && mounted) {
@@ -316,6 +516,21 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_todays.isNotEmpty) ...[
+            Text(l10n.plannedTodayTitle, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            for (var i = 0; i < _todays.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: PlannedSessionCard(
+                  key: ValueKey('planned-today-$i'),
+                  event: _todays[i],
+                  selected: _todays.length > 1 && i == _selected,
+                  onTap: _todays.length > 1 ? () => _select(i) : null,
+                ),
+              ),
+            const SizedBox(height: 12),
+          ],
           Text(l10n.sportLabel, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),
           SegmentedButton<String>(
@@ -422,9 +637,18 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
             ),
           ] else
             FilledButton.icon(
+              key: const ValueKey('train-now-main'),
               onPressed: _isBusy || _publishing ? null : _propose,
-              icon: const Icon(Icons.auto_awesome),
-              label: Text(_requested ? l10n.askAgain : l10n.proposeTraining),
+              icon: Icon(
+                _todays.isNotEmpty ? Icons.swap_horiz : Icons.auto_awesome,
+              ),
+              label: Text(
+                _requested
+                    ? l10n.askAgain
+                    : _todays.isNotEmpty
+                    ? l10n.findAlternative
+                    : l10n.proposeTraining,
+              ),
             ),
           if (_requested) ...[
             const SizedBox(height: 20),
@@ -492,7 +716,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                             runSpacing: 8,
                             children: [
                               FilledButton.tonalIcon(
-                                onPressed: _session.isConnected
+                                onPressed: _canCreate
                                     ? _createInIntervals
                                     : null,
                                 icon: const Icon(Icons.add_task_outlined),
@@ -505,7 +729,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                               ),
                             ],
                           ),
-                        if (!_session.isConnected) ...[
+                        if (!_canCreate) ...[
                           const SizedBox(height: 8),
                           Text(
                             l10n.connectToCreateWorkout,
@@ -543,16 +767,39 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 /// here, and the step syntax is the agent's work rather than the athlete's,
 /// so the whole thing — name, targets and every line of the workout — is on
 /// screen before the Create button is.
-class _WorkoutPreviewSheet extends StatelessWidget {
-  const _WorkoutPreviewSheet({required this.draft});
+class _WorkoutPreviewSheet extends StatefulWidget {
+  const _WorkoutPreviewSheet({
+    required this.draft,
+    this.replacing,
+    this.canAdd = true,
+  });
 
   final PlannedWorkoutDraft draft;
+
+  /// Today's session the proposal is an alternative to; offers Replace /
+  /// Add alongside when set.
+  final LocalEvent? replacing;
+
+  /// Whether adding a new workout (in Intervals.icu) is possible at all.
+  final bool canAdd;
+
+  @override
+  State<_WorkoutPreviewSheet> createState() => _WorkoutPreviewSheetState();
+}
+
+class _WorkoutPreviewSheetState extends State<_WorkoutPreviewSheet> {
+  late _CreateMode _mode = widget.replacing != null
+      ? _CreateMode.replace
+      : _CreateMode.add;
+
+  PlannedWorkoutDraft get draft => widget.draft;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final replacing = widget.replacing;
 
     final facts = <String>[
       draft.sport,
@@ -615,16 +862,48 @@ class _WorkoutPreviewSheet extends StatelessWidget {
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
+            if (replacing != null) ...[
+              const SizedBox(height: 16),
+              SegmentedButton<_CreateMode>(
+                key: const ValueKey('create-mode'),
+                segments: [
+                  ButtonSegment(
+                    value: _CreateMode.replace,
+                    icon: const Icon(Icons.swap_horiz),
+                    label: Text(l10n.replaceTodaySession),
+                  ),
+                  ButtonSegment(
+                    value: _CreateMode.add,
+                    enabled: widget.canAdd,
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.addAlongside),
+                  ),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (s) => setState(() => _mode = s.first),
+              ),
+              if (_mode == _CreateMode.replace) ...[
+                const SizedBox(height: 6),
+                Text(
+                  l10n.replacesSession(
+                    replacing.name ?? l10n.plannedSessionFallback,
+                  ),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ],
             const SizedBox(height: 16),
             Row(
               children: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
+                  onPressed: () => Navigator.of(context).pop(),
                   child: Text(l10n.cancelButton),
                 ),
                 const Spacer(),
                 FilledButton.icon(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: _mode == _CreateMode.add && !widget.canAdd
+                      ? null
+                      : () => Navigator.of(context).pop(_mode),
                   icon: const Icon(Icons.add_task_outlined),
                   label: Text(l10n.createButton),
                 ),

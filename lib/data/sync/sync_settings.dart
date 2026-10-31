@@ -17,6 +17,8 @@ class SyncSettings extends ChangeNotifier {
   static const _backgroundLastRunKey = 'sync.background_last_run';
   static const _backgroundLastResultKey = 'sync.background_last_result';
   static const _backgroundFailuresKey = 'sync.background_failures';
+  static const _sendPlanKey = 'calendar.send_plan_to_intervals';
+  static const _copyEventsKey = 'calendar.copy_intervals_events';
 
   static const defaultAutoSyncIntervalMinutes = 5;
   static const minAutoSyncIntervalMinutes = 1;
@@ -40,6 +42,25 @@ class SyncSettings extends ChangeNotifier {
   /// Consecutive background runs that failed; reset by a success.
   int backgroundFailures = 0;
 
+  /// Whether a taken plan's sessions are also created in Intervals.icu.
+  /// Off keeps plans in TriIQ only.
+  bool sendPlanToIntervals = true;
+
+  /// Whether sync fetches Intervals.icu's planned events into TriIQ. Off
+  /// hides cached events (they stay in the database) and skips the request.
+  bool copyIntervalsEvents = true;
+
+  /// [copyIntervalsEvents] straight from storage, for code that runs without
+  /// the loaded singleton (the background isolate's sync).
+  static Future<bool> readCopyIntervalsEvents() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_copyEventsKey) ?? true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -47,6 +68,8 @@ class SyncSettings extends ChangeNotifier {
       // preferences cache, so re-read from disk before trusting ours.
       await prefs.reload();
       backgroundSyncEnabled = prefs.getBool(_backgroundEnabledKey) ?? true;
+      sendPlanToIntervals = prefs.getBool(_sendPlanKey) ?? true;
+      copyIntervalsEvents = prefs.getBool(_copyEventsKey) ?? true;
       final lastRun = prefs.getInt(_backgroundLastRunKey);
       backgroundLastRunAt = lastRun == null
           ? null
@@ -89,6 +112,33 @@ class SyncSettings extends ChangeNotifier {
       await prefs.setBool(_backgroundEnabledKey, enabled);
     } catch (error) {
       debugPrint('SyncSettings: cannot persist background sync flag: $error');
+    }
+  }
+
+  Future<void> setSendPlanToIntervals(bool enabled) =>
+      _setFlag(enabled, sendPlanToIntervals, _sendPlanKey, (v) {
+        sendPlanToIntervals = v;
+      });
+
+  Future<void> setCopyIntervalsEvents(bool enabled) =>
+      _setFlag(enabled, copyIntervalsEvents, _copyEventsKey, (v) {
+        copyIntervalsEvents = v;
+      });
+
+  Future<void> _setFlag(
+    bool value,
+    bool current,
+    String key,
+    void Function(bool) assign,
+  ) async {
+    if (value == current) return;
+    assign(value);
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(key, value);
+    } catch (error) {
+      debugPrint('SyncSettings: cannot persist $key: $error');
     }
   }
 

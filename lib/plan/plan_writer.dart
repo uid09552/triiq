@@ -42,14 +42,18 @@ class PlanWriter {
   /// Creates every session that isn't on Intervals.icu yet, one by one, so a
   /// failure on one leaves the others written and the report names what is
   /// left to retry. Run it again with the same plan to retry only those.
-  Future<PlanWriteReport> write(TrainingPlan plan) async {
+  /// With [from], sessions dated before it are left alone (sending a plan
+  /// later doesn't fill in days already past).
+  Future<PlanWriteReport> write(TrainingPlan plan, {DateTime? from}) async {
     final planId = plan.id;
     if (planId == null) throw ArgumentError('Save the plan before writing it.');
+    final cutoff = from == null ? null : dateOnly(from);
 
     final created = <PlanSession>[];
     final failed = <({PlanSession session, Object error})>[];
     for (final session in plan.sessions) {
       if (session.status == PlanSessionStatus.created) continue;
+      if (cutoff != null && session.date.isBefore(cutoff)) continue;
       try {
         final event = await _workouts.createPlannedWorkout(
           PlannedWorkoutDraft(
