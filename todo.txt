@@ -1,3 +1,0 @@
-1) change on pull down in home screen, only sync today actvity and kalender event.
-2) provide more information about the training item and the single sets if creating the training in train now by click on button "create in intervals.icu".
-3) the gogole kalender events should be formated as text not markdwon. google is not interpeting markdown.
