@@ -13,6 +13,7 @@ import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/plans_repository.dart';
 import '../../data/repositories/knowledge_library_repository.dart';
 import '../../data/repositories/sync_state_repository.dart';
+import '../../data/threshold_suggestions_service.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
@@ -59,7 +60,10 @@ class TrainingDataTools {
     PlanProposals? proposals,
     PerformanceCurvesRepository? performanceCurves,
     ReadinessService? readinessService,
+    ThresholdSuggestionsService? thresholdSuggestions,
   }) : _readinessOverride = readinessService,
+       _thresholdSuggestions =
+           thresholdSuggestions ?? ThresholdSuggestionsService(),
        _performanceCurves = performanceCurves ?? PerformanceCurvesRepository(),
        _knowledge = knowledgeRepository ?? KnowledgeRepository(),
        _goalStore = goalStore ?? GoalStore(),
@@ -99,6 +103,7 @@ class TrainingDataTools {
   final DateTime Function() _clock;
   final Future<String> Function() _loadTrainingGuidance;
   final KnowledgeLibraryRepository _knowledgeLibrary;
+  final ThresholdSuggestionsService _thresholdSuggestions;
   final KnowledgeRepository _knowledge;
   final GoalStore _goalStore;
   final PlanInputsLoader _planInputs;
@@ -214,6 +219,20 @@ class TrainingDataTools {
           'hard session today. Read-only.',
       schema: const {'type': 'object', 'properties': <String, dynamic>{}},
       run: (_) => _readinessToday(),
+    ),
+    _tool(
+      name: 'get_threshold_suggestions',
+      description:
+          "Current threshold suggestions: a candidate ride FTP, run or swim "
+          "threshold pace derived from the athlete's performance curves, "
+          'each with the current and candidate value, percent change, '
+          'direction and the data it came from. Read-only — this tool never '
+          "writes a threshold. When the athlete asks about one, explain it "
+          "from these figures and point them to Statistics → Performance to "
+          'review and apply it there; you cannot apply or dismiss it '
+          'yourself.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _thresholdSuggestionsTool(),
     ),
     _tool(
       name: 'get_activities',
@@ -1275,6 +1294,29 @@ class TrainingDataTools {
   static const _notAppliedNote =
       'Not applied: each proposal shows as a card with Apply / Dismiss. '
       'Tell the athlete what it would change; do not claim it is done.';
+
+  Future<Map<String, dynamic>> _thresholdSuggestionsTool() async {
+    final suggestions = await _thresholdSuggestions.load();
+    return _compact({
+      'suggestions': [
+        for (final s in suggestions)
+          _compact({
+            'sport': s.sport.apiType,
+            'field': s.field,
+            'direction': s.direction.name,
+            'current_value': _round(s.currentValue),
+            'candidate_value': _round(s.candidateValue),
+            'change_percent': _round(s.changeFraction * 100),
+            'basis': s.basisKind.name,
+            'effort_activity_ids': s.effortActivityIds,
+          }),
+      ],
+      'note': suggestions.isEmpty
+          ? 'No threshold suggestions right now.'
+          : 'Review and apply in Statistics → Performance; this tool '
+                'cannot apply or dismiss one.',
+    });
+  }
 
   Future<Map<String, dynamic>> _readinessToday() async {
     final r = (await _readiness.load()).readiness;

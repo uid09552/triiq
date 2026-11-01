@@ -34,6 +34,7 @@ import 'athlete_detail_screen.dart';
 import 'metric_history_screen.dart';
 import 'readiness_card.dart';
 import 'train_now_screen.dart';
+import '../statistics/threshold_suggestion_card.dart';
 import 'tss_history_screen.dart';
 import 'weekly_load_screen.dart';
 import 'weekly_targets_row.dart';
@@ -466,6 +467,7 @@ class _TodayScreenState extends State<TodayScreen> {
             wellnessWeekAgo: _wellnessWeekAgo,
           ),
           WeeklyTargetsRow(weekActivities: _weekActivities),
+          ThresholdSuggestionsSection(),
           if (_activities.isNotEmpty) ...[
             const SizedBox(height: 16),
             SectionCard(

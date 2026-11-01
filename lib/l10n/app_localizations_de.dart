@@ -2066,6 +2066,109 @@ class AppLocalizationsDe extends AppLocalizations {
   String get modelCriticalSpeed => 'Kritische Geschwindigkeit';
 
   @override
+  String get thresholdSuggestionsTitle => 'Schwellenwert-Vorschläge';
+
+  @override
+  String thresholdChangeLine(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String thresholdBasisRideSeasonModel(String percent) {
+    return 'Die Modellanpassung dieser Saison liegt $percent% über deinem aktuellen FTP.';
+  }
+
+  @override
+  String thresholdBasisRideRecentModel(String percent) {
+    return 'Die Modellanpassung der letzten 42 Tage liegt $percent% unter deinem aktuellen FTP — vermutlich gesunken.';
+  }
+
+  @override
+  String thresholdBasisRunSeason60Min(String percent) {
+    return 'Deine beste ~60-Minuten-Leistung dieser Saison ist $percent% schneller als dein aktuelles Schwellentempo.';
+  }
+
+  @override
+  String get thresholdBasisRunSeason40MinHeuristic =>
+      'Geschätzt aus deiner besten ~40-Minuten-Leistung dieser Saison (Heuristik: angepasst an ein nachhaltiges 60-Minuten-Tempo).';
+
+  @override
+  String thresholdBasisRunRecent60Min(String percent) {
+    return 'Deine jüngste beste Leistung ist $percent% langsamer als dein aktuelles Schwellentempo — vermutlich gesunken.';
+  }
+
+  @override
+  String get thresholdBasisRunRecent40MinHeuristic =>
+      'Geschätzt aus deiner jüngsten ~40-Minuten-Leistung (Heuristik) — vermutlich gesunken.';
+
+  @override
+  String thresholdBasisSwimSeasonCss(String percent) {
+    return 'CSS aus deinen 400-m- und 200-m-Bestzeiten dieser Saison ist $percent% schneller als dein aktuelles Schwellentempo.';
+  }
+
+  @override
+  String thresholdBasisSwimRecentCss(String percent) {
+    return 'CSS aus deinen jüngsten 400-m-/200-m-Leistungen ist $percent% langsamer — vermutlich gesunken.';
+  }
+
+  @override
+  String get thresholdReviewButton => 'Prüfen';
+
+  @override
+  String get thresholdUndoButton => 'Rückgängig';
+
+  @override
+  String get thresholdConfirmSheetTitle => 'Schwellenwert aktualisieren?';
+
+  @override
+  String get thresholdCurrentLabel => 'Aktuell';
+
+  @override
+  String get thresholdNewLabel => 'Neu';
+
+  @override
+  String get thresholdZonesTitle => 'Zonenbereiche';
+
+  @override
+  String get thresholdZonesBefore => 'Vorher';
+
+  @override
+  String get thresholdZonesAfter => 'Nachher';
+
+  @override
+  String get thresholdRecalcHrZones => 'Auch HF-Zonen neu berechnen';
+
+  @override
+  String get thresholdPastLoadNote =>
+      'Vergangene Aktivitäten behalten ihre erfasste Belastung — nur Zonen und neue Einheiten ändern sich.';
+
+  @override
+  String get thresholdIndoorFtpNote =>
+      'Der Indoor-FTP wird separat festgelegt und ändert sich nicht.';
+
+  @override
+  String get thresholdEffortsUsedTitle => 'Verwendete Leistungen';
+
+  @override
+  String get thresholdUpdating => 'Wird aktualisiert…';
+
+  @override
+  String thresholdUpdateFailed(String error) {
+    return 'Aktualisierung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get thresholdUpdateSuccess => 'Aktualisiert';
+
+  @override
+  String get thresholdUndoSuccess => 'Auf den vorherigen Wert zurückgesetzt';
+
+  @override
+  String thresholdUndoFailed(String error) {
+    return 'Rückgängig machen fehlgeschlagen: $error';
+  }
+
+  @override
   String get readinessTitle => 'Trainingsbereitschaft';
 
   @override

@@ -63,7 +63,7 @@ athlete can:
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail |
-| Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached |
+| Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
@@ -283,6 +283,7 @@ is asked for or after a newer activity of that sport was synced.
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
 | `get_training_guidance` | Matching sections of the optional bundled reference and every enabled document the athlete imported under More → Knowledge library, each tagged with the document it came from |
 | `get_performance_curve` | Best efforts per duration (power, HR) or distance (pace) for one sport — this season, last season, last 42 days — at fixed key points with the session that set each, the model fit (FTP/CP/W'/Pmax or critical speed/D') and its gap to the settings threshold. Fetches from Intervals.icu only when nothing is cached or a newer activity of that sport arrived |
+| `get_threshold_suggestions` | Current ride FTP / run / swim threshold-pace suggestions: current and candidate value, percent change, direction and what it's based on. Read-only — the agent explains a suggestion and points the athlete to Statistics → Performance to review and apply it; it cannot apply or dismiss one itself |
 | `sync_from_intervals` | Fetches a date range into the cache |
 | `get_training_plan` | The saved goal, the load graph per week (proposed/target TSS, share, allowed range, phase, limits exceeded) and the current plan's weeks and sessions with their `session_id` |
 | `generate_training_plan` | A plan built by the engine from the goal (and any weeks / load factors / sport mix passed) — plus a **proposal** to take it |
@@ -300,6 +301,15 @@ preview → **Take as plan** flow as the Plan screen. Each proposal records a
 fingerprint of the goal and plan it was made from; if either changed since,
 Apply refuses it as out of date. What the athlete did with each proposal is
 prepended to their next message so the model builds on the real state.
+
+Threshold suggestions follow the same never-from-chat rule by a different
+route: `get_threshold_suggestions` is read-only, and there is no agent tool
+that writes a threshold — only the Performance screen's confirm sheet
+(**Apply**) does, through `SportSettingsService`
+(`lib/data/sport_settings_service.dart`). It's the first TriIQ write that
+changes Intervals.icu *settings* rather than calendar data, so the payload
+is deliberately minimal (only the one changed field) — see Statistics →
+Performance above for the full flow and why that's safe.
 
 Thresholds are a case worth calling out: they aren't cached in their own
 right, but every activity carries the FTP/LTHR/max-HR/pace and zone
@@ -1031,13 +1041,35 @@ set it and **Open session**. **Key efforts** lists 5 s / 1 min / 5 min /
 season with the change; an empty cell means no effort that long, nothing is
 interpolated. **Model fit** shows what Intervals.icu fits to this season
 (FTP, CP, W', Pmax — or critical speed and D' for pace) next to the
-threshold in your Intervals.icu settings, and the gap. It only shows the
-gap; it doesn't change your settings.
+threshold in your Intervals.icu settings, and the gap.
 
 Curves are fetched from Intervals.icu the first time you open a sport and
 metric, then kept on the device: they are fetched again only once a newer
 activity of that sport has been synced (or with the refresh button). A
 failed fetch keeps the saved curves on screen with **Retry**.
+
+**Threshold suggestions**, above the sport/metric picker, turns that gap
+into something you can act on. From the cached curves it derives a
+candidate ride FTP (this season's power-curve model fit), run threshold
+pace (your best ~60-minute effort, or the ~40-minute effort scaled toward a
+sustainable pace when that's all there is) and swim CSS (`(t400 − t200) /
+2` per 100 m from your 400 m and 200 m bests) — only ever from efforts in
+the last 90 days. A card appears when a candidate beats your current
+setting by 3% or more (raise it), or when the last 42 days' own data is at
+least 5% below it (**likely dropped**) — never from missing or sparse data.
+**Dismiss** hides it for 30 days, unless the underlying number moves a
+further 3% in the meantime, in which case it comes back. **Review** opens a
+sheet with the current and new value, the zone ranges each implies, an
+opt-in to also recalculate HR zones, and a note that past activities keep
+their recorded load; nothing is sent until you tap **Apply**. A failed
+update keeps the old value and says so; a successful one offers **Undo**,
+which writes the previous value back the same way. The write itself sends
+only the one changed field — proven safe by a live test
+(`test/sync_live_test.dart`) that checks Intervals.icu treats the request
+as a partial update, not a full replace, before this shipped. The same
+cards (minus Review/Dismiss specifics) appear on Today when a suggestion
+exists. Indoor FTP is never touched; the sheet says so when you have one
+set.
 
 ### More
 
@@ -1260,6 +1292,13 @@ card at the top shows the currently cached date range.
 
 - Persist the Appearance choice (the LLM settings now persist; this one
   still resets to System on restart).
+- Threshold suggestions: the ride FTP down-suggestion and the "within 90
+  days" window lean on the `42d`/`s0` curve periods Intervals.icu exposes
+  rather than a precise custom rolling window (no per-effort date is tied
+  to a model fit); the run ~40-minute-effort fallback's 1.02 scaling factor
+  is a heuristic that may need tuning against real data; zone-percentage
+  semantics in the confirm sheet's before/after table are inferred from the
+  settings model, not confirmed against a live account.
 - Knowledge library: Markdown/plain-text only (no PDF/DOCX/HTML import);
   search is keyword/heading scoring, not semantic; documents don't sync
   across devices or back up anywhere but the device's own SQLite file; no

@@ -3386,6 +3386,168 @@ abstract class AppLocalizations {
   /// **'Critical speed'**
   String get modelCriticalSpeed;
 
+  /// No description provided for @thresholdSuggestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold suggestions'**
+  String get thresholdSuggestionsTitle;
+
+  /// No description provided for @thresholdChangeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} → {to}'**
+  String thresholdChangeLine(String from, String to);
+
+  /// No description provided for @thresholdBasisRideSeasonModel.
+  ///
+  /// In en, this message translates to:
+  /// **'This season\'s model fit is {percent}% above your current FTP.'**
+  String thresholdBasisRideSeasonModel(String percent);
+
+  /// No description provided for @thresholdBasisRideRecentModel.
+  ///
+  /// In en, this message translates to:
+  /// **'The last 42 days\' model fit is {percent}% below your current FTP — likely dropped.'**
+  String thresholdBasisRideRecentModel(String percent);
+
+  /// No description provided for @thresholdBasisRunSeason60Min.
+  ///
+  /// In en, this message translates to:
+  /// **'Your season\'s ~60-minute best effort is {percent}% faster than your current threshold pace.'**
+  String thresholdBasisRunSeason60Min(String percent);
+
+  /// No description provided for @thresholdBasisRunSeason40MinHeuristic.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from your season\'s ~40-minute best effort (heuristic: scaled toward a sustainable 60-minute pace).'**
+  String get thresholdBasisRunSeason40MinHeuristic;
+
+  /// No description provided for @thresholdBasisRunRecent60Min.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent best effort is {percent}% slower than your current threshold pace — likely dropped.'**
+  String thresholdBasisRunRecent60Min(String percent);
+
+  /// No description provided for @thresholdBasisRunRecent40MinHeuristic.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from your recent ~40-minute best effort (heuristic) — likely dropped.'**
+  String get thresholdBasisRunRecent40MinHeuristic;
+
+  /// No description provided for @thresholdBasisSwimSeasonCss.
+  ///
+  /// In en, this message translates to:
+  /// **'CSS from your season\'s 400 m and 200 m bests is {percent}% faster than your current threshold pace.'**
+  String thresholdBasisSwimSeasonCss(String percent);
+
+  /// No description provided for @thresholdBasisSwimRecentCss.
+  ///
+  /// In en, this message translates to:
+  /// **'CSS from your recent 400 m / 200 m efforts is {percent}% slower — likely dropped.'**
+  String thresholdBasisSwimRecentCss(String percent);
+
+  /// No description provided for @thresholdReviewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get thresholdReviewButton;
+
+  /// No description provided for @thresholdUndoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get thresholdUndoButton;
+
+  /// No description provided for @thresholdConfirmSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update threshold?'**
+  String get thresholdConfirmSheetTitle;
+
+  /// No description provided for @thresholdCurrentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get thresholdCurrentLabel;
+
+  /// No description provided for @thresholdNewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get thresholdNewLabel;
+
+  /// No description provided for @thresholdZonesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone ranges'**
+  String get thresholdZonesTitle;
+
+  /// No description provided for @thresholdZonesBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get thresholdZonesBefore;
+
+  /// No description provided for @thresholdZonesAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get thresholdZonesAfter;
+
+  /// No description provided for @thresholdRecalcHrZones.
+  ///
+  /// In en, this message translates to:
+  /// **'Also recalculate HR zones'**
+  String get thresholdRecalcHrZones;
+
+  /// No description provided for @thresholdPastLoadNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Past activities keep their recorded load — this only changes zones and new sessions going forward.'**
+  String get thresholdPastLoadNote;
+
+  /// No description provided for @thresholdIndoorFtpNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor FTP is set separately and won\'t change.'**
+  String get thresholdIndoorFtpNote;
+
+  /// No description provided for @thresholdEffortsUsedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Efforts used'**
+  String get thresholdEffortsUsedTitle;
+
+  /// No description provided for @thresholdUpdating.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating…'**
+  String get thresholdUpdating;
+
+  /// No description provided for @thresholdUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update: {error}'**
+  String thresholdUpdateFailed(String error);
+
+  /// No description provided for @thresholdUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get thresholdUpdateSuccess;
+
+  /// No description provided for @thresholdUndoSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored to the previous value'**
+  String get thresholdUndoSuccess;
+
+  /// No description provided for @thresholdUndoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t undo: {error}'**
+  String thresholdUndoFailed(String error);
+
   /// No description provided for @readinessTitle.
   ///
   /// In en, this message translates to:

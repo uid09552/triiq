@@ -10,6 +10,7 @@ import '../../widgets/charts/duration_curve_chart.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_detail_screen.dart';
+import 'threshold_suggestion_card.dart';
 
 /// Best efforts over every duration (power, heart rate) or distance (pace)
 /// for one sport, this season against last season and the last 42 days,
@@ -231,6 +232,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          ThresholdSuggestionsSection(),
           SegmentedButton<CurveSport>(
             segments: [
               for (final sport in CurveSport.values)

@@ -2042,6 +2042,109 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modelCriticalSpeed => 'Critical speed';
 
   @override
+  String get thresholdSuggestionsTitle => 'Threshold suggestions';
+
+  @override
+  String thresholdChangeLine(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String thresholdBasisRideSeasonModel(String percent) {
+    return 'This season\'s model fit is $percent% above your current FTP.';
+  }
+
+  @override
+  String thresholdBasisRideRecentModel(String percent) {
+    return 'The last 42 days\' model fit is $percent% below your current FTP — likely dropped.';
+  }
+
+  @override
+  String thresholdBasisRunSeason60Min(String percent) {
+    return 'Your season\'s ~60-minute best effort is $percent% faster than your current threshold pace.';
+  }
+
+  @override
+  String get thresholdBasisRunSeason40MinHeuristic =>
+      'Estimated from your season\'s ~40-minute best effort (heuristic: scaled toward a sustainable 60-minute pace).';
+
+  @override
+  String thresholdBasisRunRecent60Min(String percent) {
+    return 'Your recent best effort is $percent% slower than your current threshold pace — likely dropped.';
+  }
+
+  @override
+  String get thresholdBasisRunRecent40MinHeuristic =>
+      'Estimated from your recent ~40-minute best effort (heuristic) — likely dropped.';
+
+  @override
+  String thresholdBasisSwimSeasonCss(String percent) {
+    return 'CSS from your season\'s 400 m and 200 m bests is $percent% faster than your current threshold pace.';
+  }
+
+  @override
+  String thresholdBasisSwimRecentCss(String percent) {
+    return 'CSS from your recent 400 m / 200 m efforts is $percent% slower — likely dropped.';
+  }
+
+  @override
+  String get thresholdReviewButton => 'Review';
+
+  @override
+  String get thresholdUndoButton => 'Undo';
+
+  @override
+  String get thresholdConfirmSheetTitle => 'Update threshold?';
+
+  @override
+  String get thresholdCurrentLabel => 'Current';
+
+  @override
+  String get thresholdNewLabel => 'New';
+
+  @override
+  String get thresholdZonesTitle => 'Zone ranges';
+
+  @override
+  String get thresholdZonesBefore => 'Before';
+
+  @override
+  String get thresholdZonesAfter => 'After';
+
+  @override
+  String get thresholdRecalcHrZones => 'Also recalculate HR zones';
+
+  @override
+  String get thresholdPastLoadNote =>
+      'Past activities keep their recorded load — this only changes zones and new sessions going forward.';
+
+  @override
+  String get thresholdIndoorFtpNote =>
+      'Indoor FTP is set separately and won\'t change.';
+
+  @override
+  String get thresholdEffortsUsedTitle => 'Efforts used';
+
+  @override
+  String get thresholdUpdating => 'Updating…';
+
+  @override
+  String thresholdUpdateFailed(String error) {
+    return 'Couldn\'t update: $error';
+  }
+
+  @override
+  String get thresholdUpdateSuccess => 'Updated';
+
+  @override
+  String get thresholdUndoSuccess => 'Restored to the previous value';
+
+  @override
+  String thresholdUndoFailed(String error) {
+    return 'Couldn\'t undo: $error';
+  }
+
+  @override
   String get readinessTitle => 'Readiness';
 
   @override

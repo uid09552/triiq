@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+import 'package:triiq/client/intervalls/intervalls_client.dart';
 import 'package:triiq/data/db/app_database.dart';
 import 'package:triiq/data/intervals_session.dart';
 import 'package:triiq/data/intervals_workout_service.dart';
@@ -281,6 +282,71 @@ void main() {
       await service.deletePlannedWorkout(id);
     }
   });
+
+  // Gate for the threshold-updates change (see openspec/changes/
+  // threshold-updates/design.md, decision 1): the write path only ships if
+  // a PUT carrying just `id` + one field leaves every other Ride setting
+  // untouched. If the server instead treats the PUT as a full replace,
+  // this fails loudly rather than silently blanking the athlete's other
+  // sport settings, and nothing downstream should be built until it's
+  // green. The original value is restored in `finally` either way.
+  test(
+    'updateSettings with a minimal payload changes only the given field',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
+      final client = IntervalsSession.instance.client!;
+      final api = client.getSportApi();
+      final athleteId = IntervalsSession.instance.athleteId!;
+
+      final before = (await api.getSettings1(
+        athleteId: athleteId,
+        id: 'Ride',
+      )).data!;
+      final settingsId = before.id!;
+      final originalFtp = before.ftp;
+      final candidateFtp = (originalFtp ?? 200) + 1;
+
+      Future<SportSettings> restore(int? ftp) async {
+        final response = await api.updateSettings(
+          athleteId: athleteId,
+          id: settingsId.toString(),
+          recalcHrZones: false,
+          sportSettings: SportSettings(id: settingsId, ftp: ftp),
+        );
+        return response.data!;
+      }
+
+      try {
+        final after = await restore(candidateFtp);
+
+        expect(
+          after.ftp,
+          candidateFtp,
+          reason: 'the field the test actually asked to change',
+        );
+        final beforeJson = before.toJson()..remove('updated');
+        final afterJson = after.toJson()..remove('updated');
+        final expectedJson = {...beforeJson, 'ftp': candidateFtp};
+        expect(
+          afterJson,
+          equals(expectedJson),
+          reason:
+              'PUT /sport-settings/{id} must be a partial update — if this '
+              'fails, Intervals.icu is treating it as a full replace and the '
+              'threshold-updates write path (lib/data/sport_settings_service.dart) '
+              'must not ship until this is resolved; see design.md decision 1',
+        );
+      } finally {
+        final restored = await restore(originalFtp);
+        expect(
+          restored.ftp,
+          originalFtp,
+          reason: 'must leave the live account exactly as found',
+        );
+      }
+    },
+  );
 
   test('real icu_achievements parse into best efforts', skip: _skip,
       () async {
