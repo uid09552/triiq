@@ -119,30 +119,56 @@ class Goal {
         }
       : {sport: 1.0};
 
+  /// The Monday a new block starts on: next Monday, or [today] when it is
+  /// a Monday (a plan made on Monday starts that day).
+  static DateTime defaultStart(DateTime today) {
+    final day = DateTime(today.year, today.month, today.day);
+    return day.weekday == DateTime.monday
+        ? day
+        : day.add(Duration(days: 8 - day.weekday));
+  }
+
+  /// The weeks from [startMonday] up to and including the one holding the
+  /// event — the event week is the plan's last; `null` without an event.
+  /// Zero or less when the event is before the block starts.
+  int? weeksToEvent(DateTime startMonday) {
+    final event = eventDate;
+    if (event == null) return null;
+    // UTC so a clock change in between doesn't eat a day.
+    final days = DateTime.utc(event.year, event.month, event.day)
+        .difference(
+          DateTime.utc(startMonday.year, startMonday.month, startMonday.day),
+        )
+        .inDays;
+    return days < 0 ? 0 : days ~/ 7 + 1;
+  }
+
   /// The plan length for a block starting on [startMonday]: the athlete's
-  /// choice, else the whole weeks until the event when that is in range,
-  /// else [defaultWeeks].
+  /// choice, else the weeks up to and including the event week (at most
+  /// [maxWeeks]), else [defaultWeeks].
   int planWeeks(DateTime startMonday) {
     final chosen = weeks;
     if (chosen != null) return chosen;
-    final event = eventDate;
-    if (event != null) {
-      // UTC so a clock change in between doesn't eat a day.
-      final untilEvent =
-          DateTime.utc(event.year, event.month, event.day)
-              .difference(
-                DateTime.utc(
-                  startMonday.year,
-                  startMonday.month,
-                  startMonday.day,
-                ),
-              )
-              .inDays ~/
-          7;
-      if (untilEvent >= minWeeks && untilEvent <= maxWeeks) return untilEvent;
+    final toEvent = weeksToEvent(startMonday);
+    if (toEvent != null && toEvent >= minWeeks) {
+      return toEvent > maxWeeks ? maxWeeks : toEvent;
     }
     return defaultWeeks;
   }
+
+  /// Whether a block from [startMonday] ends in the event week — the only
+  /// case it tapers.
+  bool endsAtEvent(DateTime startMonday) {
+    final toEvent = weeksToEvent(startMonday);
+    return toEvent != null &&
+        toEvent >= minWeeks &&
+        planWeeks(startMonday) == toEvent;
+  }
+
+  /// The event is further away than one block can reach, so this block
+  /// builds without a taper.
+  bool eventBeyondPlan(DateTime startMonday) =>
+      weeks == null && (weeksToEvent(startMonday) ?? 0) > maxWeeks;
 
   /// The load-graph factor for week [index].
   double factorFor(int index) =>
@@ -154,8 +180,9 @@ class Goal {
   ];
 
   /// Why this goal can't be used, or `null` when it can. [today] is the
-  /// reference for "event date in the past".
-  String? validate({required DateTime today}) {
+  /// reference for "event date in the past"; [start] (default: the next
+  /// block's Monday) for how many weeks fit before the event.
+  String? validate({required DateTime today, DateTime? start}) {
     if (weekdays.length < 3) return 'Pick at least three training days.';
     if (weeklyHours <= 0) return 'Weekly hours must be above zero.';
     if (!sports.contains(sport)) return 'Unsupported sport "$sport".';
@@ -210,10 +237,21 @@ class Goal {
     }
     final event = eventDate;
     if (event != null &&
-        DateTime(event.year, event.month, event.day).isBefore(
-          DateTime(today.year, today.month, today.day),
-        )) {
+        DateTime(
+          event.year,
+          event.month,
+          event.day,
+        ).isBefore(DateTime(today.year, today.month, today.day))) {
       return 'The event date is in the past.';
+    }
+    final toEvent = weeksToEvent(start ?? defaultStart(today));
+    if (toEvent != null && toEvent < minWeeks) {
+      return 'The event is too close for a new plan '
+          '(it needs at least $minWeeks weeks).';
+    }
+    if (toEvent != null && chosen != null && chosen > toEvent) {
+      return 'The plan can be at most $toEvent weeks: '
+          'the event is in week $toEvent.';
     }
     return null;
   }
@@ -305,7 +343,8 @@ class Goal {
     slotShares: json['slotShares'] == null
         ? null
         : {
-            for (final e in (json['slotShares'] as Map<String, dynamic>).entries)
+            for (final e
+                in (json['slotShares'] as Map<String, dynamic>).entries)
               e.key: (e.value as num).toInt(),
           },
     longDays: {
@@ -555,7 +594,12 @@ class TrainingPlan {
 enum PlanStatus { draft, active, removed }
 
 /// Why no plan was generated.
-enum PlanFailureKind { needsBaseline, invalidGoal, missingTemplate, notEnoughDays }
+enum PlanFailureKind {
+  needsBaseline,
+  invalidGoal,
+  missingTemplate,
+  notEnoughDays,
+}
 
 class PlanFailure {
   const PlanFailure(this.kind, this.message);

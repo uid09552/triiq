@@ -67,11 +67,15 @@ void main() {
       expect(plan(goal(weeks: 16, hours: 40)).weeks, hasLength(16));
     });
 
-    test('an event date sets the default length', () {
+    test('an event date sets the length, up to and including its week', () {
       final p = plan(
-        goal().copyWith(eventDate: DateTime(2026, 11, 9)),
+        goal(hours: 40).copyWith(eventDate: DateTime(2026, 11, 9)),
       );
-      expect(p.weeks, hasLength(10));
+      expect(p.weeks, hasLength(11));
+      expect(p.weeks.last.startDate, DateTime(2026, 11, 9));
+      // Across the 25 Oct clock change every date is still midnight of its
+      // own day, not 23:00 of the day before.
+      expect(p.sessions.map((s) => s.date.hour), everyElement(0));
     });
 
     test('baseline is the mean of the last four weeks', () {
@@ -82,7 +86,7 @@ void main() {
     });
 
     test('the proposal ramps 10% a week and holds every 4th week', () {
-      final q =plan(goal(baseline: 300, hours: 40, weeks: 4), loads: null);
+      final q = plan(goal(baseline: 300, hours: 40, weeks: 4), loads: null);
       expect(q.weeks.map((w) => w.requestedLoad.round()), [330, 363, 399, 399]);
       expect(q.weeks.every((w) => w.factor == 1.0), isTrue);
       expect(q.weeks.every((w) => w.warnings.isEmpty), isTrue);
@@ -91,7 +95,14 @@ void main() {
     test('eight weeks hold weeks 4 and 8; the hold can be turned off', () {
       final on = plan(goal(baseline: 300, hours: 60, weeks: 8), loads: null);
       expect(on.weeks.map((w) => w.requestedLoad.round()), [
-        330, 363, 399, 399, 439, 483, 531, 531,
+        330,
+        363,
+        399,
+        399,
+        439,
+        483,
+        531,
+        531,
       ]);
       expect(on.weeks[3].phase, 'build', reason: 'a hold is not a recovery');
 
@@ -99,21 +110,28 @@ void main() {
         goal(baseline: 300, hours: 60, weeks: 4).copyWith(holdEvery4th: false),
         loads: null,
       );
-      expect(off.weeks.map((w) => w.requestedLoad.round()), [330, 363, 399, 439]);
+      expect(off.weeks.map((w) => w.requestedLoad.round()), [
+        330,
+        363,
+        399,
+        439,
+      ]);
     });
 
     test('every build week has the same session types', () {
       final p = plan(goal(days: {1, 2, 4, 6}));
 
       for (final week in p.weeks) {
-        expect(week.sessions.map((s) => s.slot).toList()..sort(
-          (a, b) => a.index.compareTo(b.index),
-        ), [
-          SessionSlot.z2,
-          SessionSlot.z2,
-          SessionSlot.intervals,
-          SessionSlot.long,
-        ]);
+        expect(
+          week.sessions.map((s) => s.slot).toList()
+            ..sort((a, b) => a.index.compareTo(b.index)),
+          [
+            SessionSlot.z2,
+            SessionSlot.z2,
+            SessionSlot.intervals,
+            SessionSlot.long,
+          ],
+        );
       }
     });
 
@@ -141,34 +159,37 @@ void main() {
       expect(p.weeks[3].factor, 0.8);
     });
 
-    test('a manual dip becomes a recovery week with a shorter long session',
-        () {
-      final p = plan(
-        goal(
-          baseline: 300,
-          hours: 40,
-          weeks: 4,
-          days: {1, 2, 4, 6},
-          factors: [1, 1, 1.1, 0.8],
-        ),
-        loads: null,
-      );
-      int longMinutes(PlanWeek w) =>
-          w.sessions.firstWhere((s) => s.slot == SessionSlot.long).minutes;
+    test(
+      'a manual dip becomes a recovery week with a shorter long session',
+      () {
+        final p = plan(
+          goal(
+            baseline: 300,
+            hours: 40,
+            weeks: 4,
+            days: {1, 2, 4, 6},
+            factors: [1, 1, 1.1, 0.8],
+          ),
+          loads: null,
+        );
+        int longMinutes(PlanWeek w) =>
+            w.sessions.firstWhere((s) => s.slot == SessionSlot.long).minutes;
 
-      expect(p.weeks.map((w) => w.phase), [
-        'build',
-        'build',
-        'build',
-        'recovery',
-      ]);
-      expect(
-        p.weeks[3].sessions.firstWhere((s) => s.slot == SessionSlot.intervals)
-            .templateId,
-        'long_distance.intervals.recovery',
-      );
-      expect(longMinutes(p.weeks[3]), lessThan(longMinutes(p.weeks[2])));
-    });
+        expect(p.weeks.map((w) => w.phase), [
+          'build',
+          'build',
+          'build',
+          'recovery',
+        ]);
+        expect(
+          p.weeks[3].sessions
+              .firstWhere((s) => s.slot == SessionSlot.intervals)
+              .templateId,
+          'long_distance.intervals.recovery',
+        );
+        expect(longMinutes(p.weeks[3]), lessThan(longMinutes(p.weeks[2])));
+      },
+    );
 
     test('raising a week above the ramp cap warns but keeps the target', () {
       final p = plan(
@@ -431,9 +452,10 @@ void main() {
   });
 
   test('goal survives a JSON round trip', () {
-    final g = goal(baseline: 250, maxIncrease: 0.1).copyWith(
-      eventDate: DateTime(2026, 11, 1),
-    );
+    final g = goal(
+      baseline: 250,
+      maxIncrease: 0.1,
+    ).copyWith(eventDate: DateTime(2026, 11, 1));
 
     final back = Goal.fromJson(g.toJson());
 
@@ -636,18 +658,24 @@ void main() {
           .fold(0, (a, s) => a + s.load);
       // More intervals than the template's 30%, up to what its repeats allow.
       expect(load(SessionSlot.intervals), greaterThan(standardIntervals));
-      expect(load(SessionSlot.z2), lessThan(standard.sessions
-          .where((s) => s.slot == SessionSlot.z2)
-          .fold<int>(0, (a, s) => a + s.load)));
+      expect(
+        load(SessionSlot.z2),
+        lessThan(
+          standard.sessions
+              .where((s) => s.slot == SessionSlot.z2)
+              .fold<int>(0, (a, s) => a + s.load),
+        ),
+      );
       // More intensity means less easy time.
       expect(week.lowShare!, lessThan(standard.lowShare!));
     });
 
     test('a slot at 0% gets no sessions; swim keeps sessions on all-long', () {
       final run = plan(
-        goal(hours: 40, weeks: 2).copyWith(
-          slotShares: {'z2': 0, 'intervals': 40, 'long': 60},
-        ),
+        goal(
+          hours: 40,
+          weeks: 2,
+        ).copyWith(slotShares: {'z2': 0, 'intervals': 40, 'long': 60}),
       ).weeks[0];
       expect(run.sessions.where((s) => s.slot == SessionSlot.z2), isEmpty);
 
@@ -718,14 +746,17 @@ void main() {
     test('a preference the week can\'t meet becomes a note', () {
       // Intervals preferred on the long run's day: never on one day.
       final p = plan(
-        goal(days: {2, 4, 6}, hours: 40).copyWith(
-          longDays: {'Run': 2},
-          intervalDays: {2},
-        ),
+        goal(
+          days: {2, 4, 6},
+          hours: 40,
+        ).copyWith(longDays: {'Run': 2}, intervalDays: {2}),
       );
       final week = p.weeks.first;
       expect(
-        week.sessions.firstWhere((s) => s.slot == SessionSlot.long).date.weekday,
+        week.sessions
+            .firstWhere((s) => s.slot == SessionSlot.long)
+            .date
+            .weekday,
         DateTime.tuesday,
       );
       expect(week.notes, contains(PlanEngine.noteIntervalDay));
@@ -749,6 +780,136 @@ void main() {
       );
       expect(four.failure!.kind, PlanFailureKind.notEnoughDays);
       expect(four.failure!.message, contains('at most 1 a day'));
+    });
+  });
+
+  group('race preparation', () {
+    // The block starts Monday 31 Aug; Tue / Thu / Sat / Sun are training
+    // days and the budget never binds.
+    Goal raceGoal(DateTime event, {String type = 'long_distance'}) => goal(
+      type: type,
+      days: {2, 4, 6, 7},
+      hours: 40,
+      baseline: 300,
+    ).copyWith(eventDate: event);
+
+    test('event seven weeks out: seven weeks, the last holding the event', () {
+      final g = raceGoal(DateTime(2026, 10, 18));
+
+      expect(g.planWeeks(monday), 7);
+      final p = plan(g, loads: null);
+      expect(p.weeks.last.startDate, DateTime(2026, 10, 12));
+      expect(p.weeks.map((w) => w.phase).toList().sublist(4), [
+        'build',
+        'taper',
+        'race',
+      ]);
+    });
+
+    test('the spec example: 2 Nov to Sunday 20 Dec is 7 weeks', () {
+      final g = raceGoal(DateTime(2026, 12, 20));
+
+      expect(g.planWeeks(DateTime(2026, 11, 2)), 7);
+      expect(g.endsAtEvent(DateTime(2026, 11, 2)), isTrue);
+    });
+
+    test('event more than 16 weeks out: 16 weeks, no taper, and says so', () {
+      final g = raceGoal(monday.add(const Duration(days: 7 * 23 + 6)));
+
+      expect(g.planWeeks(monday), 16);
+      expect(g.endsAtEvent(monday), isFalse);
+      expect(g.eventBeyondPlan(monday), isTrue);
+      final p = plan(g, loads: null);
+      expect(
+        p.weeks.any((w) => w.phase == 'taper' || w.phase == 'race'),
+        isFalse,
+      );
+    });
+
+    test('a chosen length past the event is rejected with the limit', () {
+      final g = raceGoal(DateTime(2026, 10, 9)).copyWith(weeks: 8);
+
+      expect(
+        g.validate(today: today, start: monday),
+        contains('at most 6 weeks'),
+      );
+    });
+
+    test('a shorter chosen length is fine but does not taper', () {
+      final g = raceGoal(DateTime(2026, 10, 18)).copyWith(weeks: 4);
+
+      expect(g.validate(today: today, start: monday), isNull);
+      expect(g.endsAtEvent(monday), isFalse);
+    });
+
+    test('an event in the start week is too close', () {
+      final g = raceGoal(DateTime(2026, 9, 5));
+
+      expect(g.validate(today: today, start: monday), contains('too close'));
+    });
+
+    test('a taper week keeps one interval session at build intensity', () {
+      final p = plan(raceGoal(DateTime(2026, 10, 18)), loads: null);
+      final taper = p.weeks[5];
+
+      final intervals = taper.sessions
+          .where((s) => s.slot == SessionSlot.intervals)
+          .toList();
+      expect(intervals, hasLength(1));
+      expect(intervals.single.templateId, 'long_distance.intervals.taper');
+      expect(intervals.single.description, contains('100% Pace'));
+    });
+
+    test('the long session shrinks more than the week', () {
+      final p = plan(raceGoal(DateTime(2026, 10, 18)), loads: null);
+      final build = p.weeks[4];
+      final taper = p.weeks[5];
+      int long(PlanWeek w) =>
+          w.sessions.firstWhere((s) => s.slot == SessionSlot.long).minutes;
+
+      final weekRatio = taper.targetLoad / build.targetLoad;
+      expect(long(taper) / long(build), lessThan(weekRatio));
+      expect(weekRatio, closeTo(0.7, 0.01));
+    });
+
+    test('Sunday event: openers on Saturday, nothing on Sunday', () {
+      final p = plan(raceGoal(DateTime(2026, 10, 18)), loads: null);
+      final race = p.weeks.last;
+
+      final saturday = race.sessions
+          .where((s) => s.date == DateTime(2026, 10, 17))
+          .toList();
+      expect(saturday.single.name, 'Race openers');
+      expect(
+        race.sessions.where((s) => s.date == DateTime(2026, 10, 18)),
+        isEmpty,
+      );
+    });
+
+    test('midweek event: nothing from the event day on', () {
+      final p = plan(raceGoal(DateTime(2026, 10, 14)), loads: null);
+      final race = p.weeks.last;
+
+      expect(
+        race.sessions.where((s) => !s.date.isBefore(DateTime(2026, 10, 14))),
+        isEmpty,
+      );
+      expect(race.sessions.single.name, 'Race openers');
+      expect(race.sessions.single.date, DateTime(2026, 10, 13));
+    });
+
+    test('a short-event goal tapers only the event week', () {
+      final p = plan(
+        raceGoal(DateTime(2026, 10, 18), type: 'short_event'),
+        loads: null,
+      );
+
+      expect(p.weeks.where((w) => w.phase == 'taper'), isEmpty);
+      expect(p.weeks.last.phase, 'race');
+      expect(
+        p.weeks.last.requestedLoad,
+        closeTo(p.weeks[5].requestedLoad * 0.6, 0.01),
+      );
     });
   });
 }

@@ -735,5 +735,11 @@
   "adaptLoadFloor": "Bei 80 % des Vorschlags gehalten; nur nach Steigerung wären es {load} TSS.",
   "adaptLoadRegenerate": "Die Einheiten der Woche folgen, wenn du den Plan neu erzeugst.",
   "adaptReadinessReason": "Bereitschaft: {level}.",
-  "todayAdjustmentsTitle": "Plananpassungen"
+  "todayAdjustmentsTitle": "Plananpassungen",
+  "planPhaseTaper": "Tapering",
+  "planPhaseRace": "Wettkampfwoche",
+  "planCurveRaceShort": "WK",
+  "planEventBeyondPlan": "Dein Wettkampf ist {weeks} Wochen entfernt, mehr als ein Block: Dieser Block baut ohne Tapering auf. Ein Plan, der mit dem Tapering endet, lässt sich erstellen, sobald der Wettkampf höchstens 16 Wochen entfernt ist.",
+  "todayRaceCountdown": "{days, plural, =1{Wettkampf morgen} other{Wettkampf in {days} Tagen}}",
+  "todayRaceDay": "Wettkampftag!"
 }

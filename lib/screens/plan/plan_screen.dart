@@ -353,6 +353,14 @@ class _PlanScreenState extends State<PlanScreen> {
                     onChanged: _saveCurve,
                     onEditGoal: _busy ? null : _editGoal,
                     hold: _goal!.holdEvery4th,
+                    eventWeeksBeyond:
+                        _goal!.eventBeyondPlan(
+                          PlanService.defaultStart(DateTime.now()),
+                        )
+                        ? _goal!.weeksToEvent(
+                            PlanService.defaultStart(DateTime.now()),
+                          )
+                        : null,
                     onRamp: (v, {required save}) =>
                         _setProgression(ramp: v, save: save),
                     onHold: (v) => _setProgression(hold: v),
@@ -504,9 +512,13 @@ class _CurveCard extends StatelessWidget {
     required this.hold,
     required this.onRamp,
     required this.onHold,
+    this.eventWeeksBeyond,
   });
 
   final LoadCurveController? controller;
+
+  /// Weeks to an event more than one block away (no taper this block).
+  final int? eventWeeksBeyond;
   final PlanFailure? failure;
   final VoidCallback onChanged;
   final VoidCallback? onEditGoal;
@@ -566,6 +578,13 @@ class _CurveCard extends StatelessWidget {
                   style: muted,
                 ),
               ),
+              if (eventWeeksBeyond case final weeks?) ...[
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(l10n.planEventBeyondPlan(weeks), style: muted),
+                ),
+              ],
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),

@@ -2122,4 +2122,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get todayAdjustmentsTitle => 'Plananpassungen';
+
+  @override
+  String get planPhaseTaper => 'Tapering';
+
+  @override
+  String get planPhaseRace => 'Wettkampfwoche';
+
+  @override
+  String get planCurveRaceShort => 'WK';
+
+  @override
+  String planEventBeyondPlan(int weeks) {
+    return 'Dein Wettkampf ist $weeks Wochen entfernt, mehr als ein Block: Dieser Block baut ohne Tapering auf. Ein Plan, der mit dem Tapering endet, lässt sich erstellen, sobald der Wettkampf höchstens 16 Wochen entfernt ist.';
+  }
+
+  @override
+  String todayRaceCountdown(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Wettkampf in $days Tagen',
+      one: 'Wettkampf morgen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayRaceDay => 'Wettkampftag!';
 }

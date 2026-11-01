@@ -20,6 +20,7 @@ class CurveLimits {
     this.ctl,
     this.hoursCeilings = const {},
     this.holdEvery = 0,
+    this.taperFactors = const [],
   });
 
   /// Weekly load the plan builds from (TSS).
@@ -42,6 +43,18 @@ class CurveLimits {
   /// The most load the hours budget can carry, per phase.
   final Map<String, double> hoursCeilings;
 
+  /// The plan ends in the event week: its last weeks taper to these
+  /// fractions of the last week before the taper. Empty: no taper.
+  final List<double> taperFactors;
+
+  /// Where the taper starts in a [weeks]-week plan (= [weeks] without one).
+  int taperStart(int weeks) =>
+      taperFactors.isEmpty ? weeks : math.max(0, weeks - taperFactors.length);
+
+  /// The taper factor of week [index] of a [weeks]-week plan.
+  double taperFactor(int index, int weeks) =>
+      taperFactors[taperFactors.length - (weeks - index)];
+
   double hoursCeilingFor(String phase) =>
       hoursCeilings[phase] ?? hoursCeilings[buildPhase] ?? double.infinity;
 
@@ -56,6 +69,14 @@ class CurveLimits {
 
 const buildPhase = 'build';
 const recoveryPhase = 'recovery';
+
+/// The weeks before the event week that step the load down.
+const taperPhase = 'taper';
+
+/// The week holding the event: the taper's last week.
+const racePhase = 'race';
+
+bool isTaperPhase(String phase) => phase == taperPhase || phase == racePhase;
 
 /// Rounding slack so a week sitting exactly on a limit isn't flagged.
 const _slack = 0.5;
@@ -75,7 +96,24 @@ LoadProposal proposeCurve(CurveLimits limits, int weeks) {
   final held = <WeekLimit>[];
   var previous = limits.baseline;
   var ctl = limits.ctl;
+  final taperStart = limits.taperStart(weeks);
   for (var i = 0; i < weeks; i++) {
+    if (i >= taperStart) {
+      // A taper week is the last pre-taper week times its factor — a
+      // deliberate drop, so neither the ramp nor the CTL limit applies.
+      final anchor = taperStart == 0 ? limits.baseline : loads[taperStart - 1];
+      var load = anchor * limits.taperFactor(i, weeks);
+      var limit = WeekLimit.none;
+      final hours = limits.hoursCeilingFor(taperPhase);
+      if (hours < load) {
+        load = hours;
+        limit = WeekLimit.hours;
+      }
+      loads.add(load);
+      held.add(limit);
+      if (ctl != null) ctl = CurveLimits.nextCtl(ctl, load);
+      continue;
+    }
     final hold = limits.holdEvery > 0 && (i + 1) % limits.holdEvery == 0;
     var load = hold ? previous : previous * (1 + limits.rampCap);
     var limit = WeekLimit.none;
@@ -99,15 +137,25 @@ LoadProposal proposeCurve(CurveLimits limits, int weeks) {
   return LoadProposal(loads, held);
 }
 
-/// The phase of each week of [targets]: recovery when a week drops below
-/// [CurveLimits.recoveryThreshold] of the week before it, build otherwise.
+/// The phase of each week of [targets]: taper and race week by position
+/// when the plan ends at the event; otherwise recovery when a week drops
+/// below [CurveLimits.recoveryThreshold] of the week before it, build
+/// otherwise.
 List<String> phasesFor(CurveLimits limits, List<double> targets) {
   final phases = <String>[];
+  final taperStart = limits.taperStart(targets.length);
   var previous = limits.baseline;
-  for (final target in targets) {
-    phases.add(
-      target < previous * limits.recoveryThreshold ? recoveryPhase : buildPhase,
-    );
+  for (var i = 0; i < targets.length; i++) {
+    final target = targets[i];
+    if (i >= taperStart) {
+      phases.add(i == targets.length - 1 ? racePhase : taperPhase);
+    } else {
+      phases.add(
+        target < previous * limits.recoveryThreshold
+            ? recoveryPhase
+            : buildPhase,
+      );
+    }
     previous = target;
   }
   return phases;
@@ -129,13 +177,27 @@ List<Set<WeekLimit>> flagWeeks(
   for (var i = 0; i < targets.length; i++) {
     final target = targets[i];
     final flags = <WeekLimit>{};
+    if (isTaperPhase(phases[i])) {
+      // Dropping load into the event is the point: only the hours budget
+      // still applies.
+      if (ctl != null) ctl = CurveLimits.nextCtl(ctl, target);
+      if (target > limits.hoursCeilingFor(phases[i]) + _slack) {
+        flags.add(WeekLimit.hours);
+      }
+      result.add(flags);
+      continue;
+    }
     final aboveProposal =
-        proposal == null || i >= proposal.length || target > proposal[i] + _slack;
+        proposal == null ||
+        i >= proposal.length ||
+        target > proposal[i] + _slack;
     if (aboveProposal && target > reference * (1 + limits.rampCap) + _slack) {
       flags.add(WeekLimit.weeklyIncrease);
     }
     if (ctl != null) {
-      if (target > limits.ctlCeiling(ctl) + _slack) flags.add(WeekLimit.ctlRamp);
+      if (target > limits.ctlCeiling(ctl) + _slack) {
+        flags.add(WeekLimit.ctlRamp);
+      }
       ctl = CurveLimits.nextCtl(ctl, target);
     }
     if (target > limits.hoursCeilingFor(phases[i]) + _slack) {

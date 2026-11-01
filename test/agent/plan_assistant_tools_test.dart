@@ -77,14 +77,17 @@ void main() {
   }
 
   Future<TrainingPlan> savePlan() async {
-    final draft = PlanEngine(
-      TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
-    ).generate(
-      goal: goal.copyWith(weeks: 2),
-      startDate: DateTime(2026, 11, 2),
-      recentWeeklyLoads: null,
-      today: now,
-    ).plan!;
+    final draft =
+        PlanEngine(
+              TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
+            )
+            .generate(
+              goal: goal.copyWith(weeks: 2),
+              startDate: DateTime(2026, 11, 2),
+              recentWeeklyLoads: null,
+              today: now,
+            )
+            .plan!;
     return plans.save(draft.copyWith(status: PlanStatus.active));
   }
 
@@ -111,6 +114,20 @@ void main() {
       expect(weeks.first['allowed_tss'], [265, 395]);
       expect(weeks.first['phase'], 'build');
       expect(r['plan'], isNull);
+    });
+
+    test('an event goal: taper phases and the days to the event', () async {
+      // Monday 2 Nov to Sunday 13 Dec: six weeks, the last the race week.
+      await GoalStore().save(goal.copyWith(eventDate: DateTime(2026, 12, 13)));
+
+      final r = await call('get_training_plan');
+      final phases = [
+        for (final w in r['load_graph']['weeks'] as List) (w as Map)['phase'],
+      ];
+
+      expect(r['goal']['days_to_event'], 43);
+      expect(r['goal']['phase_note'], contains('taper'));
+      expect(phases.sublist(4), ['taper', 'race']);
     });
 
     test('an active plan: weeks and sessions with ids', () async {
@@ -289,7 +306,11 @@ void main() {
       expect(r['error'], isNull);
       final weeks = (r['load_graph']['weeks'] as List).cast<Map>();
       expect(weeks[0]['proposed_tss'], 318);
-      expect(weeks[3]['proposed_tss'], weeks[2]['proposed_tss'], reason: 'hold');
+      expect(
+        weeks[3]['proposed_tss'],
+        weeks[2]['proposed_tss'],
+        reason: 'hold',
+      );
       expect(r['load_graph']['max_weekly_increase_percent'], 6);
       final p = proposals[r['proposal_id'] as String]! as CurveProposal;
       expect(p.goal.maxWeeklyIncrease, closeTo(0.06, 1e-9));

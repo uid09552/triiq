@@ -71,10 +71,13 @@ class _TssAxis {
     }
     if (!low.isFinite) return _TssAxis(0, 100, 25);
     final range = math.max(1.0, high - low);
-    final step = [25.0, 50.0, 100.0, 200.0, 500.0].firstWhere(
-      (s) => range / s <= 5,
-      orElse: () => 1000,
-    );
+    final step = [
+      25.0,
+      50.0,
+      100.0,
+      200.0,
+      500.0,
+    ].firstWhere((s) => range / s <= 5, orElse: () => 1000);
     final min = math.max(0.0, (low / step).floor() * step);
     var max = (high / step).ceil() * step;
     if (max <= min) max = min + step;
@@ -245,7 +248,12 @@ class _LoadCurveEditorState extends State<LoadCurveEditor> {
                     column: column,
                     colors: colors,
                     textStyle: theme.textTheme.labelSmall!,
-                    weekLabel: (i) => l10n.planCurveWeekShort(i + 1),
+                    // Taper and race week say so in place of "W7".
+                    weekLabel: (i) => switch (phases[i]) {
+                      taperPhase => l10n.planPhaseTaper,
+                      racePhase => l10n.planCurveRaceShort,
+                      _ => l10n.planCurveWeekShort(i + 1),
+                    },
                     dragLabel: (i) => l10n.planCurveDragLabel(
                       i + 1,
                       _percent(i),
@@ -330,16 +338,16 @@ class _LoadCurveEditorState extends State<LoadCurveEditor> {
               ),
               IconButton(
                 tooltip: l10n.planCurveDecrease,
-                onPressed: selected == null ||
-                        targets[selected] <= band!.low + 1e-9
+                onPressed:
+                    selected == null || targets[selected] <= band!.low + 1e-9
                     ? null
                     : () => _step(selected, -LoadCurveEditor.smallStep),
                 icon: const Icon(Icons.remove_circle_outline),
               ),
               IconButton(
                 tooltip: l10n.planCurveIncrease,
-                onPressed: selected == null ||
-                        targets[selected] >= band!.high - 1e-9
+                onPressed:
+                    selected == null || targets[selected] >= band!.high - 1e-9
                     ? null
                     : () => _step(selected, LoadCurveEditor.smallStep),
                 icon: const Icon(Icons.add_circle_outline),

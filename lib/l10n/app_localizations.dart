@@ -3499,6 +3499,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan adjustments'**
   String get todayAdjustmentsTitle;
+
+  /// No description provided for @planPhaseTaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Taper'**
+  String get planPhaseTaper;
+
+  /// No description provided for @planPhaseRace.
+  ///
+  /// In en, this message translates to:
+  /// **'Race week'**
+  String get planPhaseRace;
+
+  /// No description provided for @planCurveRaceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Race'**
+  String get planCurveRaceShort;
+
+  /// No description provided for @planEventBeyondPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Your event is {weeks} weeks away, more than one block: this block builds without a taper. A plan ending with the taper can be generated once the event is at most 16 weeks away.'**
+  String planEventBeyondPlan(int weeks);
+
+  /// No description provided for @todayRaceCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Race tomorrow} other{Race in {days} days}}'**
+  String todayRaceCountdown(int days);
+
+  /// No description provided for @todayRaceDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Race day!'**
+  String get todayRaceDay;
 }
 
 class _AppLocalizationsDelegate

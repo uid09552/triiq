@@ -68,7 +68,12 @@ void main() {
     });
 
     test('120% after a 100% week is above the ramp cap', () {
-      final targets = [proposal[0], proposal[1], proposal[2] * 1.2, proposal[3]];
+      final targets = [
+        proposal[0],
+        proposal[1],
+        proposal[2] * 1.2,
+        proposal[3],
+      ];
       final flags = flagWeeks(limits, targets, proposal: proposal);
 
       expect(flags[2], {WeekLimit.weeklyIncrease});
@@ -119,7 +124,14 @@ void main() {
     test('every 4th week keeps the previous load', () {
       final p = proposeCurve(hold, 8);
       expect(p.loads.map((l) => l.round()), [
-        330, 363, 399, 399, 439, 483, 531, 531,
+        330,
+        363,
+        399,
+        399,
+        439,
+        483,
+        531,
+        531,
       ]);
     });
 
@@ -142,6 +154,69 @@ void main() {
       final p = proposeCurve(hold, 4).loads;
       expect(flagWeeks(hold, p, proposal: p), everyElement(isEmpty));
       expect(phasesFor(hold, p), everyElement('build'));
+    });
+  });
+
+  group('taper', () {
+    const flat = CurveLimits(
+      baseline: 600,
+      rampCap: 0,
+      maxCtlRamp: 7,
+      recoveryThreshold: 0.9,
+    );
+    CurveLimits withTaper(double baseline, List<double> factors) => CurveLimits(
+      baseline: baseline,
+      rampCap: 0,
+      maxCtlRamp: 7,
+      recoveryThreshold: 0.9,
+      taperFactors: factors,
+    );
+
+    test('long-distance taper: 600 -> 420 -> 300', () {
+      final limits = withTaper(600, [0.7, 0.5]);
+      final p = proposeCurve(limits, 3);
+
+      expect(p.loads, [600, 420, 300]);
+      expect(phasesFor(limits, p.loads), ['build', 'taper', 'race']);
+    });
+
+    test('short-event taper: only the event week, 400 -> 240', () {
+      final limits = withTaper(400, [0.6]);
+      final p = proposeCurve(limits, 2);
+
+      expect(p.loads, [400, 240]);
+      expect(phasesFor(limits, p.loads), ['build', 'race']);
+    });
+
+    test('no event: no taper weeks', () {
+      final p = proposeCurve(flat, 3);
+
+      expect(phasesFor(flat, p.loads), everyElement('build'));
+    });
+
+    test('a taper drop is not flagged', () {
+      final limits = withTaper(600, [0.7, 0.5]);
+      final p = proposeCurve(limits, 3);
+
+      expect(
+        flagWeeks(limits, p.loads, proposal: p.loads),
+        everyElement(isEmpty),
+      );
+    });
+
+    test('an over-budget taper week is still flagged for hours', () {
+      const limits = CurveLimits(
+        baseline: 600,
+        rampCap: 0,
+        maxCtlRamp: 7,
+        recoveryThreshold: 0.9,
+        hoursCeilings: {'build': 650},
+        taperFactors: [0.7, 0.5],
+      );
+      final flags = flagWeeks(limits, [600, 700, 300]);
+
+      expect(flags[1], {WeekLimit.hours});
+      expect(flags[2], isEmpty);
     });
   });
 }

@@ -28,13 +28,19 @@ class PlanEngine {
     required List<double>? recentWeeklyLoads,
     double? currentCtl,
     DateTime? today,
+    DateTime? start,
   }) {
     PlanFailure fail(PlanFailureKind kind, String message) =>
         PlanFailure(kind, message);
 
-    final invalid = goal.validate(today: today ?? DateTime.now());
+    final now = today ?? DateTime.now();
+    final monday = start == null ? Goal.defaultStart(now) : startOfWeek(start);
+    final invalid = goal.validate(today: now, start: monday);
     if (invalid != null) {
-      return (limits: null, failure: fail(PlanFailureKind.invalidGoal, invalid));
+      return (
+        limits: null,
+        failure: fail(PlanFailureKind.invalidGoal, invalid),
+      );
     }
     final profile = knowledge.goals[goal.targetType];
     if (profile == null) {
@@ -84,6 +90,9 @@ class PlanEngine {
         holdEvery: goal.holdEvery4th ? rules.holdEveryWeeks : 0,
         ctl: currentCtl,
         hoursCeilings: ceilings,
+        taperFactors: goal.endsAtEvent(monday)
+            ? rules.taper[goal.targetType] ?? const []
+            : const [],
       ),
       failure: null,
     );
@@ -101,6 +110,7 @@ class PlanEngine {
       recentWeeklyLoads: recentWeeklyLoads,
       currentCtl: currentCtl,
       today: today,
+      start: startDate,
     );
     final limits = found.limits;
     if (limits == null) return PlanResult.failure(found.failure!);
@@ -121,12 +131,13 @@ class PlanEngine {
     final weeks = <PlanWeek>[];
     var ctl = currentCtl;
     for (var i = 0; i < count; i++) {
-      final weekStart = monday.add(Duration(days: 7 * i));
+      final weekStart = _plusDays(monday, 7 * i);
       final List<PlanSession> sessions;
       final List<String> notes;
       try {
         final built = _buildSessions(
           goal: goal,
+          profile: profile,
           entries: entries,
           phase: phases[i],
           weekIndex: i,
@@ -206,9 +217,8 @@ class PlanEngine {
 
     // The athlete's session mix when set, the goal type's template otherwise.
     final custom = goal.slotShares;
-    double slotShare(SessionSlot s) => custom == null
-        ? profile.slots[s]!.share
-        : (custom[s.name] ?? 0) / 100;
+    double slotShare(SessionSlot s) =>
+        custom == null ? profile.slots[s]!.share : (custom[s.name] ?? 0) / 100;
 
     // Slot counts per sport; swim has no long session.
     final counts = <String, Map<SessionSlot, int>>{
@@ -299,17 +309,163 @@ class PlanEngine {
 
   ({List<PlanSession> sessions, List<String> notes})? _buildSessions({
     required Goal goal,
+    required GoalProfile profile,
     required List<_Entry> entries,
     required String phase,
     required int weekIndex,
     required DateTime weekStart,
     required double weekLoad,
   }) {
-    final placement = _place(goal, entries);
-    final days = placement.days;
-    if (days == null) return null;
+    // Taper and race week share the taper templates.
+    final templatePhase = isTaperPhase(phase) ? taperPhase : phase;
+    var weekGoal = goal;
+    var weekEntries = entries;
+    int? openersDay;
+    final event = goal.eventDate;
+    if (phase == racePhase && event != null) {
+      final race = _raceWeek(goal, profile, entries, weekStart, event);
+      weekGoal = race.goal;
+      weekEntries = race.entries;
+      openersDay = race.openersDay;
+    }
+    if (isTaperPhase(phase)) {
+      weekEntries = _scaleShares(goal, weekEntries, templatePhase);
+    }
 
     final sessions = <PlanSession>[];
+    var notes = const <String>[];
+    if (weekEntries.isNotEmpty) {
+      final placement = _place(weekGoal, weekEntries);
+      final days = placement.days;
+      if (days == null) return null;
+      notes = placement.notes;
+      _addSessions(
+        sessions: sessions,
+        goal: goal,
+        entries: weekEntries,
+        days: days,
+        phase: templatePhase,
+        weekIndex: weekIndex,
+        weekStart: weekStart,
+        weekLoad: weekLoad,
+      );
+    }
+    if (openersDay != null) {
+      final sport = goal.isTriathlon ? 'Run' : goal.sport;
+      final template = knowledge.templateFor(
+        goal.targetType,
+        SessionSlot.intervals,
+        'openers',
+        sport: sport,
+      );
+      final built = _renderSteps(template.steps, openersMinutes, sport);
+      sessions.add(
+        PlanSession(
+          weekIndex: weekIndex,
+          date: _plusDays(weekStart, openersDay - 1),
+          slot: SessionSlot.intervals,
+          templateId: template.id,
+          name: template.name,
+          sport: sport,
+          minutes: built.minutes,
+          load: (built.minutes / 60 * template.tssPerHour).round(),
+          lowMinutes: built.minutes * template.lowShare,
+          description: built.description,
+        ),
+      );
+    }
+    sessions.sort((a, b) => a.date.compareTo(b.date));
+    return (sessions: sessions, notes: notes);
+  }
+
+  /// How long the openers the day before an event are meant to be.
+  static const openersMinutes = 25;
+
+  /// The event week: no session on the event day or after it, the day
+  /// before kept for openers when it is a training day, and the sessions
+  /// that still fit on the days left (Z2 dropped first).
+  ({Goal goal, List<_Entry> entries, int? openersDay}) _raceWeek(
+    Goal goal,
+    GoalProfile profile,
+    List<_Entry> entries,
+    DateTime weekStart,
+    DateTime event,
+  ) {
+    final eventDay =
+        DateTime.utc(event.year, event.month, event.day)
+            .difference(
+              DateTime.utc(weekStart.year, weekStart.month, weekStart.day),
+            )
+            .inDays +
+        1;
+    final before = eventDay - 1;
+    final openers = before >= 1 && goal.weekdays.contains(before)
+        ? before
+        : null;
+    final available = {
+      for (final d in goal.weekdays)
+        if (d < eventDay && d != openers) d,
+    };
+    final weekGoal = goal.copyWith(weekdays: available);
+    if (available.isEmpty) {
+      return (goal: weekGoal, entries: const [], openersDay: openers);
+    }
+    final capacity = available.length * goal.effectiveMaxPerDay;
+    final fitted =
+        _weekEntries(weekGoal, profile) ?? _keepFittest(entries, capacity);
+    return (goal: weekGoal, entries: fitted, openersDay: openers);
+  }
+
+  /// [entries] cut to [capacity]: intervals first, then Z2, then long, in
+  /// the original placement order.
+  static List<_Entry> _keepFittest(List<_Entry> entries, int capacity) {
+    const priority = [SessionSlot.intervals, SessionSlot.z2, SessionSlot.long];
+    final keep = <_Entry>{};
+    for (final slot in priority) {
+      for (final e in entries.where((e) => e.slot == slot)) {
+        if (keep.length < capacity) keep.add(e);
+      }
+    }
+    return [
+      for (final e in entries)
+        if (keep.contains(e)) e,
+    ];
+  }
+
+  /// Taper weeks scale each slot's share by its template's `shareScale`,
+  /// then renormalise per sport so the sport keeps its share of the week.
+  List<_Entry> _scaleShares(Goal goal, List<_Entry> entries, String phase) {
+    double scale(_Entry e) => knowledge
+        .templateFor(goal.targetType, e.slot, phase, sport: e.sport)
+        .shareScale;
+    final plain = <String, double>{};
+    final scaled = <String, double>{};
+    for (final e in entries) {
+      plain[e.sport] = (plain[e.sport] ?? 0) + e.fraction;
+      scaled[e.sport] = (scaled[e.sport] ?? 0) + e.fraction * scale(e);
+    }
+    return [
+      for (final e in entries)
+        _Entry(
+          e.sport,
+          e.slot,
+          scaled[e.sport]! <= 0
+              ? e.fraction
+              : e.fraction * scale(e) * plain[e.sport]! / scaled[e.sport]!,
+        ),
+    ];
+  }
+
+  void _addSessions({
+    required List<PlanSession> sessions,
+    required Goal goal,
+    required List<_Entry> entries,
+    required List<int> days,
+    required String phase,
+    required int weekIndex,
+    required DateTime weekStart,
+    required double weekLoad,
+  }) {
     for (var n = 0; n < entries.length; n++) {
       final entry = entries[n];
       final template = knowledge.templateFor(
@@ -325,7 +481,7 @@ class PlanEngine {
       sessions.add(
         PlanSession(
           weekIndex: weekIndex,
-          date: weekStart.add(Duration(days: days[n] - 1)),
+          date: _plusDays(weekStart, days[n] - 1),
           slot: entry.slot,
           templateId: template.id,
           name: template.name,
@@ -337,9 +493,12 @@ class PlanEngine {
         ),
       );
     }
-    sessions.sort((a, b) => a.date.compareTo(b.date));
-    return (sessions: sessions, notes: placement.notes);
   }
+
+  /// [day] plus [days] calendar days at midnight — not 24-hour steps, which
+  /// land on 23:00 of the day before once a clock change is in between.
+  static DateTime _plusDays(DateTime day, int days) =>
+      DateTime(day.year, day.month, day.day + days);
 
   int _roundTo5(double minutes) => math.max(20, (minutes / 5).round() * 5);
 
@@ -352,6 +511,8 @@ class PlanEngine {
     final chosen = <int>[];
     if (sorted.length <= n) {
       chosen.addAll(sorted);
+    } else if (n == 1) {
+      chosen.add(sorted.last);
     } else {
       for (var i = 0; i < n; i++) {
         chosen.add(sorted[(i * (sorted.length - 1) / (n - 1)).round()]);
@@ -363,9 +524,10 @@ class PlanEngine {
     final intervalDay = remaining.isEmpty
         ? null
         : (remaining.toList()..sort((a, b) {
-                final byDistance = _distance(b, longDay).compareTo(
-                  _distance(a, longDay),
-                );
+                final byDistance = _distance(
+                  b,
+                  longDay,
+                ).compareTo(_distance(a, longDay));
                 return byDistance != 0 ? byDistance : a.compareTo(b);
               }))
               .first;
@@ -503,9 +665,10 @@ class PlanEngine {
     final suffix = sport == 'Run' || sport == 'Swim' ? ' Pace' : '';
     String pct(Intensity i) => '${i.forSport(sport).round()}%$suffix';
 
-    final fixedMinutes = steps
-        .whereType<FixedStep>()
-        .fold<int>(0, (sum, s) => sum + s.effort.minutes);
+    final fixedMinutes = steps.whereType<FixedStep>().fold<int>(
+      0,
+      (sum, s) => sum + s.effort.minutes,
+    );
     final hasFill = steps.any((s) => s is FillStep);
 
     // Repeats claim time first; a fill step takes what is left.

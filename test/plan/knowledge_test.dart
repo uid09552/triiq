@@ -41,6 +41,44 @@ void main() {
       expect(rules.recoveryThreshold, 0.9);
     });
 
+    test('ships the taper rules', () {
+      final taper = TrainingKnowledge.parse(shipped).rules.taper;
+
+      expect(taper['long_distance'], [0.7, 0.5]);
+      expect(taper['short_event'], [0.6]);
+    });
+
+    test('every goal has taper templates per slot and sport, and openers',
+        () {
+      final knowledge = TrainingKnowledge.parse(shipped);
+
+      for (final goal in knowledge.goals.values) {
+        for (final slot in goal.slots.keys) {
+          for (final sport in const ['Run', 'Ride', 'Swim']) {
+            if (sport == 'Swim' && slot == SessionSlot.long) continue;
+            expect(
+              () => knowledge.templateFor(goal.id, slot, 'taper', sport: sport),
+              returnsNormally,
+              reason: '${goal.id} / ${slot.name} / $sport',
+            );
+          }
+        }
+        expect(
+          knowledge.templateFor(goal.id, SessionSlot.long, 'taper').shareScale,
+          lessThan(1),
+        );
+        for (final sport in const ['Run', 'Ride']) {
+          expect(
+            knowledge
+                .templateFor(goal.id, SessionSlot.intervals, 'openers',
+                    sport: sport)
+                .name,
+            'Race openers',
+          );
+        }
+      }
+    });
+
     test('ships the readiness rules, equal to the built-in defaults', () {
       final r = TrainingKnowledge.parse(shipped).rules.readiness;
       const d = ReadinessRules();
@@ -155,6 +193,73 @@ void main() {
       expect(knowledge.warnings.first, contains('readiness.hrvSd'));
       expect(knowledge.rules.maxWeeklyIncrease, 0.10);
       expect(knowledge.rules.readiness.hrvSd, [1, 2]);
+    });
+
+    test('taper: missing means none, malformed skips the rules block', () {
+      final json = {
+        'weekPhases': ['build'],
+        'weekMultipliers': [1.0],
+        'maxWeeklyIncrease': 0.1,
+        'maxCtlRamp': 7,
+        'lowIntensityTarget': 0.8,
+        'lowIntensityTolerance': 0.05,
+        'minHistoryWeeks': 4,
+      };
+
+      expect(PlanRules.fromJson(json).taper, isEmpty);
+      expect(
+        PlanRules.fromJson({
+          ...json,
+          'taper': {
+            'g': [0.8, 0.4],
+          },
+        }).taper['g'],
+        [0.8, 0.4],
+      );
+      for (final bad in [
+        {'g': <double>[]},
+        {
+          'g': [1.5],
+        },
+        {
+          'g': [0],
+        },
+        [0.5],
+      ]) {
+        expect(
+          () => PlanRules.fromJson({...json, 'taper': bad}),
+          throwsFormatException,
+          reason: '$bad',
+        );
+      }
+    });
+
+    test('a template with an unknown phase is rejected', () {
+      Map<String, dynamic> template(List<String> phases) => {
+        'id': 'x',
+        'goal': 'g',
+        'slot': 'z2',
+        'phases': phases,
+        'name': 'n',
+        'tssPerHour': 50,
+        'lowShare': 1.0,
+        'steps': [
+          {'kind': 'fill', 'pct': 70},
+        ],
+      };
+
+      expect(SessionTemplate.fromJson(template(['taper'])).shareScale, 1.0);
+      expect(
+        SessionTemplate.fromJson({
+          ...template(['openers']),
+          'shareScale': 0.6,
+        }).shareScale,
+        0.6,
+      );
+      expect(
+        () => SessionTemplate.fromJson(template(['tapr'])),
+        throwsFormatException,
+      );
     });
 
     test('falls back to built-in goals when none survive', () {

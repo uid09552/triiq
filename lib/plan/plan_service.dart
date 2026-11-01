@@ -40,12 +40,7 @@ class PlanService {
 
   /// The Monday a new block should start on: next Monday, or this week's
   /// Monday when [today] is one (a plan made on Monday starts that day).
-  static DateTime defaultStart(DateTime today) {
-    final day = dateOnly(today);
-    return day.weekday == DateTime.monday
-        ? day
-        : day.add(Duration(days: 8 - day.weekday));
-  }
+  static DateTime defaultStart(DateTime today) => Goal.defaultStart(today);
 
   /// What the load graph is drawn within for [goal]: the baseline, ramp,
   /// CTL and hours limits from the cache — or why there are none yet.
@@ -63,6 +58,7 @@ class PlanService {
       recentWeeklyLoads: inputs.weeklyLoads,
       currentCtl: inputs.currentCtl,
       today: now,
+      start: monday,
     );
     return (
       limits: found.limits,
@@ -167,8 +163,7 @@ class PlanService {
     final count = plan.sessions
         .where(
           (s) =>
-              s.status != PlanSessionStatus.created &&
-              !s.date.isBefore(cutoff),
+              s.status != PlanSessionStatus.created && !s.date.isBefore(cutoff),
         )
         .length;
     return (plan: plan, count: count);

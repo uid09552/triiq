@@ -802,5 +802,13 @@
   "adaptLoadRegenerate": "The week's sessions follow when you regenerate the plan.",
   "adaptReadinessReason": "Readiness: {level}.",
   "@adaptReadinessReason": {"placeholders":{"level":{"type":"String"}}},
-  "todayAdjustmentsTitle": "Plan adjustments"
+  "todayAdjustmentsTitle": "Plan adjustments",
+  "planPhaseTaper": "Taper",
+  "planPhaseRace": "Race week",
+  "planCurveRaceShort": "Race",
+  "planEventBeyondPlan": "Your event is {weeks} weeks away, more than one block: this block builds without a taper. A plan ending with the taper can be generated once the event is at most 16 weeks away.",
+  "@planEventBeyondPlan": {"placeholders":{"weeks":{"type":"int"}}},
+  "todayRaceCountdown": "{days, plural, =1{Race tomorrow} other{Race in {days} days}}",
+  "@todayRaceCountdown": {"placeholders":{"days":{"type":"int"}}},
+  "todayRaceDay": "Race day!"
 }

@@ -31,6 +31,15 @@
 
 8. **Agent**: the plan tool output gains `phase` per week and `days_to_event`. The system prompt line about plans mentions the taper and points at `get_training_guidance("taper")`, a section that already exists.
 
+9. **Decided during apply.**
+   - The phases are `taper` and `race` (the event week). Both use the `taper` templates. The four Z2 templates simply list `taper` too.
+   - Openers are `<goal>.openers` templates with slot `intervals` and phase `openers`, not a new slot, so the stored slot set stays `z2` / `intervals` / `long`. A triathlon's openers are a run.
+   - Template phases are now validated against a known set.
+   - Race-week sessions that don't fit the remaining days are cut intervals → Z2 → long.
+   - The countdown reads the goal's event date while a plan is active.
+   - The notice for an event more than 16 weeks away sits on the Plan screen's load-graph card.
+   - Engine week and session dates now use calendar-day arithmetic. `Duration(days: 7 * i)` put every date after the autumn clock change at 23:00 of the previous day, and `isoDate` then stored it a day early. This is a pre-existing bug, fixed here because race weeks usually fall late in a block.
+
 ## Risks / Trade-offs
 
 - [Taper factors are opinionated] → kept in the knowledge with the source noted in §5 prose, and the athlete can still adjust each week 80-120%.

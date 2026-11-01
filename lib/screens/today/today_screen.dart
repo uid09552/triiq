@@ -7,11 +7,13 @@ import '../../data/intervals_session.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/adaptation_service.dart';
 import '../../plan/plan_changes.dart';
+import '../../plan/plan_models.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../data/models/local_wellness.dart';
 import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
+import '../../data/repositories/plans_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_settings.dart';
@@ -51,6 +53,8 @@ class TodayScreen extends StatefulWidget {
     this.plannedItems,
     this.readinessService,
     this.adaptationService,
+    this.goalStore,
+    this.plansRepository,
   });
 
   /// Test seams; the app uses the defaults.
@@ -59,6 +63,8 @@ class TodayScreen extends StatefulWidget {
   final PlannedItemsRepository? plannedItems;
   final ReadinessService? readinessService;
   final AdaptationService? adaptationService;
+  final GoalStore? goalStore;
+  final PlansRepository? plansRepository;
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -79,6 +85,8 @@ class _TodayScreenState extends State<TodayScreen> {
   late final _adaptationService =
       widget.adaptationService ??
       AdaptationService(
+        plans: widget.plansRepository,
+        goals: widget.goalStore,
         activities: _activitiesRepository,
         readiness: _readinessService,
       );
@@ -94,6 +102,9 @@ class _TodayScreenState extends State<TodayScreen> {
 
   /// Suggested plan changes (missed sessions, week load, readiness).
   List<PlanProposal> _adjustments = const [];
+
+  /// Days to the active plan's event (0 on the day), or `null`.
+  int? _raceDays;
   List<LocalActivity> _activities = const [];
   List<LocalEvent> _todaysPlan = const [];
   List<LocalEvent> _tomorrowsPlan = const [];
@@ -219,9 +230,34 @@ class _TodayScreenState extends State<TodayScreen> {
         _loading = false;
       });
     }
-    await _loadReadiness();
-    await _loadAdjustments();
+    // Independent of each other: a slow one never holds the others back.
+    await Future.wait([
+      _loadReadiness().then((_) => _loadAdjustments()),
+      _loadRaceCountdown(),
+    ]);
     return fetched;
+  }
+
+  Future<void> _loadRaceCountdown() async {
+    try {
+      final plan = await (widget.plansRepository ?? PlansRepository())
+          .getCurrent();
+      final goal = await (widget.goalStore ?? GoalStore()).load();
+      final event = goal?.eventDate;
+      int? days;
+      if (plan?.status == PlanStatus.active && event != null) {
+        final today = dateOnly(DateTime.now());
+        days = DateTime.utc(
+          event.year,
+          event.month,
+          event.day,
+        ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
+        if (days < 0) days = null;
+      }
+      if (mounted) setState(() => _raceDays = days);
+    } catch (e) {
+      debugPrint('TodayScreen: race countdown unavailable: $e');
+    }
   }
 
   Future<void> _loadAdjustments() async {
@@ -345,6 +381,22 @@ class _TodayScreenState extends State<TodayScreen> {
               ],
             ),
           ),
+          if (_raceDays case final days?) ...[
+            const SizedBox(height: 12),
+            Row(
+              key: const ValueKey('race-countdown'),
+              children: [
+                Icon(Icons.flag_outlined, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  days == 0 ? l10n.todayRaceDay : l10n.todayRaceCountdown(days),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,

@@ -71,7 +71,7 @@ athlete can:
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
-| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
+| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -1028,7 +1028,9 @@ figures over.
 **More → Training plan.** Set a **goal** first: target (long distance or
 short event), sport (Run, Ride or **Triathlon**), training days, weekly
 hours, an optional event date, and the **plan length** (2-16 weeks; by
-default 8, or the weeks until the event). For triathlon, set the **sport
+default 8, or the weeks up to and including the event week; a chosen length
+can't run past the event, and an event in the starting week is too close
+for a new plan). For triathlon, set the **sport
 mix** — each sport's share of the weekly load in 5% steps, totalling 100%
 (default Swim 15 / Bike 50 / Run 35). A sport at 0% gets no sessions.
 
@@ -1042,6 +1044,17 @@ instead of ramping. Both redraw the proposal at once and are saved in the
 goal; weeks you dragged keep their share of the new proposal. No recovery
 dips are added for you. Each week has a shaded band — 80% to 120% of its
 proposal — that it can be moved within.
+
+**Taper and race week.** When the plan ends in the event week, its last
+weeks step down from the last build week — two weeks at 70% and 50% for
+long distance, one at 60% for a short event — and the graph labels them
+**Taper** and **Race** (no ramp or CTL warning for the drop; you can still
+move them 80-120%). Taper weeks keep the interval session, shorter, and cut
+the long session most. In the race week nothing is planned on the event day
+or after it, and the day before gets short **Race openers** when it is a
+training day. Today shows **Race in N days** while the plan is active. An
+event more than 16 weeks away gets a 16-week block without a taper, and the
+load graph says when a taper block can be made.
 
 The goal editor also sets the **session mix** — Z2 / Intervals / Long
 shares of each sport's weekly load (5% steps, total 100%; by default the
@@ -1204,8 +1217,8 @@ card at the top shows the currently cached date range.
   Android Gradle Plugin (no `namespace`), the same problem as
   `flutter_timezone`. Each session's sheet offers **Add to Google Calendar**
   (a pre-filled link) instead.
-- Training plans: no automatic taper or race-peak shaping, no brick
-  sessions, one ramp cap for all sports. Swim templates use % of threshold
+- Training plans: one event per goal (no B/C races or mini-tapers, no
+  post-race recovery week), no brick sessions, one ramp cap for all sports. Swim templates use % of threshold
   swim pace and the engine's own TSS estimate, which is rougher than for
   ride and run. Sessions can't be edited individually in the week calendar
   (only moved in the preview).
@@ -1246,7 +1259,8 @@ engine needs to be deterministic.
 
 ### 5.1 Block rules
 
-A plan runs 2-16 weeks (default 8, or the weeks until the event). Every
+A plan runs 2-16 weeks (default 8, or the weeks up to and including the
+event week; see **Taper and race week** under 5.3). Every
 non-recovery week has the same session types per sport (Z2 base, one interval
 session, one long session; swim has no long session); only the volume
 changes. The engine **proposes** a ramp from the athlete's baseline
@@ -1284,6 +1298,10 @@ worst of Intervals.icu's 1-4 scale, is a caution.
   "holdEveryWeeks": 4,
   "recoveryHours": [[50, 12], [100, 24], [200, 36], [null, 48]],
   "recoveryFormPenaltyBelow": -20,
+  "taper": {
+    "long_distance": [0.7, 0.5],
+    "short_event": [0.6]
+  },
   "readiness": {
     "hrvSd": [1, 2],
     "restingHrBpm": [5, 10],
@@ -1348,7 +1366,7 @@ template serves Ride and Run. Swim templates say `"sports": ["Swim"]` and use
 {
   "id": "long_distance.z2",
   "goal": "long_distance", "slot": "z2",
-  "phases": ["build", "build_plus", "peak", "recovery"],
+  "phases": ["build", "build_plus", "peak", "recovery", "taper"],
   "name": "Z2 endurance",
   "tssPerHour": 50, "lowShare": 1.0,
   "steps": [
@@ -1447,7 +1465,7 @@ template serves Ride and Run. Swim templates say `"sports": ["Swim"]` and use
 {
   "id": "short_event.z2",
   "goal": "short_event", "slot": "z2",
-  "phases": ["build", "build_plus", "peak", "recovery"],
+  "phases": ["build", "build_plus", "peak", "recovery", "taper"],
   "name": "Z2 endurance",
   "tssPerHour": 50, "lowShare": 1.0,
   "steps": [
@@ -1518,7 +1536,7 @@ between the two.
 {
   "id": "long_distance.swim.z2",
   "goal": "long_distance", "slot": "z2", "sports": ["Swim"],
-  "phases": ["build", "build_plus", "peak", "recovery"],
+  "phases": ["build", "build_plus", "peak", "recovery", "taper"],
   "name": "Aerobic swim",
   "tssPerHour": 40, "lowShare": 1.0,
   "steps": [
@@ -1568,7 +1586,7 @@ between the two.
 {
   "id": "short_event.swim.z2",
   "goal": "short_event", "slot": "z2", "sports": ["Swim"],
-  "phases": ["build", "build_plus", "peak", "recovery"],
+  "phases": ["build", "build_plus", "peak", "recovery", "taper"],
   "name": "Aerobic swim",
   "tssPerHour": 40, "lowShare": 1.0,
   "steps": [
@@ -1613,3 +1631,147 @@ between the two.
   ]
 }
 ```
+
+**Taper and race week.** When the goal has an event date and the plan's last
+week contains it, the last weeks are a taper: `taper` in the rules lists, per
+goal type, each taper week's load as a fraction of the last week before the
+taper (two weeks at 70 % and 50 % for long distance, one at 60 % for a short
+event). The interval session stays, shorter, so intensity is kept while
+volume drops; taper templates carry `shareScale`, which scales a slot's share
+of its sport's load before the sport is renormalised, so the long session
+(0.6) shrinks more than the week. Z2 templates serve the taper unchanged. In
+the event week nothing is placed on the event day or after it, and the day
+before gets the short `openers` session when it is a training day.
+
+```okf-template
+{
+  "id": "long_distance.intervals.taper",
+  "goal": "long_distance", "slot": "intervals",
+  "phases": ["taper"],
+  "name": "Taper threshold intervals",
+  "tssPerHour": 75, "lowShare": 0.55, "shareScale": 1.2,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 2, "max": 4,
+     "work": {"minutes": 6, "pct": {"Ride": 98, "Run": 100}},
+     "rest": {"minutes": 3, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.long.taper",
+  "goal": "long_distance", "slot": "long",
+  "phases": ["taper"],
+  "name": "Taper endurance",
+  "tssPerHour": 58, "lowShare": 0.85, "shareScale": 0.6,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 70, "Run": 84}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.intervals.taper",
+  "goal": "short_event", "slot": "intervals",
+  "phases": ["taper"],
+  "name": "Taper VO2max intervals",
+  "tssPerHour": 78, "lowShare": 0.6, "shareScale": 1.2,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 3, "max": 5,
+     "work": {"minutes": 2, "pct": {"Ride": 115, "Run": 108}},
+     "rest": {"minutes": 3, "pct": {"Ride": 45, "Run": 65}}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.long.taper",
+  "goal": "short_event", "slot": "long",
+  "phases": ["taper"],
+  "name": "Taper endurance",
+  "tssPerHour": 58, "lowShare": 0.85, "shareScale": 0.6,
+  "steps": [
+    {"kind": "fixed", "minutes": 15, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "fill", "pct": {"Ride": 70, "Run": 84}},
+    {"kind": "fixed", "minutes": 10, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.swim.intervals.taper",
+  "goal": "long_distance", "slot": "intervals", "sports": ["Swim"],
+  "phases": ["taper"],
+  "name": "Taper threshold swim",
+  "tssPerHour": 52, "lowShare": 0.6, "shareScale": 1.2,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": 75},
+    {"kind": "repeat", "min": 3, "max": 6,
+     "work": {"minutes": 2, "pct": 98},
+     "rest": {"minutes": 1, "pct": 70}},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.swim.intervals.taper",
+  "goal": "short_event", "slot": "intervals", "sports": ["Swim"],
+  "phases": ["taper"],
+  "name": "Taper race-pace swim",
+  "tssPerHour": 55, "lowShare": 0.6, "shareScale": 1.2,
+  "steps": [
+    {"kind": "fixed", "minutes": 10, "pct": 75},
+    {"kind": "repeat", "min": 3, "max": 6,
+     "work": {"minutes": 2, "pct": 102},
+     "rest": {"minutes": 1, "pct": 70}},
+    {"kind": "fixed", "minutes": 5, "pct": 72}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "long_distance.openers",
+  "goal": "long_distance", "slot": "intervals",
+  "phases": ["openers"],
+  "name": "Race openers",
+  "tssPerHour": 55, "lowShare": 0.8,
+  "steps": [
+    {"kind": "fixed", "minutes": 12, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 3, "max": 3,
+     "work": {"minutes": 1, "pct": {"Ride": 105, "Run": 103}},
+     "rest": {"minutes": 2, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 5, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+
+```okf-template
+{
+  "id": "short_event.openers",
+  "goal": "short_event", "slot": "intervals",
+  "phases": ["openers"],
+  "name": "Race openers",
+  "tssPerHour": 55, "lowShare": 0.8,
+  "steps": [
+    {"kind": "fixed", "minutes": 12, "pct": {"Ride": 55, "Run": 75}},
+    {"kind": "repeat", "min": 3, "max": 3,
+     "work": {"minutes": 1, "pct": {"Ride": 110, "Run": 105}},
+     "rest": {"minutes": 2, "pct": {"Ride": 50, "Run": 70}}},
+    {"kind": "fixed", "minutes": 5, "pct": {"Ride": 50, "Run": 70}}
+  ]
+}
+```
+

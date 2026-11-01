@@ -2098,4 +2098,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayAdjustmentsTitle => 'Plan adjustments';
+
+  @override
+  String get planPhaseTaper => 'Taper';
+
+  @override
+  String get planPhaseRace => 'Race week';
+
+  @override
+  String get planCurveRaceShort => 'Race';
+
+  @override
+  String planEventBeyondPlan(int weeks) {
+    return 'Your event is $weeks weeks away, more than one block: this block builds without a taper. A plan ending with the taper can be generated once the event is at most 16 weeks away.';
+  }
+
+  @override
+  String todayRaceCountdown(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Race in $days days',
+      one: 'Race tomorrow',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get todayRaceDay => 'Race day!';
 }

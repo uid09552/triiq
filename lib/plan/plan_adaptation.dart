@@ -3,6 +3,7 @@ import '../evaluation/readiness.dart';
 import '../evaluation/session_evaluator.dart';
 import '../util/dates.dart';
 import 'knowledge.dart';
+import 'load_curve.dart';
 import 'plan_models.dart';
 
 /// Where the athlete has drifted from the saved plan, and what to do about
@@ -204,7 +205,7 @@ WeekLoadOffTarget? _weekLoad(
   List<LocalActivity> activities,
   double rampCap,
 ) {
-  if (next.phase == 'taper' || next.requestedLoad <= 0) return null;
+  if (isTaperPhase(next.phase) || next.requestedLoad <= 0) return null;
   final target = ended.targetLoad;
   if (target <= 0) return null;
   final first = isoDate(ended.startDate);

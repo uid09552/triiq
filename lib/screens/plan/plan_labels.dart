@@ -8,6 +8,8 @@ String phaseLabel(AppLocalizations l10n, String phase) => switch (phase) {
   'build_plus' => l10n.planPhaseBuildPlus,
   'peak' => l10n.planPhasePeak,
   'recovery' => l10n.planPhaseRecovery,
+  'taper' => l10n.planPhaseTaper,
+  'race' => l10n.planPhaseRace,
   _ => phase,
 };
 

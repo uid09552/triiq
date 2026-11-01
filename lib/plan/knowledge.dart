@@ -23,6 +23,7 @@ class PlanRules {
     this.holdEveryWeeks = 4,
     this.recovery = const RecoveryRules(),
     this.readiness = const ReadinessRules(),
+    this.taper = const {},
   });
 
   /// The classic 4-week shape. The load curve no longer uses it; kept so
@@ -44,6 +45,11 @@ class PlanRules {
   /// What the daily readiness status is rated by (not used by the plan
   /// engine).
   final ReadinessRules readiness;
+
+  /// Per goal type, the load of each taper week as a fraction of the last
+  /// pre-taper week, in order; the list's length is the taper length. A goal
+  /// type without an entry gets no taper.
+  final Map<String, List<double>> taper;
 
   /// A week below this fraction of the week before it is a recovery week.
   final double recoveryThreshold;
@@ -87,15 +93,34 @@ class PlanRules {
       lowIntensityTarget: (json['lowIntensityTarget'] as num).toDouble(),
       lowIntensityTolerance: (json['lowIntensityTolerance'] as num).toDouble(),
       minHistoryWeeks: (json['minHistoryWeeks'] as num).toInt(),
-      recoveryThreshold:
-          (json['recoveryThreshold'] as num?)?.toDouble() ?? 0.9,
+      recoveryThreshold: (json['recoveryThreshold'] as num?)?.toDouble() ?? 0.9,
       holdEveryWeeks: (json['holdEveryWeeks'] as num?)?.toInt() ?? 4,
       recovery: _recoveryRules(json),
       readiness: json['readiness'] == null
           ? const ReadinessRules()
           : ReadinessRules.fromJson(json['readiness'] as Map<String, dynamic>),
+      taper: _taperRules(json['taper']),
     );
   }
+}
+
+/// `taper` as `{"<goal type>": [factor, ...]}`, each factor in (0, 1].
+Map<String, List<double>> _taperRules(Object? raw) {
+  if (raw == null) return const {};
+  if (raw is! Map) throw const FormatException('taper must be an object.');
+  final result = <String, List<double>>{};
+  for (final e in raw.entries) {
+    final list = e.value;
+    if (list is! List ||
+        list.isEmpty ||
+        list.any((f) => f is! num || f <= 0 || f > 1)) {
+      throw FormatException(
+        'taper.${e.key} must be a non-empty list of factors in (0, 1].',
+      );
+    }
+    result[e.key as String] = [for (final f in list) (f as num).toDouble()];
+  }
+  return result;
 }
 
 /// `recoveryHours` as `[[maxTss, hours], ..., [null, hours]]`, plus
@@ -260,7 +285,19 @@ class SessionTemplate {
     required this.lowShare,
     required this.steps,
     this.sports = landSports,
+    this.shareScale = 1.0,
   });
+
+  /// Every phase a template may name: the block's own, the taper, and the
+  /// openers the day before an event.
+  static const knownPhases = {
+    'build',
+    'build_plus',
+    'peak',
+    'recovery',
+    'taper',
+    'openers',
+  };
 
   /// What a template without a `sports` field is for.
   static const landSports = ['Ride', 'Run'];
@@ -281,6 +318,11 @@ class SessionTemplate {
   final double lowShare;
   final List<StepSpec> steps;
 
+  /// In taper weeks, the slot's share of its sport's load is scaled by this
+  /// and the sport renormalised — below 1 shortens the session more than
+  /// the week (the long session), above 1 less.
+  final double shareScale;
+
   factory SessionTemplate.fromJson(Map<String, dynamic> json) {
     final slot = SessionSlot.values.asNameMap()[json['slot']];
     if (slot == null) throw FormatException('Unknown slot "${json['slot']}".');
@@ -291,11 +333,19 @@ class SessionTemplate {
     if (steps.isEmpty) throw const FormatException('A template needs steps.');
     final tssPerHour = (json['tssPerHour'] as num).toDouble();
     if (tssPerHour <= 0) throw const FormatException('tssPerHour must be > 0.');
+    final phases = (json['phases'] as List).cast<String>();
+    final unknown = phases.where((p) => !knownPhases.contains(p));
+    if (unknown.isNotEmpty) {
+      throw FormatException('Unknown phase "${unknown.first}".');
+    }
+    final shareScale = (json['shareScale'] as num?)?.toDouble() ?? 1.0;
+    if (shareScale <= 0) throw const FormatException('shareScale must be > 0.');
     return SessionTemplate(
       id: json['id'] as String,
       goal: json['goal'] as String,
       slot: slot,
-      phases: (json['phases'] as List).cast<String>(),
+      phases: phases,
+      shareScale: shareScale,
       sports: (json['sports'] as List?)?.cast<String>() ?? landSports,
       name: json['name'] as String,
       tssPerHour: tssPerHour,
@@ -434,21 +484,25 @@ class TrainingKnowledge {
 
   static TrainingKnowledge _buildDefaults() {
     const phases = ['build', 'build_plus', 'peak', 'recovery'];
-    SessionTemplate easy(SessionSlot slot, String name, double tss, double low) =>
-        SessionTemplate(
-          id: 'general.${slot.name}',
-          goal: 'general',
-          slot: slot,
-          phases: phases,
-          name: name,
-          tssPerHour: tss,
-          lowShare: low,
-          steps: const [
-            FixedStep(StepEffort(minutes: 10, intensity: Intensity(60, {}))),
-            FillStep(Intensity(70, {})),
-            FixedStep(StepEffort(minutes: 5, intensity: Intensity(55, {}))),
-          ],
-        );
+    SessionTemplate easy(
+      SessionSlot slot,
+      String name,
+      double tss,
+      double low,
+    ) => SessionTemplate(
+      id: 'general.${slot.name}',
+      goal: 'general',
+      slot: slot,
+      phases: phases,
+      name: name,
+      tssPerHour: tss,
+      lowShare: low,
+      steps: const [
+        FixedStep(StepEffort(minutes: 10, intensity: Intensity(60, {}))),
+        FillStep(Intensity(70, {})),
+        FixedStep(StepEffort(minutes: 5, intensity: Intensity(55, {}))),
+      ],
+    );
     return TrainingKnowledge(
       rules: PlanRules.defaults,
       goals: {
@@ -474,7 +528,8 @@ class TrainingKnowledge {
 /// Loads the knowledge from the bundled spec.
 class KnowledgeRepository {
   KnowledgeRepository({Future<String> Function()? loadAsset})
-    : _loadAsset = loadAsset ?? (() => rootBundle.loadString(knowledgeAssetPath));
+    : _loadAsset =
+          loadAsset ?? (() => rootBundle.loadString(knowledgeAssetPath));
 
   final Future<String> Function() _loadAsset;
   TrainingKnowledge? _cached;
@@ -487,13 +542,17 @@ class KnowledgeRepository {
     try {
       return _cached = TrainingKnowledge.parse(await _loadAsset());
     } catch (error) {
-      debugPrint('KnowledgeRepository: cannot read $knowledgeAssetPath: $error');
+      debugPrint(
+        'KnowledgeRepository: cannot read $knowledgeAssetPath: $error',
+      );
       final base = TrainingKnowledge.defaults;
       return _cached = TrainingKnowledge(
         rules: base.rules,
         goals: base.goals,
         templates: base.templates,
-        warnings: ['Knowledge file could not be read; using built-in defaults.'],
+        warnings: [
+          'Knowledge file could not be read; using built-in defaults.',
+        ],
       );
     }
   }

@@ -27,8 +27,7 @@ class PlanAssistantTools {
 
   static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  String _day(DateTime d) =>
-      '${_weekdays[d.weekday - 1]} ${isoDate(d)}';
+  String _day(DateTime d) => '${_weekdays[d.weekday - 1]} ${isoDate(d)}';
 
   // ------------------------------------------------------------- reading
 
@@ -69,13 +68,21 @@ class PlanAssistantTools {
     'weekly_hours': g.weeklyHours,
     'plan_weeks': g.planWeeks(PlanService.defaultStart(_clock())),
     if (g.eventDate != null) 'event_date': isoDate(g.eventDate!),
+    if (_daysTo(g.eventDate) case final days?) 'days_to_event': days,
+    if (g.eventDate != null)
+      'phase_note':
+          'A plan that ends in the event week tapers: "taper" weeks step the '
+          'load down from the last build week and "race" is the event week '
+          '(openers the day before, nothing from the event day on). '
+          'get_training_guidance("taper") explains why.',
     if (g.isTriathlon) 'sport_mix_percent': g.sportMix,
     'hold_every_4th': g.holdEvery4th,
     'session_mix_percent': g.slotShares ?? 'goal type default',
     'preferences': {
-      if (g.longDays.isNotEmpty) 'long_session_days': {
-        for (final e in g.longDays.entries) e.key: _weekdays[e.value - 1],
-      },
+      if (g.longDays.isNotEmpty)
+        'long_session_days': {
+          for (final e in g.longDays.entries) e.key: _weekdays[e.value - 1],
+        },
       if (g.intervalDays.isNotEmpty)
         'interval_days': [for (final d in g.intervalDays) _weekdays[d - 1]],
       'max_sessions_per_day': g.effectiveMaxPerDay,
@@ -83,6 +90,18 @@ class PlanAssistantTools {
     if (g.baselineWeeklyLoad != null)
       'baseline_weekly_load': g.baselineWeeklyLoad,
   };
+
+  /// Days from today to [event], or `null` without one or once it is past.
+  int? _daysTo(DateTime? event) {
+    if (event == null) return null;
+    final now = _clock();
+    final days = DateTime.utc(
+      event.year,
+      event.month,
+      event.day,
+    ).difference(DateTime.utc(now.year, now.month, now.day)).inDays;
+    return days < 0 ? null : days;
+  }
 
   Map<String, dynamic> _curveJson(
     LoadCurveController c, {
@@ -100,11 +119,16 @@ class PlanAssistantTools {
         for (var i = 0; i < c.weeks; i++)
           {
             'week': i + 1,
-            'start_date': isoDate(start.add(Duration(days: 7 * i))),
+            'start_date': isoDate(
+              DateTime(start.year, start.month, start.day + 7 * i),
+            ),
             'proposed_tss': c.proposal[i].round(),
             'target_tss': targets[i].round(),
             'share_percent': (c.factors[i] * 100).round(),
-            'allowed_tss': [c.bandFor(i).low.round(), c.bandFor(i).high.round()],
+            'allowed_tss': [
+              c.bandFor(i).low.round(),
+              c.bandFor(i).high.round(),
+            ],
             'phase': phases[i],
             if (flags[i].isNotEmpty)
               'above_limits': [for (final l in flags[i]) l.name],
@@ -213,9 +237,9 @@ class PlanAssistantTools {
       changes.add(holdArg ? 'hold every 4th week' : 'no hold weeks');
     }
     final reset = args['reset'] == true;
-    final problem = base.copyWith(loadFactors: const []).validate(
-      today: _clock(),
-    );
+    final problem = base
+        .copyWith(loadFactors: const [])
+        .validate(today: _clock());
     if (problem != null) return {'error': problem};
 
     final curve = await service.curve(base, today: _clock());
