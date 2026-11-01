@@ -613,10 +613,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingPlansTitle => 'Training plans';
 
   @override
+  String get moreKnowledgeSubtitle =>
+      'Your own coaching documents the agent can search';
+
+  @override
   String get gearTitle => 'Gear';
 
   @override
   String get comingSoon => 'Coming soon';
+
+  @override
+  String get knowledgeLibraryTitle => 'Knowledge library';
+
+  @override
+  String get knowledgeImportButton => 'Import';
+
+  @override
+  String get knowledgeEmptyTitle => 'No documents yet';
+
+  @override
+  String get knowledgeEmptyBody =>
+      'Import Markdown or text files with your own coaching notes, swim sets or taper guides. The chat agent searches them alongside the built-in reference — they never change your training plan.';
+
+  @override
+  String knowledgeSectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sections',
+      one: '1 section',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String knowledgeImportedOn(String date) {
+    return 'Imported $date';
+  }
+
+  @override
+  String get knowledgeDisabledLabel => 'Disabled';
+
+  @override
+  String get knowledgeDeleteTitle => 'Delete this document?';
+
+  @override
+  String knowledgeDeleteConfirm(String title) {
+    return '\"$title\" and its sections will be removed from this device.';
+  }
+
+  @override
+  String get knowledgeDuplicateTitle => 'Already imported';
+
+  @override
+  String knowledgeDuplicateBody(String fileName) {
+    return 'A document named \"$fileName\" already exists.';
+  }
+
+  @override
+  String get knowledgeReplaceButton => 'Replace';
+
+  @override
+  String get knowledgeKeepBothButton => 'Keep both';
+
+  @override
+  String knowledgeImportSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sections imported',
+      one: '1 section imported',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String knowledgeImportIgnoredBlocks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count structured blocks ignored',
+      one: '1 structured block ignored',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String knowledgeImportRejected(String fileName, String reason) {
+    return 'Couldn\'t import $fileName: $reason';
+  }
 
   @override
   String get syncNotConnectedTitle => 'Not connected';

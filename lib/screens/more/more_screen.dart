@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../activities/activities_screen.dart';
+import '../knowledge/knowledge_library_screen.dart';
 import '../plan/plan_screen.dart';
 import '../statistics/weekly_review_screen.dart';
 import '../profile/profile_screen.dart';
@@ -69,6 +71,17 @@ class MoreScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const WeeklyReviewScreen()),
           ),
         ),
+        if (!kIsWeb) ...[
+          const SizedBox(height: 10),
+          _MoreTile(
+            icon: Icons.menu_book_outlined,
+            title: l10n.knowledgeLibraryTitle,
+            subtitle: l10n.moreKnowledgeSubtitle,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => KnowledgeLibraryScreen()),
+            ),
+          ),
+        ],
         const SizedBox(height: 20),
         const SizedBox(height: 10),
         _MoreTile(

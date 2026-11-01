@@ -10,6 +10,7 @@ import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/models/local_wellness.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/data/repositories/events_repository.dart';
+import 'package:triiq/data/repositories/knowledge_library_repository.dart';
 import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
@@ -26,6 +27,7 @@ void main() {
   late ActivitiesRepository activitiesRepository;
   late EventsRepository eventsRepository;
   late SyncStateRepository syncStateRepository;
+  late KnowledgeLibraryRepository knowledgeLibrary;
   late TrainingDataTools tools;
 
   /// Sunday, so the week bucket is 2026-08-24..2026-08-30.
@@ -38,6 +40,7 @@ void main() {
     activitiesRepository = ActivitiesRepository(database: database);
     eventsRepository = EventsRepository(database: database);
     syncStateRepository = SyncStateRepository(database: database);
+    knowledgeLibrary = KnowledgeLibraryRepository(database: database);
     tools = TrainingDataTools(
       wellnessRepository: wellnessRepository,
       activitiesRepository: activitiesRepository,
@@ -46,6 +49,7 @@ void main() {
       syncStateRepository: syncStateRepository,
       clock: () => now,
       loadTrainingGuidance: () async => _guidanceFixture,
+      knowledgeLibraryRepository: knowledgeLibrary,
     );
   });
 
@@ -251,11 +255,15 @@ void main() {
     expect(bucket['intensity_note'], contains('cannot be checked'));
   });
 
-  test('get_training_guidance lists sections and returns the best match',
-      () async {
+  test('get_training_guidance lists sections grouped by document and '
+      'returns the best match', () async {
     final listing = await call('get_training_guidance', {'topic': ''});
+    final documents = (listing['documents'] as List)
+        .cast<Map<String, dynamic>>();
+    expect(documents, hasLength(1));
+    expect(documents.single['document'], 'Training reference');
     expect(
-      (listing['sections'] as List).cast<String>(),
+      (documents.single['sections'] as List).cast<String>(),
       ['1. The 80/20 Principle', '2. Recovery Weeks'],
     );
 
@@ -265,7 +273,105 @@ void main() {
     final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
     expect(matches.first['title'], '2. Recovery Weeks');
     expect(matches.first['text'], contains('reduced-load week'));
+    expect(matches.first['document'], 'Training reference');
   });
+
+  test('get_training_guidance merges an imported document into the search',
+      () async {
+    await knowledgeLibrary.import(
+      fileName: 'swim-css.md',
+      bytes: utf8.encode(
+        '# Threshold swim sets\n\n'
+        'Short, repeated efforts at threshold swim pace with equal rest.\n',
+      ),
+    );
+
+    final match = await call('get_training_guidance', {
+      'topic': 'threshold swim sets',
+    });
+    final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
+
+    expect(matches, isNotEmpty);
+    expect(matches.first['title'], 'Threshold swim sets');
+    expect(matches.first['document'], 'Threshold swim sets');
+  });
+
+  test('get_training_guidance excludes a disabled imported document',
+      () async {
+    final imported = await knowledgeLibrary.import(
+      fileName: 'swim-css.md',
+      bytes: utf8.encode('# Threshold swim sets\n\nBody.\n'),
+    );
+    await knowledgeLibrary.setEnabled(imported.document.id, false);
+
+    final match = await call('get_training_guidance', {
+      'topic': 'threshold swim sets',
+    });
+
+    expect(match['matches'], isEmpty);
+  });
+
+  test('get_training_guidance finds a German term', () async {
+    await knowledgeLibrary.import(
+      fileName: 'erholung.md',
+      bytes: utf8.encode(
+        '# Erholungswoche\n\nEine reduzierte Woche lässt die Ermüdung abklingen.\n',
+      ),
+    );
+
+    final match = await call('get_training_guidance', {
+      'topic': 'Erholungswoche',
+    });
+    final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
+
+    expect(matches, isNotEmpty);
+    expect(matches.first['title'], 'Erholungswoche');
+  });
+
+  test(
+    'get_training_guidance returns more_matches beyond the top 3',
+    () async {
+      for (var i = 1; i <= 5; i++) {
+        await knowledgeLibrary.import(
+          fileName: 'doc-$i.md',
+          bytes: utf8.encode('# Recovery topic $i\n\nAbout recovery.\n'),
+        );
+      }
+
+      final match = await call('get_training_guidance', {
+        'topic': 'recovery',
+      });
+      final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
+      final more = (match['more_matches'] as List).cast<Map<String, dynamic>>();
+
+      expect(matches, hasLength(3));
+      expect(more, isNotEmpty);
+    },
+  );
+
+  test(
+    'get_training_guidance reports nothing available with no bundled or '
+    'imported reference',
+    () async {
+      final empty = TrainingDataTools(
+        wellnessRepository: wellnessRepository,
+        activitiesRepository: activitiesRepository,
+        eventsRepository: eventsRepository,
+        plansRepository: PlansRepository(database: database),
+        syncStateRepository: syncStateRepository,
+        clock: () => now,
+        loadTrainingGuidance: () async => throw StateError('no asset'),
+        knowledgeLibraryRepository: knowledgeLibrary,
+      );
+      final tool = empty.build().firstWhere(
+        (t) => t.name == 'get_training_guidance',
+      );
+      final output = await tool.invoke(tool.getInputFromJson(const {}));
+      final result = jsonDecode(output as String) as Map<String, dynamic>;
+
+      expect(result['error'], contains('More'));
+    },
+  );
 
   test('a malformed date comes back as a readable error, not an exception',
       () async {

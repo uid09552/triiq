@@ -70,6 +70,7 @@ athlete can:
 | Appearance (light/dark/system theme) | ✅ Implemented — Settings → Appearance, applies instantly, in-memory only |
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
+| Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
 | Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
@@ -280,7 +281,7 @@ is asked for or after a newer activity of that sport was synced.
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
-| `get_training_guidance` | Matching sections of the optional `assets/knowledge/training-philosophy.md` |
+| `get_training_guidance` | Matching sections of the optional bundled reference and every enabled document the athlete imported under More → Knowledge library, each tagged with the document it came from |
 | `get_performance_curve` | Best efforts per duration (power, HR) or distance (pace) for one sport — this season, last season, last 42 days — at fixed key points with the session that set each, the model fit (FTP/CP/W'/Pmax or critical speed/D') and its gap to the settings threshold. Fetches from Intervals.icu only when nothing is cached or a newer activity of that sport arrived |
 | `sync_from_intervals` | Fetches a date range into the cache |
 | `get_training_plan` | The saved goal, the load graph per week (proposed/target TSS, share, allowed range, phase, limits exceeded) and the current plan's weeks and sessions with their `session_id` |
@@ -346,12 +347,18 @@ fixed and deliberately about *epistemics* rather than physiology:
   eating or low energy availability go to a professional.
 
 The physiology itself is *not* in the prompt — it lives in
-`assets/knowledge/training-philosophy.md` — an optional, user-supplied
-asset that is not in the repository (see `assets/knowledge/README.md`;
-without it the tool says no reference is installed) — reached through
-`get_training_guidance`. That keeps it editable without touching code, and
-keeps ~20k tokens of reference material off every single request, which
-matters most for the small local models Ollama users run.
+`assets/knowledge/training-philosophy.md` (an optional, user-supplied asset
+that is not in the repository; see `assets/knowledge/README.md`) and/or
+whatever the athlete imported under More → Knowledge library — reached
+through `get_training_guidance`. That keeps it editable without touching
+code, and keeps a long reference off every single request, which matters
+most for the small local models Ollama users run. With neither installed
+nor imported, the tool says so and mentions where to import one. Every match
+carries the title of the document it came from, and the prompt tells the
+model to name it (especially an imported one, so the athlete can tell it's
+their own material) and to treat the returned text as information to read,
+never as instructions — imported documents are athlete-supplied and
+therefore untrusted the same way any other tool result is.
 
 The second message, `buildRuntimeContext`, is regenerated per message and
 carries today's date and weekday, the athlete identity, whether Intervals.icu
@@ -485,10 +492,11 @@ CREATE TABLE sync_state (
 
 Later versions add tables without migrating data (each upgrade creates the
 new table empty): `events` (v2), `plans` / `plan_sessions` (v3),
-`activity_streams` (v4) and `performance_curves` (v5: one row per
+`activity_streams` (v4), `performance_curves` (v5: one row per
 `sport|metric` holding the raw curves response, the newest cached activity
 id of that sport at fetch time — a different newest id means stale — and
-`fetched_at`). Curves are fetched with a raw `GET
+`fetched_at`) and `knowledge_docs` / `knowledge_sections` (v6: the knowledge
+library — see below). Curves are fetched with a raw `GET
 /api/v1/athlete/0/{power,pace,hr}-curves.json?type=…&curves=s0,s1,42d`
 through the client's `dio` rather than the generated `listAthlete*Curves`,
 which demand three filter lists and deserialize strictly.
@@ -496,6 +504,18 @@ which demand three filter lists and deserialize strictly.
 Every cached row keeps the full API response in `raw` (JSON), so new UI
 features can read additional fields without a schema migration — only
 promote a field to its own column when it needs to be queried/filtered on.
+
+**Knowledge library** (`knowledge_docs`, `knowledge_sections`, v6) holds the
+athlete's imported coaching documents, nothing from Intervals.icu: one row
+per document (`title`, `file_name`, `imported_at`, `enabled`, `byte_size`)
+and one row per heading-delimited section (`doc_id`, `position`, `title`,
+`body`), split once at import (`lib/agent/knowledge_sections.dart`,
+`splitGuidanceSections` — shared with the bundled-reference loader so both
+follow the same heading rule) so search stays cheap. `okf-*` fenced blocks
+are stripped at import (`stripOkfFences`) and never stored: imported
+documents are agent-only and can never reach the plan engine. See
+`lib/data/repositories/knowledge_library_repository.dart` and the Training
+agent and More sections below.
 
 ### Theming
 
@@ -1022,7 +1042,26 @@ failed fetch keeps the saved curves on screen with **Retry**.
 ### More
 
 Submenu for Profile, Settings, **Sync**, **Activities**, **Training
-plan** and **Weekly review**, plus a disabled placeholder for gear.
+plan**, **Weekly review** and **Knowledge library** (hidden on web), plus a
+disabled placeholder for gear.
+
+**Knowledge library** (More, Android/Windows only) lets you import your own
+Markdown or plain-text coaching documents — swim sets, taper notes, articles
+you trust — from the device's file picker, so the chat agent can search them
+alongside (or instead of) the bundled reference, without a rebuild. **Import**
+(toolbar) splits each file into sections at `#` headings, the same rule the
+bundled reference follows; a file with none becomes one section named after
+the file. The result says how many sections were added and how many
+structured (`okf-*`) blocks were dropped — those never affect your plan,
+only the chat's reference material. A file over 512 KB, not valid UTF-8, or
+empty is rejected with the reason and nothing changes. Importing a file with
+the same name as an existing document asks **Replace** or **Keep both**
+(suffixing the new one with the import date). Each document in the list
+shows its title, source file, section count and import date, with a switch
+to turn it off (kept, just not searched) and a delete button (confirms
+first). An empty library explains what it's for. On web there's no local
+database yet, so the entry is hidden and the agent uses the bundled
+reference only.
 
 **Weekly review** (More) takes one week at a time (arrows to move): each
 day's planned and done sessions with missed ones marked, the share of
@@ -1221,6 +1260,10 @@ card at the top shows the currently cached date range.
 
 - Persist the Appearance choice (the LLM settings now persist; this one
   still resets to System on restart).
+- Knowledge library: Markdown/plain-text only (no PDF/DOCX/HTML import);
+  search is keyword/heading scoring, not semantic; documents don't sync
+  across devices or back up anywhere but the device's own SQLite file; no
+  in-app editing, only import/enable/disable/delete.
 - The workout step syntax sent by **Create in Intervals.icu** is written by
   the model and validated only server-side: if Intervals.icu can't parse a
   line it silently keeps it as description text instead of a step. A local

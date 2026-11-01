@@ -11,6 +11,7 @@ import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/plans_repository.dart';
+import '../../data/repositories/knowledge_library_repository.dart';
 import '../../data/repositories/sync_state_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/readiness.dart';
@@ -25,6 +26,7 @@ import '../../plan/plan_inputs.dart';
 import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
+import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
 import 'plan_assistant_tools.dart';
 
@@ -50,6 +52,7 @@ class TrainingDataTools {
     SyncService? syncService,
     DateTime Function()? clock,
     Future<String> Function()? loadTrainingGuidance,
+    KnowledgeLibraryRepository? knowledgeLibraryRepository,
     KnowledgeRepository? knowledgeRepository,
     GoalStore? goalStore,
     PlanInputsLoader? planInputs,
@@ -80,7 +83,9 @@ class TrainingDataTools {
        _syncService = syncService ?? SyncService(),
        _clock = clock ?? DateTime.now,
        _loadTrainingGuidance =
-           loadTrainingGuidance ?? _loadTrainingGuidanceAsset;
+           loadTrainingGuidance ?? _loadTrainingGuidanceAsset,
+       _knowledgeLibrary =
+           knowledgeLibraryRepository ?? KnowledgeLibraryRepository();
 
   final IntervalsSession _session;
   final PerformanceCurvesRepository _performanceCurves;
@@ -93,6 +98,7 @@ class TrainingDataTools {
   final SyncService _syncService;
   final DateTime Function() _clock;
   final Future<String> Function() _loadTrainingGuidance;
+  final KnowledgeLibraryRepository _knowledgeLibrary;
   final KnowledgeRepository _knowledge;
   final GoalStore _goalStore;
   final PlanInputsLoader _planInputs;
@@ -889,48 +895,84 @@ class TrainingDataTools {
     });
   }
 
+  /// One guidance section plus the title of the document it came from.
+  static ({String document, GuidanceSection section}) _attributed(
+    String document,
+    GuidanceSection section,
+  ) => (document: document, section: section);
+
   Future<Map<String, dynamic>> _trainingGuidance(
     Map<String, dynamic> args,
   ) async {
     final topic = (args['topic'] as String?)?.trim() ?? '';
-    final String document;
+
+    // Bundled reference first, then every enabled imported document. Either
+    // source missing (no asset installed, or no local SQLite on web) just
+    // means fewer sections, not an error — the other can still answer.
+    final all = <({String document, GuidanceSection section})>[];
     try {
-      document = await _loadTrainingGuidance();
-    } catch (error) {
+      final document = await _loadTrainingGuidance();
+      for (final section in splitGuidanceSections(
+        document,
+        fallbackTitle: 'training-philosophy',
+      )) {
+        all.add(_attributed('Training reference', section));
+      }
+    } catch (_) {
+      // No bundled reference installed — imported documents may cover it.
+    }
+    try {
+      for (final match in await _knowledgeLibrary.enabledSections()) {
+        all.add(_attributed(match.document, match.section));
+      }
+    } catch (_) {
+      // e.g. web: no local SQLite — bundled reference only.
+    }
+
+    if (all.isEmpty) {
       return {
         'error':
-            'No training reference is installed '
-            '(assets/knowledge/training-philosophy.md). Answer from the '
-            'data and say that the reference is missing.',
+            'No training reference is available: nothing bundled and no '
+            'coaching documents imported. Answer from the data, and mention '
+            'that documents can be imported under More → Knowledge '
+            'library.',
       };
     }
 
-    final sections = _splitSections(document);
-    if (sections.isEmpty) {
-      return {'error': 'The training reference is empty.'};
-    }
-    if (topic.isEmpty) {
+    Map<String, dynamic> groupedListing(String note) {
+      final byDocument = <String, List<String>>{};
+      for (final entry in all) {
+        (byDocument[entry.document] ??= []).add(entry.section.title);
+      }
       return {
-        'sections': sections.map((s) => s.title).toList(),
-        'note': 'Call again with a topic to read one of these.',
+        'documents': [
+          for (final e in byDocument.entries)
+            {'document': e.key, 'sections': e.value},
+        ],
+        'note': note,
       };
     }
 
+    if (topic.isEmpty) {
+      return groupedListing('Call again with a topic to read one of these.');
+    }
+
+    // Unicode-aware so German terms ("Schwelle", "Erholung") are searchable,
+    // not just ASCII ones.
     final terms = topic
         .toLowerCase()
-        .split(RegExp(r'[^a-z0-9]+'))
+        .split(RegExp(r'[^\p{L}\p{N}]+', unicode: true))
         .where((t) => t.length > 2)
         .toList();
     if (terms.isEmpty) {
-      return {
-        'sections': sections.map((s) => s.title).toList(),
-        'note': 'The topic had no searchable words; pick a section by name.',
-      };
+      return groupedListing(
+        'The topic had no searchable words; pick a section by name.',
+      );
     }
 
     final scored =
-        sections
-            .map((section) => (section: section, score: section.score(terms)))
+        all
+            .map((entry) => (entry: entry, score: entry.section.score(terms)))
             .where((match) => match.score > 0)
             .toList()
           ..sort((a, b) => b.score.compareTo(a.score));
@@ -939,24 +981,34 @@ class TrainingDataTools {
       return {
         'topic': topic,
         'matches': <String>[],
-        'available_sections': sections.map((s) => s.title).toList(),
+        'available_sections': [for (final e in all) e.section.title],
         'note': 'Nothing matched. Pick one of the available sections.',
       };
     }
 
-    return {
+    return _compact({
       'topic': topic,
-      'source': "the athlete's own training reference",
       'matches': scored
           .take(3)
           .map(
             (match) => {
-              'title': match.section.title,
-              'text': _truncate(match.section.body, 4000),
+              'title': match.entry.section.title,
+              'text': _truncate(match.entry.section.body, 4000),
+              'document': match.entry.document,
             },
           )
           .toList(),
-    };
+      'more_matches': scored
+          .skip(3)
+          .take(10)
+          .map(
+            (match) => {
+              'title': match.entry.section.title,
+              'document': match.entry.document,
+            },
+          )
+          .toList(),
+    });
   }
 
   Future<Map<String, dynamic>> _generatePlan(Map<String, dynamic> args) async {
@@ -1330,32 +1382,6 @@ class TrainingDataTools {
   static Future<String> _loadTrainingGuidanceAsset() =>
       rootBundle.loadString('assets/knowledge/training-philosophy.md');
 
-  /// Splits the reference document on its level-1 headings.
-  static List<_GuidanceSection> _splitSections(String document) {
-    final sections = <_GuidanceSection>[];
-    String? title;
-    final body = StringBuffer();
-
-    void flush() {
-      final current = title;
-      if (current != null && body.isNotEmpty) {
-        sections.add(_GuidanceSection(current, body.toString().trim()));
-      }
-      body.clear();
-    }
-
-    for (final line in const LineSplitter().convert(document)) {
-      if (line.startsWith('# ')) {
-        flush();
-        title = line.substring(2).trim();
-      } else if (title != null) {
-        body.writeln(line);
-      }
-    }
-    flush();
-    return sections;
-  }
-
   /// Drops nulls and empty collections so tool output stays readable.
   static Map<String, dynamic> _compact(Map<String, dynamic> map) {
     final result = <String, dynamic>{};
@@ -1419,27 +1445,6 @@ class _Range {
   final String start;
   final String end;
   final String? error;
-}
-
-class _GuidanceSection {
-  _GuidanceSection(this.title, this.body);
-
-  final String title;
-  final String body;
-
-  /// Heading matches count for more than body matches: a section titled
-  /// "Recovery Weeks" is a better answer to "recovery week" than one that
-  /// merely mentions the phrase.
-  int score(List<String> terms) {
-    final lowerTitle = title.toLowerCase();
-    final lowerBody = body.toLowerCase();
-    var total = 0;
-    for (final term in terms) {
-      if (lowerTitle.contains(term)) total += 5;
-      total += term.allMatches(lowerBody).length.clamp(0, 5);
-    }
-    return total;
-  }
 }
 
 /// One week or month of aggregated training.

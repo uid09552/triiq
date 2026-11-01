@@ -622,10 +622,95 @@ class AppLocalizationsDe extends AppLocalizations {
   String get trainingPlansTitle => 'Trainingspläne';
 
   @override
+  String get moreKnowledgeSubtitle =>
+      'Deine eigenen Trainingsunterlagen, die der Assistent durchsuchen kann';
+
+  @override
   String get gearTitle => 'Ausrüstung';
 
   @override
   String get comingSoon => 'Demnächst verfügbar';
+
+  @override
+  String get knowledgeLibraryTitle => 'Wissensbibliothek';
+
+  @override
+  String get knowledgeImportButton => 'Importieren';
+
+  @override
+  String get knowledgeEmptyTitle => 'Noch keine Dokumente';
+
+  @override
+  String get knowledgeEmptyBody =>
+      'Importiere Markdown- oder Textdateien mit deinen eigenen Trainingsnotizen, Schwimm-Sätzen oder Taper-Leitfäden. Der Chat-Assistent durchsucht sie zusätzlich zur eingebauten Referenz — sie ändern nie deinen Trainingsplan.';
+
+  @override
+  String knowledgeSectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Abschnitte',
+      one: '1 Abschnitt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String knowledgeImportedOn(String date) {
+    return 'Importiert am $date';
+  }
+
+  @override
+  String get knowledgeDisabledLabel => 'Deaktiviert';
+
+  @override
+  String get knowledgeDeleteTitle => 'Dieses Dokument löschen?';
+
+  @override
+  String knowledgeDeleteConfirm(String title) {
+    return '„$title“ und seine Abschnitte werden von diesem Gerät entfernt.';
+  }
+
+  @override
+  String get knowledgeDuplicateTitle => 'Bereits importiert';
+
+  @override
+  String knowledgeDuplicateBody(String fileName) {
+    return 'Ein Dokument namens „$fileName“ existiert bereits.';
+  }
+
+  @override
+  String get knowledgeReplaceButton => 'Ersetzen';
+
+  @override
+  String get knowledgeKeepBothButton => 'Beide behalten';
+
+  @override
+  String knowledgeImportSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Abschnitte importiert',
+      one: '1 Abschnitt importiert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String knowledgeImportIgnoredBlocks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count strukturierte Blöcke ignoriert',
+      one: '1 strukturierter Block ignoriert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String knowledgeImportRejected(String fileName, String reason) {
+    return '$fileName konnte nicht importiert werden: $reason';
+  }
 
   @override
   String get syncNotConnectedTitle => 'Nicht verbunden';

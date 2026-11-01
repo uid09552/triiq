@@ -55,7 +55,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 5,
+      version: 6,
       onUpgrade: (db, oldVersion, newVersion) async {
         // v2 added planned calendar entries. Existing caches only held what
         // already happened, so the table is simply created empty and filled
@@ -79,6 +79,13 @@ class AppDatabase {
         // opens: nothing to migrate.
         if (oldVersion < 5) {
           await db.execute(_createPerformanceCurvesTable);
+        }
+        // v6 added the knowledge library (athlete-imported coaching
+        // documents): nothing to migrate, the tables start empty.
+        if (oldVersion < 6) {
+          await db.execute(_createKnowledgeDocsTable);
+          await db.execute(_createKnowledgeSectionsTable);
+          await db.execute(_createKnowledgeSectionsDocIndex);
         }
       },
       onCreate: (db, version) async {
@@ -117,6 +124,9 @@ class AppDatabase {
         await db.execute(_createPlanSessionsPlanIndex);
         await db.execute(_createActivityStreamsTable);
         await db.execute(_createPerformanceCurvesTable);
+        await db.execute(_createKnowledgeDocsTable);
+        await db.execute(_createKnowledgeSectionsTable);
+        await db.execute(_createKnowledgeSectionsDocIndex);
         await db.execute('''
           CREATE TABLE sync_state (
             scope TEXT PRIMARY KEY,
@@ -212,6 +222,34 @@ class AppDatabase {
 
   static const _createPlanSessionsPlanIndex =
       'CREATE INDEX idx_plan_sessions_plan ON plan_sessions(plan_id)';
+
+  /// An athlete-imported coaching document (Markdown/text) — agent-only
+  /// reference material, never read by the plan engine.
+  static const _createKnowledgeDocsTable = '''
+    CREATE TABLE knowledge_docs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      file_name TEXT NOT NULL,
+      imported_at INTEGER NOT NULL,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      byte_size INTEGER NOT NULL
+    )
+  ''';
+
+  /// One heading-delimited section of an imported document, split at
+  /// import time so search stays cheap.
+  static const _createKnowledgeSectionsTable = '''
+    CREATE TABLE knowledge_sections (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      doc_id INTEGER NOT NULL,
+      position INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      body TEXT NOT NULL
+    )
+  ''';
+
+  static const _createKnowledgeSectionsDocIndex =
+      'CREATE INDEX idx_knowledge_sections_doc ON knowledge_sections(doc_id)';
 
   Future<String> _resolvePath() async {
     if (_overridePath != null) return _overridePath;

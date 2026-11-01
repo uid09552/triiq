@@ -192,7 +192,7 @@ void main() {
 
       final database = AppDatabase.atPath(path);
       final db = await database.database;
-      expect(await db.getVersion(), 5);
+      expect(await db.getVersion(), 6);
       expect(await db.query('performance_curves'), isEmpty);
       await database.close();
     });

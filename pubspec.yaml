@@ -81,6 +81,10 @@ dependencies:
   intl: ^0.20.2
   workmanager: ^0.10.10
 
+  # Picking files to import into the knowledge library (lib/screens/knowledge)
+  # — Android and Windows only, per CLAUDE.md's supported-targets note.
+  file_selector: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

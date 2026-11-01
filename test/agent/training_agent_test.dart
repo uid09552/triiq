@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:langchain_core/chat_models.dart';
 import 'package:langchain_core/language_models.dart';
 import 'package:langchain_core/prompts.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/agent/llm_settings.dart';
 import 'package:triiq/agent/system_prompt.dart';
 import 'package:triiq/agent/tools/training_data_tools.dart';
 import 'package:triiq/agent/training_agent.dart';
+import 'package:triiq/data/db/app_database.dart';
+import 'package:triiq/data/repositories/knowledge_library_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 
 /// The tool-calling loop, driven by a scripted model so the assertions are
@@ -15,6 +21,24 @@ import 'package:triiq/data/repositories/sync_state_repository.dart';
 void main() {
   late _ScriptedChatModel model;
   late TrainingAgent agent;
+  late Directory tempDir;
+  late AppDatabase database;
+
+  // get_training_guidance now also reads the knowledge library (empty here,
+  // same as "nothing imported"); give it a throwaway temp database rather
+  // than the default AppDatabase.instance, which would otherwise touch a
+  // real triiq.db in this process's working directory.
+  setUp(() async {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    tempDir = await Directory.systemTemp.createTemp('triiq_training_agent');
+    database = AppDatabase.atPath(p.join(tempDir.path, 'triiq.db'));
+  });
+
+  tearDown(() async {
+    await database.close();
+    await tempDir.delete(recursive: true);
+  });
 
   TrainingAgent buildAgent(List<AIChatMessage> turns) {
     model = _ScriptedChatModel(turns);
@@ -23,6 +47,9 @@ void main() {
       tools: TrainingDataTools(
         syncStateRepository: _EmptySyncStateRepository(),
         loadTrainingGuidance: () async => '# 1. Topic\n\nBody.\n',
+        knowledgeLibraryRepository: KnowledgeLibraryRepository(
+          database: database,
+        ),
         clock: () => DateTime(2026, 8, 30),
       ),
       clock: () => DateTime(2026, 8, 30),

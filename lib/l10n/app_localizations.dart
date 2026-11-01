@@ -1160,6 +1160,12 @@ abstract class AppLocalizations {
   /// **'Training plans'**
   String get trainingPlansTitle;
 
+  /// No description provided for @moreKnowledgeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own coaching documents the agent can search'**
+  String get moreKnowledgeSubtitle;
+
   /// No description provided for @gearTitle.
   ///
   /// In en, this message translates to:
@@ -1171,6 +1177,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming soon'**
   String get comingSoon;
+
+  /// No description provided for @knowledgeLibraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge library'**
+  String get knowledgeLibraryTitle;
+
+  /// No description provided for @knowledgeImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get knowledgeImportButton;
+
+  /// No description provided for @knowledgeEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents yet'**
+  String get knowledgeEmptyTitle;
+
+  /// No description provided for @knowledgeEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Markdown or text files with your own coaching notes, swim sets or taper guides. The chat agent searches them alongside the built-in reference — they never change your training plan.'**
+  String get knowledgeEmptyBody;
+
+  /// No description provided for @knowledgeSectionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 section} other{{count} sections}}'**
+  String knowledgeSectionCount(int count);
+
+  /// No description provided for @knowledgeImportedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {date}'**
+  String knowledgeImportedOn(String date);
+
+  /// No description provided for @knowledgeDisabledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get knowledgeDisabledLabel;
+
+  /// No description provided for @knowledgeDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this document?'**
+  String get knowledgeDeleteTitle;
+
+  /// No description provided for @knowledgeDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" and its sections will be removed from this device.'**
+  String knowledgeDeleteConfirm(String title);
+
+  /// No description provided for @knowledgeDuplicateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already imported'**
+  String get knowledgeDuplicateTitle;
+
+  /// No description provided for @knowledgeDuplicateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A document named \"{fileName}\" already exists.'**
+  String knowledgeDuplicateBody(String fileName);
+
+  /// No description provided for @knowledgeReplaceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get knowledgeReplaceButton;
+
+  /// No description provided for @knowledgeKeepBothButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep both'**
+  String get knowledgeKeepBothButton;
+
+  /// No description provided for @knowledgeImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 section imported} other{{count} sections imported}}'**
+  String knowledgeImportSuccess(int count);
+
+  /// No description provided for @knowledgeImportIgnoredBlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 structured block ignored} other{{count} structured blocks ignored}}'**
+  String knowledgeImportIgnoredBlocks(int count);
+
+  /// No description provided for @knowledgeImportRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t import {fileName}: {reason}'**
+  String knowledgeImportRejected(String fileName, String reason);
 
   /// No description provided for @syncNotConnectedTitle.
   ///
