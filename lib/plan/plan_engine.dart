@@ -476,7 +476,16 @@ class PlanEngine {
       );
       final load = weekLoad * entry.fraction;
       final targetMinutes = _roundTo5(load / template.tssPerHour * 60);
-      final built = _renderSteps(template.steps, targetMinutes, entry.sport);
+      final technique = _isTechniqueSession(entry, phase, weekIndex);
+      final drill = technique
+          ? _techniqueDrills[(weekIndex ~/ 2) % _techniqueDrills.length]
+          : null;
+      final built = _renderSteps(
+        template.steps,
+        targetMinutes,
+        entry.sport,
+        techniqueDrill: drill,
+      );
       final minutes = built.minutes;
       sessions.add(
         PlanSession(
@@ -484,16 +493,39 @@ class PlanEngine {
           date: _plusDays(weekStart, days[n] - 1),
           slot: entry.slot,
           templateId: template.id,
-          name: template.name,
+          name: technique ? 'Technique swim' : template.name,
           sport: entry.sport,
           minutes: minutes,
           load: (minutes / 60 * template.tssPerHour).round(),
           lowMinutes: minutes * template.lowShare,
           description: built.description,
+          techniqueFocus: technique,
         ),
       );
     }
   }
+
+  /// Named drills cycled through across technique weeks (by week index, two
+  /// weeks apart since the session itself only occurs every other week) so
+  /// consecutive technique sessions don't repeat — used when no richer AI
+  /// content is available (see `lib/plan/session_content.dart`).
+  static const _techniqueDrills = [
+    'Catch-up drill',
+    'Fingertip drag',
+    'Bilateral breathing',
+    'High-elbow catch',
+  ];
+
+  /// The swim Z2 session, on every other build/build_plus/peak week, is a
+  /// technique session rather than plain aerobic swim — never in a recovery
+  /// or taper week, and never the swim interval session (the week's one
+  /// hard swim effort). Deterministic so it's testable with no AI involved;
+  /// what the session actually *says* is the content-generation pass's job.
+  static bool _isTechniqueSession(_Entry entry, String phase, int weekIndex) =>
+      entry.sport == 'Swim' &&
+      entry.slot == SessionSlot.z2 &&
+      const {buildPhase, 'build_plus', 'peak'}.contains(phase) &&
+      weekIndex.isEven;
 
   /// [day] plus [days] calendar days at midnight — not 24-hour steps, which
   /// land on 23:00 of the day before once a clock change is in between.
@@ -660,8 +692,9 @@ class PlanEngine {
   ({String description, int minutes}) _renderSteps(
     List<StepSpec> steps,
     int targetMinutes,
-    String sport,
-  ) {
+    String sport, {
+    String? techniqueDrill,
+  }) {
     final suffix = sport == 'Run' || sport == 'Swim' ? ' Pace' : '';
     String pct(Intensity i) => '${i.forSport(sport).round()}%$suffix';
 
@@ -690,17 +723,23 @@ class PlanEngine {
         ? math.max(5, targetMinutes - fixedMinutes - repeatMinutes)
         : 0;
 
-    final lines = <String>[];
+    final lines = <String>[
+      if (techniqueDrill != null) 'Technique focus: $techniqueDrill.',
+    ];
+    final drillSuffix = techniqueDrill == null ? '' : ' — $techniqueDrill';
     for (final step in steps) {
       switch (step) {
         case FixedStep():
           lines.add('- ${step.effort.minutes}m ${pct(step.effort.intensity)}');
         case FillStep():
-          lines.add('- ${fillMinutes}m ${pct(step.intensity)}');
+          lines.add('- ${fillMinutes}m ${pct(step.intensity)}$drillSuffix');
         case RepeatStep():
           lines
             ..add('${repeatCount}x')
-            ..add('  - ${step.work.minutes}m ${pct(step.work.intensity)}')
+            ..add(
+              '  - ${step.work.minutes}m '
+              '${pct(step.work.intensity)}$drillSuffix',
+            )
             ..add('  - ${step.rest.minutes}m ${pct(step.rest.intensity)}');
       }
     }

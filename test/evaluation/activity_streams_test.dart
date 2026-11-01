@@ -28,6 +28,19 @@ void main() {
             'CREATE TABLE activities (id TEXT PRIMARY KEY, date TEXT)',
           );
           await db.insert('activities', {'id': 'a1', 'date': '2026-11-01'});
+          // A real v3 database already has plan_sessions; the v7 migration
+          // alters it, so the fixture needs it too.
+          await db.execute('''
+            CREATE TABLE plan_sessions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, plan_id INTEGER NOT NULL,
+              week_index INTEGER NOT NULL, date TEXT NOT NULL,
+              slot TEXT NOT NULL, template_id TEXT NOT NULL,
+              name TEXT NOT NULL, sport TEXT NOT NULL,
+              minutes INTEGER NOT NULL, load INTEGER NOT NULL,
+              low_minutes REAL NOT NULL, description TEXT NOT NULL,
+              intervals_event_id TEXT, calendar_event_id TEXT,
+              status TEXT NOT NULL)
+          ''');
         },
       ),
     );

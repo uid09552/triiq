@@ -183,16 +183,31 @@ void main() {
         path,
         options: OpenDatabaseOptions(
           version: 4,
-          onCreate: (db, _) => db.execute(
-            'CREATE TABLE activities (id TEXT PRIMARY KEY, date TEXT)',
-          ),
+          onCreate: (db, _) async {
+            await db.execute(
+              'CREATE TABLE activities (id TEXT PRIMARY KEY, date TEXT)',
+            );
+            // A real v4 database already has plan_sessions (added at v3);
+            // the v7 migration below alters it, so the fixture needs it too.
+            await db.execute('''
+              CREATE TABLE plan_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, plan_id INTEGER NOT NULL,
+                week_index INTEGER NOT NULL, date TEXT NOT NULL,
+                slot TEXT NOT NULL, template_id TEXT NOT NULL,
+                name TEXT NOT NULL, sport TEXT NOT NULL,
+                minutes INTEGER NOT NULL, load INTEGER NOT NULL,
+                low_minutes REAL NOT NULL, description TEXT NOT NULL,
+                intervals_event_id TEXT, calendar_event_id TEXT,
+                status TEXT NOT NULL)
+            ''');
+          },
         ),
       );
       await old.close();
 
       final database = AppDatabase.atPath(path);
       final db = await database.database;
-      expect(await db.getVersion(), 6);
+      expect(await db.getVersion(), 7);
       expect(await db.query('performance_curves'), isEmpty);
       await database.close();
     });

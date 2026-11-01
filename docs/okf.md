@@ -72,7 +72,7 @@ athlete can:
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
-| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
+| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`) decides every number and date, including a swim **technique session** every other build/peak week; its content (a short description plus the detailed, set-by-set text) is then written by the athlete's configured LLM provider when one is set up, `lib/plan/session_content.dart`, falling back to plain deterministic text otherwise or on any failure; **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -1180,6 +1180,21 @@ tiles (minutes and TSS; tap one for its steps). Triathlon weeks hold at
 most two sessions a day by default (your limit if you set one) with the long ride and long run on different days;
 with few training days Z2 sessions are dropped first.
 
+**AI-authored session content.** Every number — date, sport, slot, minutes,
+load — is always the deterministic engine's; separately, each session's
+name and description (a short one-line summary, shown next to the name
+where the preview and the week grid otherwise show only it, and a detailed
+set-by-set description, as today) are written by whichever LLM provider
+you've configured in Settings → LLM provider (Claude or Ollama). No
+provider configured, a slow or failing one, or a response that doesn't
+parse: generation still succeeds, and the affected sessions keep the
+engine's own plain text instead — nothing about plan generation requires an
+LLM. In a swim-including plan, the swim Z2 session on every other build/
+build_plus/peak week is a **technique session** (named drills — catch-up
+drill, fingertip drag, bilateral breathing, high-elbow catch — instead of
+plain effort percentages); which weeks get one is always the engine's
+choice, never the model's.
+
 ### Activities
 
 Every cached activity, most recent first — filtered to one sport when you
@@ -1320,6 +1335,16 @@ card at the top shows the currently cached date range.
   swim pace and the engine's own TSS estimate, which is rougher than for
   ride and run. Sessions can't be edited individually in the week calendar
   (only moved in the preview).
+- AI-authored session content: like the step syntax **Create in
+  Intervals.icu** writes, a technique session's drill text isn't parsed back
+  against Intervals.icu's own step syntax, only sanity-checked locally (field
+  length, roughly one line per 10 planned minutes). The short description
+  shows in the generate-time preview and the week grid's accessibility label;
+  the Calendar's day view still shows a plan session's name only — reaching
+  it there would need a lookup back to the session's own row, not just the
+  synced Intervals.icu event. Regenerating a session's content (e.g. after
+  switching provider) needs regenerating the whole plan; a single already-
+  sent session can't be re-authored on its own.
 - Persist chat history, so a conversation survives an app restart.
 - Expose the agent's tools over MCP as well as in-process, so an external
   client (Claude Desktop, an editor) could query the same cache. The tool

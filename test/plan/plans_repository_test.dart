@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -130,6 +131,87 @@ void main() {
     expect(activities.single.name, 'Old run');
     expect(plans.id, isNotNull);
   });
+
+  test(
+    'upgrading a v6 database keeps an existing plan session readable, '
+    'defaulting its new columns',
+    () async {
+      final path = p.join(dir.path, 'v6.db');
+      final old = await databaseFactoryFfi.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          version: 6,
+          onCreate: (db, _) async {
+            await db.execute('''
+              CREATE TABLE plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, goal_type TEXT NOT NULL,
+                sport TEXT NOT NULL, start_date TEXT NOT NULL,
+                baseline_load REAL NOT NULL, status TEXT NOT NULL,
+                meta TEXT NOT NULL, created_at INTEGER NOT NULL)
+            ''');
+            await db.execute('''
+              CREATE TABLE plan_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, plan_id INTEGER NOT NULL,
+                week_index INTEGER NOT NULL, date TEXT NOT NULL,
+                slot TEXT NOT NULL, template_id TEXT NOT NULL,
+                name TEXT NOT NULL, sport TEXT NOT NULL,
+                minutes INTEGER NOT NULL, load INTEGER NOT NULL,
+                low_minutes REAL NOT NULL, description TEXT NOT NULL,
+                intervals_event_id TEXT, calendar_event_id TEXT,
+                status TEXT NOT NULL)
+            ''');
+            final planId = await db.insert('plans', {
+              'goal_type': 'long_distance',
+              'sport': 'Run',
+              'start_date': '2026-08-31',
+              'baseline_load': 300.0,
+              'status': 'draft',
+              'meta': jsonEncode({
+                'weeks': [
+                  {
+                    'index': 0,
+                    'phase': 'build',
+                    'startDate': '2026-08-31',
+                    'targetLoad': 300.0,
+                    'requestedLoad': 300.0,
+                    'limit': 'none',
+                    'lowIntensityTarget': 0.8,
+                    'lowIntensityTolerance': 0.05,
+                  },
+                ],
+              }),
+              'created_at': 1,
+            });
+            await db.insert('plan_sessions', {
+              'plan_id': planId,
+              'week_index': 0,
+              'date': '2026-08-31',
+              'slot': 'z2',
+              'template_id': 'long_distance.z2',
+              'name': 'Z2 endurance',
+              'sport': 'Run',
+              'minutes': 50,
+              'load': 42,
+              'low_minutes': 50.0,
+              'description': '- 10m 60%',
+              'status': 'planned',
+            });
+          },
+        ),
+      );
+      await old.close();
+
+      final upgraded = AppDatabase.atPath(path);
+      addTearDown(upgraded.close);
+      final plan = await PlansRepository(database: upgraded).getCurrent();
+
+      expect(await upgraded.database.then((db) => db.getVersion()), 7);
+      final session = plan!.weeks.single.sessions.single;
+      expect(session.name, 'Z2 endurance');
+      expect(session.shortDescription, 'Z2 endurance · 50min');
+      expect(session.techniqueFocus, isFalse);
+    },
+  );
 
   test('the goal is stored and read back', () async {
     SharedPreferences.setMockInitialValues({});

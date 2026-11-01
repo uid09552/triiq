@@ -127,12 +127,27 @@ class _PlanPreviewSheetState extends State<PlanPreviewSheet> {
                             semanticLabel: sportLabel(l10n, session.sport),
                           ),
                           title: Text(session.name),
-                          subtitle: Text(
-                            l10n.planSessionMinutes(
-                              session.minutes,
-                              session.load,
-                            ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l10n.planSessionMinutes(
+                                  session.minutes,
+                                  session.load,
+                                ),
+                              ),
+                              Text(
+                                session.shortDescription,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ),
+                          isThreeLine: true,
                           trailing: TextButton(
                             onPressed: () => _moveSession(week, session),
                             child: Text(dateFormat.format(session.date)),

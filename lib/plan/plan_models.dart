@@ -391,7 +391,7 @@ enum WeekLimit { none, weeklyIncrease, ctlRamp, hours }
 
 /// One session slot of a generated plan.
 class PlanSession {
-  const PlanSession({
+  PlanSession({
     this.id,
     required this.weekIndex,
     required this.date,
@@ -403,10 +403,14 @@ class PlanSession {
     required this.load,
     required this.lowMinutes,
     required this.description,
+    String? shortDescription,
+    this.techniqueFocus = false,
     this.intervalsEventId,
     this.calendarEventId,
     this.status = PlanSessionStatus.planned,
-  });
+  }) : shortDescription = (shortDescription == null || shortDescription.isEmpty)
+           ? '$name · ${minutes}min'
+           : shortDescription;
 
   final int? id;
   final int weekIndex;
@@ -423,8 +427,19 @@ class PlanSession {
   /// Minutes of [minutes] at low intensity (the 80/20 numerator).
   final double lowMinutes;
 
-  /// The workout in Intervals.icu step syntax.
+  /// The workout in Intervals.icu step syntax — the full, detailed set
+  /// information. Sent to Intervals.icu as-is and shown in the session
+  /// detail sheet.
   final String description;
+
+  /// A one-line summary shown wherever only the name fits (week grid,
+  /// Calendar day view) — always set, falling back to a derived line
+  /// (`"<name> · <minutes>min"`) when no richer content was generated.
+  final String shortDescription;
+
+  /// Whether the plan engine deterministically chose this swim session to
+  /// be about technique (drills) rather than plain aerobic/threshold effort.
+  final bool techniqueFocus;
 
   final String? intervalsEventId;
   final String? calendarEventId;
@@ -433,6 +448,8 @@ class PlanSession {
   PlanSession copyWith({
     int? id,
     String? description,
+    String? shortDescription,
+    String? name,
     DateTime? date,
     String? intervalsEventId,
     String? calendarEventId,
@@ -443,12 +460,14 @@ class PlanSession {
     date: date ?? this.date,
     slot: slot,
     templateId: templateId,
-    name: name,
+    name: name ?? this.name,
     sport: sport,
     minutes: minutes,
     load: load,
     lowMinutes: lowMinutes,
     description: description ?? this.description,
+    shortDescription: shortDescription ?? this.shortDescription,
+    techniqueFocus: techniqueFocus,
     intervalsEventId: intervalsEventId ?? this.intervalsEventId,
     calendarEventId: calendarEventId ?? this.calendarEventId,
     status: status ?? this.status,

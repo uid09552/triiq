@@ -574,6 +574,43 @@ void main() {
       }
     });
 
+    test('every other build week\'s swim Z2 session is technique-focused',
+        () {
+      final p = plan(tri(), loads: null);
+
+      for (var i = 0; i < p.weeks.length; i++) {
+        final technique = p.weeks[i].sessions.where((s) => s.techniqueFocus);
+        if (i.isEven) {
+          expect(technique, hasLength(1), reason: 'week $i');
+          final session = technique.single;
+          expect(session.sport, 'Swim');
+          expect(session.slot, SessionSlot.z2);
+          expect(session.name, 'Technique swim');
+          expect(session.description, contains('Technique focus:'));
+          expect(
+            session.shortDescription,
+            '${session.name} · ${session.minutes}min',
+          );
+        } else {
+          expect(technique, isEmpty, reason: 'week $i');
+        }
+      }
+    });
+
+    test('a recovery week never has a technique session, even at an even '
+        'week index', () {
+      final p = plan(tri().copyWith(loadFactors: [0.8]), loads: null);
+
+      expect(p.weeks[0].phase, 'recovery');
+      expect(p.weeks[0].sessions.where((s) => s.techniqueFocus), isEmpty);
+    });
+
+    test('a non-swim goal never has a technique session', () {
+      final p = plan(goal(weeks: 4));
+
+      expect(p.sessions.where((s) => s.techniqueFocus), isEmpty);
+    });
+
     test('at most two a day and the long ride and run on different days', () {
       for (final days in [
         {1, 3, 6},

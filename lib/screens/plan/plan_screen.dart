@@ -923,7 +923,8 @@ class _SessionTile extends StatelessWidget {
       button: true,
       label:
           '${sportLabel(label, session.sport)}, ${session.name}, '
-          '${label.planSessionMinutes(session.minutes, session.load)}',
+          '${label.planSessionMinutes(session.minutes, session.load)}, '
+          '${session.shortDescription}',
       excludeSemantics: true,
       child: Material(
         color: color.withValues(alpha: 0.14),

@@ -9,6 +9,7 @@ import 'plan_inputs.dart';
 import 'plan_models.dart';
 import 'plan_changes.dart';
 import 'plan_writer.dart';
+import 'session_content.dart';
 
 /// Everything the Plan screen does, in one place: generate a block from the
 /// cache, store it, write it to Intervals.icu, and take its future part off
@@ -21,11 +22,13 @@ class PlanService {
     ActivitiesRepository? activities,
     PlanWriter? writer,
     GoalStore? goals,
+    SessionContentGenerator? content,
   }) : knowledge = knowledge ?? KnowledgeRepository(),
        _inputs = inputs ?? PlanInputsLoader(),
        plans = plans ?? PlansRepository(),
        _activities = activities ?? ActivitiesRepository(),
-       goals = goals ?? GoalStore() {
+       goals = goals ?? GoalStore(),
+       _content = content ?? SessionContentGenerator() {
     this.writer =
         writer ??
         PlanWriter(workouts: IntervalsWorkoutService(), plans: this.plans);
@@ -36,6 +39,7 @@ class PlanService {
   final GoalStore goals;
   final PlanInputsLoader _inputs;
   final ActivitiesRepository _activities;
+  final SessionContentGenerator _content;
   late final PlanWriter writer;
 
   /// The Monday a new block should start on: next Monday, or this week's
@@ -76,13 +80,19 @@ class PlanService {
     final monday = start ?? defaultStart(now);
     final loaded = await knowledge.load();
     final inputs = await _inputs.load(monday);
-    return PlanEngine(loaded).generate(
+    final result = PlanEngine(loaded).generate(
       goal: goal,
       startDate: monday,
       recentWeeklyLoads: inputs.weeklyLoads,
       currentCtl: inputs.currentCtl,
       today: now,
     );
+    final plan = result.plan;
+    if (plan == null) return result;
+    // The deterministic engine already decided every number and which swim
+    // sessions are technique-focused; this only rewrites session text, and
+    // falls back to what the engine already produced on any failure.
+    return PlanResult.plan(await _content.enrich(plan));
   }
 
   /// Completed load per plan week (TSS), for target-versus-actual. Weeks

@@ -55,7 +55,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 6,
+      version: 7,
       onUpgrade: (db, oldVersion, newVersion) async {
         // v2 added planned calendar entries. Existing caches only held what
         // already happened, so the table is simply created empty and filled
@@ -86,6 +86,15 @@ class AppDatabase {
           await db.execute(_createKnowledgeDocsTable);
           await db.execute(_createKnowledgeSectionsTable);
           await db.execute(_createKnowledgeSectionsDocIndex);
+        }
+        // v7 added AI-authored session content: a short summary and a flag
+        // for the plan engine's deterministic swim technique rotation.
+        // Existing sessions get the column defaults, not a backfilled
+        // summary — they keep showing their name alone until replaced. Runs
+        // for any oldVersion < 7, including one that just created the table
+        // fresh above (always in its original, v3 shape) a few lines up.
+        if (oldVersion < 7) {
+          await _addPlanSessionContentColumns(db);
         }
       },
       onCreate: (db, version) async {
@@ -122,6 +131,7 @@ class AppDatabase {
         await db.execute(_createPlansTable);
         await db.execute(_createPlanSessionsTable);
         await db.execute(_createPlanSessionsPlanIndex);
+        await _addPlanSessionContentColumns(db);
         await db.execute(_createActivityStreamsTable);
         await db.execute(_createPerformanceCurvesTable);
         await db.execute(_createKnowledgeDocsTable);
@@ -222,6 +232,20 @@ class AppDatabase {
 
   static const _createPlanSessionsPlanIndex =
       'CREATE INDEX idx_plan_sessions_plan ON plan_sessions(plan_id)';
+
+  /// v7's two new `plan_sessions` columns, added the same way whether the
+  /// table was just created fresh (always in its original, v3 shape, above)
+  /// or already existed from an earlier version.
+  static Future<void> _addPlanSessionContentColumns(Database db) async {
+    await db.execute(
+      "ALTER TABLE plan_sessions ADD COLUMN short_description "
+      "TEXT NOT NULL DEFAULT ''",
+    );
+    await db.execute(
+      'ALTER TABLE plan_sessions ADD COLUMN technique_focus '
+      'INTEGER NOT NULL DEFAULT 0',
+    );
+  }
 
   /// An athlete-imported coaching document (Markdown/text) — agent-only
   /// reference material, never read by the plan engine.
