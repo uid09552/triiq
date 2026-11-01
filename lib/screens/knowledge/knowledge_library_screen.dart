@@ -156,6 +156,7 @@ class _KnowledgeLibraryScreenState extends State<KnowledgeLibraryScreen> {
         title: Text(l10n.knowledgeLibraryTitle),
         actions: [
           IconButton(
+            key: const ValueKey('knowledge-import-appbar-button'),
             tooltip: l10n.knowledgeImportButton,
             icon: _importing
                 ? const SizedBox(

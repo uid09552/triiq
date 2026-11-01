@@ -29,8 +29,14 @@ class _FakeFileSelector extends FileSelectorPlatform
   }) async => files;
 }
 
-XFile _file(String name, String text) =>
-    XFile.fromData(Uint8List.fromList(text.codeUnits), name: name);
+// cross_file's io.dart variant ignores the `name:` parameter (it's there
+// only to match the web constructor) and derives `.name` from `.path`'s
+// last segment instead — pass [name] as the path too so it round-trips.
+XFile _file(String name, String text) => XFile.fromData(
+  Uint8List.fromList(text.codeUnits),
+  name: name,
+  path: name,
+);
 
 void main() {
   late Directory dir;
@@ -93,12 +99,17 @@ void main() {
     ]);
     await pump(tester);
 
-    await tester.tap(find.byIcon(Icons.upload_file_outlined));
+    await tester.tap(
+      find.byKey(const ValueKey('knowledge-import-appbar-button')),
+    );
     await realWait(tester);
 
     expect(find.text('CSS test'), findsOneWidget);
     expect(find.text('swim-css.md'), findsOneWidget);
-    expect(find.textContaining('2 sections'), findsOneWidget);
+    // Matches both the tile's own line and the just-shown success snackbar;
+    // just confirm the tile's line is one of them.
+    expect(find.textContaining('2 sections'), findsWidgets);
+    expect(find.textContaining('2 sections ·'), findsOneWidget);
   });
 
   testWidgets('an oversized file is rejected with a message', (tester) async {
@@ -110,7 +121,9 @@ void main() {
     ]);
     await pump(tester);
 
-    await tester.tap(find.byIcon(Icons.upload_file_outlined));
+    await tester.tap(
+      find.byKey(const ValueKey('knowledge-import-appbar-button')),
+    );
     await realWait(tester);
 
     expect(find.textContaining("Couldn't import"), findsOneWidget);
@@ -174,7 +187,9 @@ void main() {
       ]);
       await pump(tester);
 
-      await tester.tap(find.byIcon(Icons.upload_file_outlined));
+      await tester.tap(
+        find.byKey(const ValueKey('knowledge-import-appbar-button')),
+      );
       await realWait(tester);
       expect(find.text('Already imported'), findsOneWidget);
 
