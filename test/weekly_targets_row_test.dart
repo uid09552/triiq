@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:triiq/data/models/local_activity.dart';
+import 'package:triiq/l10n/app_localizations.dart';
+import 'package:triiq/screens/settings/weekly_targets_settings.dart';
+import 'package:triiq/screens/today/weekly_targets_row.dart';
+import 'package:triiq/widgets/progress_ring.dart';
+
+LocalActivity _activity({required String type, required int movingTime}) =>
+    LocalActivity(
+      id: type,
+      date: '2026-10-26',
+      type: type,
+      name: null,
+      movingTime: movingTime,
+      distance: null,
+      trainingLoad: null,
+      raw: const {},
+      syncedAt: DateTime(2026, 10, 26),
+    );
+
+void main() {
+  late WeeklyTargetsSettings settings;
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    settings = WeeklyTargetsSettings.forTesting();
+    await settings.load();
+  });
+
+  Future<void> pump(
+    WidgetTester tester, {
+    List<LocalActivity> activities = const [],
+  }) => tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: Scaffold(
+        body: WeeklyTargetsRow(
+          weekActivities: activities,
+          settings: settings,
+        ),
+      ),
+    ),
+  );
+
+  testWidgets('hidden when no target is set at all', (tester) async {
+    await pump(tester);
+
+    expect(find.byType(ProgressRing), findsNothing);
+  });
+
+  testWidgets('hidden when Show on Today is off, even with targets set',
+      (tester) async {
+    await settings.setSwimHours(2);
+    await settings.setShowOnToday(false);
+    await pump(tester);
+
+    expect(find.byType(ProgressRing), findsNothing);
+  });
+
+  testWidgets('shows one ring per sport that has a target', (tester) async {
+    await settings.setCycleHours(4);
+    await settings.setRunHours(3);
+    await pump(
+      tester,
+      activities: [
+        _activity(type: 'Ride', movingTime: 3600),
+        _activity(type: 'Swim', movingTime: 1800),
+      ],
+    );
+
+    expect(find.byType(ProgressRing), findsNWidgets(2));
+  });
+
+  testWidgets('achieved time sums across virtual/real variants of a sport',
+      (tester) async {
+    await settings.setCycleHours(2);
+    await pump(
+      tester,
+      activities: [
+        _activity(type: 'Ride', movingTime: 1800),
+        _activity(type: 'VirtualRide', movingTime: 1800),
+      ],
+    );
+
+    expect(find.text('1.0 / 2.0 h'), findsOneWidget);
+    expect(find.text('50%'), findsOneWidget);
+  });
+}

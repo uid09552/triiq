@@ -58,7 +58,7 @@ athlete can:
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — API key is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
-| Today screen | ✅ Real data once connected — a readiness row (Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; activities and planned sessions tappable through to full detail |
+| Today screen | ✅ Real data once connected — a readiness row (Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; optional per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
@@ -795,6 +795,17 @@ bars, weekly completed-vs-planned bars, or the metric's own curve over 30,
 90 or 365 days with a note explaining what it means. Nothing there fetches,
 so it all works offline.
 
+**Weekly targets.** Below the tiles, a ring per sport (swim/cycle/run) with
+a weekly target set in Settings → Weekly targets, each showing this week's
+achieved training time against that target — percentage in the middle,
+hours below ("3.0 / 2.0 h"), coloured the same way the rest of the app
+colours that sport, and switching to a "done" colour once the target is
+met or passed (the ring itself never overshoots a full circle). A sport
+with no target shows no ring, and the whole row disappears when no sport
+has a target, or when **Show on Today** is off in Settings. Achieved time
+comes from this week's already-cached activities (the same ones behind
+the TSS-week tile), so it works offline and needs no training plan.
+
 **Plan adjustments.** When the saved plan and what you did drift apart, a
 **Plan adjustments** card lists suggestions, each with **Apply** and
 **Dismiss**. Nothing changes until you apply one:
@@ -1170,6 +1181,11 @@ off under Settings → Notifications.
   and hides the cached ones (they are kept, not deleted); Calendar, Today
   and Statistics then show only TriIQ plan sessions and completed
   activities. Turning it on shows them again and syncs the current month.
+- **Weekly targets**: an independent weekly training-time goal, in hours,
+  for swim, cycle and run — set any or all of them, or leave a field blank
+  for no target on that sport. **Show on Today** controls whether the
+  rings appear on Today at all, separately from the targets themselves.
+  Both persist across restarts.
 - **LLM provider**: choose Claude or Ollama, and configure it.
   - **Claude** needs an API key from `console.anthropic.com`. It's stored in
     your OS credential vault (same place as the Intervals.icu key) and sent

@@ -664,6 +664,13 @@
   "calendarSendLater": "Nicht jetzt",
   "planNotEnoughDays": "Deine Trainingstage reichen für diese Woche nicht. Füge einen Tag hinzu oder setze eine Sportart auf 0 %.",
 
+  "weeklyTargetsSectionTitle": "Wochenziele",
+  "weeklyTargetsSectionHelp": "Ein wöchentliches Trainingszeit-Ziel pro Sportart. Leer lassen für kein Ziel.",
+  "weeklyTargetHoursLabel": "{sport} — Stunden pro Woche",
+  "@weeklyTargetHoursLabel": {"placeholders": {"sport": {"type": "String"}}},
+  "weeklyTargetShowOnToday": "Auf \"Heute\" anzeigen",
+  "weeklyTargetShowOnTodayHelp": "Ein Fortschrittsring pro Sportart mit festgelegtem Ziel.",
+
   "performanceTitle": "Leistung",
   "performanceSubtitle": "Bestleistungen nach Dauer und Distanz, Saison gegen Saison",
   "curveMetricPower": "Leistung",

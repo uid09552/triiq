@@ -716,6 +716,13 @@
   "calendarSendLater": "Not now",
   "planNotEnoughDays": "Your training days cannot hold this week. Add a day or set a sport to 0%.",
 
+  "weeklyTargetsSectionTitle": "Weekly targets",
+  "weeklyTargetsSectionHelp": "A weekly training-time goal per sport. Leave a field blank for no target.",
+  "weeklyTargetHoursLabel": "{sport} — hours per week",
+  "@weeklyTargetHoursLabel": {"placeholders": {"sport": {"type": "String"}}},
+  "weeklyTargetShowOnToday": "Show on Today",
+  "weeklyTargetShowOnTodayHelp": "A progress ring per sport with a target set.",
+
   "performanceTitle": "Performance",
   "performanceSubtitle": "Best efforts by duration and distance, season against season",
   "curveMetricPower": "Power",

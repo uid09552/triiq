@@ -1862,6 +1862,25 @@ class AppLocalizationsDe extends AppLocalizations {
       'Deine Trainingstage reichen für diese Woche nicht. Füge einen Tag hinzu oder setze eine Sportart auf 0 %.';
 
   @override
+  String get weeklyTargetsSectionTitle => 'Wochenziele';
+
+  @override
+  String get weeklyTargetsSectionHelp =>
+      'Ein wöchentliches Trainingszeit-Ziel pro Sportart. Leer lassen für kein Ziel.';
+
+  @override
+  String weeklyTargetHoursLabel(String sport) {
+    return '$sport — Stunden pro Woche';
+  }
+
+  @override
+  String get weeklyTargetShowOnToday => 'Auf \"Heute\" anzeigen';
+
+  @override
+  String get weeklyTargetShowOnTodayHelp =>
+      'Ein Fortschrittsring pro Sportart mit festgelegtem Ziel.';
+
+  @override
   String get performanceTitle => 'Leistung';
 
   @override

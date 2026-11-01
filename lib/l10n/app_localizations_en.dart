@@ -1842,6 +1842,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your training days cannot hold this week. Add a day or set a sport to 0%.';
 
   @override
+  String get weeklyTargetsSectionTitle => 'Weekly targets';
+
+  @override
+  String get weeklyTargetsSectionHelp =>
+      'A weekly training-time goal per sport. Leave a field blank for no target.';
+
+  @override
+  String weeklyTargetHoursLabel(String sport) {
+    return '$sport — hours per week';
+  }
+
+  @override
+  String get weeklyTargetShowOnToday => 'Show on Today';
+
+  @override
+  String get weeklyTargetShowOnTodayHelp =>
+      'A progress ring per sport with a target set.';
+
+  @override
   String get performanceTitle => 'Performance';
 
   @override

@@ -36,6 +36,7 @@ import 'readiness_card.dart';
 import 'train_now_screen.dart';
 import 'tss_history_screen.dart';
 import 'weekly_load_screen.dart';
+import 'weekly_targets_row.dart';
 
 /// Today's and tomorrow's planned training, what was actually logged, and
 /// the key load metrics (TSS today, TSS this week, CTL/ATL).
@@ -106,6 +107,7 @@ class _TodayScreenState extends State<TodayScreen> {
   /// Days to the active plan's event (0 on the day), or `null`.
   int? _raceDays;
   List<LocalActivity> _activities = const [];
+  List<LocalActivity> _weekActivities = const [];
   List<LocalEvent> _todaysPlan = const [];
   List<LocalEvent> _tomorrowsPlan = const [];
   int _weekLoad = 0;
@@ -211,6 +213,7 @@ class _TodayScreenState extends State<TodayScreen> {
         _wellness = wellness;
         _wellnessWeekAgo = wellnessWeekAgo;
         _activities = activities;
+        _weekActivities = weekActivities;
         _todaysPlan = todaysPlan.where((e) => e.isTraining).toList();
         _tomorrowsPlan = tomorrowsPlan.where((e) => e.isTraining).toList();
         _weekLoad = weekActivities.fold<int>(
@@ -462,6 +465,7 @@ class _TodayScreenState extends State<TodayScreen> {
             wellness: _wellness,
             wellnessWeekAgo: _wellnessWeekAgo,
           ),
+          WeeklyTargetsRow(weekActivities: _weekActivities),
           if (_activities.isNotEmpty) ...[
             const SizedBox(height: 16),
             SectionCard(

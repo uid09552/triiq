@@ -12,6 +12,7 @@ import 'locale_controller.dart';
 import 'notifications/app_lifecycle_tracker.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_settings.dart';
+import 'screens/settings/weekly_targets_settings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,9 @@ void main() {
   // The chosen app language (System/English/German) — TriiqApp listens and
   // rebuilds once it resolves.
   unawaited(LocaleController.instance.load());
+  // The per-sport weekly targets and whether their rings show on Today —
+  // Settings and Today listen and rebuild once it resolves.
+  unawaited(WeeklyTargetsSettings.instance.load());
   // Notifications: set up the platform backend, then load whether the user
   // has opted in and re-arm the daily reminder if so. The permission prompt
   // itself is a deliberate action from Settings, not fired here.

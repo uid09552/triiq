@@ -24,6 +24,22 @@ IconData activityTypeIcon(String? type) {
   return Icons.sports_score_outlined;
 }
 
+/// Buckets an Intervals.icu activity `type` into one of the three
+/// triathlon sports the weekly targets track, using the same `contains`
+/// matching as [activityTypeIcon]/[sportColor] so a type always groups the
+/// same way its icon and colour already do. Returns `null` for anything
+/// else (including `Walk`, which `activityTypeIcon` shares an icon with but
+/// which isn't a run for target purposes).
+String? canonicalSport(String? type) {
+  final normalized = (type ?? '').toLowerCase();
+  if (normalized.contains('swim')) return 'swim';
+  if (normalized.contains('ride') || normalized.contains('bike')) {
+    return 'cycle';
+  }
+  if (normalized.contains('run')) return 'run';
+  return null;
+}
+
 /// A colour per triathlon sport, readable on the light and dark surface;
 /// other sports get the theme's secondary colour.
 Color sportColor(String? type, ColorScheme scheme) {

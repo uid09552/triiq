@@ -3086,6 +3086,36 @@ abstract class AppLocalizations {
   /// **'Your training days cannot hold this week. Add a day or set a sport to 0%.'**
   String get planNotEnoughDays;
 
+  /// No description provided for @weeklyTargetsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly targets'**
+  String get weeklyTargetsSectionTitle;
+
+  /// No description provided for @weeklyTargetsSectionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A weekly training-time goal per sport. Leave a field blank for no target.'**
+  String get weeklyTargetsSectionHelp;
+
+  /// No description provided for @weeklyTargetHoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} — hours per week'**
+  String weeklyTargetHoursLabel(String sport);
+
+  /// No description provided for @weeklyTargetShowOnToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on Today'**
+  String get weeklyTargetShowOnToday;
+
+  /// No description provided for @weeklyTargetShowOnTodayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A progress ring per sport with a target set.'**
+  String get weeklyTargetShowOnTodayHelp;
+
   /// No description provided for @performanceTitle.
   ///
   /// In en, this message translates to:
