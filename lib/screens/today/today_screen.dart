@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../agent/llm_settings.dart';
+import '../../agent/plan_proposals.dart';
 import '../../data/intervals_session.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/adaptation_service.dart';
 import '../../plan/plan_changes.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
@@ -23,6 +25,7 @@ import '../../widgets/stat_tile.dart';
 import '../activities/activity_detail_screen.dart';
 import '../activities/activity_icons.dart';
 import '../activities/planned_workout_detail_screen.dart';
+import '../chat/proposal_card.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import 'athlete_detail_screen.dart';
@@ -47,6 +50,7 @@ class TodayScreen extends StatefulWidget {
     this.activitiesRepository,
     this.plannedItems,
     this.readinessService,
+    this.adaptationService,
   });
 
   /// Test seams; the app uses the defaults.
@@ -54,6 +58,7 @@ class TodayScreen extends StatefulWidget {
   final ActivitiesRepository? activitiesRepository;
   final PlannedItemsRepository? plannedItems;
   final ReadinessService? readinessService;
+  final AdaptationService? adaptationService;
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -71,6 +76,12 @@ class _TodayScreenState extends State<TodayScreen> {
   late final _readinessService =
       widget.readinessService ??
       ReadinessService(wellness: _wellnessRepository);
+  late final _adaptationService =
+      widget.adaptationService ??
+      AdaptationService(
+        activities: _activitiesRepository,
+        readiness: _readinessService,
+      );
 
   bool _loading = true;
   String? _error;
@@ -80,6 +91,9 @@ class _TodayScreenState extends State<TodayScreen> {
   /// moving rather than a bare number.
   LocalWellness? _wellnessWeekAgo;
   ReadinessReport? _readiness;
+
+  /// Suggested plan changes (missed sessions, week load, readiness).
+  List<PlanProposal> _adjustments = const [];
   List<LocalActivity> _activities = const [];
   List<LocalEvent> _todaysPlan = const [];
   List<LocalEvent> _tomorrowsPlan = const [];
@@ -206,7 +220,17 @@ class _TodayScreenState extends State<TodayScreen> {
       });
     }
     await _loadReadiness();
+    await _loadAdjustments();
     return fetched;
+  }
+
+  Future<void> _loadAdjustments() async {
+    try {
+      final adjustments = await _adaptationService.refresh();
+      if (mounted) setState(() => _adjustments = adjustments);
+    } catch (e) {
+      debugPrint('TodayScreen: plan adjustments unavailable: $e');
+    }
   }
 
   /// Readiness after the rest of the screen, so a slow knowledge load or a
@@ -359,6 +383,23 @@ class _TodayScreenState extends State<TodayScreen> {
                 todaysPlan: _todaysPlan,
               ),
             ],
+          ],
+          if (_adjustments.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SectionCard(
+              icon: Icons.auto_fix_high_outlined,
+              title: l10n.todayAdjustmentsTitle,
+              child: ListenableBuilder(
+                listenable: PlanProposals.instance,
+                builder: (context, _) => Column(
+                  children: [
+                    for (final p in _adjustments)
+                      if (p.canApply || p.state == ProposalState.applying)
+                        ProposalCard(proposal: p),
+                  ],
+                ),
+              ),
+            ),
           ],
           const SizedBox(height: 16),
           _MetricTiles(

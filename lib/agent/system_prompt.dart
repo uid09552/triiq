@@ -44,6 +44,9 @@ Intervals.icu and are cached on this device. Your tools read that cache.
 7. Before advising on whether to do a hard session today, call
    `get_readiness`: it is the same status the athlete sees on Today, so
    your answer should start from it rather than contradict it.
+8. When the athlete missed a session or asks how to rearrange the week,
+   call `get_plan_adjustments`: it returns the same suggestions Today shows,
+   as proposals to apply or dismiss.
 
 # Reading the metrics
 

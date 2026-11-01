@@ -3427,6 +3427,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My readiness today is {level} ({reasons}). Should I still do {session}?'**
   String readinessChatDraft(String level, String reasons, String session);
+
+  /// No description provided for @proposalSwapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap two sessions'**
+  String get proposalSwapTitle;
+
+  /// No description provided for @proposalLetGoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let it go'**
+  String get proposalLetGoTitle;
+
+  /// No description provided for @proposalCatchUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catch up a missed session'**
+  String get proposalCatchUpTitle;
+
+  /// No description provided for @adaptMissedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed on {day}: nothing logged for it.'**
+  String adaptMissedReason(String day);
+
+  /// No description provided for @adaptLoadUnderReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: {actual} of {target} TSS done. Next week {from} → {to} TSS.'**
+  String adaptLoadUnderReason(
+    int week,
+    int actual,
+    int target,
+    int from,
+    int to,
+  );
+
+  /// No description provided for @adaptLoadOverReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: {actual} of {target} TSS done, well above plan. Next week {from} → {to} TSS.'**
+  String adaptLoadOverReason(
+    int week,
+    int actual,
+    int target,
+    int from,
+    int to,
+  );
+
+  /// No description provided for @adaptLoadFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Held at 80 % of the proposal; the ramp alone would say {load} TSS.'**
+  String adaptLoadFloor(int load);
+
+  /// No description provided for @adaptLoadRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'The week\'s sessions follow when you regenerate the plan.'**
+  String get adaptLoadRegenerate;
+
+  /// No description provided for @adaptReadinessReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness: {level}.'**
+  String adaptReadinessReason(String level);
+
+  /// No description provided for @todayAdjustmentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan adjustments'**
+  String get todayAdjustmentsTitle;
 }
 
 class _AppLocalizationsDelegate

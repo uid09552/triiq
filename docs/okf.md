@@ -71,7 +71,7 @@ athlete can:
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
-| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar) |
+| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; deterministic engine (`lib/plan`); **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -275,6 +275,7 @@ is asked for or after a newer activity of that sport was synced.
 |---|---|
 | `get_athlete_context` | Today's date, athlete identity, cached date ranges, and current thresholds per sport |
 | `get_daily_metrics` | Per day: CTL, ATL, TSB, ramp rate, resting HR, HRV, sleep, weight, subjective scores |
+| `get_plan_adjustments` | The current plan adjustments (missed sessions, week load, readiness conflicts) as **proposals** — the same keyed cards Today shows, so one Apply resolves both |
 | `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state — computed by the same rules as the readiness row on Today (`lib/evaluation/readiness.dart`) |
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
@@ -793,6 +794,31 @@ the same day last week. Tap any of them for the chart behind it — daily TSS
 bars, weekly completed-vs-planned bars, or the metric's own curve over 30,
 90 or 365 days with a note explaining what it means. Nothing there fetches,
 so it all works offline.
+
+**Plan adjustments.** When the saved plan and what you did drift apart, a
+**Plan adjustments** card lists suggestions, each with **Apply** and
+**Dismiss**. Nothing changes until you apply one:
+
+- **Missed session** (an earlier day this week with no activity of that
+  sport): an interval or long session can be **caught up** on the earliest
+  later training day this week that isn't full and doesn't sit next to
+  another hard day. If no day fits, or for a Z2 session, the suggestion is to
+  **let it go**, which removes it from the plan (and from Intervals.icu if it
+  was sent).
+- **Week far off target** (the week that just ended came in under 80 % or
+  over 120 % of its target): next week's load-graph share drops so the ramp
+  restarts from what you actually did, or so it doesn't climb past last
+  week's target. It stays within the graph's 80-120 % band, and the card
+  says when the 80 % floor held it up. The week's sessions change when you
+  regenerate the plan.
+- **Low readiness on a hard day** (Caution or Back off with intervals or a
+  long session today): swap it with the next Z2 session this week, or move it
+  to the next fitting day.
+
+A dismissed suggestion stays dismissed, even after a restart. A suggestion
+disappears by itself once it no longer applies, for example when a late
+watch upload shows you did the session after all. The chat's trainer offers
+the same cards when you say you missed something.
 
 **Readiness.** The row above the tiles says **Ready**, **Caution** or **Back
 off** for today and why ("Due to HRV, Sleep"). It is worked out on the

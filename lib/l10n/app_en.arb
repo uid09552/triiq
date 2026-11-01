@@ -787,5 +787,20 @@
   "@readinessHintBody": {"placeholders":{"level":{"type":"String"},"session":{"type":"String"}}},
   "readinessTopic": "Readiness today",
   "readinessChatDraft": "My readiness today is {level} ({reasons}). Should I still do {session}?",
-  "@readinessChatDraft": {"placeholders":{"level":{"type":"String"},"reasons":{"type":"String"},"session":{"type":"String"}}}
+  "@readinessChatDraft": {"placeholders":{"level":{"type":"String"},"reasons":{"type":"String"},"session":{"type":"String"}}},
+  "proposalSwapTitle": "Swap two sessions",
+  "proposalLetGoTitle": "Let it go",
+  "proposalCatchUpTitle": "Catch up a missed session",
+  "adaptMissedReason": "Missed on {day}: nothing logged for it.",
+  "@adaptMissedReason": {"placeholders":{"day":{"type":"String"}}},
+  "adaptLoadUnderReason": "Week {week}: {actual} of {target} TSS done. Next week {from} → {to} TSS.",
+  "@adaptLoadUnderReason": {"placeholders":{"week":{"type":"int"},"actual":{"type":"int"},"target":{"type":"int"},"from":{"type":"int"},"to":{"type":"int"}}},
+  "adaptLoadOverReason": "Week {week}: {actual} of {target} TSS done, well above plan. Next week {from} → {to} TSS.",
+  "@adaptLoadOverReason": {"placeholders":{"week":{"type":"int"},"actual":{"type":"int"},"target":{"type":"int"},"from":{"type":"int"},"to":{"type":"int"}}},
+  "adaptLoadFloor": "Held at 80 % of the proposal; the ramp alone would say {load} TSS.",
+  "@adaptLoadFloor": {"placeholders":{"load":{"type":"int"}}},
+  "adaptLoadRegenerate": "The week's sessions follow when you regenerate the plan.",
+  "adaptReadinessReason": "Readiness: {level}.",
+  "@adaptReadinessReason": {"placeholders":{"level":{"type":"String"}}},
+  "todayAdjustmentsTitle": "Plan adjustments"
 }

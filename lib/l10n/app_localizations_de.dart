@@ -2069,4 +2069,57 @@ class AppLocalizationsDe extends AppLocalizations {
   String readinessChatDraft(String level, String reasons, String session) {
     return 'Meine Bereitschaft heute ist $level ($reasons). Soll ich $session trotzdem machen?';
   }
+
+  @override
+  String get proposalSwapTitle => 'Zwei Einheiten tauschen';
+
+  @override
+  String get proposalLetGoTitle => 'Ausfallen lassen';
+
+  @override
+  String get proposalCatchUpTitle => 'Verpasste Einheit nachholen';
+
+  @override
+  String adaptMissedReason(String day) {
+    return 'Am $day verpasst: nichts dazu aufgezeichnet.';
+  }
+
+  @override
+  String adaptLoadUnderReason(
+    int week,
+    int actual,
+    int target,
+    int from,
+    int to,
+  ) {
+    return 'Woche $week: $actual von $target TSS geschafft. Nächste Woche $from → $to TSS.';
+  }
+
+  @override
+  String adaptLoadOverReason(
+    int week,
+    int actual,
+    int target,
+    int from,
+    int to,
+  ) {
+    return 'Woche $week: $actual von $target TSS, deutlich über Plan. Nächste Woche $from → $to TSS.';
+  }
+
+  @override
+  String adaptLoadFloor(int load) {
+    return 'Bei 80 % des Vorschlags gehalten; nur nach Steigerung wären es $load TSS.';
+  }
+
+  @override
+  String get adaptLoadRegenerate =>
+      'Die Einheiten der Woche folgen, wenn du den Plan neu erzeugst.';
+
+  @override
+  String adaptReadinessReason(String level) {
+    return 'Bereitschaft: $level.';
+  }
+
+  @override
+  String get todayAdjustmentsTitle => 'Plananpassungen';
 }

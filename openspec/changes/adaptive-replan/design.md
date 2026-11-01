@@ -26,7 +26,11 @@
 
 5. **New `SessionSwapProposal`** in `plan_proposals.dart`, applied by a new `PlanActions.swapSessions(a, b)`: move A to B's date, then B to A's date. If the second step fails, A is moved back and the error surfaces. *Alternative:* two separate move cards. Rejected: applying one and dismissing the other leaves two hard days in a row.
 
-6. **"Let it go"** is a `SessionChangeProposal` with `to == null` (removal). It is worded "Let it go" on the card so it doesn't read as deleting training history. Completed activities are never touched.
+6. **"Let it go"** is a `SessionChangeProposal` with `to == null` (removal). It is worded "Let it go" on the card so it doesn't read as deleting training history. Completed activities are never touched. *Decided during apply:* removal really deletes the session from the plan and Intervals.icu. That lowers the week's planned load.
+
+6a. **Missed sessions are the one past edit allowed.** `PlanActions` refuses any change to a session dated before today. `moveSession` / `removeSession` take `missed: true`, which lets a past session through only when no activity of its sport family is on its date, the session is in the current plan week, and a move lands later in that same week. Every other past edit is still refused.
+
+6b. **Over-target "hold"** caps the next week at the over-target week's own target load: factor = `min(currentFactor, target[this] / proposal[next])`, floored at 0.8. When that is not below the current factor, there is no suggestion. Applying a load suggestion saves the goal's load graph like a chat curve proposal. The week's sessions change when the plan is regenerated, and the card says so.
 
 7. **Today cards reuse the chat proposal cards.** `PlanProposals` gets a non-chat source: `AdaptationService` runs `adapt` after `AutoSyncService` finishes and on Today open, registers the proposals and drops ones whose key no longer appears (the "situation no longer holds" rule). Outcomes from Today are not fed to the agent's next turn, because that turn didn't make them.
 

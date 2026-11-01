@@ -4,11 +4,14 @@ import 'package:flutter/foundation.dart';
 import '../data/intervals_session.dart';
 import '../data/intervals_workout_service.dart';
 import '../data/models/local_event.dart';
+import '../data/repositories/activities_repository.dart';
 import '../data/repositories/events_repository.dart';
 import '../data/repositories/plans_repository.dart';
 import '../data/sync/auto_sync_service.dart';
 import '../data/sync/sync_service.dart';
 import '../data/sync/sync_settings.dart';
+import '../evaluation/session_evaluator.dart';
+import '../util/dates.dart';
 import 'plan_changes.dart';
 import 'plan_models.dart';
 import 'plan_writer.dart';
@@ -71,6 +74,7 @@ class PlanActions {
     PlannedWorkoutWriter? workouts,
     PlansRepository? plans,
     EventsRepository? events,
+    ActivitiesRepository? activities,
     GoalStore? goals,
     bool Function()? sendEnabled,
     bool Function()? connected,
@@ -79,6 +83,7 @@ class PlanActions {
   }) : _workouts = workouts ?? IntervalsWorkoutService(),
        _plans = plans ?? PlansRepository(),
        _events = events ?? EventsRepository(),
+       _activities = activities ?? ActivitiesRepository(),
        _goals = goals ?? GoalStore(),
        _clock = clock ?? DateTime.now,
        _sendEnabled =
@@ -89,6 +94,7 @@ class PlanActions {
   final PlannedWorkoutWriter _workouts;
   final PlansRepository _plans;
   final EventsRepository _events;
+  final ActivitiesRepository _activities;
   final GoalStore _goals;
   final DateTime Function() _clock;
   final bool Function() _sendEnabled;
@@ -205,15 +211,25 @@ class PlanActions {
   }
 
   /// Moves plan session [sessionId] to [date] (same plan), upstream first
-  /// when it is in Intervals.icu.
-  Future<void> moveSession(int sessionId, DateTime date) async {
-    final session = await _editable(sessionId);
+  /// when it is in Intervals.icu. [missed] lets a past session with nothing
+  /// done for it move to a later day of its own week — the one past edit
+  /// allowed.
+  Future<void> moveSession(
+    int sessionId,
+    DateTime date, {
+    bool missed = false,
+  }) async {
+    final session = await _editable(sessionId, missed: missed);
     final target = DateTime(date.year, date.month, date.day);
     if (target.isBefore(_today)) {
       throw const ReplaceRefusedException(ReplaceRefusal.past);
     }
     final plan = await _plans.getCurrent();
     if (plan == null || !_insidePlan(plan, target)) {
+      throw const ReplaceRefusedException(ReplaceRefusal.outsidePlan);
+    }
+    if (session.date.isBefore(_today) &&
+        !_sameWeek(plan, session.date, target)) {
       throw const ReplaceRefusedException(ReplaceRefusal.outsidePlan);
     }
     final eventId = session.intervalsEventId;
@@ -230,9 +246,9 @@ class PlanActions {
   }
 
   /// Takes plan session [sessionId] out of the plan, and off Intervals.icu
-  /// when it is there.
-  Future<void> removeSession(int sessionId) async {
-    final session = await _editable(sessionId);
+  /// when it is there. [missed] as for [moveSession].
+  Future<void> removeSession(int sessionId, {bool missed = false}) async {
+    final session = await _editable(sessionId, missed: missed);
     final eventId = session.intervalsEventId;
     if (eventId != null) {
       _requireUpstream();
@@ -249,21 +265,66 @@ class PlanActions {
     _notify();
   }
 
+  /// Swaps the dates of plan sessions [a] and [b]. If the second move
+  /// fails, the first is moved back before the error surfaces, so the plan
+  /// never ends up with both on one day.
+  Future<void> swapSessions(int a, int b) async {
+    final first = await _editable(a);
+    final second = await _editable(b);
+    await moveSession(a, second.date);
+    try {
+      await moveSession(b, first.date);
+    } catch (_) {
+      try {
+        await moveSession(a, first.date);
+      } catch (rollback) {
+        debugPrint('PlanActions: swap rollback failed: $rollback');
+      }
+      rethrow;
+    }
+  }
+
   DateTime get _today {
     final now = _clock();
     return DateTime(now.year, now.month, now.day);
   }
 
-  /// A session that may still change: it exists and isn't in the past.
-  Future<PlanSession> _editable(int sessionId) async {
+  /// A session that may still change: it exists and isn't in the past —
+  /// unless [missed] and it really was: in the current plan week, with no
+  /// activity of its sport family on its date.
+  Future<PlanSession> _editable(int sessionId, {bool missed = false}) async {
     final session = await _plans.getSession(sessionId);
     if (session == null) {
       throw const ReplaceRefusedException(ReplaceRefusal.missing);
     }
-    if (session.date.isBefore(_today)) {
+    if (session.date.isBefore(_today) &&
+        !(missed && await _wasMissed(session))) {
       throw const ReplaceRefusedException(ReplaceRefusal.past);
     }
     return session;
+  }
+
+  Future<bool> _wasMissed(PlanSession session) async {
+    final plan = await _plans.getCurrent();
+    if (plan == null || !_sameWeek(plan, session.date, _today)) return false;
+    final family = sportFamily(session.sport);
+    final done = await _activities.getByDate(isoDate(session.date));
+    return !done.any((a) => sportFamily(a.type) == family);
+  }
+
+  static bool _sameWeek(TrainingPlan plan, DateTime a, DateTime b) {
+    int index(DateTime d) =>
+        DateTime.utc(d.year, d.month, d.day)
+            .difference(
+              DateTime.utc(
+                plan.startDate.year,
+                plan.startDate.month,
+                plan.startDate.day,
+              ),
+            )
+            .inDays ~/
+        7;
+    return _insidePlan(plan, a) && _insidePlan(plan, b) && index(a) == index(b);
   }
 
   void _requireUpstream() {

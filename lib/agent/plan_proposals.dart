@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/repositories/plans_repository.dart';
 import '../plan/load_curve.dart';
+import '../plan/plan_adaptation.dart';
 import '../plan/plan_models.dart';
 
 /// Where a proposal is in its life. Only [pending] and [failed] can still
@@ -14,7 +15,11 @@ enum ProposalState { pending, applying, applied, dismissed, stale, failed }
 /// Tools create these — the model never writes anything itself — and the
 /// chat shows each as a card with Apply / Dismiss.
 sealed class PlanProposal {
-  PlanProposal({required this.summary, required this.fingerprint});
+  PlanProposal({
+    required this.summary,
+    required this.fingerprint,
+    this.adaptation,
+  });
 
   late final String id;
 
@@ -25,6 +30,13 @@ sealed class PlanProposal {
   /// The goal-and-plan state the proposal was made from ([PlanProposals]
   /// refuses to apply it once that has changed).
   final String fingerprint;
+
+  /// The plan drift this proposal answers, when it came from the
+  /// adaptation rules rather than the agent's own idea.
+  final Adaptation? adaptation;
+
+  /// Shared by every proposal for the same situation (see [Adaptation.key]).
+  String? get key => adaptation?.key;
 
   ProposalState state = ProposalState.pending;
 
@@ -45,6 +57,7 @@ class CurveProposal extends PlanProposal {
     required this.limits,
     required this.weeks,
     required this.changedWeeks,
+    super.adaptation,
   });
 
   final Goal goal;
@@ -83,6 +96,8 @@ class SessionChangeProposal extends PlanProposal {
     required this.sport,
     required this.from,
     this.to,
+    this.missed = false,
+    super.adaptation,
   });
 
   final int sessionId;
@@ -91,7 +106,26 @@ class SessionChangeProposal extends PlanProposal {
   final DateTime from;
   final DateTime? to;
 
+  /// A past session nothing was done for: the one past session that may
+  /// still be moved or let go.
+  final bool missed;
+
   bool get isRemoval => to == null;
+}
+
+/// Swap the dates of two plan sessions, e.g. today's intervals with
+/// tomorrow's Z2 on a low-readiness day.
+class SessionSwapProposal extends PlanProposal {
+  SessionSwapProposal({
+    required super.summary,
+    required super.fingerprint,
+    required this.first,
+    required this.second,
+    super.adaptation,
+  });
+
+  final PlanSession first;
+  final PlanSession second;
 }
 
 /// What the athlete did with a proposal, for the agent's next turn.
@@ -109,7 +143,8 @@ class ProposalOutcome {
       ProposalState.dismissed => 'was dismissed by the athlete',
       ProposalState.stale =>
         'could not be applied: the goal or plan changed after it was made',
-      ProposalState.failed => 'failed to apply${detail == null ? '' : ': $detail'}',
+      ProposalState.failed =>
+        'failed to apply${detail == null ? '' : ': $detail'}',
       ProposalState.pending || ProposalState.applying => 'is still pending',
     };
     return 'Proposal $id ($summary) $what.';
@@ -121,9 +156,12 @@ class ProposalOutcome {
 /// memory only — a restart drops them, and the agent is told nothing was
 /// applied.
 class PlanProposals extends ChangeNotifier {
-  PlanProposals({
-    Future<String> Function()? fingerprint,
-  }) : _fingerprint = fingerprint ?? defaultFingerprint;
+  PlanProposals({Future<String> Function()? fingerprint, this.onKeyDismissed})
+    : _fingerprint = fingerprint ?? defaultFingerprint;
+
+  /// Told the key of every dismissed adaptation proposal, so the dismissal
+  /// outlives the app run (`AdaptationService` wires it up).
+  void Function(String key)? onKeyDismissed;
 
   static final PlanProposals instance = PlanProposals();
 
@@ -143,6 +181,47 @@ class PlanProposals extends ChangeNotifier {
   }
 
   PlanProposal? operator [](String id) => _byId[id];
+
+  /// The live proposal for adaptation [key], if any.
+  PlanProposal? byKey(String key) {
+    for (final p in _byId.values) {
+      if (p.key == key && (p.canApply || p.state == ProposalState.applying)) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  /// Registers an adaptation proposal unless one for the same key and
+  /// plan state is already live — then that one is returned, so Today and
+  /// the chat show the same card. A live one made from an older plan state
+  /// is retired in favour of [proposal].
+  T registerAdaptation<T extends PlanProposal>(T proposal) {
+    final key = proposal.key!;
+    final existing = byKey(key);
+    if (existing is T && existing.fingerprint == proposal.fingerprint) {
+      return existing;
+    }
+    if (existing != null && existing.state != ProposalState.applying) {
+      existing.state = ProposalState.stale;
+    }
+    return register(proposal);
+  }
+
+  /// Retires live adaptation proposals whose situation is gone (their key
+  /// is not in [live]) — quietly: nothing was refused, it just no longer
+  /// applies.
+  void retireAdaptations(Set<String> live) {
+    var changed = false;
+    for (final p in _byId.values) {
+      final key = p.key;
+      if (key != null && p.canApply && !live.contains(key)) {
+        p.state = ProposalState.stale;
+        changed = true;
+      }
+    }
+    if (changed) notifyListeners();
+  }
 
   /// Applies [id] with [run], unless the goal or plan changed since it was
   /// made (then it turns [ProposalState.stale]). [run] does the actual
@@ -177,6 +256,8 @@ class PlanProposals extends ChangeNotifier {
   void dismiss(String id) {
     final p = _byId[id];
     if (p == null || !p.canApply) return;
+    final key = p.key;
+    if (key != null) onKeyDismissed?.call(key);
     _finish(p, ProposalState.dismissed);
   }
 

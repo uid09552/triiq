@@ -1,13 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Adaptation;
 import 'package:intl/intl.dart';
 
 import '../../agent/plan_proposals.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/load_curve_controller.dart';
 import '../../plan/plan_actions.dart';
+import '../../plan/plan_adaptation.dart';
+import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
 import '../../widgets/charts/load_curve_editor.dart';
 import '../activities/activity_icons.dart';
+import '../today/readiness_card.dart';
 import '../plan/plan_labels.dart';
 import '../plan/plan_take_flow.dart';
 
@@ -42,12 +45,19 @@ class ProposalCard extends StatelessWidget {
           case CurveProposal(:final goal):
             await _act.applyGoal(goal);
             return true;
-          case SessionChangeProposal(:final sessionId, :final to):
+          case SessionChangeProposal(
+            :final sessionId,
+            :final to,
+            :final missed,
+          ):
             if (to == null) {
-              await _act.removeSession(sessionId);
+              await _act.removeSession(sessionId, missed: missed);
             } else {
-              await _act.moveSession(sessionId, to);
+              await _act.moveSession(sessionId, to, missed: missed);
             }
+            return true;
+          case SessionSwapProposal(:final first, :final second):
+            await _act.swapSessions(first.id!, second.id!);
             return true;
           case PlanDraftProposal(:final goal):
             final result = await _service.generate(goal);
@@ -90,12 +100,22 @@ class ProposalCard extends StatelessWidget {
     final (IconData icon, String title) = switch (p) {
       CurveProposal() => (Icons.show_chart, l10n.proposalCurveTitle),
       PlanDraftProposal() => (Icons.calendar_month, l10n.proposalPlanTitle),
+      SessionChangeProposal(isRemoval: true, adaptation: _?) => (
+        Icons.event_busy_outlined,
+        l10n.proposalLetGoTitle,
+      ),
       SessionChangeProposal(isRemoval: true) => (
         Icons.event_busy_outlined,
         l10n.proposalRemoveTitle,
       ),
+      SessionChangeProposal(missed: true) => (
+        Icons.replay,
+        l10n.proposalCatchUpTitle,
+      ),
       SessionChangeProposal() => (Icons.swap_horiz, l10n.proposalMoveTitle),
+      SessionSwapProposal() => (Icons.swap_vert, l10n.proposalSwapTitle),
     };
+    final reason = _reason(l10n, day, p.adaptation);
 
     Widget? picture;
     switch (p) {
@@ -122,7 +142,12 @@ class ProposalCard extends StatelessWidget {
             height: 170,
           );
         }
-      case SessionChangeProposal(:final sport, :final name, :final from, :final to):
+      case SessionChangeProposal(
+        :final sport,
+        :final name,
+        :final from,
+        :final to,
+      ):
         picture = Row(
           children: [
             Icon(activityTypeIcon(sport), color: sportColor(sport, scheme)),
@@ -137,13 +162,45 @@ class ProposalCard extends StatelessWidget {
             ),
           ],
         );
+      case SessionSwapProposal(:final first, :final second):
+        Widget row(PlanSession a, DateTime to) => Row(
+          children: [
+            Icon(activityTypeIcon(a.sport), color: sportColor(a.sport, scheme)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '${a.name} · ${day.format(a.date)} → ${day.format(to)}',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        );
+        picture = Column(
+          children: [
+            row(first, second.date),
+            const SizedBox(height: 4),
+            row(second, first.date),
+          ],
+        );
     }
 
     final status = switch (state) {
-      ProposalState.applied => (Icons.check_circle, scheme.primary, l10n.proposalApplied),
-      ProposalState.dismissed => (Icons.cancel_outlined, scheme.onSurfaceVariant, l10n.proposalDismissed),
+      ProposalState.applied => (
+        Icons.check_circle,
+        scheme.primary,
+        l10n.proposalApplied,
+      ),
+      ProposalState.dismissed => (
+        Icons.cancel_outlined,
+        scheme.onSurfaceVariant,
+        l10n.proposalDismissed,
+      ),
       ProposalState.stale => (Icons.history, scheme.error, l10n.proposalStale),
-      ProposalState.failed => (Icons.error_outline, scheme.error, l10n.proposalFailed(p.error ?? '')),
+      ProposalState.failed => (
+        Icons.error_outline,
+        scheme.error,
+        l10n.proposalFailed(p.error ?? ''),
+      ),
       ProposalState.applying => null,
       ProposalState.pending => null,
     };
@@ -171,7 +228,7 @@ class ProposalCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            Text(p.summary, style: theme.textTheme.bodySmall),
+            Text(reason ?? p.summary, style: theme.textTheme.bodySmall),
             if (picture != null) ...[const SizedBox(height: 8), picture],
             if (p is PlanDraftProposal && p.canApply) ...[
               const SizedBox(height: 4),
@@ -229,6 +286,30 @@ class ProposalCard extends StatelessWidget {
     );
   }
 }
+
+/// Why an adaptation proposal exists, in the athlete's language; `null`
+/// for the agent's own proposals, which carry their summary instead.
+String? _reason(AppLocalizations l10n, DateFormat day, Adaptation? a) =>
+    switch (a) {
+      null => null,
+      MissedSession(:final session) => l10n.adaptMissedReason(
+        day.format(session.date),
+      ),
+      WeekLoadOffTarget() => [
+        (a.under ? l10n.adaptLoadUnderReason : l10n.adaptLoadOverReason)(
+          a.endedWeek.index + 1,
+          a.actual,
+          a.target.round(),
+          a.nextWeek.targetLoad.round(),
+          a.newLoad.round(),
+        ),
+        if (a.floorLimited) l10n.adaptLoadFloor(a.uncappedLoad.round()),
+        l10n.adaptLoadRegenerate,
+      ].join(' '),
+      ReadinessConflict(:final level) => l10n.adaptReadinessReason(
+        readinessLevelLabel(l10n, level),
+      ),
+    };
 
 /// An error whose text is already meant for the athlete.
 class _Readable implements Exception {

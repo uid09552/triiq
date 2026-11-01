@@ -15,6 +15,7 @@ import '../../data/repositories/sync_state_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
+import '../../plan/adaptation_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../evaluation/intensity.dart';
 import '../../evaluation/performance_curves.dart';
@@ -108,15 +109,29 @@ class TrainingDataTools {
         clock: _clock,
       );
 
+  late final PlanService _planService = PlanService(
+    knowledge: _knowledge,
+    inputs: _planInputs,
+    plans: _plans,
+    activities: _activitiesRepository,
+    goals: _goalStore,
+  );
+
   /// Reading the plan and making proposals on it (no writes).
   late final PlanAssistantTools _planTools = PlanAssistantTools(
-    service: PlanService(
-      knowledge: _knowledge,
-      inputs: _planInputs,
-      plans: _plans,
-      activities: _activitiesRepository,
-      goals: _goalStore,
-    ),
+    service: _planService,
+    proposals: _proposals,
+    clock: _clock,
+  );
+
+  /// The same adaptation rules Today runs, registering the same keyed
+  /// proposals — so a card in the chat and on Today is one card.
+  late final AdaptationService _adaptation = AdaptationService(
+    plans: _plans,
+    goals: _goalStore,
+    activities: _activitiesRepository,
+    readiness: _readiness,
+    planService: _planService,
     proposals: _proposals,
     clock: _clock,
   );
@@ -166,6 +181,20 @@ class TrainingDataTools {
           '$_maxMetricDays days per call.',
       schema: _rangeSchema(),
       run: (args) => _dailyMetrics(args),
+    ),
+    _tool(
+      name: 'get_plan_adjustments',
+      description:
+          'Where the athlete has drifted from the saved plan and what the '
+          'app suggests: missed sessions this week (move later in the week '
+          'or let go), a just-finished week well off its target load (adjust '
+          "next week), and today's hard session on a low-readiness day "
+          '(swap or move). Each comes back as a **proposal** the athlete '
+          'applies or dismisses — the same cards Today shows. Call it when '
+          'the athlete says they missed a session or asks what to do about '
+          'the rest of the week. Never applies anything.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _planAdjustments(),
     ),
     _tool(
       name: 'get_readiness',
@@ -1168,6 +1197,32 @@ class TrainingDataTools {
       return {'error': 'Sync failed: $error'};
     }
   }
+
+  Future<Map<String, dynamic>> _planAdjustments() async {
+    final proposals = await _adaptation.refresh();
+    return {
+      'date': _isoDate(_clock()),
+      if (proposals.isNotEmpty)
+        'proposal_ids': [for (final p in proposals) p.id],
+      'adjustments': [
+        for (final p in proposals)
+          {
+            'proposal_id': p.id,
+            'kind': p.key!.split(':').first,
+            'summary': p.summary,
+          },
+      ],
+      if (proposals.isEmpty)
+        'note':
+            'Nothing to adjust: no missed sessions, no week far off its '
+            'target, no readiness conflict (or the athlete dismissed them).',
+      if (proposals.isNotEmpty) 'note': _notAppliedNote,
+    };
+  }
+
+  static const _notAppliedNote =
+      'Not applied: each proposal shows as a card with Apply / Dismiss. '
+      'Tell the athlete what it would change; do not claim it is done.';
 
   Future<Map<String, dynamic>> _readinessToday() async {
     final r = (await _readiness.load()).readiness;

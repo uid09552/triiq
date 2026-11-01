@@ -8,8 +8,10 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/client/intervalls/intervalls_client.dart';
 import 'package:triiq/data/db/app_database.dart';
 import 'package:triiq/data/intervals_workout_service.dart';
+import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/planned_items.dart';
+import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/data/repositories/events_repository.dart';
 import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/plan/knowledge.dart';
@@ -23,6 +25,10 @@ class _FakeWorkouts implements PlannedWorkoutWriter {
   final deleted = <String>[];
   bool failCreate = false;
   bool failMove = false;
+
+  /// Fail only the n-th date change (1-based), for the swap rollback.
+  int? failMoveNumber;
+  int _moves = 0;
   final moved = <(String, DateTime)>[];
   Object? deleteError;
 
@@ -35,7 +41,9 @@ class _FakeWorkouts implements PlannedWorkoutWriter {
 
   @override
   Future<void> updatePlannedWorkoutDate(String eventId, DateTime date) async {
-    if (failMove) throw StateError('move failed');
+    if (failMove || ++_moves == failMoveNumber) {
+      throw StateError('move failed');
+    }
     moved.add((eventId, date));
   }
 
@@ -89,20 +97,23 @@ void main() {
   );
 
   Future<PlanSession> planSession({String? eventId}) async {
-    final draft = PlanEngine(
-      TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
-    ).generate(
-      goal: const Goal(
-        targetType: 'long_distance',
-        weekdays: {2, 4, 6},
-        weeklyHours: 6,
-        baselineWeeklyLoad: 250,
-        weeks: 2,
-      ),
-      startDate: DateTime(2026, 11, 2),
-      recentWeeklyLoads: null,
-      today: DateTime(2026, 10, 31),
-    ).plan!;
+    final draft =
+        PlanEngine(
+              TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
+            )
+            .generate(
+              goal: const Goal(
+                targetType: 'long_distance',
+                weekdays: {2, 4, 6},
+                weeklyHours: 6,
+                baselineWeeklyLoad: 250,
+                weeks: 2,
+              ),
+              startDate: DateTime(2026, 11, 2),
+              recentWeeklyLoads: null,
+              today: DateTime(2026, 10, 31),
+            )
+            .plan!;
     final saved = await plans.save(draft.copyWith(status: PlanStatus.active));
     var session = saved.sessions.firstWhere((s) => s.date == day);
     if (eventId != null) {
@@ -160,24 +171,26 @@ void main() {
       expect(after.intervalsEventId, isNull);
     });
 
-    test('sent: new event created, old deleted, session points to new',
-        () async {
-      final session = await planSession(eventId: '300');
+    test(
+      'sent: new event created, old deleted, session points to new',
+      () async {
+        final session = await planSession(eventId: '300');
 
-      final outcome = await actions().replaceSession(
-        PlannedItemsRepository.toLocalEvent(session),
-        alternative(),
-      );
+        final outcome = await actions().replaceSession(
+          PlannedItemsRepository.toLocalEvent(session),
+          alternative(),
+        );
 
-      expect(outcome, ReplaceOutcome.replaced);
-      expect(workouts.created.single.date, session.date);
-      expect(workouts.created.single.tags!.single, startsWith('triiq-plan-'));
-      expect(workouts.deleted, ['300']);
-      final after = (await plans.getSession(session.id!))!;
-      expect(after.intervalsEventId, '901');
-      expect(after.status, PlanSessionStatus.created);
-      expect(resynced, [session.date]);
-    });
+        expect(outcome, ReplaceOutcome.replaced);
+        expect(workouts.created.single.date, session.date);
+        expect(workouts.created.single.tags!.single, startsWith('triiq-plan-'));
+        expect(workouts.deleted, ['300']);
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.intervalsEventId, '901');
+        expect(after.status, PlanSessionStatus.created);
+        expect(resynced, [session.date]);
+      },
+    );
 
     test('sent but sending off: refused, nothing changes', () async {
       final session = await planSession(eventId: '300');
@@ -216,56 +229,64 @@ void main() {
       expect(after.intervalsEventId, '300');
     });
 
-    test('sent, delete fails: both exist, session points to the new one',
-        () async {
-      final session = await planSession(eventId: '300');
-      workouts.deleteError = DioException(
-        requestOptions: RequestOptions(path: '/events/300'),
-        response: Response(
+    test(
+      'sent, delete fails: both exist, session points to the new one',
+      () async {
+        final session = await planSession(eventId: '300');
+        workouts.deleteError = DioException(
           requestOptions: RequestOptions(path: '/events/300'),
-          statusCode: 500,
-        ),
-      );
+          response: Response(
+            requestOptions: RequestOptions(path: '/events/300'),
+            statusCode: 500,
+          ),
+        );
 
-      final outcome = await actions().replaceSession(
-        PlannedItemsRepository.toLocalEvent(session),
-        alternative(),
-      );
+        final outcome = await actions().replaceSession(
+          PlannedItemsRepository.toLocalEvent(session),
+          alternative(),
+        );
 
-      expect(outcome, ReplaceOutcome.bothExist);
-      expect((await plans.getSession(session.id!))!.intervalsEventId, '901');
-    });
+        expect(outcome, ReplaceOutcome.bothExist);
+        expect((await plans.getSession(session.id!))!.intervalsEventId, '901');
+      },
+    );
 
-    test('no TSS in the draft: keeps the old TSS and says it is estimated',
-        () async {
-      final session = await planSession();
+    test(
+      'no TSS in the draft: keeps the old TSS and says it is estimated',
+      () async {
+        final session = await planSession();
 
-      await actions().replaceSession(
-        PlannedItemsRepository.toLocalEvent(session),
-        alternative(load: null),
-      );
+        await actions().replaceSession(
+          PlannedItemsRepository.toLocalEvent(session),
+          alternative(load: null),
+        );
 
-      final after = (await plans.getSession(session.id!))!;
-      expect(after.load, session.load);
-      expect(after.description, contains(PlanActions.estimatedNote));
-    });
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.load, session.load);
+        expect(after.description, contains(PlanActions.estimatedNote));
+      },
+    );
   });
 
   group('an Intervals.icu event', () {
-    test('new workout created, old deleted upstream and from the cache',
-        () async {
-      await events.replaceRange(isoDate(day), isoDate(day), [intervalsEvent()]);
+    test(
+      'new workout created, old deleted upstream and from the cache',
+      () async {
+        await events.replaceRange(isoDate(day), isoDate(day), [
+          intervalsEvent(),
+        ]);
 
-      final outcome = await actions().replaceSession(
-        intervalsEvent(),
-        alternative(),
-      );
+        final outcome = await actions().replaceSession(
+          intervalsEvent(),
+          alternative(),
+        );
 
-      expect(outcome, ReplaceOutcome.replaced);
-      expect(workouts.created.single.name, 'Easy run');
-      expect(workouts.deleted, ['501']);
-      expect(await events.getByDate(isoDate(day)), isEmpty);
-    });
+        expect(outcome, ReplaceOutcome.replaced);
+        expect(workouts.created.single.name, 'Easy run');
+        expect(workouts.deleted, ['501']);
+        expect(await events.getByDate(isoDate(day)), isEmpty);
+      },
+    );
 
     test('delete fails: both exist, cached event kept', () async {
       await events.replaceRange(isoDate(day), isoDate(day), [intervalsEvent()]);
@@ -324,40 +345,41 @@ void main() {
       expect((await plans.getSession(session.id!))!.date, session.date);
     });
 
-    test('past target, past session and dates outside the plan are refused',
-        () async {
-      final session = await planSession();
-      Matcher refused(ReplaceRefusal r) => throwsA(
-        isA<ReplaceRefusedException>().having((e) => e.reason, 'reason', r),
-      );
+    test(
+      'past target, past session and dates outside the plan are refused',
+      () async {
+        final session = await planSession();
+        Matcher refused(ReplaceRefusal r) => throwsA(
+          isA<ReplaceRefusedException>().having((e) => e.reason, 'reason', r),
+        );
 
-      expect(
-        actions().moveSession(session.id!, DateTime(2026, 11, 1)),
-        refused(ReplaceRefusal.past),
-      );
-      expect(
-        actions().moveSession(session.id!, DateTime(2026, 12, 1)),
-        refused(ReplaceRefusal.outsidePlan),
-      );
-      final pastSession = (await plans.getCurrent())!.sessions.first;
-      final late = PlanActions(
-        workouts: workouts,
-        plans: plans,
-        events: events,
-        sendEnabled: () => send,
-        connected: () => connected,
-        resync: (_) async {},
-        clock: () => DateTime(2026, 11, 20),
-      );
-      await expectLater(
-        late.removeSession(pastSession.id!),
-        refused(ReplaceRefusal.past),
-      );
-      expect(await plans.getSession(pastSession.id!), isNotNull);
-    });
+        expect(
+          actions().moveSession(session.id!, DateTime(2026, 11, 1)),
+          refused(ReplaceRefusal.past),
+        );
+        expect(
+          actions().moveSession(session.id!, DateTime(2026, 12, 1)),
+          refused(ReplaceRefusal.outsidePlan),
+        );
+        final pastSession = (await plans.getCurrent())!.sessions.first;
+        final late = PlanActions(
+          workouts: workouts,
+          plans: plans,
+          events: events,
+          sendEnabled: () => send,
+          connected: () => connected,
+          resync: (_) async {},
+          clock: () => DateTime(2026, 11, 20),
+        );
+        await expectLater(
+          late.removeSession(pastSession.id!),
+          refused(ReplaceRefusal.past),
+        );
+        expect(await plans.getSession(pastSession.id!), isNotNull);
+      },
+    );
 
-    test('remove a sent session: deleted upstream and from the plan',
-        () async {
+    test('remove a sent session: deleted upstream and from the plan', () async {
       final session = await planSession(eventId: '300');
 
       await actions().removeSession(session.id!);
@@ -383,16 +405,143 @@ void main() {
       expect(await plans.getSession(session.id!), isNotNull);
     });
 
-    test('a sent session with sending off cannot be moved or removed',
-        () async {
-      final session = await planSession(eventId: '300');
-      send = false;
+    test(
+      'a sent session with sending off cannot be moved or removed',
+      () async {
+        final session = await planSession(eventId: '300');
+        send = false;
+
+        await expectLater(
+          actions().removeSession(session.id!),
+          throwsA(isA<ReplaceRefusedException>()),
+        );
+        expect(await plans.getSession(session.id!), isNotNull);
+      },
+    );
+  });
+
+  group('swapping', () {
+    Future<(PlanSession, PlanSession)> twoSent() async {
+      final a = await planSession(eventId: '300');
+      var b = (await plans.getCurrent())!.sessions.firstWhere(
+        (s) => s.date == DateTime(2026, 11, 5),
+      );
+      b = b.copyWith(
+        intervalsEventId: '301',
+        status: PlanSessionStatus.created,
+      );
+      await plans.updateSession(b);
+      return (a, b);
+    }
+
+    test('swaps the two dates, upstream too', () async {
+      final (a, b) = await twoSent();
+
+      await actions().swapSessions(a.id!, b.id!);
+
+      expect((await plans.getSession(a.id!))!.date, b.date);
+      expect((await plans.getSession(b.id!))!.date, a.date);
+      expect(workouts.moved, [('300', b.date), ('301', a.date)]);
+    });
+
+    test('second move fails: the first is moved back', () async {
+      final (a, b) = await twoSent();
+      workouts.failMoveNumber = 2;
+
+      await expectLater(actions().swapSessions(a.id!, b.id!), throwsStateError);
+
+      expect((await plans.getSession(a.id!))!.date, a.date);
+      expect((await plans.getSession(b.id!))!.date, b.date);
+      expect(workouts.moved.last, ('300', a.date));
+    });
+  });
+
+  group('missed sessions', () {
+    // Wednesday 4 Nov: Tuesday's session is in the past.
+    PlanActions wednesday() => PlanActions(
+      workouts: workouts,
+      plans: plans,
+      events: events,
+      activities: ActivitiesRepository(database: database),
+      sendEnabled: () => send,
+      connected: () => connected,
+      resync: (_) async {},
+      clock: () => DateTime(2026, 11, 4, 9),
+    );
+    Matcher refused(ReplaceRefusal r) => throwsA(
+      isA<ReplaceRefusedException>().having((e) => e.reason, 'reason', r),
+    );
+
+    test('a missed session moves later in its week', () async {
+      final session = await planSession();
+
+      await wednesday().moveSession(
+        session.id!,
+        DateTime(2026, 11, 6),
+        missed: true,
+      );
+
+      expect(
+        (await plans.getSession(session.id!))!.date,
+        DateTime(2026, 11, 6),
+      );
+    });
+
+    test('without missed, a past session is still refused', () async {
+      final session = await planSession();
 
       await expectLater(
-        actions().removeSession(session.id!),
-        throwsA(isA<ReplaceRefusedException>()),
+        wednesday().moveSession(session.id!, DateTime(2026, 11, 6)),
+        refused(ReplaceRefusal.past),
       );
-      expect(await plans.getSession(session.id!), isNotNull);
+    });
+
+    test('done after all: refused even with missed', () async {
+      final session = await planSession();
+      await ActivitiesRepository(database: database).upsertAll([
+        LocalActivity(
+          id: 'r1',
+          date: '2026-11-03',
+          type: 'Run',
+          name: 'Run',
+          movingTime: 3000,
+          distance: null,
+          trainingLoad: 50,
+          raw: const {},
+          syncedAt: DateTime(2026),
+        ),
+      ]);
+
+      await expectLater(
+        wednesday().moveSession(
+          session.id!,
+          DateTime(2026, 11, 6),
+          missed: true,
+        ),
+        refused(ReplaceRefusal.past),
+      );
+    });
+
+    test('a missed session cannot move into next week', () async {
+      final session = await planSession();
+
+      await expectLater(
+        wednesday().moveSession(
+          session.id!,
+          DateTime(2026, 11, 10),
+          missed: true,
+        ),
+        refused(ReplaceRefusal.outsidePlan),
+      );
+    });
+
+    test('letting a missed sent session go removes it upstream', () async {
+      final session = await planSession(eventId: '300');
+
+      await wednesday().removeSession(session.id!, missed: true);
+
+      expect(workouts.deleted, ['300']);
+      expect(await plans.getSession(session.id!), isNull);
     });
   });
 

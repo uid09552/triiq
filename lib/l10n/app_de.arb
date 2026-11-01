@@ -725,5 +725,15 @@
   "readinessHintTitle": "Lieber ein leichterer Tag?",
   "readinessHintBody": "Bereitschaft: {level}, und heute steht {session} im Plan.",
   "readinessTopic": "Bereitschaft heute",
-  "readinessChatDraft": "Meine Bereitschaft heute ist {level} ({reasons}). Soll ich {session} trotzdem machen?"
+  "readinessChatDraft": "Meine Bereitschaft heute ist {level} ({reasons}). Soll ich {session} trotzdem machen?",
+  "proposalSwapTitle": "Zwei Einheiten tauschen",
+  "proposalLetGoTitle": "Ausfallen lassen",
+  "proposalCatchUpTitle": "Verpasste Einheit nachholen",
+  "adaptMissedReason": "Am {day} verpasst: nichts dazu aufgezeichnet.",
+  "adaptLoadUnderReason": "Woche {week}: {actual} von {target} TSS geschafft. Nächste Woche {from} → {to} TSS.",
+  "adaptLoadOverReason": "Woche {week}: {actual} von {target} TSS, deutlich über Plan. Nächste Woche {from} → {to} TSS.",
+  "adaptLoadFloor": "Bei 80 % des Vorschlags gehalten; nur nach Steigerung wären es {load} TSS.",
+  "adaptLoadRegenerate": "Die Einheiten der Woche folgen, wenn du den Plan neu erzeugst.",
+  "adaptReadinessReason": "Bereitschaft: {level}.",
+  "todayAdjustmentsTitle": "Plananpassungen"
 }

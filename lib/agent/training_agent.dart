@@ -159,8 +159,11 @@ class TrainingAgent {
           ),
         );
         yield AgentToolFinished(call.name, failed: failed);
-        final proposal = failed ? null : _proposalIn(result);
-        if (proposal != null) yield AgentProposal(proposal);
+        if (!failed) {
+          for (final proposal in _proposalsIn(result)) {
+            yield AgentProposal(proposal);
+          }
+        }
       }
       _trimHistory();
     }
@@ -180,10 +183,7 @@ class TrainingAgent {
     AIChatMessageToolCall call,
   ) async {
     if (tool == null) {
-      return (
-        '{"error":"There is no tool called \\"${call.name}\\"."}',
-        true,
-      );
+      return ('{"error":"There is no tool called \\"${call.name}\\"."}', true);
     }
     try {
       final output = await tool.invoke(tool.getInputFromJson(call.arguments));
@@ -204,15 +204,20 @@ class TrainingAgent {
     return '[Since your last reply:\n$lines]\n\n$input';
   }
 
-  /// The proposal a tool result announces with `proposal_id`, if any.
-  PlanProposal? _proposalIn(String result) {
-    if (!result.contains('proposal_id')) return null;
+  /// The proposals a tool result announces: one with `proposal_id`, or
+  /// several with `proposal_ids`.
+  List<PlanProposal> _proposalsIn(String result) {
+    if (!result.contains('proposal_id')) return const [];
     try {
       final json = jsonDecode(result);
-      final id = json is Map ? json['proposal_id'] : null;
-      return id is String ? _proposals[id] : null;
+      if (json is! Map) return const [];
+      final ids = [
+        json['proposal_id'],
+        ...?(json['proposal_ids'] as List?),
+      ].whereType<String>();
+      return [for (final id in ids) ?_proposals[id]];
     } catch (_) {
-      return null;
+      return const [];
     }
   }
 

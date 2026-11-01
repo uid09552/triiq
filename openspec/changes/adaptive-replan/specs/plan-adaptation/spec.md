@@ -40,11 +40,15 @@ For a missed Z2 or recovery session, the system SHALL suggest letting it go rath
 - **THEN** the suggestion is to let it go, and no move is offered
 
 ### Requirement: Week load off target
-After a plan week ends, the system SHALL compare its actual load with its target. Under 80 %, it SHALL suggest lowering the next week's load to at most the actual load plus the goal's weekly increase. Over 120 %, it SHALL suggest holding the next week at its current target. The suggested load SHALL stay within the 80-120 % range of the proposal, and the card SHALL say when the floor limits it.
+After a plan week ends, the system SHALL compare its actual load with its target. Under 80 %, it SHALL suggest lowering the next week's load to at most the actual load plus the goal's weekly increase. Over 120 %, it SHALL suggest capping the next week at the ended week's target. The suggested load SHALL stay within the 80-120 % range of the proposal, and the card SHALL say when the floor limits it.
 
 #### Scenario: Sick week
 - **WHEN** week 3 had a target of 500 TSS and an actual of 250 TSS, the weekly increase is 10 % and week 4's proposal is 550 TSS
 - **THEN** the suggestion sets week 4 to 80 % of its proposal (440 TSS) and says the 80 % floor kept it above 275 TSS
+
+#### Scenario: Overreaching week
+- **WHEN** week 3 had a target of 500 TSS and an actual of 650 TSS, and week 4 is targeted at 550 TSS on a proposal of 550 TSS
+- **THEN** the suggestion sets week 4 to 500 TSS (factor 0.91)
 
 #### Scenario: On target
 - **WHEN** a week's actual load is 95 % of its target

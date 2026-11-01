@@ -2045,4 +2045,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String readinessChatDraft(String level, String reasons, String session) {
     return 'My readiness today is $level ($reasons). Should I still do $session?';
   }
+
+  @override
+  String get proposalSwapTitle => 'Swap two sessions';
+
+  @override
+  String get proposalLetGoTitle => 'Let it go';
+
+  @override
+  String get proposalCatchUpTitle => 'Catch up a missed session';
+
+  @override
+  String adaptMissedReason(String day) {
+    return 'Missed on $day: nothing logged for it.';
+  }
+
+  @override
+  String adaptLoadUnderReason(
+    int week,
+    int actual,
+    int target,
+    int from,
+    int to,
+  ) {
+    return 'Week $week: $actual of $target TSS done. Next week $from → $to TSS.';
+  }
+
+  @override
+  String adaptLoadOverReason(
+    int week,
+    int actual,
+    int target,
+    int from,
+    int to,
+  ) {
+    return 'Week $week: $actual of $target TSS done, well above plan. Next week $from → $to TSS.';
+  }
+
+  @override
+  String adaptLoadFloor(int load) {
+    return 'Held at 80 % of the proposal; the ramp alone would say $load TSS.';
+  }
+
+  @override
+  String get adaptLoadRegenerate =>
+      'The week\'s sessions follow when you regenerate the plan.';
+
+  @override
+  String adaptReadinessReason(String level) {
+    return 'Readiness: $level.';
+  }
+
+  @override
+  String get todayAdjustmentsTitle => 'Plan adjustments';
 }
