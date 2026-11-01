@@ -58,12 +58,12 @@ athlete can:
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — API key is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
-| Today screen | ✅ Real data once connected — six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; activities and planned sessions tappable through to full detail |
+| Today screen | ✅ Real data once connected — a readiness row (Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail |
-| Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache |
+| Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached |
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
@@ -265,19 +265,23 @@ history, never cutting a tool result away from the assistant turn that asked
 for it — both providers reject an orphaned tool result.
 
 **The tools read the cache, not the API.** Answering a question costs no
-Intervals.icu round-trips and works offline. `sync_from_intervals` is the one
+Intervals.icu round-trips and works offline. `sync_from_intervals` is the
 exception, and the model is told to reach for it only when
-`get_athlete_context` shows the dates it needs aren't cached.
+`get_athlete_context` shows the dates it needs aren't cached;
+`get_performance_curve` also fetches, but only the first time a sport/metric
+is asked for or after a newer activity of that sport was synced.
 
 | Tool | Returns |
 |---|---|
 | `get_athlete_context` | Today's date, athlete identity, cached date ranges, and current thresholds per sport |
 | `get_daily_metrics` | Per day: CTL, ATL, TSB, ramp rate, resting HR, HRV, sleep, weight, subjective scores |
+| `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state — computed by the same rules as the readiness row on Today (`lib/evaluation/readiness.dart`) |
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
 | `get_training_guidance` | Matching sections of the optional `assets/knowledge/training-philosophy.md` |
-| `sync_from_intervals` | Fetches a date range into the cache (the only networked tool) |
+| `get_performance_curve` | Best efforts per duration (power, HR) or distance (pace) for one sport — this season, last season, last 42 days — at fixed key points with the session that set each, the model fit (FTP/CP/W'/Pmax or critical speed/D') and its gap to the settings threshold. Fetches from Intervals.icu only when nothing is cached or a newer activity of that sport arrived |
+| `sync_from_intervals` | Fetches a date range into the cache |
 | `get_training_plan` | The saved goal, the load graph per week (proposed/target TSS, share, allowed range, phase, limits exceeded) and the current plan's weeks and sessions with their `session_id` |
 | `generate_training_plan` | A plan built by the engine from the goal (and any weeks / load factors / sport mix passed) — plus a **proposal** to take it |
 | `propose_load_curve` | A **proposal** for the load graph: week TSS or percent (inside each week's band), recovery weeks, plan length, sport mix, weekly increase (`ramp_percent`), hold weeks, reset — with the resulting graph, or an error naming the allowed range |
@@ -478,6 +482,16 @@ CREATE TABLE sync_state (
 );
 ```
 
+Later versions add tables without migrating data (each upgrade creates the
+new table empty): `events` (v2), `plans` / `plan_sessions` (v3),
+`activity_streams` (v4) and `performance_curves` (v5: one row per
+`sport|metric` holding the raw curves response, the newest cached activity
+id of that sport at fetch time — a different newest id means stale — and
+`fetched_at`). Curves are fetched with a raw `GET
+/api/v1/athlete/0/{power,pace,hr}-curves.json?type=…&curves=s0,s1,42d`
+through the client's `dio` rather than the generated `listAthlete*Curves`,
+which demand three filter lists and deserialize strictly.
+
 Every cached row keeps the full API response in `raw` (JSON), so new UI
 features can read additional fields without a schema migration — only
 promote a field to its own column when it needs to be queried/filtered on.
@@ -667,8 +681,8 @@ both reading straight from the SQLite cache (no separate network call).
 
 ### Charts
 
-There is no charting package. The app needs exactly two shapes, and both
-live in `lib/widgets/charts/`:
+There is no charting package. The shapes the app needs all live in
+`lib/widgets/charts/`:
 
 - `SimpleBarChart` (`bar_chart.dart`) — vertical bars with an optional
   translucent "ghost" bar behind each one for a target, tap/drag selection,
@@ -680,6 +694,12 @@ live in `lib/widgets/charts/`:
   and selection. `null` entries are **gaps, not zeroes**: a day with no
   wellness record is not a day of zero fitness, and joining across it would
   draw a slope that never happened. `ChartLegend` renders the key.
+- `DurationCurveChart` (`duration_curve_chart.dart`) — performance curves on
+  a **log** x-axis (duration for power/HR, distance for pace) with fixed
+  ticks, axis titles with units, several periods as series, and tap/drag
+  selection that snaps to the nearest point. Pace is plotted as speed so
+  faster sits higher and labelled back as min/km or min/100 m. Points are
+  thinned to ~200 log-spaced buckets (`downsampleLog`) before painting.
 
 A package would be a dependency, a theme to fight and a licence to check for
 something that is a few dozen lines of `CustomPainter` either way. Both take
@@ -756,8 +776,8 @@ is re-synced so the new session appears immediately.
 ### Today
 
 Shows today's date's cached data: a hero card with today's date and a
-summary of today's activity/activities (or "Ready to train" if none), six
-load tiles, a "Today's activities" card, today's and tomorrow's planned
+summary of today's activity/activities (or "Ready to train" if none), a
+readiness row, six load tiles, a "Today's activities" card, today's and tomorrow's planned
 training, and an athlete card. Pull to refresh (or the refresh button in the
 hero) re-syncs the whole current month, so the Calendar and Statistics tabs
 are current too when you switch to them. Repeating the gesture is cheap: it
@@ -773,6 +793,22 @@ the same day last week. Tap any of them for the chart behind it — daily TSS
 bars, weekly completed-vs-planned bars, or the metric's own curve over 30,
 90 or 365 days with a note explaining what it means. Nothing there fetches,
 so it all works offline.
+
+**Readiness.** The row above the tiles says **Ready**, **Caution** or **Back
+off** for today and why ("Due to HRV, Sleep"). It is worked out on the
+device from today's Intervals.icu wellness record: HRV and resting HR against
+your own normal over the previous 60 days (a signal needs at least 14 days of
+values before it counts), last night's sleep, form (CTL − ATL) and the
+fatigue/soreness you logged. Any back-off signal, or two cautions, means Back
+off; one caution means Caution. If your watch writes its own readiness
+figure, the detail screen shows it next to the status but doesn't use it.
+Without a wearable you get "No wellness data" (and a status from form
+alone); before today's data has arrived, "Waiting for today's data". Tap the
+row for each signal's value, normal range and rating and a 30-day HRV /
+resting-HR trend. When the status isn't Ready and today has an interval or
+long session, a **Consider an easier day** card appears; **Ask the trainer**
+opens the chat with the question filled in. Nothing changes the plan by
+itself. The thresholds are defaults in §5.1, not medical advice.
 
 **The athlete card** shows your Intervals.icu profile picture and, once your
 sport settings have loaded, your ride and run FTP. Tap it for the full
@@ -926,6 +962,25 @@ It all reads the local cache, so the range picker is instant and works
 offline; pull to refresh to re-sync the current month first. If a chart is
 empty, the range simply hasn't been synced yet — use **More → Sync** to
 fetch more history.
+
+**Performance** (the card at the top of Statistics) answers "am I getting
+faster?". Pick Ride, Run or Swim and a metric — power and heart rate are
+your best average over every duration, pace your fastest time over every
+distance (running power only shows if you have any). The chart compares
+this season, last season and the last 42 days on a log axis; tap or drag it
+to read the value at a point, with the date and name of the session that
+set it and **Open session**. **Key efforts** lists 5 s / 1 min / 5 min /
+20 min / 60 min (run pace: 400 m … half marathon; swim: 100 … 1500 m) per
+season with the change; an empty cell means no effort that long, nothing is
+interpolated. **Model fit** shows what Intervals.icu fits to this season
+(FTP, CP, W', Pmax — or critical speed and D' for pace) next to the
+threshold in your Intervals.icu settings, and the gap. It only shows the
+gap; it doesn't change your settings.
+
+Curves are fetched from Intervals.icu the first time you open a sport and
+metric, then kept on the device: they are fetched again only once a newer
+activity of that sport has been synced (or with the refresh button). A
+failed fetch keeps the saved curves on screen with **Retry**.
 
 ### More
 
@@ -1183,7 +1238,12 @@ them. `lowIntensityTarget` is the
 below it a week may fall before it is flagged (more easy time than the target
 is not a problem). `recoveryHours` maps a session's TSS to recovery hours
 (`[upTo, hours]`, `null` = above the last band); `recoveryFormPenaltyBelow`
-adds 12 h when form (CTL − ATL) is below it.
+adds 12 h when form (CTL − ATL) is below it. `readiness` holds the daily
+readiness thresholds, each pair `[caution, back off]`: `hrvSd` (standard
+deviations below the HRV baseline), `restingHrBpm` (bpm above the resting-HR
+baseline), `sleepHoursCaution` (caution only), `form`, and the baseline
+window (`baselineDays`, `minBaselineDays`). Fatigue or soreness at 4, the
+worst of Intervals.icu's 1-4 scale, is a caution.
 
 ```okf-rules
 {
@@ -1197,7 +1257,15 @@ adds 12 h when form (CTL − ATL) is below it.
   "recoveryThreshold": 0.9,
   "holdEveryWeeks": 4,
   "recoveryHours": [[50, 12], [100, 24], [200, 36], [null, 48]],
-  "recoveryFormPenaltyBelow": -20
+  "recoveryFormPenaltyBelow": -20,
+  "readiness": {
+    "hrvSd": [1, 2],
+    "restingHrBpm": [5, 10],
+    "sleepHoursCaution": 6,
+    "form": [-20, -30],
+    "baselineDays": 60,
+    "minBaselineDays": 14
+  }
 }
 ```
 

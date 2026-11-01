@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../evaluation/insights.dart';
+import '../evaluation/readiness.dart';
 
 /// Where the knowledge lives: section 5 of the app spec, bundled as an asset.
 const knowledgeAssetPath = 'docs/okf.md';
@@ -21,6 +22,7 @@ class PlanRules {
     this.recoveryThreshold = 0.9,
     this.holdEveryWeeks = 4,
     this.recovery = const RecoveryRules(),
+    this.readiness = const ReadinessRules(),
   });
 
   /// The classic 4-week shape. The load curve no longer uses it; kept so
@@ -38,6 +40,10 @@ class PlanRules {
   /// How long a session takes to recover from (an estimate shown after a
   /// session; not used by the plan engine).
   final RecoveryRules recovery;
+
+  /// What the daily readiness status is rated by (not used by the plan
+  /// engine).
+  final ReadinessRules readiness;
 
   /// A week below this fraction of the week before it is a recovery week.
   final double recoveryThreshold;
@@ -85,6 +91,9 @@ class PlanRules {
           (json['recoveryThreshold'] as num?)?.toDouble() ?? 0.9,
       holdEveryWeeks: (json['holdEveryWeeks'] as num?)?.toInt() ?? 4,
       recovery: _recoveryRules(json),
+      readiness: json['readiness'] == null
+          ? const ReadinessRules()
+          : ReadinessRules.fromJson(json['readiness'] as Map<String, dynamic>),
     );
   }
 }

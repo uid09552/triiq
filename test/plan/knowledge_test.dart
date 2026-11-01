@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:triiq/evaluation/readiness.dart';
 import 'package:triiq/plan/knowledge.dart';
 
 void main() {
@@ -38,6 +39,18 @@ void main() {
 
       expect(rules.maxWeeklyIncrease, 0.10);
       expect(rules.recoveryThreshold, 0.9);
+    });
+
+    test('ships the readiness rules, equal to the built-in defaults', () {
+      final r = TrainingKnowledge.parse(shipped).rules.readiness;
+      const d = ReadinessRules();
+
+      expect(r.hrvSd, d.hrvSd);
+      expect(r.restingHrBpm, d.restingHrBpm);
+      expect(r.sleepHoursCaution, d.sleepHoursCaution);
+      expect(r.form, d.form);
+      expect(r.baselineDays, d.baselineDays);
+      expect(r.minBaselineDays, d.minBaselineDays);
     });
 
     test('every goal has swim z2 and interval templates for every phase', () {
@@ -105,6 +118,43 @@ void main() {
       expect(knowledge.warnings.first, contains('okf-goal block #1'));
       // No rules block at all: defaults apply, and the athlete is told.
       expect(knowledge.rules.weekMultipliers, PlanRules.defaults.weekMultipliers);
+    });
+
+    test('a rules block without readiness gets the readiness defaults', () {
+      final json = {
+        'weekPhases': ['build'],
+        'weekMultipliers': [1.0],
+        'maxWeeklyIncrease': 0.1,
+        'maxCtlRamp': 7,
+        'lowIntensityTarget': 0.8,
+        'lowIntensityTolerance': 0.05,
+        'minHistoryWeeks': 4,
+      };
+
+      expect(PlanRules.fromJson(json).readiness.hrvSd, [1, 2]);
+      expect(
+        PlanRules.fromJson({
+          ...json,
+          'readiness': {'sleepHoursCaution': 7},
+        }).readiness.sleepHoursCaution,
+        7,
+      );
+    });
+
+    test('a malformed readiness object skips the rules block with a warning',
+        () {
+      const md = '''
+```okf-rules
+{"weekPhases":["build"],"weekMultipliers":[1.0],"maxWeeklyIncrease":0.2,
+ "maxCtlRamp":7,"lowIntensityTarget":0.8,"lowIntensityTolerance":0.05,
+ "minHistoryWeeks":4,"readiness":{"hrvSd":[1]}}
+```
+''';
+      final knowledge = TrainingKnowledge.parse(md);
+
+      expect(knowledge.warnings.first, contains('readiness.hrvSd'));
+      expect(knowledge.rules.maxWeeklyIncrease, 0.10);
+      expect(knowledge.rules.readiness.hrvSd, [1, 2]);
     });
 
     test('falls back to built-in goals when none survive', () {

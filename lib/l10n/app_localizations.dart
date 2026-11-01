@@ -3085,6 +3085,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your training days cannot hold this week. Add a day or set a sport to 0%.'**
   String get planNotEnoughDays;
+
+  /// No description provided for @performanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get performanceTitle;
+
+  /// No description provided for @performanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Best efforts by duration and distance, season against season'**
+  String get performanceSubtitle;
+
+  /// No description provided for @curveMetricPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Power'**
+  String get curveMetricPower;
+
+  /// No description provided for @curveMetricPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pace'**
+  String get curveMetricPace;
+
+  /// No description provided for @curveMetricHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate'**
+  String get curveMetricHr;
+
+  /// No description provided for @curvePeriodThisSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'This season'**
+  String get curvePeriodThisSeason;
+
+  /// No description provided for @curvePeriodLastSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Last season'**
+  String get curvePeriodLastSeason;
+
+  /// No description provided for @curvePeriodLast42.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 42 days'**
+  String get curvePeriodLast42;
+
+  /// No description provided for @curvePeriodNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'{period}: no data'**
+  String curvePeriodNoData(String period);
+
+  /// No description provided for @curvePeriodRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{period} ({from} – {to})'**
+  String curvePeriodRange(String period, String from, String to);
+
+  /// No description provided for @curveAxisDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get curveAxisDuration;
+
+  /// No description provided for @curveAxisDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get curveAxisDistance;
+
+  /// No description provided for @curveAxisPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Power (W)'**
+  String get curveAxisPower;
+
+  /// No description provided for @curveAxisHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate (bpm)'**
+  String get curveAxisHr;
+
+  /// No description provided for @curveAxisPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pace ({unit})'**
+  String curveAxisPace(String unit);
+
+  /// No description provided for @curveTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap or drag the chart to read a value.'**
+  String get curveTapHint;
+
+  /// No description provided for @curveOpenSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Open session'**
+  String get curveOpenSession;
+
+  /// No description provided for @curveSessionNotCached.
+  ///
+  /// In en, this message translates to:
+  /// **'That session isn\'t in the local cache yet — sync its date range first.'**
+  String get curveSessionNotCached;
+
+  /// No description provided for @curvesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No efforts for this sport and metric yet.'**
+  String get curvesEmpty;
+
+  /// No description provided for @curvesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the curves: {error}'**
+  String curvesLoadFailed(String error);
+
+  /// No description provided for @keyEffortsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Key efforts'**
+  String get keyEffortsTitle;
+
+  /// No description provided for @keyEffortsChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get keyEffortsChange;
+
+  /// No description provided for @modelCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Model fit (Intervals.icu)'**
+  String get modelCardTitle;
+
+  /// No description provided for @modelNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu returned no model fit for this curve.'**
+  String get modelNone;
+
+  /// No description provided for @modelSettingsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'In your settings'**
+  String get modelSettingsValue;
+
+  /// No description provided for @modelNoSettingsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set in your Intervals.icu settings'**
+  String get modelNoSettingsValue;
+
+  /// No description provided for @modelGap.
+  ///
+  /// In en, this message translates to:
+  /// **'Model {model} vs settings {settings}: {diff}'**
+  String modelGap(String model, String settings, String diff);
+
+  /// No description provided for @modelCriticalSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical speed'**
+  String get modelCriticalSpeed;
+
+  /// No description provided for @readinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness'**
+  String get readinessTitle;
+
+  /// No description provided for @readinessReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get readinessReady;
+
+  /// No description provided for @readinessCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Caution'**
+  String get readinessCaution;
+
+  /// No description provided for @readinessBackOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Back off'**
+  String get readinessBackOff;
+
+  /// No description provided for @readinessAllOk.
+  ///
+  /// In en, this message translates to:
+  /// **'All signals in your normal range'**
+  String get readinessAllOk;
+
+  /// No description provided for @readinessReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Due to {signals}'**
+  String readinessReasons(String signals);
+
+  /// No description provided for @readinessNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No wellness data'**
+  String get readinessNoData;
+
+  /// No description provided for @readinessNoDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect a watch or HRV app to Intervals.icu to see HRV, resting HR and sleep here.'**
+  String get readinessNoDataHint;
+
+  /// No description provided for @readinessWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for today\'s data (last: {date})'**
+  String readinessWaiting(String date);
+
+  /// No description provided for @readinessSignalHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV'**
+  String get readinessSignalHrv;
+
+  /// No description provided for @readinessSignalRestingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting HR'**
+  String get readinessSignalRestingHr;
+
+  /// No description provided for @readinessSignalSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get readinessSignalSleep;
+
+  /// No description provided for @readinessSignalForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get readinessSignalForm;
+
+  /// No description provided for @readinessSignalSubjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue / soreness'**
+  String get readinessSignalSubjective;
+
+  /// No description provided for @readinessRatingOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get readinessRatingOk;
+
+  /// No description provided for @readinessRatingNoBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough history yet'**
+  String get readinessRatingNoBaseline;
+
+  /// No description provided for @readinessRatingMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No value today'**
+  String get readinessRatingMissing;
+
+  /// No description provided for @readinessRangeHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal from {value} ms (avg {mean} ms)'**
+  String readinessRangeHrv(String value, String mean);
+
+  /// No description provided for @readinessRangeRestingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal up to {value} bpm (avg {mean} bpm)'**
+  String readinessRangeRestingHr(String value, String mean);
+
+  /// No description provided for @readinessRangeSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal from {value} h'**
+  String readinessRangeSleep(String value);
+
+  /// No description provided for @readinessRangeForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal from {value}'**
+  String readinessRangeForm(String value);
+
+  /// No description provided for @readinessSubjectiveValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue {fatigue} · soreness {soreness} (1 good, 4 bad)'**
+  String readinessSubjectiveValues(String fatigue, String soreness);
+
+  /// No description provided for @readinessDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device readiness {value}'**
+  String readinessDevice(String value);
+
+  /// No description provided for @readinessTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get readinessTrend;
+
+  /// No description provided for @readinessDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Thresholds are general defaults from the training knowledge, not medical advice.'**
+  String get readinessDisclaimer;
+
+  /// No description provided for @readinessHintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Consider an easier day'**
+  String get readinessHintTitle;
+
+  /// No description provided for @readinessHintBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness is {level} and today\'s plan has {session}.'**
+  String readinessHintBody(String level, String session);
+
+  /// No description provided for @readinessTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness today'**
+  String get readinessTopic;
+
+  /// No description provided for @readinessChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'My readiness today is {level} ({reasons}). Should I still do {session}?'**
+  String readinessChatDraft(String level, String reasons, String session);
 }
 
 class _AppLocalizationsDelegate

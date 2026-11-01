@@ -14,6 +14,7 @@ import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
+import '../../evaluation/readiness_service.dart';
 import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
 import '../../widgets/athlete_avatar.dart';
@@ -26,6 +27,7 @@ import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import 'athlete_detail_screen.dart';
 import 'metric_history_screen.dart';
+import 'readiness_card.dart';
 import 'train_now_screen.dart';
 import 'tss_history_screen.dart';
 import 'weekly_load_screen.dart';
@@ -44,12 +46,14 @@ class TodayScreen extends StatefulWidget {
     this.wellnessRepository,
     this.activitiesRepository,
     this.plannedItems,
+    this.readinessService,
   });
 
   /// Test seams; the app uses the defaults.
   final WellnessRepository? wellnessRepository;
   final ActivitiesRepository? activitiesRepository;
   final PlannedItemsRepository? plannedItems;
+  final ReadinessService? readinessService;
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -64,6 +68,9 @@ class _TodayScreenState extends State<TodayScreen> {
       widget.activitiesRepository ?? ActivitiesRepository();
   late final _eventsRepository =
       widget.plannedItems ?? PlannedItemsRepository();
+  late final _readinessService =
+      widget.readinessService ??
+      ReadinessService(wellness: _wellnessRepository);
 
   bool _loading = true;
   String? _error;
@@ -72,6 +79,7 @@ class _TodayScreenState extends State<TodayScreen> {
   /// The same record a week ago, so each load tile can show which way it is
   /// moving rather than a bare number.
   LocalWellness? _wellnessWeekAgo;
+  ReadinessReport? _readiness;
   List<LocalActivity> _activities = const [];
   List<LocalEvent> _todaysPlan = const [];
   List<LocalEvent> _tomorrowsPlan = const [];
@@ -173,7 +181,6 @@ class _TodayScreenState extends State<TodayScreen> {
         isoDate(weekStart),
         isoDate(weekEnd),
       );
-
       if (!mounted) return fetched;
       setState(() {
         _wellness = wellness;
@@ -198,7 +205,20 @@ class _TodayScreenState extends State<TodayScreen> {
         _loading = false;
       });
     }
+    await _loadReadiness();
     return fetched;
+  }
+
+  /// Readiness after the rest of the screen, so a slow knowledge load or a
+  /// bad wellness row only costs the readiness row, never the load tiles.
+  Future<void> _loadReadiness() async {
+    try {
+      final readiness = await _readinessService.load();
+      if (mounted) setState(() => _readiness = readiness);
+    } catch (e) {
+      debugPrint('TodayScreen: readiness unavailable: $e');
+      if (mounted) setState(() => _readiness = null);
+    }
   }
 
   @override
@@ -324,6 +344,21 @@ class _TodayScreenState extends State<TodayScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
+          ],
+          if (_readiness case final readiness?) ...[
+            const SizedBox(height: 16),
+            ReadinessCard(report: readiness),
+            if (ReadinessHint.hardSessionFor(
+                  readiness.readiness,
+                  _todaysPlan,
+                ) !=
+                null) ...[
+              const SizedBox(height: 12),
+              ReadinessHint(
+                readiness: readiness.readiness,
+                todaysPlan: _todaysPlan,
+              ),
+            ],
           ],
           const SizedBox(height: 16),
           _MetricTiles(

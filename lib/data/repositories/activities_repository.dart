@@ -34,6 +34,18 @@ class ActivitiesRepository {
     return rows.map(LocalActivity.fromMap).toList();
   }
 
+  /// One cached activity, or null when it isn't in the cache.
+  Future<LocalActivity?> getById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'activities',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    return rows.isEmpty ? null : LocalActivity.fromMap(rows.first);
+  }
+
   /// All cached activities, most recent first — for the Activities list.
   Future<List<LocalActivity>> getAll() async {
     final db = await _database.database;

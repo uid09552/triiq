@@ -1860,4 +1860,213 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get planNotEnoughDays =>
       'Deine Trainingstage reichen für diese Woche nicht. Füge einen Tag hinzu oder setze eine Sportart auf 0 %.';
+
+  @override
+  String get performanceTitle => 'Leistung';
+
+  @override
+  String get performanceSubtitle =>
+      'Bestleistungen nach Dauer und Distanz, Saison gegen Saison';
+
+  @override
+  String get curveMetricPower => 'Leistung';
+
+  @override
+  String get curveMetricPace => 'Pace';
+
+  @override
+  String get curveMetricHr => 'Herzfrequenz';
+
+  @override
+  String get curvePeriodThisSeason => 'Diese Saison';
+
+  @override
+  String get curvePeriodLastSeason => 'Letzte Saison';
+
+  @override
+  String get curvePeriodLast42 => 'Letzte 42 Tage';
+
+  @override
+  String curvePeriodNoData(String period) {
+    return '$period: keine Daten';
+  }
+
+  @override
+  String curvePeriodRange(String period, String from, String to) {
+    return '$period ($from – $to)';
+  }
+
+  @override
+  String get curveAxisDuration => 'Dauer';
+
+  @override
+  String get curveAxisDistance => 'Distanz';
+
+  @override
+  String get curveAxisPower => 'Leistung (W)';
+
+  @override
+  String get curveAxisHr => 'Herzfrequenz (bpm)';
+
+  @override
+  String curveAxisPace(String unit) {
+    return 'Pace ($unit)';
+  }
+
+  @override
+  String get curveTapHint =>
+      'Tippe oder ziehe im Diagramm, um einen Wert abzulesen.';
+
+  @override
+  String get curveOpenSession => 'Einheit öffnen';
+
+  @override
+  String get curveSessionNotCached =>
+      'Diese Einheit ist noch nicht im lokalen Cache – synchronisiere zuerst ihren Zeitraum.';
+
+  @override
+  String get curvesEmpty =>
+      'Noch keine Bestleistungen für diese Sportart und Messgröße.';
+
+  @override
+  String curvesLoadFailed(String error) {
+    return 'Kurven konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String get keyEffortsTitle => 'Wichtige Bestwerte';
+
+  @override
+  String get keyEffortsChange => 'Änderung';
+
+  @override
+  String get modelCardTitle => 'Modell (Intervals.icu)';
+
+  @override
+  String get modelNone =>
+      'Intervals.icu hat für diese Kurve kein Modell berechnet.';
+
+  @override
+  String get modelSettingsValue => 'In deinen Einstellungen';
+
+  @override
+  String get modelNoSettingsValue =>
+      'In deinen Intervals.icu-Einstellungen nicht gesetzt';
+
+  @override
+  String modelGap(String model, String settings, String diff) {
+    return 'Modell $model vs. Einstellungen $settings: $diff';
+  }
+
+  @override
+  String get modelCriticalSpeed => 'Kritische Geschwindigkeit';
+
+  @override
+  String get readinessTitle => 'Trainingsbereitschaft';
+
+  @override
+  String get readinessReady => 'Bereit';
+
+  @override
+  String get readinessCaution => 'Vorsicht';
+
+  @override
+  String get readinessBackOff => 'Ruhiger angehen';
+
+  @override
+  String get readinessAllOk => 'Alle Werte im Normalbereich';
+
+  @override
+  String readinessReasons(String signals) {
+    return 'Wegen $signals';
+  }
+
+  @override
+  String get readinessNoData => 'Keine Wellness-Daten';
+
+  @override
+  String get readinessNoDataHint =>
+      'Verbinde eine Uhr oder HRV-App mit Intervals.icu, um HRV, Ruhepuls und Schlaf hier zu sehen.';
+
+  @override
+  String readinessWaiting(String date) {
+    return 'Warte auf die heutigen Daten (zuletzt: $date)';
+  }
+
+  @override
+  String get readinessSignalHrv => 'HRV';
+
+  @override
+  String get readinessSignalRestingHr => 'Ruhepuls';
+
+  @override
+  String get readinessSignalSleep => 'Schlaf';
+
+  @override
+  String get readinessSignalForm => 'Form';
+
+  @override
+  String get readinessSignalSubjective => 'Müdigkeit / Muskelkater';
+
+  @override
+  String get readinessRatingOk => 'OK';
+
+  @override
+  String get readinessRatingNoBaseline => 'Noch zu wenig Verlauf';
+
+  @override
+  String get readinessRatingMissing => 'Heute kein Wert';
+
+  @override
+  String readinessRangeHrv(String value, String mean) {
+    return 'Normal ab $value ms (Ø $mean ms)';
+  }
+
+  @override
+  String readinessRangeRestingHr(String value, String mean) {
+    return 'Normal bis $value bpm (Ø $mean bpm)';
+  }
+
+  @override
+  String readinessRangeSleep(String value) {
+    return 'Normal ab $value h';
+  }
+
+  @override
+  String readinessRangeForm(String value) {
+    return 'Normal ab $value';
+  }
+
+  @override
+  String readinessSubjectiveValues(String fatigue, String soreness) {
+    return 'Müdigkeit $fatigue · Muskelkater $soreness (1 gut, 4 schlecht)';
+  }
+
+  @override
+  String readinessDevice(String value) {
+    return 'Geräte-Bereitschaft $value';
+  }
+
+  @override
+  String get readinessTrend => 'Letzte 30 Tage';
+
+  @override
+  String get readinessDisclaimer =>
+      'Die Schwellen sind allgemeine Standardwerte aus dem Trainingswissen, keine medizinische Beratung.';
+
+  @override
+  String get readinessHintTitle => 'Lieber ein leichterer Tag?';
+
+  @override
+  String readinessHintBody(String level, String session) {
+    return 'Bereitschaft: $level, und heute steht $session im Plan.';
+  }
+
+  @override
+  String get readinessTopic => 'Bereitschaft heute';
+
+  @override
+  String readinessChatDraft(String level, String reasons, String session) {
+    return 'Meine Bereitschaft heute ist $level ($reasons). Soll ich $session trotzdem machen?';
+  }
 }

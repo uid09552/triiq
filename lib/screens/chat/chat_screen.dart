@@ -118,6 +118,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void _takeTopic() {
     final topic = ChatHandoff.instance.take();
     if (topic == null) return;
+    final draft = topic.draft;
+    if (draft != null) _controller.text = draft;
     setState(() => _topic = topic);
   }
 

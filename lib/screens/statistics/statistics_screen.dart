@@ -19,6 +19,7 @@ import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
+import 'performance_screen.dart';
 
 /// Training-load trends and volume, all of it read from the local cache:
 /// the CTL/ATL curve over the chosen window, completed-vs-planned load per
@@ -235,6 +236,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     setState(() => _days = selection.first);
                     _load();
                   },
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.trending_up),
+              title: Text(l10n.performanceTitle),
+              subtitle: Text(l10n.performanceSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const PerformanceScreen(),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           SectionCard(

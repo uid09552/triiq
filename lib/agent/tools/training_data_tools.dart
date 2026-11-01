@@ -13,8 +13,11 @@ import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/plans_repository.dart';
 import '../../data/repositories/sync_state_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
+import '../../evaluation/readiness.dart';
+import '../../evaluation/readiness_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../evaluation/intensity.dart';
+import '../../evaluation/performance_curves.dart';
 import '../../plan/knowledge.dart';
 import '../../plan/plan_engine.dart';
 import '../../plan/plan_inputs.dart';
@@ -28,8 +31,9 @@ import 'plan_assistant_tools.dart';
 ///
 /// Every read goes through the local SQLite cache rather than Intervals.icu,
 /// so a question costs no API calls and works offline; `sync_from_intervals`
-/// is the one tool that goes out to the network, and only when the agent
-/// decides the cache is missing what it needs.
+/// goes out to the network when the agent decides the cache is missing what
+/// it needs, and `get_performance_curve` fetches curves only when none are
+/// cached or a newer activity made them stale.
 ///
 /// Tool results are JSON strings. Nulls and empty collections are stripped
 /// (see [_compact]) — with ~180 possible fields per activity, sending the
@@ -49,7 +53,11 @@ class TrainingDataTools {
     GoalStore? goalStore,
     PlanInputsLoader? planInputs,
     PlanProposals? proposals,
-  }) : _knowledge = knowledgeRepository ?? KnowledgeRepository(),
+    PerformanceCurvesRepository? performanceCurves,
+    ReadinessService? readinessService,
+  }) : _readinessOverride = readinessService,
+       _performanceCurves = performanceCurves ?? PerformanceCurvesRepository(),
+       _knowledge = knowledgeRepository ?? KnowledgeRepository(),
        _goalStore = goalStore ?? GoalStore(),
        _planInputs =
            planInputs ??
@@ -74,8 +82,10 @@ class TrainingDataTools {
            loadTrainingGuidance ?? _loadTrainingGuidanceAsset;
 
   final IntervalsSession _session;
+  final PerformanceCurvesRepository _performanceCurves;
   final WellnessRepository _wellnessRepository;
   final ActivitiesRepository _activitiesRepository;
+
   /// Planned items: the TriIQ plan plus, when copied, Intervals.icu events.
   final PlannedItemsRepository _eventsRepository;
   final SyncStateRepository _syncStateRepository;
@@ -87,6 +97,16 @@ class TrainingDataTools {
   final PlanInputsLoader _planInputs;
   final PlansRepository _plans;
   final PlanProposals _proposals;
+  final ReadinessService? _readinessOverride;
+
+  /// Today's readiness by the same rules as the Today tile.
+  late final ReadinessService _readiness =
+      _readinessOverride ??
+      ReadinessService(
+        wellness: _wellnessRepository,
+        knowledge: _knowledge,
+        clock: _clock,
+      );
 
   /// Reading the plan and making proposals on it (no writes).
   late final PlanAssistantTools _planTools = PlanAssistantTools(
@@ -146,6 +166,19 @@ class TrainingDataTools {
           '$_maxMetricDays days per call.',
       schema: _rangeSchema(),
       run: (args) => _dailyMetrics(args),
+    ),
+    _tool(
+      name: 'get_readiness',
+      description:
+          "Today's readiness status (ready / caution / back_off), computed "
+          "on the device from today's HRV, resting HR, sleep, form and the "
+          "logged fatigue/soreness against the athlete's own 60-day "
+          'baselines — the same result as the readiness tile on Today. Each '
+          'signal comes with its value, baseline and rating, plus whether '
+          "today's wearable data has arrived. Check it before advising on a "
+          'hard session today. Read-only.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _readinessToday(),
     ),
     _tool(
       name: 'get_activities',
@@ -251,10 +284,7 @@ class TrainingDataTools {
             'type': 'string',
             'description': 'For example long_distance or short_event.',
           },
-          'sport': {
-            'type': 'string',
-            'description': 'Run, Ride or Triathlon.',
-          },
+          'sport': {'type': 'string', 'description': 'Run, Ride or Triathlon.'},
           'weeks': {
             'type': 'integer',
             'description':
@@ -308,10 +338,7 @@ class TrainingDataTools {
         'type': 'object',
         'properties': {
           'goal_type': {'type': 'string'},
-          'slot': {
-            'type': 'string',
-            'description': 'z2, intervals or long.',
-          },
+          'slot': {'type': 'string', 'description': 'z2, intervals or long.'},
           'phase': {
             'type': 'string',
             'description': 'build, build_plus, peak or recovery.',
@@ -404,20 +431,44 @@ class TrainingDataTools {
             'type': 'string',
             'enum': ['move', 'remove'],
           },
-          'date': {
-            'type': 'string',
-            'description': 'YYYY-MM-DD, for a move.',
-          },
+          'date': {'type': 'string', 'description': 'YYYY-MM-DD, for a move.'},
         },
         'required': ['session_id', 'action'],
       },
       run: (args) => _planTools.proposeSessionChange(args),
     ),
     _tool(
+      name: 'get_performance_curve',
+      description:
+          'Best efforts per duration (power, heart rate) or per distance '
+          '(pace) for one sport: this season (s0), last season (s1) and the '
+          'last 42 days, at fixed key points, with the session that set '
+          'each, plus the model Intervals.icu fits (FTP/CP/W\'/Pmax for '
+          'power, critical speed/D\' for pace) against the threshold in the '
+          'athlete\'s settings. Use for "am I getting faster" questions. '
+          'Read-only; fetches from Intervals.icu only when nothing is cached '
+          'or a newer activity of the sport arrived.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'sport': {
+            'type': 'string',
+            'enum': ['Ride', 'Run', 'Swim'],
+          },
+          'metric': {
+            'type': 'string',
+            'enum': ['power', 'pace', 'hr'],
+          },
+        },
+        'required': ['sport', 'metric'],
+      },
+      run: (args) => _performanceCurve(args),
+    ),
+    _tool(
       name: 'sync_from_intervals',
       description:
           'Fetches a date range from Intervals.icu into the local cache. The '
-          'only tool that uses the network. Use it when get_athlete_context '
+          'only tool that syncs date ranges. Use it when get_athlete_context '
           'shows the dates you need are not cached, or when the athlete asks '
           'for fresh data. Sync the range you need, not the whole history.',
       schema: _rangeSchema(),
@@ -629,8 +680,7 @@ class TrainingDataTools {
       'range': {'start_date': range.start, 'end_date': range.end},
       'planned': records.map(_plannedRow).toList(),
       if (records.isEmpty)
-        'note':
-            'Nothing planned in this range, or the range was never synced.',
+        'note': 'Nothing planned in this range, or the range was never synced.',
     };
   }
 
@@ -705,9 +755,109 @@ class TrainingDataTools {
         'moving_time_s': ordered.fold<int>(0, (sum, b) => sum + b.movingTime),
       },
       if (ordered.isEmpty)
-        'note': 'Nothing cached in this range — sync it before drawing '
+        'note':
+            'Nothing cached in this range — sync it before drawing '
             'conclusions.',
     };
+  }
+
+  Future<Map<String, dynamic>> _performanceCurve(
+    Map<String, dynamic> args,
+  ) async {
+    final sport = CurveSport.fromName(args['sport'] as String?);
+    final metric = CurveMetric.fromName(args['metric'] as String?);
+    if (sport == null || metric == null) {
+      return {
+        'error': 'sport must be Ride, Run or Swim; metric power, pace or hr.',
+      };
+    }
+    PerformanceCurves curves;
+    String? note;
+    try {
+      curves = await _performanceCurves.load(sport, metric);
+    } catch (error) {
+      final cached = await _performanceCurves.cached(sport, metric);
+      if (cached == null) {
+        return {'error': 'Could not fetch the curves: $error'};
+      }
+      curves = cached;
+      note = 'Fetching fresh curves failed; these are the cached ones.';
+    }
+    if (curves.isEmpty) {
+      return {
+        'sport': sport.apiType,
+        'metric': metric.name,
+        'note': 'No efforts for this sport and metric.',
+      };
+    }
+
+    final unitMetres = paceUnitMetres(sport);
+    Map<String, dynamic> point(CurvePoint p) {
+      final activity = p.activityId == null
+          ? null
+          : curves.activities[p.activityId];
+      return _compact({
+        metric.byDistance ? 'distance_m' : 'duration_s': p.x,
+        if (metric.byDistance) ...{
+          'time_s': p.value,
+          'pace': formatPace(p.x / p.value, per: unitMetres),
+        } else
+          'value': p.value,
+        'activity_id': p.activityId,
+        'date': activity?.date,
+        'name': activity?.name,
+      });
+    }
+
+    final settings = _session.settingsForSport(sport.apiType);
+    final model = curves.period('s0')?.model;
+    Map<String, dynamic>? gap;
+    if (metric == CurveMetric.power &&
+        model?.ftp != null &&
+        (settings?.ftp ?? 0) > 0) {
+      final ftp = settings!.ftp!;
+      gap = {
+        'model_ftp': model!.ftp,
+        'settings_ftp': ftp,
+        'difference_w': model.ftp! - ftp,
+        'difference_pct': ((model.ftp! / ftp - 1) * 1000).round() / 10,
+      };
+    } else if (metric == CurveMetric.pace &&
+        model?.criticalSpeed != null &&
+        (settings?.thresholdPace ?? 0) > 0) {
+      final pace = settings!.thresholdPace!;
+      gap = {
+        'model_pace': formatPace(model!.criticalSpeed!, per: unitMetres),
+        'settings_threshold_pace': formatPace(pace, per: unitMetres),
+        'per_metres': unitMetres,
+        'speed_difference_pct':
+            ((model.criticalSpeed! / pace - 1) * 1000).round() / 10,
+      };
+    }
+
+    return _compact({
+      'sport': sport.apiType,
+      'metric': metric.name,
+      'unit': switch (metric) {
+        CurveMetric.power => 'W',
+        CurveMetric.hr => 'bpm',
+        CurveMetric.pace => 'time_s over distance_m; pace per $unitMetres m',
+      },
+      'periods': [
+        for (final period in curves.periods)
+          _compact({
+            'period': period.id,
+            'from': period.start,
+            'to': period.end,
+            'key_points': [
+              for (final x in curves.keyPoints) ?period.at(x),
+            ].map(point).toList(),
+            'model': period.model?.toJson(),
+          }),
+      ],
+      'model_vs_settings': gap,
+      'note': note,
+    });
   }
 
   Future<Map<String, dynamic>> _trainingGuidance(
@@ -749,11 +899,12 @@ class TrainingDataTools {
       };
     }
 
-    final scored = sections
-        .map((section) => (section: section, score: section.score(terms)))
-        .where((match) => match.score > 0)
-        .toList()
-      ..sort((a, b) => b.score.compareTo(a.score));
+    final scored =
+        sections
+            .map((section) => (section: section, score: section.score(terms)))
+            .where((match) => match.score > 0)
+            .toList()
+          ..sort((a, b) => b.score.compareTo(a.score));
 
     if (scored.isEmpty) {
       return {
@@ -891,7 +1042,8 @@ class TrainingDataTools {
             if (week.warnings.isNotEmpty)
               'above_limits': [for (final l in week.warnings) l.name],
             'planned_load': week.plannedLoad,
-            if (plan.sportMix.isNotEmpty) 'planned_load_by_sport': week.loadBySport,
+            if (plan.sportMix.isNotEmpty)
+              'planned_load_by_sport': week.loadBySport,
             'planned_minutes': week.totalMinutes,
             'low_intensity_share': week.lowShare == null
                 ? null
@@ -1015,6 +1167,46 @@ class TrainingDataTools {
     } catch (error) {
       return {'error': 'Sync failed: $error'};
     }
+  }
+
+  Future<Map<String, dynamic>> _readinessToday() async {
+    final r = (await _readiness.load()).readiness;
+    String snake(String name) => name.replaceAllMapped(
+      RegExp('[A-Z]'),
+      (m) => '_${m[0]!.toLowerCase()}',
+    );
+    return _compact({
+      'date': _isoDate(_clock()),
+      'status': snake(r.level.name),
+      'reasons': [for (final s in r.reasons) snake(s.kind.name)],
+      'data_state': snake(r.dataState.name),
+      'last_recorded_date': r.lastRecordedDate,
+      'device_readiness': _round(r.deviceReadiness),
+      'signals': [
+        for (final s in r.signals)
+          _compact({
+            'signal': snake(s.kind.name),
+            'rating': snake(s.rating.name),
+            'value': _round(s.value),
+            'unit': switch (s.kind) {
+              ReadinessSignalKind.hrv => 'ms (rMSSD)',
+              ReadinessSignalKind.restingHr => 'bpm',
+              ReadinessSignalKind.sleep => 'hours',
+              ReadinessSignalKind.form => 'CTL - ATL',
+              ReadinessSignalKind.subjective => '1 good .. 4 bad',
+            },
+            'baseline_mean': _round(s.mean),
+            'baseline_sd': _round(s.sd),
+            'ok_bound': _round(s.okBound),
+            'fatigue': s.fatigue,
+            'soreness': s.soreness,
+          }),
+      ],
+      'note':
+          'Thresholds are defaults from the training knowledge, not medical '
+          'advice. One day means little on its own; look at the trend with '
+          'get_daily_metrics before a strong recommendation.',
+    });
   }
 
   // -------------------------------------------------------------- helpers

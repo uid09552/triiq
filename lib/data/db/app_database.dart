@@ -55,7 +55,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onUpgrade: (db, oldVersion, newVersion) async {
         // v2 added planned calendar entries. Existing caches only held what
         // already happened, so the table is simply created empty and filled
@@ -74,6 +74,11 @@ class AppDatabase {
         // demand: nothing to migrate.
         if (oldVersion < 4) {
           await db.execute(_createActivityStreamsTable);
+        }
+        // v5 cached performance curves, fetched when the Performance screen
+        // opens: nothing to migrate.
+        if (oldVersion < 5) {
+          await db.execute(_createPerformanceCurvesTable);
         }
       },
       onCreate: (db, version) async {
@@ -111,6 +116,7 @@ class AppDatabase {
         await db.execute(_createPlanSessionsTable);
         await db.execute(_createPlanSessionsPlanIndex);
         await db.execute(_createActivityStreamsTable);
+        await db.execute(_createPerformanceCurvesTable);
         await db.execute('''
           CREATE TABLE sync_state (
             scope TEXT PRIMARY KEY,
@@ -153,6 +159,18 @@ class AppDatabase {
     CREATE TABLE activity_streams (
       activity_id TEXT PRIMARY KEY,
       data TEXT NOT NULL,
+      fetched_at INTEGER NOT NULL
+    )
+  ''';
+
+  /// One sport/metric's duration curves (`ride|power`, …) as fetched from
+  /// Intervals.icu, with the newest activity of that sport at the time —
+  /// a newer one means the curves are stale.
+  static const _createPerformanceCurvesTable = '''
+    CREATE TABLE performance_curves (
+      key TEXT PRIMARY KEY,
+      data TEXT NOT NULL,
+      newest_activity_id TEXT,
       fetched_at INTEGER NOT NULL
     )
   ''';

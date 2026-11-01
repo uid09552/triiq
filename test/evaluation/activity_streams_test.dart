@@ -36,7 +36,7 @@ void main() {
     final database = AppDatabase.atPath(path);
     final db = await database.database;
 
-    expect(await db.getVersion(), 4);
+    expect(await db.getVersion(), greaterThanOrEqualTo(4));
     expect(await db.query('activity_streams'), isEmpty);
     expect(await db.query('activities'), hasLength(1), reason: 'kept');
     await database.close();

@@ -1840,4 +1840,209 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get planNotEnoughDays =>
       'Your training days cannot hold this week. Add a day or set a sport to 0%.';
+
+  @override
+  String get performanceTitle => 'Performance';
+
+  @override
+  String get performanceSubtitle =>
+      'Best efforts by duration and distance, season against season';
+
+  @override
+  String get curveMetricPower => 'Power';
+
+  @override
+  String get curveMetricPace => 'Pace';
+
+  @override
+  String get curveMetricHr => 'Heart rate';
+
+  @override
+  String get curvePeriodThisSeason => 'This season';
+
+  @override
+  String get curvePeriodLastSeason => 'Last season';
+
+  @override
+  String get curvePeriodLast42 => 'Last 42 days';
+
+  @override
+  String curvePeriodNoData(String period) {
+    return '$period: no data';
+  }
+
+  @override
+  String curvePeriodRange(String period, String from, String to) {
+    return '$period ($from – $to)';
+  }
+
+  @override
+  String get curveAxisDuration => 'Duration';
+
+  @override
+  String get curveAxisDistance => 'Distance';
+
+  @override
+  String get curveAxisPower => 'Power (W)';
+
+  @override
+  String get curveAxisHr => 'Heart rate (bpm)';
+
+  @override
+  String curveAxisPace(String unit) {
+    return 'Pace ($unit)';
+  }
+
+  @override
+  String get curveTapHint => 'Tap or drag the chart to read a value.';
+
+  @override
+  String get curveOpenSession => 'Open session';
+
+  @override
+  String get curveSessionNotCached =>
+      'That session isn\'t in the local cache yet — sync its date range first.';
+
+  @override
+  String get curvesEmpty => 'No efforts for this sport and metric yet.';
+
+  @override
+  String curvesLoadFailed(String error) {
+    return 'Couldn\'t load the curves: $error';
+  }
+
+  @override
+  String get keyEffortsTitle => 'Key efforts';
+
+  @override
+  String get keyEffortsChange => 'Change';
+
+  @override
+  String get modelCardTitle => 'Model fit (Intervals.icu)';
+
+  @override
+  String get modelNone => 'Intervals.icu returned no model fit for this curve.';
+
+  @override
+  String get modelSettingsValue => 'In your settings';
+
+  @override
+  String get modelNoSettingsValue => 'Not set in your Intervals.icu settings';
+
+  @override
+  String modelGap(String model, String settings, String diff) {
+    return 'Model $model vs settings $settings: $diff';
+  }
+
+  @override
+  String get modelCriticalSpeed => 'Critical speed';
+
+  @override
+  String get readinessTitle => 'Readiness';
+
+  @override
+  String get readinessReady => 'Ready';
+
+  @override
+  String get readinessCaution => 'Caution';
+
+  @override
+  String get readinessBackOff => 'Back off';
+
+  @override
+  String get readinessAllOk => 'All signals in your normal range';
+
+  @override
+  String readinessReasons(String signals) {
+    return 'Due to $signals';
+  }
+
+  @override
+  String get readinessNoData => 'No wellness data';
+
+  @override
+  String get readinessNoDataHint =>
+      'Connect a watch or HRV app to Intervals.icu to see HRV, resting HR and sleep here.';
+
+  @override
+  String readinessWaiting(String date) {
+    return 'Waiting for today\'s data (last: $date)';
+  }
+
+  @override
+  String get readinessSignalHrv => 'HRV';
+
+  @override
+  String get readinessSignalRestingHr => 'Resting HR';
+
+  @override
+  String get readinessSignalSleep => 'Sleep';
+
+  @override
+  String get readinessSignalForm => 'Form';
+
+  @override
+  String get readinessSignalSubjective => 'Fatigue / soreness';
+
+  @override
+  String get readinessRatingOk => 'OK';
+
+  @override
+  String get readinessRatingNoBaseline => 'Not enough history yet';
+
+  @override
+  String get readinessRatingMissing => 'No value today';
+
+  @override
+  String readinessRangeHrv(String value, String mean) {
+    return 'Normal from $value ms (avg $mean ms)';
+  }
+
+  @override
+  String readinessRangeRestingHr(String value, String mean) {
+    return 'Normal up to $value bpm (avg $mean bpm)';
+  }
+
+  @override
+  String readinessRangeSleep(String value) {
+    return 'Normal from $value h';
+  }
+
+  @override
+  String readinessRangeForm(String value) {
+    return 'Normal from $value';
+  }
+
+  @override
+  String readinessSubjectiveValues(String fatigue, String soreness) {
+    return 'Fatigue $fatigue · soreness $soreness (1 good, 4 bad)';
+  }
+
+  @override
+  String readinessDevice(String value) {
+    return 'Device readiness $value';
+  }
+
+  @override
+  String get readinessTrend => 'Last 30 days';
+
+  @override
+  String get readinessDisclaimer =>
+      'Thresholds are general defaults from the training knowledge, not medical advice.';
+
+  @override
+  String get readinessHintTitle => 'Consider an easier day';
+
+  @override
+  String readinessHintBody(String level, String session) {
+    return 'Readiness is $level and today\'s plan has $session.';
+  }
+
+  @override
+  String get readinessTopic => 'Readiness today';
+
+  @override
+  String readinessChatDraft(String level, String reasons, String session) {
+    return 'My readiness today is $level ($reasons). Should I still do $session?';
+  }
 }

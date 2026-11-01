@@ -5,10 +5,14 @@ import 'package:flutter/foundation.dart';
 /// context (not as a message from the athlete) and shows [title] so it's
 /// clear what the next question is about.
 class ChatTopic {
-  const ChatTopic({required this.title, required this.context});
+  const ChatTopic({required this.title, required this.context, this.draft});
 
   final String title;
   final String context;
+
+  /// A question put in the input field for the athlete to send or edit —
+  /// never sent on their behalf.
+  final String? draft;
 }
 
 /// Hands a [ChatTopic] to the Chat tab. `ChatScreen` listens and takes it.

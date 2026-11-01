@@ -12,6 +12,7 @@ import 'package:triiq/data/intervals_session.dart';
 import 'package:triiq/data/intervals_workout_service.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/evaluation/insights.dart';
+import 'package:triiq/evaluation/performance_curves.dart';
 import 'package:triiq/data/repositories/events_repository.dart';
 import 'package:triiq/data/repositories/sync_state_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
@@ -304,6 +305,74 @@ void main() {
     print('icu_achievements of ${sample.id}: ${sample.raw['icu_achievements']}');
     expect(personalBests(sample.raw), isNotEmpty,
         reason: 'the parser should read the real payload');
+  });
+
+  test('performance curves fetch and parse for every sport and metric',
+      skip: _skip, () async {
+    await IntervalsSession.instance.connect(_apiKey);
+    final repo = PerformanceCurvesRepository(
+      database: database,
+      newestActivity: (_) async => null,
+    );
+    for (final sport in CurveSport.values) {
+      for (final metric in CurveMetric.values) {
+        final curves = await repo.load(sport, metric, force: true);
+        final s0 = curves.period('s0');
+        // ignore: avoid_print
+        print('${sport.name}/${metric.name}: '
+            '${curves.periods.map((p) => '${p.id}=${p.points.length}').join(' ')}'
+            ' model=${s0?.model?.toJson()}');
+        // A sport the account never did may come back empty; what matters
+        // is that the real payload fetches with our auth and parses.
+        if (s0 != null && s0.points.length > 1) {
+          expect(s0.points.first.x, lessThan(s0.points.last.x));
+        }
+      }
+    }
+  });
+
+  test('wellness carries the keys daily readiness reads', skip: _skip,
+      () async {
+    await IntervalsSession.instance.connect(_apiKey);
+
+    final newest = DateTime.now();
+    final oldest = newest.subtract(const Duration(days: 60));
+    await syncService.syncRange(oldest, newest);
+    final records = await wellnessRepository.getRange(
+      _formatDate(oldest),
+      _formatDate(newest),
+    );
+
+    const keys = [
+      'hrv',
+      'restingHR',
+      'sleepSecs',
+      'readiness',
+      'fatigue',
+      'soreness',
+    ];
+    final counts = {
+      for (final key in keys) key: records.where((r) => r.raw[key] != null).length,
+    };
+    // ignore: avoid_print
+    print('wellness records: ${records.length}, non-null per key: $counts');
+
+    expect(
+      counts['hrv']! + counts['restingHR']! + counts['sleepSecs']!,
+      greaterThan(0),
+      reason: 'no HRV, resting HR or sleep in 60 days: either the account '
+          'has no wearable data or the keys are named differently',
+    );
+    // Intervals.icu's subjective scores are 1 (good) .. 4 (bad); readiness
+    // treats 4 as the worst level.
+    for (final record in records) {
+      for (final key in const ['fatigue', 'soreness']) {
+        final value = record.raw[key];
+        if (value != null) {
+          expect(value, inInclusiveRange(1, 4), reason: '$key on ${record.date}');
+        }
+      }
+    }
   });
 }
 
