@@ -678,6 +678,20 @@ both reading straight from the SQLite cache (no separate network call).
     Intervals.icu app if one's installed and registered for that link
     (Android App Links / iOS Universal Links), and the browser otherwise —
     this app doesn't need to know which.
+  - **Fatigue & soreness**: a button next to Open in Intervals.icu opens
+    `showFeelDialog` (`feel_dialog.dart`) — two 1-4 fields, "1 good, 4 bad",
+    prefilled from the activity's day's cached wellness when already set.
+    Saving calls `WellnessActions.setFeel`, a partial `PUT
+    /wellness/{date}` that only touches those two fields, then refreshes
+    the local wellness cache from the response so Readiness picks it up
+    without a resync. Needs an Intervals.icu connection (Wellness lives only
+    there); the button is disabled otherwise. Settings → **Fatigue &
+    soreness** (`FeelSettings`, on by default) controls whether this dialog
+    also opens by itself the first time a *recent* (today or yesterday)
+    activity's detail screen opens, when that day has nothing set yet —
+    shown at most once per activity (`FeelPromptStore`, the ids already
+    prompted), regardless of whether it's saved or cancelled. Turning that
+    setting off only stops the automatic prompt; the button keeps working.
 - Reached from **More → Activities**, from tapping any activity in Today's
   "Today's activities" card (`_TodayActivities` in `today_screen.dart`), and
   from a sport row on Statistics, which passes `ActivitiesScreen(initialType:
@@ -866,7 +880,8 @@ off** for today and why ("Due to HRV, Sleep"). It is worked out on the
 device from today's Intervals.icu wellness record: HRV and resting HR against
 your own normal over the previous 60 days (a signal needs at least 14 days of
 values before it counts), last night's sleep, form (CTL − ATL) and the
-fatigue/soreness you logged. Any back-off signal, or two cautions, means Back
+fatigue/soreness you logged — from an activity's detail screen (see
+Activities above) or directly in Intervals.icu. Any back-off signal, or two cautions, means Back
 off; one caution means Caution. If your watch writes its own readiness
 figure, the detail screen shows it next to the status but doesn't use it.
 Without a wearable you get "No wellness data" (and a status from form

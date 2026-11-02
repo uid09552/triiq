@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'agent/llm_settings.dart';
 import 'app.dart';
+import 'data/feel_settings.dart';
 import 'data/intervals_session.dart';
 import 'data/sync/auto_sync_service.dart';
 import 'data/sync/background_sync.dart';
@@ -38,6 +39,10 @@ void main() {
   // The per-sport weekly targets and whether their rings show on Today —
   // Settings and Today listen and rebuild once it resolves.
   unawaited(WeeklyTargetsSettings.instance.load());
+  // Whether a recent activity's detail screen auto-prompts for fatigue and
+  // soreness — Settings and the activity detail screen listen and rebuild
+  // once it resolves.
+  unawaited(FeelSettings.instance.load());
   // Notifications: set up the platform backend, then load whether the user
   // has opted in and re-arm the daily reminder if so. The permission prompt
   // itself is a deliberate action from Settings, not fired here.

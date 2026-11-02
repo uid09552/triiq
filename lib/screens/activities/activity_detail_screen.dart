@@ -6,8 +6,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../client/intervalls/intervalls_client.dart';
 import '../../agent/chat_handoff.dart';
+import '../../data/feel_prompt_store.dart';
+import '../../data/feel_settings.dart';
+import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
+import '../../data/models/local_wellness.dart';
 import '../../data/planned_items.dart';
+import '../../data/repositories/wellness_repository.dart';
+import '../../data/wellness_actions.dart';
 import '../../evaluation/new_training.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../evaluation/session_streams.dart';
@@ -17,6 +23,7 @@ import '../../util/dates.dart';
 import '../../widgets/main_navigation.dart';
 import '../../widgets/stat_tile.dart';
 import 'activity_icons.dart';
+import 'feel_dialog.dart';
 import '../insights/insights_card.dart';
 import '../today/train_now_screen.dart';
 import 'session_analysis.dart';
@@ -25,7 +32,7 @@ import 'session_analysis.dart';
 /// time, and a way out to the full analysis on
 /// intervals.icu (no power curve, no map here —
 /// that is what intervals.icu is for).
-class ActivityDetailScreen extends StatelessWidget {
+class ActivityDetailScreen extends StatefulWidget {
   const ActivityDetailScreen({
     super.key,
     required this.activity,
@@ -33,6 +40,10 @@ class ActivityDetailScreen extends StatelessWidget {
     this.plannedItems,
     this.insights,
     this.seenStore,
+    this.wellness,
+    this.wellnessActions,
+    this.feelSettings,
+    this.feelPromptStore,
   });
 
   final LocalActivity activity;
@@ -42,15 +53,102 @@ class ActivityDetailScreen extends StatelessWidget {
   final PlannedItemsRepository? plannedItems;
   final SessionInsightsLoader? insights;
   final SeenSessionsStore? seenStore;
-
-  SeenSessionsStore get seen => seenStore ?? SeenSessionsStore();
+  final WellnessRepository? wellness;
+  final WellnessActions? wellnessActions;
+  final FeelSettings? feelSettings;
+  final FeelPromptStore? feelPromptStore;
 
   @override
-  Widget build(BuildContext context) {
+  State<ActivityDetailScreen> createState() => _ActivityDetailScreenState();
+}
+
+class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
+  LocalActivity get activity => widget.activity;
+
+  SeenSessionsStore get seen => widget.seenStore ?? SeenSessionsStore();
+  WellnessRepository get _wellnessRepo => widget.wellness ?? WellnessRepository();
+  FeelSettings get _feelSettings => widget.feelSettings ?? FeelSettings.instance;
+  FeelPromptStore get _feelPromptStore =>
+      widget.feelPromptStore ?? FeelPromptStore.instance;
+
+  /// Today or yesterday — "recent" for the new-activity auto-prompt.
+  static bool _isRecent(String date) {
+    final today = isoDate(DateTime.now());
+    final yesterday = isoDate(DateTime.now().subtract(const Duration(days: 1)));
+    return date == today || date == yesterday;
+  }
+
+  LocalWellness? _dayWellness;
+  bool _autoPromptHandled = false;
+
+  @override
+  void initState() {
+    super.initState();
     // Opening today's session counts as seeing it: it won't pop up again.
     if (activity.date == isoDate(DateTime.now())) {
       unawaited(seen.markSeen([activity.id]));
     }
+    IntervalsSession.instance.addListener(_onConnectionChanged);
+    unawaited(_loadWellnessAndMaybePrompt());
+  }
+
+  @override
+  void dispose() {
+    IntervalsSession.instance.removeListener(_onConnectionChanged);
+    super.dispose();
+  }
+
+  void _onConnectionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _loadWellnessAndMaybePrompt() async {
+    final day = await _wellnessRepo.getByDate(activity.date);
+    if (mounted) setState(() => _dayWellness = day);
+    await _maybeAutoPrompt(day);
+  }
+
+  /// Shows the fatigue/soreness dialog, once, the first time a recent
+  /// activity with nothing set yet opens — see
+  /// `openspec/specs/fatigue-soreness-log/spec.md`.
+  Future<void> _maybeAutoPrompt(LocalWellness? day) async {
+    if (_autoPromptHandled) return;
+    _autoPromptHandled = true;
+    if (!_feelSettings.isLoaded) await _feelSettings.load();
+    if (!_feelSettings.promptOnNewActivity) return;
+    if (!_isRecent(activity.date)) return;
+    if (!_feelPromptStore.isLoaded) await _feelPromptStore.load();
+    if (_feelPromptStore.hasPrompted(activity.id)) return;
+    if (day?.raw['fatigue'] != null || day?.raw['soreness'] != null) return;
+    await _feelPromptStore.recordPrompted(activity.id);
+    if (!mounted) return;
+    await showFeelDialog(
+      context,
+      date: activity.date,
+      actions: widget.wellnessActions,
+    );
+    if (mounted) setState(() => _dayWellness = null);
+    unawaited(_reloadWellness());
+  }
+
+  Future<void> _reloadWellness() async {
+    final day = await _wellnessRepo.getByDate(activity.date);
+    if (mounted) setState(() => _dayWellness = day);
+  }
+
+  Future<void> _openFeelDialog(BuildContext context) async {
+    await showFeelDialog(
+      context,
+      date: activity.date,
+      initialFatigue: _dayWellness?.raw['fatigue'] as int?,
+      initialSoreness: _dayWellness?.raw['soreness'] as int?,
+      actions: widget.wellnessActions,
+    );
+    await _reloadWellness();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     // The columns promoted to LocalActivity cover the list row; everything
@@ -133,15 +231,15 @@ class ActivityDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           SessionEvaluationCard(
             activity: activity,
-            plannedItems: plannedItems,
+            plannedItems: widget.plannedItems,
             onAskTrainer: (e) => _askTrainer(context, e),
           ),
           const SizedBox(height: 16),
-          SessionDiagramCard(activity: activity, streams: streams),
+          SessionDiagramCard(activity: activity, streams: widget.streams),
           const SizedBox(height: 16),
           InsightsCard(
             activity: activity,
-            loader: insights,
+            loader: widget.insights,
             onFindAlternative: (e) {
               final day = DateTime.tryParse(e.date);
               Navigator.of(context).push(
@@ -153,13 +251,29 @@ class ActivityDetailScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _openInIntervals(context),
-              icon: const Icon(Icons.open_in_new),
-              label: Text(l10n.openInIntervals),
-            ),
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                onPressed: () => _openInIntervals(context),
+                icon: const Icon(Icons.open_in_new),
+                label: Text(l10n.openInIntervals),
+              ),
+              Tooltip(
+                message: IntervalsSession.instance.isConnected
+                    ? ''
+                    : l10n.feelNotConnectedHint,
+                child: FilledButton.tonalIcon(
+                  key: const ValueKey('feel-action'),
+                  onPressed: IntervalsSession.instance.isConnected
+                      ? () => _openFeelDialog(context)
+                      : null,
+                  icon: const Icon(Icons.mood_outlined),
+                  label: Text(l10n.feelActionLabel),
+                ),
+              ),
+            ],
           ),
         ],
       ),

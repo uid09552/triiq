@@ -880,5 +880,15 @@
   "@planEventBeyondPlan": {"placeholders":{"weeks":{"type":"int"}}},
   "todayRaceCountdown": "{days, plural, =1{Race tomorrow} other{Race in {days} days}}",
   "@todayRaceCountdown": {"placeholders":{"days":{"type":"int"}}},
-  "todayRaceDay": "Race day!"
+  "todayRaceDay": "Race day!",
+  "feelDialogTitle": "How did it feel?",
+  "feelScaleHint": "1 good, 4 bad",
+  "feelFatigueLabel": "Fatigue",
+  "feelSorenessLabel": "Muscle soreness",
+  "feelSaveButton": "Save",
+  "feelActionLabel": "Fatigue & soreness",
+  "feelNotConnectedHint": "Connect Intervals.icu to set this",
+  "feelSettingsTitle": "Fatigue & soreness",
+  "feelPromptOnNewActivity": "Prompt for a recent activity",
+  "feelPromptOnNewActivityHelp": "Ask once, the first time a recent activity's detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off."
 }

@@ -2360,4 +2360,37 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get todayRaceDay => 'Wettkampftag!';
+
+  @override
+  String get feelDialogTitle => 'Wie fühlst du dich?';
+
+  @override
+  String get feelScaleHint => '1 gut, 4 schlecht';
+
+  @override
+  String get feelFatigueLabel => 'Müdigkeit';
+
+  @override
+  String get feelSorenessLabel => 'Muskelkater';
+
+  @override
+  String get feelSaveButton => 'Speichern';
+
+  @override
+  String get feelActionLabel => 'Müdigkeit & Muskelkater';
+
+  @override
+  String get feelNotConnectedHint =>
+      'Mit Intervals.icu verbinden, um das festzulegen';
+
+  @override
+  String get feelSettingsTitle => 'Müdigkeit & Muskelkater';
+
+  @override
+  String get feelPromptOnNewActivity =>
+      'Bei einer aktuellen Aktivität nachfragen';
+
+  @override
+  String get feelPromptOnNewActivityHelp =>
+      'Fragt einmalig, wenn die Detailansicht einer aktuellen Aktivität zum ersten Mal geöffnet wird und für den Tag noch nichts festgelegt ist. Das manuelle Festlegen bei jeder Aktivität funktioniert unabhängig davon immer.';
 }

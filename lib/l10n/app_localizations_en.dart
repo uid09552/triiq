@@ -2336,4 +2336,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayRaceDay => 'Race day!';
+
+  @override
+  String get feelDialogTitle => 'How did it feel?';
+
+  @override
+  String get feelScaleHint => '1 good, 4 bad';
+
+  @override
+  String get feelFatigueLabel => 'Fatigue';
+
+  @override
+  String get feelSorenessLabel => 'Muscle soreness';
+
+  @override
+  String get feelSaveButton => 'Save';
+
+  @override
+  String get feelActionLabel => 'Fatigue & soreness';
+
+  @override
+  String get feelNotConnectedHint => 'Connect Intervals.icu to set this';
+
+  @override
+  String get feelSettingsTitle => 'Fatigue & soreness';
+
+  @override
+  String get feelPromptOnNewActivity => 'Prompt for a recent activity';
+
+  @override
+  String get feelPromptOnNewActivityHelp =>
+      'Ask once, the first time a recent activity\'s detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off.';
 }

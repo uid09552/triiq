@@ -3835,6 +3835,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Race day!'**
   String get todayRaceDay;
+
+  /// No description provided for @feelDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How did it feel?'**
+  String get feelDialogTitle;
+
+  /// No description provided for @feelScaleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 good, 4 bad'**
+  String get feelScaleHint;
+
+  /// No description provided for @feelFatigueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue'**
+  String get feelFatigueLabel;
+
+  /// No description provided for @feelSorenessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Muscle soreness'**
+  String get feelSorenessLabel;
+
+  /// No description provided for @feelSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get feelSaveButton;
+
+  /// No description provided for @feelActionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue & soreness'**
+  String get feelActionLabel;
+
+  /// No description provided for @feelNotConnectedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu to set this'**
+  String get feelNotConnectedHint;
+
+  /// No description provided for @feelSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue & soreness'**
+  String get feelSettingsTitle;
+
+  /// No description provided for @feelPromptOnNewActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt for a recent activity'**
+  String get feelPromptOnNewActivity;
+
+  /// No description provided for @feelPromptOnNewActivityHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask once, the first time a recent activity\'s detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off.'**
+  String get feelPromptOnNewActivityHelp;
 }
 
 class _AppLocalizationsDelegate

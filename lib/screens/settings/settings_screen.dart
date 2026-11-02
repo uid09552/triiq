@@ -13,6 +13,7 @@ import '../../notifications/notification_settings.dart';
 import '../../theme_controller.dart';
 import '../../widgets/section_card.dart';
 import 'calendar_settings_section.dart';
+import 'feel_settings_section.dart';
 import 'weekly_targets_section.dart';
 
 /// App settings: appearance and the LLM provider the chat agent talks to.
@@ -160,6 +161,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.calendar_month_outlined,
               title: l10n.calendarSettingsTitle,
               child: CalendarSettingsSection(),
+            ),
+            const SizedBox(height: 16),
+            SectionCard(
+              icon: Icons.mood_outlined,
+              title: l10n.feelSettingsTitle,
+              child: FeelSettingsSection(),
             ),
             const SizedBox(height: 16),
             SectionCard(
