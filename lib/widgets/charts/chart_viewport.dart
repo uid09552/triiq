@@ -47,7 +47,7 @@ class ChartViewport extends ChangeNotifier {
   void zoomAt(double factor, double fraction) {
     if (_length < 2 || factor <= 0) return;
     final minSpan = math.min(fullSpan, (minPoints - 1).toDouble());
-    final newSpan = (span / factor).clamp(minSpan, fullSpan);
+    final newSpan = (span / factor).clamp(minSpan, fullSpan).toDouble();
     final anchor = _lo + fraction.clamp(0.0, 1.0) * span;
     _set(anchor - fraction.clamp(0.0, 1.0) * newSpan, newSpan);
   }
@@ -63,7 +63,9 @@ class ChartViewport extends ChangeNotifier {
   double indexAt(double fraction) => _lo + fraction.clamp(0.0, 1.0) * span;
 
   void _set(double lo, double newSpan) {
-    final start = lo.clamp(0.0, math.max(0.0, fullSpan - newSpan));
+    final double start = lo
+        .clamp(0.0, math.max(0.0, fullSpan - newSpan))
+        .toDouble();
     final end = start + newSpan;
     if ((start - _lo).abs() < 1e-12 && (end - _hi).abs() < 1e-12) return;
     _lo = start;
@@ -109,7 +111,9 @@ class _ChartInteractionState extends State<ChartInteraction> {
 
   double _fraction(double dx, double width) {
     final plot = width - widget.plotLeft;
-    return plot <= 0 ? 0 : ((dx - widget.plotLeft) / plot).clamp(0.0, 1.0);
+    return plot <= 0
+        ? 0.0
+        : ((dx - widget.plotLeft) / plot).clamp(0.0, 1.0).toDouble();
   }
 
   void _select(double dx, double width) {
