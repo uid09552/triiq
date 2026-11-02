@@ -5,6 +5,7 @@ import '../../data/repositories/activities_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
+import '../plan/plan_session_sheet.dart' show openChangeTraining;
 import 'activity_detail_screen.dart';
 import 'activity_icons.dart';
 import 'planned_workout_actions.dart';
@@ -191,6 +192,14 @@ class _PlannedWorkoutDetailScreenState
                 icon: const Icon(Icons.event_outlined),
                 label: Text(l10n.addToGoogleCalendar),
               ),
+              if (event.isTraining)
+                FilledButton.tonalIcon(
+                  onPressed: _deleting
+                      ? null
+                      : () => openChangeTraining(context, event),
+                  icon: const Icon(Icons.swap_horiz),
+                  label: Text(l10n.changeTraining),
+                ),
               if (canDeletePlannedWorkout(event))
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(

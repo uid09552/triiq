@@ -2438,6 +2438,12 @@ abstract class AppLocalizations {
   /// **'Find alternative'**
   String get findAlternative;
 
+  /// No description provided for @changeTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Change training'**
+  String get changeTraining;
+
   /// No description provided for @replaceTodaySession.
   ///
   /// In en, this message translates to:

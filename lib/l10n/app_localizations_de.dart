@@ -1454,6 +1454,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get findAlternative => 'Alternative finden';
 
   @override
+  String get changeTraining => 'Training ändern';
+
+  @override
   String get replaceTodaySession => 'Heutige Einheit ersetzen';
 
   @override

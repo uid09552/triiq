@@ -5,6 +5,21 @@ import '../../l10n/app_localizations.dart';
 import '../../plan/plan_models.dart';
 import '../../util/calendar_export.dart';
 import '../activities/activity_icons.dart';
+import '../today/train_now_screen.dart';
+
+/// Opens Train Now on [e]'s day with [e] preselected, to swap it for a
+/// proposal.
+Future<void> openChangeTraining(BuildContext context, LocalEvent e) {
+  final day = DateTime.tryParse(e.date);
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => TrainNowScreen(
+        today: day == null ? null : () => day,
+        initialEventId: e.id,
+      ),
+    ),
+  );
+}
 
 /// One TriIQ plan session: name, duration and TSS, its steps, and whether
 /// it was sent to Intervals.icu. Opened from the Plan screen's week grid
@@ -18,6 +33,7 @@ Future<void> showPlanSessionSheet(
   required int load,
   required String description,
   required bool sent,
+  VoidCallback? onChange,
 }) {
   final l10n = AppLocalizations.of(context)!;
   return showModalBottomSheet<void>(
@@ -85,6 +101,18 @@ Future<void> showPlanSessionSheet(
                 ),
               ),
               const SizedBox(height: 12),
+              if (onChange != null) ...[
+                FilledButton.tonalIcon(
+                  key: const ValueKey('change-training'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onChange();
+                  },
+                  icon: const Icon(Icons.swap_horiz),
+                  label: Text(l10n.changeTraining),
+                ),
+                const SizedBox(height: 8),
+              ],
               OutlinedButton.icon(
                 onPressed: () => launchGoogleCalendarEvent(
                   title: name,
@@ -128,4 +156,5 @@ Future<void> showPlanSessionSheetForEvent(BuildContext context, LocalEvent e) =>
       load: e.plannedLoad ?? 0,
       description: e.description ?? '',
       sent: e.planSessionSent,
+      onChange: () => openChangeTraining(context, e),
     );
