@@ -26,7 +26,7 @@
 
 ## 5. Plan UI
 
-- [ ] 5.1 Goal editor and Plan screen (timeline, current week highlight, target vs actual, split) under More → Training plan, en + de strings; verify widget test and manual check in light/dark
+- [x] 5.1 Goal editor and Plan screen (timeline, current week highlight, target vs actual, split) under More → Training plan, en + de strings; verify widget test and manual check in light/dark
 - [x] 5.2 Multi-session preview sheet with per-session date change, confirm/cancel; verify cancel writes nothing (test)
 - [x] 5.3 Regenerate/remove actions with confirmation; verify completed activities are untouched (test)
 
