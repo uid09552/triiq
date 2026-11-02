@@ -576,6 +576,7 @@
   "showAllSteps": "Show all steps",
   "showLessSteps": "Show less",
   "findAlternative": "Find alternative",
+  "changeTraining": "Change training",
   "replaceTodaySession": "Replace today's session",
   "addAlongside": "Add alongside",
   "replacesSession": "Replaces “{name}”",

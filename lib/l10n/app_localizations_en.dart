@@ -1440,6 +1440,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findAlternative => 'Find alternative';
 
   @override
+  String get changeTraining => 'Change training';
+
+  @override
   String get replaceTodaySession => 'Replace today\'s session';
 
   @override

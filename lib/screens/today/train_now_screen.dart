@@ -10,6 +10,7 @@ import '../../data/intervals_session.dart';
 import '../../data/intervals_workout_service.dart';
 import '../../data/models/local_event.dart';
 import '../../data/planned_items.dart';
+import '../../data/repositories/activities_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/sync/sync_settings.dart';
@@ -62,6 +63,8 @@ class TrainNowScreen extends StatefulWidget {
     this.agentFactory,
     this.workoutWriter,
     this.syncService,
+    this.activities,
+    this.initialEventId,
   });
 
   /// Test seams; the app uses the defaults.
@@ -73,6 +76,10 @@ class TrainNowScreen extends StatefulWidget {
   final TrainingAgent Function()? agentFactory;
   final PlannedWorkoutWriter? workoutWriter;
   final SyncService? syncService;
+  final ActivitiesRepository? activities;
+
+  /// The planned session to start on when the screen opens to change it.
+  final String? initialEventId;
 
   /// Longest reference steps sent to the agent.
   static const maxReferenceSteps = 1500;
@@ -86,6 +93,7 @@ class TrainNowScreen extends StatefulWidget {
     required int minutes,
     String customPrompt = '',
     LocalEvent? reference,
+    String loadContext = '',
   }) {
     final ref = reference;
     var refText = '';
@@ -121,6 +129,11 @@ class TrainNowScreen extends StatefulWidget {
         'other note worth flagging). After the table, add one line with '
         'the estimated total TSS and a one-line rationale citing the data '
         'you found.'
+        '${loadContext.isEmpty ? '' : ' $loadContext Size the session so '
+              "today's total TSS (done + this session + other planned) and "
+              "tomorrow's planned TSS together stay a sensible progression: "
+              'back off when tomorrow is already hard or today is already '
+              'loaded, and mention it in the rationale.'}'
         '${sport == 'Swim' ? ' Vary the session: about one swim session in '
               'three or four, build the main set around technique instead of '
               'straight swimming — name a specific drill and/or piece of '
@@ -183,6 +196,10 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   /// a recovery hint.
   DateTime get _targetDay => (widget.today ?? DateTime.now)();
 
+  /// Facts about the target day's and the next day's TSS, handed to the agent
+  /// with every proposal. Empty until loaded.
+  String _loadContext = '';
+
   /// Today's planned training, and which one an alternative is for.
   List<LocalEvent> _todays = const [];
   bool _todaysLoaded = false;
@@ -238,6 +255,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     minutes: _durationMinutes.round(),
     customPrompt: _customPromptController.text.trim(),
     reference: _reference,
+    loadContext: _loadContext,
   );
 
   /// The session an alternative is asked for: the selected one of today's,
@@ -261,9 +279,42 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     setState(() {
       _todays = items;
       _todaysLoaded = true;
+      if (firstLoad && widget.initialEventId != null) {
+        final i = items.indexWhere((e) => e.id == widget.initialEventId);
+        if (i >= 0) _selected = i;
+      }
       if (_selected >= items.length) _selected = 0;
     });
+    _loadContext = await _buildLoadContext(now);
+    if (!mounted) return;
     if (firstLoad && items.isNotEmpty) _applyPresets(items[_selected]);
+  }
+
+  /// "Done today / planned today / planned tomorrow" TSS as a sentence.
+  Future<String> _buildLoadContext(DateTime day) async {
+    try {
+      final next = day.add(const Duration(days: 1));
+      final done = await (widget.activities ?? ActivitiesRepository())
+          .getByDate(isoDate(day));
+      final doneTss = done.fold<int>(0, (s, a) => s + (a.trainingLoad ?? 0));
+      final tomorrow = (await _plannedItems.getByDate(isoDate(next)))
+          .where((e) => e.isTraining)
+          .toList();
+      final tomorrowTss =
+          tomorrow.fold<int>(0, (s, e) => s + (e.plannedLoad ?? 0));
+      final ref = _reference;
+      final otherToday = _todays
+          .where((e) => e != ref)
+          .fold<int>(0, (s, e) => s + (e.plannedLoad ?? 0));
+      return 'Known load: ${isoDate(day)} already done $doneTss TSS'
+          '${otherToday > 0 ? ', other planned $otherToday TSS' : ''}; '
+          '${isoDate(next)} planned: '
+          '${tomorrow.isEmpty ? 'nothing' : '$tomorrowTss TSS '
+                '(${tomorrow.map((e) => e.name ?? e.type ?? 'session').join(', ')})'}.';
+    } catch (error) {
+      debugPrint('TrainNow: cannot read load context: $error');
+      return '';
+    }
   }
 
   /// Starts sport, duration and intensity from [e]; the athlete can still
@@ -303,6 +354,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     if (index == _selected || _isBusy) return;
     setState(() => _selected = index);
     _applyPresets(_todays[index]);
+    _buildLoadContext(_targetDay).then((c) => _loadContext = c);
   }
 
   void _onEvent(AgentEvent event) {

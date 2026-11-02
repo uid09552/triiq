@@ -563,6 +563,7 @@
   "showAllSteps": "Alle Schritte zeigen",
   "showLessSteps": "Weniger zeigen",
   "findAlternative": "Alternative finden",
+  "changeTraining": "Training ändern",
   "replaceTodaySession": "Heutige Einheit ersetzen",
   "addAlongside": "Zusätzlich anlegen",
   "replacesSession": "Ersetzt „{name}“",
