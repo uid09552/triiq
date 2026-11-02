@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -7,6 +9,7 @@ import '../../data/intervals_session.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/calendar_export_service.dart';
 import '../../plan/knowledge.dart';
 import '../../plan/load_curve.dart';
 import '../../plan/load_curve_controller.dart';
@@ -287,6 +290,63 @@ class _PlanScreenState extends State<PlanScreen> {
     }
   }
 
+  /// Writes the plan's upcoming sessions to a device calendar the athlete
+  /// picks (Android); re-exporting updates the same events.
+  Future<void> _exportToCalendar() async {
+    final plan = _plan;
+    if (plan == null) return;
+    final l10n = AppLocalizations.of(context)!;
+    final service = CalendarExportService();
+    setState(() => _busy = true);
+    try {
+      if (!await service.requestPermission()) {
+        if (mounted) _say(l10n.planCalendarPermissionDenied);
+        return;
+      }
+      final calendars = await service.calendars();
+      if (!mounted) return;
+      if (calendars.isEmpty) {
+        _say(l10n.planNoWritableCalendar);
+        return;
+      }
+      final chosen = await showDialog<DeviceCalendarInfo>(
+        context: context,
+        builder: (context) => SimpleDialog(
+          title: Text(l10n.planChooseCalendar),
+          children: [
+            for (final c in calendars)
+              SimpleDialogOption(
+                onPressed: () => Navigator.of(context).pop(c),
+                child: Text(c.name),
+              ),
+          ],
+        ),
+      );
+      if (chosen == null) return;
+      final today = DateTime.now();
+      final upcoming = [
+        for (final w in plan.weeks)
+          for (final s in w.sessions)
+            if (!s.date.isBefore(DateTime(today.year, today.month, today.day)))
+              s,
+      ];
+      final report = await service.export(upcoming, calendarId: chosen.id);
+      if (mounted) {
+        _say(
+          report.permissionDenied
+              ? l10n.planCalendarPermissionDenied
+              : '${report.created} + ${report.updated}'
+                    '${report.failed > 0 ? ' (${report.failed} ✗)' : ''}',
+        );
+      }
+    } catch (error) {
+      if (mounted) _say(l10n.planGenerateFailed('$error'));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+      await _load();
+    }
+  }
+
   Future<void> _removeUpcoming() async {
     final plan = _plan;
     if (plan == null) return;
@@ -408,6 +468,13 @@ class _PlanScreenState extends State<PlanScreen> {
                       OutlinedButton(
                         onPressed: _busy ? null : _retryFailed,
                         child: Text(l10n.planRetryFailed(failedCount)),
+                      ),
+                    if (plan != null && !kIsWeb && Platform.isAndroid)
+                      OutlinedButton.icon(
+                        key: const ValueKey('plan-export-calendar'),
+                        onPressed: _busy ? null : _exportToCalendar,
+                        icon: const Icon(Icons.event_outlined),
+                        label: Text(l10n.planAddToDeviceCalendar),
                       ),
                     if (plan != null)
                       OutlinedButton.icon(

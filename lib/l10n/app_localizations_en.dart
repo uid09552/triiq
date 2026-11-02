@@ -1440,6 +1440,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findAlternative => 'Find alternative';
 
   @override
+  String get planCalendarPermissionDenied => 'Calendar permission denied. Nothing was written — use “Add to calendar” on a single session instead.';
+
+  @override
+  String get planNoWritableCalendar => 'No writable calendar found on this device.';
+
+  @override
+  String get planChooseCalendar => 'Choose a calendar';
+
+  @override
+  String get planAddToDeviceCalendar => 'Add plan to calendar';
+
+  @override
   String get changeTraining => 'Change training';
 
   @override

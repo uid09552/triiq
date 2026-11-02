@@ -453,6 +453,7 @@ class PlanSession {
     DateTime? date,
     String? intervalsEventId,
     String? calendarEventId,
+    bool clearCalendarEventId = false,
     PlanSessionStatus? status,
   }) => PlanSession(
     id: id ?? this.id,
@@ -469,7 +470,9 @@ class PlanSession {
     shortDescription: shortDescription ?? this.shortDescription,
     techniqueFocus: techniqueFocus,
     intervalsEventId: intervalsEventId ?? this.intervalsEventId,
-    calendarEventId: calendarEventId ?? this.calendarEventId,
+    calendarEventId: clearCalendarEventId
+        ? null
+        : (calendarEventId ?? this.calendarEventId),
     status: status ?? this.status,
   );
 }

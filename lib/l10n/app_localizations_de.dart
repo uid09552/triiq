@@ -1454,6 +1454,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get findAlternative => 'Alternative finden';
 
   @override
+  String get planCalendarPermissionDenied => 'Kalenderberechtigung verweigert. Es wurde nichts geschrieben – nutze stattdessen „Zum Kalender hinzufügen“ bei einer einzelnen Einheit.';
+
+  @override
+  String get planNoWritableCalendar => 'Kein beschreibbarer Kalender auf diesem Gerät gefunden.';
+
+  @override
+  String get planChooseCalendar => 'Kalender wählen';
+
+  @override
+  String get planAddToDeviceCalendar => 'Plan zum Kalender hinzufügen';
+
+  @override
   String get changeTraining => 'Training ändern';
 
   @override

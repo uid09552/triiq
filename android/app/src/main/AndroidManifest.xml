@@ -9,6 +9,10 @@
          reminder), so this doesn't need the user-granted
          SCHEDULE_EXACT_ALARM permission. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Plan export writes training sessions to a device calendar the
+         athlete picks (runtime-requested when first used). -->
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <!-- Backup is off because the Intervals.icu API key is stored in
          EncryptedSharedPreferences, encrypted with an Android Keystore key
          that never leaves the device: backing that ciphertext up (cloud

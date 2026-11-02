@@ -2438,6 +2438,30 @@ abstract class AppLocalizations {
   /// **'Find alternative'**
   String get findAlternative;
 
+  /// No description provided for @planCalendarPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar permission denied. Nothing was written — use “Add to calendar” on a single session instead.'**
+  String get planCalendarPermissionDenied;
+
+  /// No description provided for @planNoWritableCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'No writable calendar found on this device.'**
+  String get planNoWritableCalendar;
+
+  /// No description provided for @planChooseCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a calendar'**
+  String get planChooseCalendar;
+
+  /// No description provided for @planAddToDeviceCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Add plan to calendar'**
+  String get planAddToDeviceCalendar;
+
   /// No description provided for @changeTraining.
   ///
   /// In en, this message translates to:

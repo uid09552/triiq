@@ -73,6 +73,9 @@ dependencies:
   # "Open in Intervals.icu" on the activity detail screen (lib/screens/activities)
   url_launcher: ^6.3.2
 
+  # Device-calendar export of plan sessions on Android (lib/plan/calendar_export_service.dart)
+  device_calendar: ^4.3.3
+
   # Renders the agent's markdown replies (lib/screens/chat) — tables, lists,
   # headings — instead of showing the raw markdown source.
   flutter_markdown_plus: ^1.0.12
