@@ -23,6 +23,7 @@ import 'package:triiq/plan/plan_service.dart';
 import 'package:triiq/plan/plan_writer.dart';
 import 'package:triiq/screens/plan/goal_editor_screen.dart';
 import 'package:triiq/screens/plan/plan_screen.dart';
+import 'package:triiq/screens/today/train_now_screen.dart';
 import 'package:triiq/util/dates.dart';
 import 'package:triiq/widgets/main_navigation.dart';
 
@@ -295,6 +296,80 @@ void main() {
     expect(workouts.created, isEmpty);
     expect(await tester.runAsync(plans.getCurrent), isNotNull);
     expect(find.textContaining('Connect Intervals.icu to send it'), findsOneWidget);
+  });
+
+  testWidgets('a week-grid session offers Change Training into Train Now',
+      (tester) async {
+    final monday = startOfWeek(DateTime.now());
+    final plan = PlanEngine(knowledge)
+        .generate(
+          goal: const Goal(
+            targetType: 'long_distance',
+            weekdays: {1, 2, 4, 6},
+            weeklyHours: 12,
+            baselineWeeklyLoad: 300,
+            weeks: 4,
+            loadFactors: [1, 1, 1.1, 0.8],
+          ),
+          startDate: monday,
+          recentWeeklyLoads: null,
+          today: DateTime.now(),
+        )
+        .plan!;
+    await tester.runAsync(() => plans.save(plan));
+    final saved = (await tester.runAsync(plans.getCurrent))!;
+
+    await open(tester);
+
+    final first = saved.weeks[0].sessions.first;
+    await tester.tap(
+      find.bySemanticsLabel(RegExp('^${first.sport}, ${first.name}, ')).first,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('change-training')));
+    await tester.pump();
+    await tester.pump();
+
+    final screen = tester.widget<TrainNowScreen>(find.byType(TrainNowScreen));
+    expect(screen.initialEventId, 'plan:${first.id}');
+  });
+
+  // Also opened for a session in a week other than the current one — the
+  // Plan screen's week grid does not restrict Change Training to "this week".
+  testWidgets('Change Training is offered for a future week too',
+      (tester) async {
+    final monday = startOfWeek(DateTime.now());
+    final plan = PlanEngine(knowledge)
+        .generate(
+          goal: const Goal(
+            targetType: 'long_distance',
+            weekdays: {1, 2, 4, 6},
+            weeklyHours: 12,
+            baselineWeeklyLoad: 300,
+            weeks: 4,
+            loadFactors: [1, 1, 1.1, 0.8],
+          ),
+          startDate: monday,
+          recentWeeklyLoads: null,
+          today: DateTime.now(),
+        )
+        .plan!;
+    await tester.runAsync(() => plans.save(plan));
+
+    await open(tester);
+
+    final later = plan.weeks[3].sessions.first;
+    await tester.scrollUntilVisible(
+      find.bySemanticsLabel(RegExp('^${later.sport}, ${later.name}, ')).first,
+      400,
+    );
+    await tester.tap(
+      find.bySemanticsLabel(RegExp('^${later.sport}, ${later.name}, ')).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('change-training')), findsOneWidget);
   });
 
   testWidgets('a triathlon plan shows sport tiles and load per sport',

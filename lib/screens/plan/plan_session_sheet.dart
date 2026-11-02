@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/models/local_event.dart';
+import '../../data/planned_items.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/plan_models.dart';
 import '../../util/calendar_export.dart';
@@ -143,6 +144,10 @@ Future<void> showPlanSessionSheetFor(BuildContext context, PlanSession s) =>
       load: s.load,
       description: s.description,
       sent: s.status == PlanSessionStatus.created,
+      onChange: () => openChangeTraining(
+        context,
+        PlannedItemsRepository.toLocalEvent(s),
+      ),
     );
 
 /// [showPlanSessionSheet] for a plan session as the Calendar holds it.

@@ -976,6 +976,14 @@ reference — aim for a similar training effect and load, unless your recent
 load says otherwise. With nothing planned the button reads **Propose
 training** and works as before.
 
+**Change Training** reaches the same screen, preselected on one specific
+session, from wherever that session is shown: Calendar's day detail, the
+Plan screen's week grid (any week, not just the current one), and Today's
+own "Today's Training" / "Tomorrow's Training" cards. For a TriIQ plan
+session, these open straight into a quick sheet with **Change Training**
+right there; a synced Intervals.icu event on Today still opens the fuller
+planned-workout screen first, which also has the button.
+
 Otherwise, pick a sport (run/ride/swim), duration and
 intensity (recovery/endurance/intervals), then **Propose training**. This
 sends the same [training agent](#the-training-agent) a prompt built from

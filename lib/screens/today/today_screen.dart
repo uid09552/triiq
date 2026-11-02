@@ -28,6 +28,7 @@ import '../activities/activity_detail_screen.dart';
 import '../activities/activity_icons.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../chat/proposal_card.dart';
+import '../plan/plan_session_sheet.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import 'athlete_detail_screen.dart';
@@ -905,11 +906,13 @@ class _PlannedTraining extends StatelessWidget {
         for (final event in events) ...[
           if (event != events.first) const Divider(height: 20),
           InkWell(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => PlannedWorkoutDetailScreen(event: event),
-              ),
-            ),
+            onTap: () => event.isPlanSession
+                ? showPlanSessionSheetForEvent(context, event)
+                : Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PlannedWorkoutDetailScreen(event: event),
+                    ),
+                  ),
             child: Row(
               children: [
                 Expanded(

@@ -51,6 +51,9 @@ android {
                 storePassword = keyProperties.getProperty("storePassword")
                 keyAlias = keyProperties.getProperty("keyAlias")
                 keyPassword = keyProperties.getProperty("keyPassword")
+                // Optional: a PKCS12 keystore needs this; a .jks one (CI's
+                // secrets, currently) doesn't set it and keeps auto-detecting.
+                keyProperties.getProperty("storeType")?.let { storeType = it }
             }
         }
     }
