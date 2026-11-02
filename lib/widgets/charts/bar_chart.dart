@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'chart_viewport.dart';
+
 /// One bar: a value, an optional target drawn behind it, and the label that
 /// goes under the axis.
 class ChartBar {
@@ -38,7 +40,13 @@ class SimpleBarChart extends StatelessWidget {
     this.labelEvery = 1,
     this.barColor,
     this.targetColor,
+    this.showAverage = true,
+    this.formatValue,
   });
+
+  /// Dashed line at the mean bar height.
+  final bool showAverage;
+  final String Function(double value)? formatValue;
 
   final List<ChartBar> bars;
   final int? selectedIndex;
@@ -80,6 +88,9 @@ class SimpleBarChart extends StatelessWidget {
                   (targetColor ?? colorScheme.tertiary).withValues(alpha: 0.3),
               tickColor: colorScheme.onSurface,
               labelEvery: labelEvery,
+              showAverage: showAverage,
+              format: formatValue ?? (v) => v.toStringAsFixed(0),
+              surface: colorScheme.surface,
               labelStyle: TextStyle(
                 fontSize: 10,
                 color: colorScheme.onSurfaceVariant,
@@ -101,9 +112,15 @@ class _BarChartPainter extends CustomPainter {
     required this.targetColor,
     required this.tickColor,
     required this.labelEvery,
+    required this.showAverage,
+    required this.format,
+    required this.surface,
     required this.labelStyle,
   });
 
+  final bool showAverage;
+  final String Function(double) format;
+  final Color surface;
   final List<ChartBar> bars;
   final int? selected;
   final Color barColor;
@@ -193,6 +210,47 @@ class _BarChartPainter extends CustomPainter {
         );
       }
     }
+    if (showAverage) _drawAverage(canvas, size, chartHeight, maxValue);
+  }
+
+  void _drawAverage(
+    Canvas canvas,
+    Size size,
+    double chartHeight,
+    double maxValue,
+  ) {
+    final avg = bars.fold<double>(0, (sum, b) => sum + b.value) / bars.length;
+    if (avg <= 0) return;
+    final y = chartHeight - (avg / maxValue) * (chartHeight - 4);
+    drawDashedLine(
+      canvas,
+      Offset(0, y),
+      Offset(size.width, y),
+      Paint()
+        ..color = tickColor.withValues(alpha: 0.6)
+        ..strokeWidth = 1.2,
+    );
+    final painter = TextPainter(
+      text: TextSpan(
+        text: 'Ø ${format(avg)}',
+        style: labelStyle.copyWith(
+          color: tickColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final rect = Rect.fromLTWH(
+      size.width - painter.width - 8,
+      y - painter.height - 3,
+      painter.width + 6,
+      painter.height + 1,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(4)),
+      Paint()..color = surface.withValues(alpha: 0.85),
+    );
+    painter.paint(canvas, rect.topLeft + const Offset(3, 0.5));
   }
 
   void _drawBar(Canvas canvas, Rect rect, Color color) {

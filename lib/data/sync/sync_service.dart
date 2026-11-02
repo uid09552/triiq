@@ -163,6 +163,58 @@ class SyncService {
     );
   }
 
+  /// How far the Events list looks back and ahead. A year ahead covers the
+  /// season's races; a month back keeps recent notes and illness markers.
+  static const eventsLookBack = Duration(days: 30);
+  static const eventsLookAhead = Duration(days: 365);
+
+  static const _eventsHorizonScope = 'events_horizon';
+
+  /// Fetches every calendar entry from a month ago to a year ahead and
+  /// replaces the cached range — the daily background job's events sync.
+  ///
+  /// Independent of the "copy planned events" setting: Events is its own
+  /// feature, and workouts the setting hides stay hidden because
+  /// `PlannedItemsRepository` filters on it when reading.
+  Future<int> syncEventsHorizon() async {
+    final client = _session.client;
+    final athleteId = _session.athleteId;
+    if (client == null || athleteId == null) {
+      throw StateError('Not connected to Intervals.icu.');
+    }
+    final today = DateTime.now();
+    final oldest = _formatDate(today.subtract(eventsLookBack));
+    final newest = _formatDate(today.add(eventsLookAhead));
+    final response = await client.getVeranstaltungenApi().listEvents(
+      id: athleteId,
+      format: '',
+      oldest: oldest,
+      newest: newest,
+    );
+    final records = (response.data ?? const [])
+        .map(LocalEvent.fromApi)
+        .toList();
+    await _eventsRepository.replaceRange(oldest, newest, records);
+    await _syncStateRepository.recordSync(
+      _eventsHorizonScope,
+      oldest: oldest,
+      newest: newest,
+    );
+    return records.length;
+  }
+
+  /// [syncEventsHorizon] unless it already ran within [maxAge] — what
+  /// opening the Events screen wants.
+  Future<void> syncEventsHorizonIfStale({
+    Duration maxAge = const Duration(hours: 1),
+  }) async {
+    if (!_session.isConnected) return;
+    final last = (await _syncStateRepository.get(_eventsHorizonScope))
+        ?.lastSyncedAt;
+    if (last != null && DateTime.now().difference(last) < maxAge) return;
+    await syncEventsHorizon();
+  }
+
   /// The span the Today screen needs in one round-trip: the whole current
   /// week (for the week's TSS total) plus tomorrow (for tomorrow's planned
   /// session, which falls outside the week when today is Sunday).

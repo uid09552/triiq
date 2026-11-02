@@ -40,6 +40,7 @@ class BackgroundSyncRunner {
     required this.sync,
     required this.notify,
     required this.settings,
+    this.syncEvents,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
@@ -56,6 +57,7 @@ class BackgroundSyncRunner {
       lastSyncedAt: () async =>
           (await SyncStateRepository().get('activities'))?.lastSyncedAt,
       sync: () => SyncService().syncTodayWindow().then((_) {}),
+      syncEvents: () => SyncService().syncEventsHorizon().then((_) {}),
       notify: ({required bool reconnectNeeded}) async {
         await NotificationSettings.instance.load();
         if (!NotificationSettings.instance.enabled) return;
@@ -75,6 +77,10 @@ class BackgroundSyncRunner {
 
   /// Fetches the current week (see `SyncService.todayWindow`).
   final Future<void> Function() sync;
+
+  /// Fetches the Events horizon (a month back to a year ahead) after the
+  /// week, so the Events list is current every morning.
+  final Future<void> Function()? syncEvents;
 
   final Future<void> Function({required bool reconnectNeeded}) notify;
   final SyncSettings settings;
@@ -110,6 +116,7 @@ class BackgroundSyncRunner {
 
     try {
       await sync();
+      await syncEvents?.call();
     } on DioException catch (error) {
       final status = error.response?.statusCode;
       if (status == 401 || status == 403) return _authRejected();

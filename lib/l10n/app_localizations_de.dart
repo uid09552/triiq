@@ -2427,4 +2427,97 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get todaySectionThresholds => 'Schwellenwert-Vorschläge';
+
+  @override
+  String get eventsTitle => 'Ereignisse';
+
+  @override
+  String get moreEventsSubtitle => 'Wettkämpfe, Notizen, Urlaub und mehr';
+
+  @override
+  String get eventsEmpty => 'Noch keine Ereignisse. Füge einen Wettkampf oder eine Notiz hinzu.';
+
+  @override
+  String get eventsUpcoming => 'Anstehend';
+
+  @override
+  String get eventsPast => 'Vergangen';
+
+  @override
+  String get eventAddTooltip => 'Ereignis hinzufügen';
+
+  @override
+  String get eventNewTitle => 'Neues Ereignis';
+
+  @override
+  String get eventEditTitle => 'Ereignis bearbeiten';
+
+  @override
+  String get eventCategoryLabel => 'Art';
+
+  @override
+  String get eventNameLabel => 'Name';
+
+  @override
+  String get eventDateLabel => 'Datum';
+
+  @override
+  String get eventEndDateLabel => 'Bis (optional)';
+
+  @override
+  String get eventSportLabel => 'Sportart';
+
+  @override
+  String get eventDescriptionLabel => 'Beschreibung';
+
+  @override
+  String get eventSaveButton => 'Speichern';
+
+  @override
+  String get eventNameRequired => 'Bitte einen Namen eingeben';
+
+  @override
+  String get eventNotConnected => 'Verbinde Intervals.icu, um Ereignisse anzulegen oder zu bearbeiten.';
+
+  @override
+  String eventCouldNotSave(String error) {
+    return 'Ereignis konnte nicht gespeichert werden: $error';
+  }
+
+  @override
+  String eventDeleteConfirm(String name) {
+    return '„$name“ wird aus deinem Intervals.icu-Kalender entfernt. Das kann nicht rückgängig gemacht werden.';
+  }
+
+  @override
+  String eventDeleted(String name) {
+    return '„$name“ gelöscht.';
+  }
+
+  @override
+  String get eventCategoryRaceA => 'Wettkampf (A)';
+
+  @override
+  String get eventCategoryRaceB => 'Wettkampf (B)';
+
+  @override
+  String get eventCategoryRaceC => 'Wettkampf (C)';
+
+  @override
+  String get eventCategoryNote => 'Notiz';
+
+  @override
+  String get eventCategoryHoliday => 'Urlaub';
+
+  @override
+  String get eventCategorySick => 'Krank';
+
+  @override
+  String get eventCategoryInjured => 'Verletzt';
+
+  @override
+  String get eventCategoryTarget => 'Ziel';
+
+  @override
+  String get eventCategorySeasonStart => 'Saisonstart';
 }

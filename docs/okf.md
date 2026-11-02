@@ -818,6 +818,32 @@ is re-synced so the new session appears immediately.
    In the browser build the key is only kept for that tab: browsers have no
    comparable secure store, so you re-enter it after a reload.
 
+### Charts
+
+The hand-painted charts in `lib/widgets/charts` are interactive. Line charts
+(`MetricLineChart`: CTL/ATL/form history, Statistics, readiness) and the
+session stream chart zoom by pinch, double tap (3×, again to reset) or
+Ctrl + mouse wheel; the y-scale refits to the visible window, one finger
+scrubs a tooltip and pans once zoomed, and a button resets. Every series gets
+a dashed **Ø average** line over the visible window (streams also show their
+averages above the chart); curves are monotone-smoothed. Bar charts draw a
+dashed Ø line at the mean. The shared zoom/pan logic is `chart_viewport.dart`.
+
+### Events
+
+More → **Events** lists races (A/B/C), notes, holidays, sick/injured markers,
+targets and season starts from a month back to a year ahead
+(`lib/screens/events`). The **+** button and tapping an entry open the editor
+(type, name, date, optional end date for holiday/sick/injured/target, sport for
+races, description); the trash button deletes. Intervals.icu is the source of
+truth: `IntervalsEventService` (`lib/data/intervals_event_service.dart`)
+creates/updates/deletes there via `createEvent` / `updateEvent` / `deleteEvent`
+and mirrors the result into the `events` cache. `SyncService.syncEventsHorizon()`
+refetches that whole span (independent of "Copy planned events"); the
+**nightly background sync** runs it after the week sync
+(`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
+older than an hour, and pull-to-refresh forces it.
+
 ### Today
 
 **Customize / delete.** The "Customize Today" button at the bottom opens a

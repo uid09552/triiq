@@ -914,5 +914,55 @@
   "customizeTodayReset": "Reset",
   "todaySectionReadiness": "Readiness",
   "todaySectionMetrics": "Load metrics",
-  "todaySectionThresholds": "Threshold suggestions"
+  "todaySectionThresholds": "Threshold suggestions",
+  "eventsTitle": "Events",
+  "moreEventsSubtitle": "Races, notes, holidays and more",
+  "eventsEmpty": "No events yet. Add a race or a note.",
+  "eventsUpcoming": "Upcoming",
+  "eventsPast": "Past",
+  "eventAddTooltip": "Add event",
+  "eventNewTitle": "New event",
+  "eventEditTitle": "Edit event",
+  "eventCategoryLabel": "Type",
+  "eventNameLabel": "Name",
+  "eventDateLabel": "Date",
+  "eventEndDateLabel": "Until (optional)",
+  "eventSportLabel": "Sport",
+  "eventDescriptionLabel": "Description",
+  "eventSaveButton": "Save",
+  "eventNameRequired": "Enter a name",
+  "eventNotConnected": "Connect Intervals.icu to add or edit events.",
+  "eventCouldNotSave": "Could not save the event: {error}",
+  "@eventCouldNotSave": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "eventDeleteConfirm": "“{name}” is removed from your Intervals.icu calendar. This can't be undone.",
+  "@eventDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventDeleted": "“{name}” deleted.",
+  "@eventDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventCategoryRaceA": "Race (A)",
+  "eventCategoryRaceB": "Race (B)",
+  "eventCategoryRaceC": "Race (C)",
+  "eventCategoryNote": "Note",
+  "eventCategoryHoliday": "Holiday",
+  "eventCategorySick": "Sick",
+  "eventCategoryInjured": "Injured",
+  "eventCategoryTarget": "Target",
+  "eventCategorySeasonStart": "Season start"
 }
