@@ -1,3 +1,4 @@
+import '../events/events_screen.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
@@ -20,6 +21,15 @@ class MoreScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _MoreTile(
+          icon: Icons.emoji_events_outlined,
+          title: l10n.eventsTitle,
+          subtitle: l10n.moreEventsSubtitle,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const EventsScreen()),
+          ),
+        ),
+        const SizedBox(height: 10),
         _MoreTile(
           icon: Icons.person_outline,
           title: l10n.titleProfile,

@@ -818,6 +818,21 @@ is re-synced so the new session appears immediately.
    In the browser build the key is only kept for that tab: browsers have no
    comparable secure store, so you re-enter it after a reload.
 
+### Events
+
+More → **Events** lists races (A/B/C), notes, holidays, sick/injured markers,
+targets and season starts from a month back to a year ahead
+(`lib/screens/events`). The **+** button and tapping an entry open the editor
+(type, name, date, optional end date for holiday/sick/injured/target, sport for
+races, description); the trash button deletes. Intervals.icu is the source of
+truth: `IntervalsEventService` (`lib/data/intervals_event_service.dart`)
+creates/updates/deletes there via `createEvent` / `updateEvent` / `deleteEvent`
+and mirrors the result into the `events` cache. `SyncService.syncEventsHorizon()`
+refetches that whole span (independent of "Copy planned events"); the
+**nightly background sync** runs it after the week sync
+(`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
+older than an hour, and pull-to-refresh forces it.
+
 ### Today
 
 **Customize / delete.** The "Customize Today" button at the bottom opens a

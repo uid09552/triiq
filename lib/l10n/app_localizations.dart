@@ -3955,6 +3955,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Threshold suggestions'**
   String get todaySectionThresholds;
+
+  /// No description provided for @eventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get eventsTitle;
+
+  /// No description provided for @moreEventsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Races, notes, holidays and more'**
+  String get moreEventsSubtitle;
+
+  /// No description provided for @eventsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No events yet. Add a race or a note.'**
+  String get eventsEmpty;
+
+  /// No description provided for @eventsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get eventsUpcoming;
+
+  /// No description provided for @eventsPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get eventsPast;
+
+  /// No description provided for @eventAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add event'**
+  String get eventAddTooltip;
+
+  /// No description provided for @eventNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New event'**
+  String get eventNewTitle;
+
+  /// No description provided for @eventEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit event'**
+  String get eventEditTitle;
+
+  /// No description provided for @eventCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get eventCategoryLabel;
+
+  /// No description provided for @eventNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get eventNameLabel;
+
+  /// No description provided for @eventDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get eventDateLabel;
+
+  /// No description provided for @eventEndDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Until (optional)'**
+  String get eventEndDateLabel;
+
+  /// No description provided for @eventSportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get eventSportLabel;
+
+  /// No description provided for @eventDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get eventDescriptionLabel;
+
+  /// No description provided for @eventSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get eventSaveButton;
+
+  /// No description provided for @eventNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get eventNameRequired;
+
+  /// No description provided for @eventNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu to add or edit events.'**
+  String get eventNotConnected;
+
+  /// No description provided for @eventCouldNotSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the event: {error}'**
+  String eventCouldNotSave(String error);
+
+  /// No description provided for @eventDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” is removed from your Intervals.icu calendar. This can\'t be undone.'**
+  String eventDeleteConfirm(String name);
+
+  /// No description provided for @eventDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” deleted.'**
+  String eventDeleted(String name);
+
+  /// No description provided for @eventCategoryRaceA.
+  ///
+  /// In en, this message translates to:
+  /// **'Race (A)'**
+  String get eventCategoryRaceA;
+
+  /// No description provided for @eventCategoryRaceB.
+  ///
+  /// In en, this message translates to:
+  /// **'Race (B)'**
+  String get eventCategoryRaceB;
+
+  /// No description provided for @eventCategoryRaceC.
+  ///
+  /// In en, this message translates to:
+  /// **'Race (C)'**
+  String get eventCategoryRaceC;
+
+  /// No description provided for @eventCategoryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get eventCategoryNote;
+
+  /// No description provided for @eventCategoryHoliday.
+  ///
+  /// In en, this message translates to:
+  /// **'Holiday'**
+  String get eventCategoryHoliday;
+
+  /// No description provided for @eventCategorySick.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick'**
+  String get eventCategorySick;
+
+  /// No description provided for @eventCategoryInjured.
+  ///
+  /// In en, this message translates to:
+  /// **'Injured'**
+  String get eventCategoryInjured;
+
+  /// No description provided for @eventCategoryTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get eventCategoryTarget;
+
+  /// No description provided for @eventCategorySeasonStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Season start'**
+  String get eventCategorySeasonStart;
 }
 
 class _AppLocalizationsDelegate

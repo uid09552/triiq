@@ -40,6 +40,35 @@ class EventsRepository {
     });
   }
 
+  /// Writes one entry, replacing a cached one with the same id — what
+  /// creating or editing an event upstream needs, so the screens show it
+  /// before the next sync.
+  Future<void> upsert(LocalEvent record) async {
+    final db = await _database.database;
+    await db.insert(
+      'events',
+      record.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Cached entries from [oldest] on whose category is one of [categories],
+  /// soonest first.
+  Future<List<LocalEvent>> getByCategories(
+    Set<String> categories, {
+    required String oldest,
+  }) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'events',
+      where:
+          'date >= ? AND category IN (${List.filled(categories.length, '?').join(',')})',
+      whereArgs: [oldest, ...categories],
+      orderBy: 'date ASC, id ASC',
+    );
+    return rows.map(LocalEvent.fromMap).toList();
+  }
+
   /// Drops one cached entry — what deleting a session upstream needs, so
   /// the calendar stops showing it before the next sync of that range.
   Future<void> deleteById(String id) async {

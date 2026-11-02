@@ -2401,4 +2401,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todaySectionThresholds => 'Threshold suggestions';
+
+  @override
+  String get eventsTitle => 'Events';
+
+  @override
+  String get moreEventsSubtitle => 'Races, notes, holidays and more';
+
+  @override
+  String get eventsEmpty => 'No events yet. Add a race or a note.';
+
+  @override
+  String get eventsUpcoming => 'Upcoming';
+
+  @override
+  String get eventsPast => 'Past';
+
+  @override
+  String get eventAddTooltip => 'Add event';
+
+  @override
+  String get eventNewTitle => 'New event';
+
+  @override
+  String get eventEditTitle => 'Edit event';
+
+  @override
+  String get eventCategoryLabel => 'Type';
+
+  @override
+  String get eventNameLabel => 'Name';
+
+  @override
+  String get eventDateLabel => 'Date';
+
+  @override
+  String get eventEndDateLabel => 'Until (optional)';
+
+  @override
+  String get eventSportLabel => 'Sport';
+
+  @override
+  String get eventDescriptionLabel => 'Description';
+
+  @override
+  String get eventSaveButton => 'Save';
+
+  @override
+  String get eventNameRequired => 'Enter a name';
+
+  @override
+  String get eventNotConnected => 'Connect Intervals.icu to add or edit events.';
+
+  @override
+  String eventCouldNotSave(String error) {
+    return 'Could not save the event: $error';
+  }
+
+  @override
+  String eventDeleteConfirm(String name) {
+    return '“$name” is removed from your Intervals.icu calendar. This can\'t be undone.';
+  }
+
+  @override
+  String eventDeleted(String name) {
+    return '“$name” deleted.';
+  }
+
+  @override
+  String get eventCategoryRaceA => 'Race (A)';
+
+  @override
+  String get eventCategoryRaceB => 'Race (B)';
+
+  @override
+  String get eventCategoryRaceC => 'Race (C)';
+
+  @override
+  String get eventCategoryNote => 'Note';
+
+  @override
+  String get eventCategoryHoliday => 'Holiday';
+
+  @override
+  String get eventCategorySick => 'Sick';
+
+  @override
+  String get eventCategoryInjured => 'Injured';
+
+  @override
+  String get eventCategoryTarget => 'Target';
+
+  @override
+  String get eventCategorySeasonStart => 'Season start';
 }
