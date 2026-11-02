@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../evaluation/session_streams.dart';
+import 'chart_viewport.dart';
 
 /// Min-max downsampling: [values] split into [buckets] runs, each kept as
 /// its lowest and highest sample (in time order) so spikes survive. Returns
@@ -89,6 +90,25 @@ class StreamChart extends StatefulWidget {
 
 class _StreamChartState extends State<StreamChart> {
   int? _readout;
+  final _viewport = ChartViewport();
+
+  @override
+  void initState() {
+    super.initState();
+    _viewport.setLength(_length);
+  }
+
+  @override
+  void didUpdateWidget(StreamChart old) {
+    super.didUpdateWidget(old);
+    _viewport.setLength(_length);
+  }
+
+  @override
+  void dispose() {
+    _viewport.dispose();
+    super.dispose();
+  }
 
   int get _length {
     var n = 0;
@@ -96,14 +116,6 @@ class _StreamChartState extends State<StreamChart> {
       n = math.max(n, s.length);
     }
     return n;
-  }
-
-  void _setReadout(Offset local, double width) {
-    final n = _length;
-    if (n == 0 || width <= 0) return;
-    setState(
-      () => _readout = (local.dx / width * (n - 1)).round().clamp(0, n - 1),
-    );
   }
 
   String _clock(int index) {
@@ -130,61 +142,133 @@ class _StreamChartState extends State<StreamChart> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: 36,
-          child: readout == null
-              ? null
-              : Wrap(
-                  spacing: 12,
-                  children: [
-                    Text(_clock(readout), style: theme.textTheme.labelMedium),
-                    for (final t in types)
-                      if (readout < widget.streams.series[t]!.length &&
-                          widget.streams.series[t]![readout] != null)
+        ListenableBuilder(
+          listenable: _viewport,
+          builder: (context, _) {
+            final start = _viewport.lo.floor();
+            final end = _viewport.hi.ceil();
+            final averages = <String, double>{
+              for (final t in types)
+                if (_average(widget.streams.series[t]!, start, end)
+                    case final avg?)
+                  t: avg,
+            };
+            return SizedBox(
+              height: 36,
+              child: Wrap(
+                spacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: readout == null
+                    ? [
+                        for (final t in types)
+                          if (averages[t] != null)
+                            Text(
+                              'Ø ${widget.format(t, averages[t]!)}',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: streamColor(t, scheme),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                      ]
+                    : [
                         Text(
-                          widget.format(t, widget.streams.series[t]![readout]!),
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: streamColor(t, scheme),
-                            fontWeight: FontWeight.w700,
-                          ),
+                          _clock(readout),
+                          style: theme.textTheme.labelMedium,
                         ),
-                  ],
-                ),
-        ),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTapDown: (d) => _setReadout(d.localPosition, width),
-              onHorizontalDragStart: (d) => _setReadout(d.localPosition, width),
-              onHorizontalDragUpdate: (d) =>
-                  _setReadout(d.localPosition, width),
-              child: CustomPaint(
-                key: const ValueKey('stream-chart-paint'),
-                size: Size(width, widget.height),
-                painter: StreamChartPainter(
-                  series: {
-                    for (final t in types)
-                      t: downsample(
-                        widget.streams.series[t]!,
-                        StreamChart.buckets,
-                      ),
-                  },
-                  length: _length,
-                  intervals: widget.streams.intervals,
-                  readout: readout,
-                  colorOf: (t) => streamColor(t, scheme),
-                  band: scheme.primary.withValues(alpha: 0.08),
-                  grid: scheme.outlineVariant,
-                  cursor: scheme.onSurface,
-                ),
+                        for (final t in types)
+                          if (readout < widget.streams.series[t]!.length &&
+                              widget.streams.series[t]![readout] != null)
+                            Text(
+                              widget.format(
+                                t,
+                                widget.streams.series[t]![readout]!,
+                              ),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: streamColor(t, scheme),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                      ],
               ),
             );
           },
         ),
+        ChartInteraction(
+          viewport: _viewport,
+          plotLeft: 0,
+          onSelectAt: (i) => setState(() => _readout = i),
+          child: SizedBox(
+            height: widget.height,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ListenableBuilder(
+                  listenable: _viewport,
+                  builder: (context, _) {
+                    final start = _viewport.lo.floor();
+                    final end = math.min(_length - 1, _viewport.hi.ceil());
+                    return CustomPaint(
+                      key: const ValueKey('stream-chart-paint'),
+                      painter: StreamChartPainter(
+                        series: {
+                          for (final t in types)
+                            t: _window(widget.streams.series[t]!, start, end),
+                        },
+                        averages: {
+                          for (final t in types)
+                            if (_average(widget.streams.series[t]!, start, end)
+                                case final avg?)
+                              t: avg,
+                        },
+                        length: _length,
+                        lo: _viewport.lo,
+                        hi: _viewport.hi,
+                        intervals: widget.streams.intervals,
+                        readout: readout,
+                        colorOf: (t) => streamColor(t, scheme),
+                        band: scheme.primary.withValues(alpha: 0.08),
+                        grid: scheme.outlineVariant,
+                        cursor: scheme.onSurface,
+                      ),
+                    );
+                  },
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: ZoomResetButton(viewport: _viewport),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
+  }
+
+  /// The downsampled points of [values] within [start]..[end], keeping
+  /// their absolute indices.
+  static List<(int, double)> _window(List<double?> values, int start, int end) {
+    if (values.isEmpty) return const [];
+    final from = start.clamp(0, values.length - 1);
+    final to = end.clamp(from, values.length - 1);
+    return [
+      for (final (i, v)
+          in downsample(values.sublist(from, to + 1), StreamChart.buckets))
+        (i + from, v),
+    ];
+  }
+
+  static double? _average(List<double?> values, int start, int end) {
+    var sum = 0.0;
+    var n = 0;
+    for (var i = math.max(0, start); i <= end && i < values.length; i++) {
+      final v = values[i];
+      if (v == null) continue;
+      sum += v;
+      n++;
+    }
+    return n == 0 ? null : sum / n;
   }
 }
 
@@ -193,6 +277,9 @@ class StreamChartPainter extends CustomPainter {
   StreamChartPainter({
     required this.series,
     required this.length,
+    this.averages = const {},
+    this.lo = 0,
+    this.hi = 0,
     required this.intervals,
     required this.readout,
     required this.colorOf,
@@ -203,6 +290,13 @@ class StreamChartPainter extends CustomPainter {
 
   final Map<String, List<(int, double)>> series;
   final int length;
+
+  /// Mean of each stream over the visible window, drawn as a dashed line.
+  final Map<String, double> averages;
+
+  /// Visible index window; `hi <= lo` means the whole session.
+  final double lo;
+  final double hi;
   final List<SessionInterval> intervals;
   final int? readout;
   final Color Function(String) colorOf;
@@ -215,7 +309,11 @@ class StreamChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (length < 2) return;
-    double x(int i) => i / (length - 1) * size.width;
+    final from = hi > lo ? lo : 0.0;
+    final span = hi > lo ? hi - lo : (length - 1).toDouble();
+    double x(num i) => (i - from) / span * size.width;
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
 
     for (final interval in intervals.where((i) => i.isWork)) {
       canvas.drawRect(
@@ -245,13 +343,39 @@ class StreamChartPainter extends CustomPainter {
       for (final p in points.skip(1)) {
         path.lineTo(x(p.$1), y(p.$2));
       }
+      final color = colorOf(entry.key);
+      final fill = Path.from(path)
+        ..lineTo(x(points.last.$1), size.height)
+        ..lineTo(x(points.first.$1), size.height)
+        ..close();
+      canvas.drawPath(
+        fill,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [color.withValues(alpha: 0.14), color.withValues(alpha: 0)],
+          ).createShader(Offset.zero & size),
+      );
       canvas.drawPath(
         path,
         Paint()
-          ..color = colorOf(entry.key)
+          ..color = color
           ..strokeWidth = 1.6
+          ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke,
       );
+      final avg = averages[entry.key];
+      if (avg != null) {
+        drawDashedLine(
+          canvas,
+          Offset(0, y(avg)),
+          Offset(size.width, y(avg)),
+          Paint()
+            ..color = color.withValues(alpha: 0.7)
+            ..strokeWidth = 1,
+        );
+      }
     }
 
     final r = readout;
@@ -264,6 +388,7 @@ class StreamChartPainter extends CustomPainter {
           ..strokeWidth = 1,
       );
     }
+    canvas.restore();
   }
 
   @override

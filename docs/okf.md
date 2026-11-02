@@ -818,6 +818,17 @@ is re-synced so the new session appears immediately.
    In the browser build the key is only kept for that tab: browsers have no
    comparable secure store, so you re-enter it after a reload.
 
+### Charts
+
+The hand-painted charts in `lib/widgets/charts` are interactive. Line charts
+(`MetricLineChart`: CTL/ATL/form history, Statistics, readiness) and the
+session stream chart zoom by pinch, double tap (3×, again to reset) or
+Ctrl + mouse wheel; the y-scale refits to the visible window, one finger
+scrubs a tooltip and pans once zoomed, and a button resets. Every series gets
+a dashed **Ø average** line over the visible window (streams also show their
+averages above the chart); curves are monotone-smoothed. Bar charts draw a
+dashed Ø line at the mean. The shared zoom/pan logic is `chart_viewport.dart`.
+
 ### Events
 
 More → **Events** lists races (A/B/C), notes, holidays, sick/injured markers,
