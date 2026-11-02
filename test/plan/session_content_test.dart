@@ -214,4 +214,31 @@ void main() {
 
     expect(sentPrompt, contains('"technique_focus":true'));
   });
+
+  final wrapped = jsonEncode([
+    {
+      'index': 0,
+      'name': 'Easy aerobic run',
+      'short_description': 'Easy aerobic run, 50 minutes.',
+      'description': '- 10m 60%\n- 35m 70%\n- 5m 55%\n(rewritten)',
+    },
+  ]);
+
+  for (final entry in {
+    'a fenced reply': '```json\n$wrapped\n```',
+    'a prose-wrapped reply': 'Here you go:\n$wrapped\nHope that helps!',
+    'a fenced reply inside prose':
+        'Sure!\n```json\n$wrapped\n```\nLet me know.',
+  }.entries) {
+    test('${entry.key} is parsed', () async {
+      final g = generator(configured, (settings, messages) async {
+        return reply(entry.value);
+      });
+
+      final result = await g.enrich(plan([session()]));
+
+      expect(result.sessions.single.name, 'Easy aerobic run');
+      expect(result.sessions.single.description, contains('(rewritten)'));
+    });
+  }
 }

@@ -154,11 +154,15 @@ class SessionContentGenerator {
     return lines > 0;
   }
 
+  /// The JSON array inside [text]: a bare reply, one in a code fence, or
+  /// one wrapped in prose ("Here you go: [...] Hope that helps").
   String _stripFences(String text) {
     final trimmed = text.trim();
-    final fence = RegExp(r'^```[a-zA-Z]*\n([\s\S]*?)\n```$');
-    final match = fence.firstMatch(trimmed);
-    return match?.group(1) ?? trimmed;
+    final fence = RegExp(r'```[a-zA-Z]*\s*\n([\s\S]*?)\n\s*```');
+    final inner = fence.firstMatch(trimmed)?.group(1)?.trim() ?? trimmed;
+    final start = inner.indexOf('[');
+    final end = inner.lastIndexOf(']');
+    return start >= 0 && end > start ? inner.substring(start, end + 1) : inner;
   }
 }
 
