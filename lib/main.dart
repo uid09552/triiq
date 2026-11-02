@@ -14,6 +14,7 @@ import 'notifications/app_lifecycle_tracker.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_settings.dart';
 import 'screens/settings/weekly_targets_settings.dart';
+import 'screens/today/today_layout_settings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +40,7 @@ void main() {
   // The per-sport weekly targets and whether their rings show on Today —
   // Settings and Today listen and rebuild once it resolves.
   unawaited(WeeklyTargetsSettings.instance.load());
+  unawaited(TodayLayoutSettings.instance.load());
   // Whether a recent activity's detail screen auto-prompts for fatigue and
   // soreness — Settings and the activity detail screen listen and rebuild
   // once it resolves.

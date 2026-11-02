@@ -3895,6 +3895,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ask once, the first time a recent activity\'s detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off.'**
   String get feelPromptOnNewActivityHelp;
+
+  /// No description provided for @deleteDayTrainingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all trainings of the day?'**
+  String get deleteDayTrainingsTitle;
+
+  /// No description provided for @deleteDayTrainingsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} planned session(s) are removed from your Intervals.icu calendar. This can't be undone.'**
+  String deleteDayTrainingsConfirm(int count);
+
+  /// No description provided for @dayTrainingsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} session(s) deleted.'**
+  String dayTrainingsDeleted(int count);
+
+  /// No description provided for @customizeTodayTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize Today'**
+  String get customizeTodayTooltip;
+
+  /// No description provided for @customizeTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize Today'**
+  String get customizeTodayTitle;
+
+  /// No description provided for @customizeTodayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder. Switch a section off to remove it from Today.'**
+  String get customizeTodayHelp;
+
+  /// No description provided for @customizeTodayReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get customizeTodayReset;
+
+  /// No description provided for @todaySectionReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness'**
+  String get todaySectionReadiness;
+
+  /// No description provided for @todaySectionMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Load metrics'**
+  String get todaySectionMetrics;
+
+  /// No description provided for @todaySectionThresholds.
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold suggestions'**
+  String get todaySectionThresholds;
 }
 
 class _AppLocalizationsDelegate

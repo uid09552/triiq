@@ -32,7 +32,14 @@ class CalendarDayDetail extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final plannedEvents = events.where((e) => e.isTraining).toList();
 
-    return SectionCard(
+    final canDeleteDay = plannedEvents.any(canDeletePlannedWorkout);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onLongPress: canDeleteDay
+          ? () => confirmAndDeleteDaysWorkouts(context, plannedEvents)
+          : null,
+      child: SectionCard(
       icon: Icons.event_note_outlined,
       title: formatIsoDate(_fmt(date)),
       child: plannedEvents.isEmpty && activities.isEmpty
@@ -106,6 +113,7 @@ class CalendarDayDetail extends StatelessWidget {
                   ),
               ],
             ),
+      ),
     );
   }
 

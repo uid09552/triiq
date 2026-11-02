@@ -74,6 +74,72 @@ Future<bool> confirmAndDeletePlannedWorkout(
   return true;
 }
 
+/// Asks for confirmation, then deletes every deletable planned session in
+/// [events] (one day's worth) upstream and from the local cache.
+///
+/// Sessions that [canDeletePlannedWorkout] refuses (TriIQ plan sessions) are
+/// left alone. Returns how many were deleted; a failure stops the run and
+/// surfaces as a snackbar, keeping what was already removed.
+Future<int> confirmAndDeleteDaysWorkouts(
+  BuildContext context,
+  List<LocalEvent> events, {
+  IntervalsWorkoutService? workoutService,
+  EventsRepository? eventsRepository,
+}) async {
+  final deletable = events.where(canDeletePlannedWorkout).toList();
+  if (deletable.isEmpty) return 0;
+  final l10n = AppLocalizations.of(context)!;
+  final messenger = ScaffoldMessenger.of(context);
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final colorScheme = Theme.of(context).colorScheme;
+      return AlertDialog(
+        title: Text(l10n.deleteDayTrainingsTitle),
+        content: Text(l10n.deleteDayTrainingsConfirm(deletable.length)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancelButton),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.deleteButton),
+          ),
+        ],
+      );
+    },
+  );
+  if (confirmed != true) return 0;
+
+  final service = workoutService ?? IntervalsWorkoutService();
+  final repository = eventsRepository ?? EventsRepository();
+  var deleted = 0;
+  try {
+    for (final event in deletable) {
+      await service.deletePlannedWorkout(event.id);
+      await repository.deleteById(event.id);
+      deleted++;
+    }
+  } catch (error) {
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.couldNotDeleteWorkout('$error'))),
+    );
+  }
+  if (deleted > 0) {
+    AutoSyncService.instance.notifyCacheChanged();
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.dayTrainingsDeleted(deleted))),
+    );
+  }
+  return deleted;
+}
+
 /// Hands [event] to Google Calendar's "add event" flow, prefilled.
 Future<void> addPlannedWorkoutToGoogleCalendar(
   BuildContext context,

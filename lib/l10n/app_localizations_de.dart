@@ -2393,4 +2393,38 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get feelPromptOnNewActivityHelp =>
       'Fragt einmalig, wenn die Detailansicht einer aktuellen Aktivität zum ersten Mal geöffnet wird und für den Tag noch nichts festgelegt ist. Das manuelle Festlegen bei jeder Aktivität funktioniert unabhängig davon immer.';
+
+  @override
+  String get deleteDayTrainingsTitle => 'Trainings des Tages löschen?';
+
+  @override
+  String deleteDayTrainingsConfirm(int count) {
+    return '$count geplante Einheit(en) werden aus deinem Intervals.icu-Kalender entfernt. Das kann nicht rückgängig gemacht werden.';
+  }
+
+  @override
+  String dayTrainingsDeleted(int count) {
+    return '$count Einheit(en) gelöscht.';
+  }
+
+  @override
+  String get customizeTodayTooltip => 'Heute anpassen';
+
+  @override
+  String get customizeTodayTitle => 'Heute anpassen';
+
+  @override
+  String get customizeTodayHelp => 'Zum Sortieren ziehen. Einen Bereich ausschalten, um ihn von Heute zu entfernen.';
+
+  @override
+  String get customizeTodayReset => 'Zurücksetzen';
+
+  @override
+  String get todaySectionReadiness => 'Bereitschaft';
+
+  @override
+  String get todaySectionMetrics => 'Belastungswerte';
+
+  @override
+  String get todaySectionThresholds => 'Schwellenwert-Vorschläge';
 }

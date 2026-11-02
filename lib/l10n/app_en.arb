@@ -890,5 +890,29 @@
   "feelNotConnectedHint": "Connect Intervals.icu to set this",
   "feelSettingsTitle": "Fatigue & soreness",
   "feelPromptOnNewActivity": "Prompt for a recent activity",
-  "feelPromptOnNewActivityHelp": "Ask once, the first time a recent activity's detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off."
+  "feelPromptOnNewActivityHelp": "Ask once, the first time a recent activity's detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off.",
+  "deleteDayTrainingsTitle": "Delete all trainings of the day?",
+  "deleteDayTrainingsConfirm": "{count} planned session(s) are removed from your Intervals.icu calendar. This can't be undone.",
+  "@deleteDayTrainingsConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dayTrainingsDeleted": "{count} session(s) deleted.",
+  "@dayTrainingsDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customizeTodayTooltip": "Customize Today",
+  "customizeTodayTitle": "Customize Today",
+  "customizeTodayHelp": "Drag to reorder. Switch a section off to remove it from Today.",
+  "customizeTodayReset": "Reset",
+  "todaySectionReadiness": "Readiness",
+  "todaySectionMetrics": "Load metrics",
+  "todaySectionThresholds": "Threshold suggestions"
 }

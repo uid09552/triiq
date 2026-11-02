@@ -821,5 +821,15 @@
   "feelNotConnectedHint": "Mit Intervals.icu verbinden, um das festzulegen",
   "feelSettingsTitle": "Müdigkeit & Muskelkater",
   "feelPromptOnNewActivity": "Bei einer aktuellen Aktivität nachfragen",
-  "feelPromptOnNewActivityHelp": "Fragt einmalig, wenn die Detailansicht einer aktuellen Aktivität zum ersten Mal geöffnet wird und für den Tag noch nichts festgelegt ist. Das manuelle Festlegen bei jeder Aktivität funktioniert unabhängig davon immer."
+  "feelPromptOnNewActivityHelp": "Fragt einmalig, wenn die Detailansicht einer aktuellen Aktivität zum ersten Mal geöffnet wird und für den Tag noch nichts festgelegt ist. Das manuelle Festlegen bei jeder Aktivität funktioniert unabhängig davon immer.",
+  "deleteDayTrainingsTitle": "Trainings des Tages löschen?",
+  "deleteDayTrainingsConfirm": "{count} geplante Einheit(en) werden aus deinem Intervals.icu-Kalender entfernt. Das kann nicht rückgängig gemacht werden.",
+  "dayTrainingsDeleted": "{count} Einheit(en) gelöscht.",
+  "customizeTodayTooltip": "Heute anpassen",
+  "customizeTodayTitle": "Heute anpassen",
+  "customizeTodayHelp": "Zum Sortieren ziehen. Einen Bereich ausschalten, um ihn von Heute zu entfernen.",
+  "customizeTodayReset": "Zurücksetzen",
+  "todaySectionReadiness": "Bereitschaft",
+  "todaySectionMetrics": "Belastungswerte",
+  "todaySectionThresholds": "Schwellenwert-Vorschläge"
 }
