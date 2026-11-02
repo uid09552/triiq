@@ -2367,4 +2367,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get feelPromptOnNewActivityHelp =>
       'Ask once, the first time a recent activity\'s detail screen opens, if that day has nothing set yet. Setting it manually on any activity always works, on or off.';
+
+  @override
+  String get deleteDayTrainingsTitle => 'Delete all trainings of the day?';
+
+  @override
+  String deleteDayTrainingsConfirm(int count) {
+    return '$count planned session(s) are removed from your Intervals.icu calendar. This can\'t be undone.';
+  }
+
+  @override
+  String dayTrainingsDeleted(int count) {
+    return '$count session(s) deleted.';
+  }
+
+  @override
+  String get customizeTodayTooltip => 'Customize Today';
+
+  @override
+  String get customizeTodayTitle => 'Customize Today';
+
+  @override
+  String get customizeTodayHelp => 'Drag to reorder. Switch a section off to remove it from Today.';
+
+  @override
+  String get customizeTodayReset => 'Reset';
+
+  @override
+  String get todaySectionReadiness => 'Readiness';
+
+  @override
+  String get todaySectionMetrics => 'Load metrics';
+
+  @override
+  String get todaySectionThresholds => 'Threshold suggestions';
 }

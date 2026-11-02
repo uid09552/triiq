@@ -820,6 +820,16 @@ is re-synced so the new session appears immediately.
 
 ### Today
 
+**Customize / delete.** The "Customize Today" button at the bottom opens a
+sheet (`customize_today_sheet.dart`) to drag the sections below the hero
+(readiness, adjustments, load tiles, weekly targets, threshold suggestions,
+activities, today's/tomorrow's training, athlete) into any order and switch
+each off; stored by `TodayLayoutSettings` (`shared_preferences`). Long-pressing
+today's planned training — or the selected day's card in the Calendar —
+offers to delete all of that day's Intervals.icu planned sessions
+(`confirmAndDeleteDaysWorkouts`); TriIQ plan sessions are left to the Plan
+screen.
+
 Shows today's date's cached data: a hero card with today's date and a
 summary of today's activity/activities (or "Ready to train" if none), a
 readiness row, six load tiles, a "Today's activities" card, today's and tomorrow's planned
