@@ -37,6 +37,8 @@ import 'train_now_screen.dart';
 import 'customize_today_sheet.dart';
 import 'tile_details_sheet.dart';
 import 'tile_metric.dart';
+import '../settings/year_goals_progress.dart';
+import '../settings/year_goals_settings.dart';
 import 'today_layout_settings.dart';
 import '../activities/planned_workout_actions.dart';
 import '../statistics/threshold_suggestion_card.dart';
@@ -130,6 +132,7 @@ class _TodayScreenState extends State<TodayScreen> {
     super.initState();
     _session.addListener(_load);
     _layout.addListener(_onLayoutChanged);
+    YearGoalsSettings.instance.addListener(_onLayoutChanged);
     AutoSyncService.instance.addListener(_onCacheChanged);
     PlanChanges.instance.addListener(_onCacheChanged);
     SyncSettings.instance.addListener(_onCacheChanged);
@@ -140,6 +143,7 @@ class _TodayScreenState extends State<TodayScreen> {
   void dispose() {
     _session.removeListener(_load);
     _layout.removeListener(_onLayoutChanged);
+    YearGoalsSettings.instance.removeListener(_onLayoutChanged);
     AutoSyncService.instance.removeListener(_onCacheChanged);
     PlanChanges.instance.removeListener(_onCacheChanged);
     SyncSettings.instance.removeListener(_onCacheChanged);
@@ -364,6 +368,18 @@ class _TodayScreenState extends State<TodayScreen> {
       ],
       TodaySection.weeklyTargets => [
           WeeklyTargetsRow(weekActivities: _weekActivities),
+      ],
+      TodaySection.yearGoals => [
+        if (YearGoalsSettings.instance.showOnToday &&
+            YearGoalsSettings.instance.hasAnyGoal) ...[
+          const SizedBox(height: 16),
+          SectionCard(
+            key: const ValueKey('today-year-goals'),
+            icon: Icons.flag_outlined,
+            title: l10n.yearGoalsTitle,
+            child: YearGoalsProgress(),
+          ),
+        ],
       ],
       TodaySection.thresholds => [
           ThresholdSuggestionsSection(

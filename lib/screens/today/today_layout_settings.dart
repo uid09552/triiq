@@ -8,6 +8,7 @@ enum TodaySection {
   adjustments,
   metrics,
   weeklyTargets,
+  yearGoals,
   thresholds,
   activities,
   todaysTraining,

@@ -976,5 +976,77 @@
   "tileShowHistory": "Show history",
   "weekActivitiesThisWeek": "This week",
   "weekActivitiesAllSports": "All sports",
-  "weekActivitiesEmpty": "No activities this week yet."
+  "weekActivitiesEmpty": "No activities this week yet.",
+  "yearGoalsTitle": "Year goals",
+  "yearGoalsHelp": "A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.",
+  "yearGoalKmLabel": "{sport} goal (km per year)",
+  "@yearGoalKmLabel": {
+    "placeholders": {
+      "sport": {
+        "type": "String"
+      }
+    }
+  },
+  "yearGoalShowOnToday": "Show on Today",
+  "yearGoalShowOnTodayHelp": "A progress card for your year goals.",
+  "yearGoalOnTrack": "On track",
+  "yearGoalAhead": "{km} km ahead of pace",
+  "@yearGoalAhead": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "yearGoalBehind": "{km} km behind pace",
+  "@yearGoalBehind": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "yearGoalProjection": "On pace for {km} km",
+  "@yearGoalProjection": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "todaySectionYearGoals": "Year goals",
+  "analysisTitle": "Analysis",
+  "moreAnalysisSubtitle": "Compare metrics side by side",
+  "analysisFilters": "Filters",
+  "analysisPeriod": "Period",
+  "analysisRange30d": "30 days",
+  "analysisRange90d": "90 days",
+  "analysisRange6m": "6 months",
+  "analysisRange1y": "1 year",
+  "analysisRangeYtd": "This year",
+  "analysisRangeCustom": "Custom…",
+  "analysisSport": "Sport",
+  "analysisSportAll": "All sports",
+  "analysisResolution": "Resolution",
+  "analysisDay": "Day",
+  "analysisWeek": "Week",
+  "analysisRolling": "Rolling average",
+  "analysisShowExtremes": "Mark min / max",
+  "analysisShowBand": "Standard deviation band (±1 σ)",
+  "analysisMetrics": "Metrics",
+  "analysisMetricTss": "Training load (TSS)",
+  "analysisMetricHours": "Training time (h)",
+  "analysisMetricDistance": "Distance (km)",
+  "analysisMetricSleep": "Sleep (h)",
+  "analysisHint": "Tap any graph to compare all metrics at that point. Pinch or use + / − to zoom them together.",
+  "analysisNoData": "No data in this period.",
+  "analysisPickMetric": "Select at least one metric above.",
+  "analysisWeekOf": "Week of {date}",
+  "@analysisWeekOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

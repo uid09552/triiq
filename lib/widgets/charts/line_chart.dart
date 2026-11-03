@@ -13,6 +13,10 @@ class ChartSeries {
     required this.color,
     required this.values,
     this.fill = false,
+    this.strokeWidth = 2.2,
+    this.opacity = 1,
+    this.markExtremes = false,
+    this.average = true,
   });
 
   final String label;
@@ -22,6 +26,28 @@ class ChartSeries {
   /// Shade the area under the line — for the one series that carries the
   /// chart (CTL under ATL, say).
   final bool fill;
+
+  /// Line width; thin and translucent for a raw series under its rolling
+  /// average.
+  final double strokeWidth;
+  final double opacity;
+
+  /// Mark the lowest and highest point in view with labelled dots.
+  final bool markExtremes;
+
+  /// Whether this series gets a dashed average line (when the chart shows
+  /// averages at all).
+  final bool average;
+}
+
+/// A horizontal band across a [MetricLineChart], e.g. mean ± one standard
+/// deviation.
+class ChartBand {
+  const ChartBand({required this.low, required this.high, required this.color});
+
+  final double low;
+  final double high;
+  final Color color;
 }
 
 /// An interactive multi-series line chart, painted by hand for the same
@@ -47,7 +73,16 @@ class MetricLineChart extends StatefulWidget {
     this.smooth = true,
     this.zoomable = true,
     this.formatValue,
+    this.viewport,
+    this.band,
   });
+
+  /// Share the zoom window with other charts so they pan and zoom together;
+  /// the chart keeps its own when null.
+  final ChartViewport? viewport;
+
+  /// A shaded band behind the lines.
+  final ChartBand? band;
 
   final List<ChartSeries> series;
 
@@ -76,8 +111,10 @@ class MetricLineChart extends StatefulWidget {
 }
 
 class _MetricLineChartState extends State<MetricLineChart> {
-  final _viewport = ChartViewport();
+  final _ownViewport = ChartViewport();
   int? _selected;
+
+  ChartViewport get _viewport => widget.viewport ?? _ownViewport;
 
   int get _length => widget.series.fold(
     0,
@@ -98,7 +135,7 @@ class _MetricLineChartState extends State<MetricLineChart> {
 
   @override
   void dispose() {
-    _viewport.dispose();
+    _ownViewport.dispose();
     super.dispose();
   }
 
@@ -131,6 +168,7 @@ class _MetricLineChartState extends State<MetricLineChart> {
                 lo: _viewport.lo,
                 hi: _viewport.hi,
                 zoomed: _viewport.isZoomed,
+                band: widget.band,
                 format: widget.formatValue ?? _LineChartPainter.formatAxis,
                 gridColor: colorScheme.outlineVariant,
                 selectionColor: colorScheme.onSurfaceVariant,
@@ -169,6 +207,7 @@ class _LineChartPainter extends CustomPainter {
     required this.lo,
     required this.hi,
     required this.zoomed,
+    this.band,
     required this.format,
     required this.gridColor,
     required this.selectionColor,
@@ -189,6 +228,7 @@ class _LineChartPainter extends CustomPainter {
   final double lo;
   final double hi;
   final bool zoomed;
+  final ChartBand? band;
   final String Function(double) format;
   final Color gridColor;
   final Color selectionColor;
@@ -277,6 +317,16 @@ class _LineChartPainter extends CustomPainter {
       );
     }
 
+    final b = band;
+    if (b != null) {
+      final top = y(math.max(b.low, b.high)).clamp(_topPad, plotBottom);
+      final bottom = y(math.min(b.low, b.high)).clamp(_topPad, plotBottom);
+      canvas.drawRect(
+        Rect.fromLTRB(axisWidth, top.toDouble(), size.width, bottom.toDouble()),
+        Paint()..color = b.color.withValues(alpha: 0.12),
+      );
+    }
+
     for (final s in series) {
       // Contiguous runs of known values; a gap ends a run.
       final runs = <List<Offset>>[];
@@ -326,27 +376,29 @@ class _LineChartPainter extends CustomPainter {
       }
 
       // Soft glow under the stroke, then the line itself.
+      if (s.opacity >= 1) {
+        canvas.drawPath(
+          line,
+          Paint()
+            ..color = s.color.withValues(alpha: 0.14)
+            ..strokeWidth = s.strokeWidth + 3.8
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round
+            ..style = PaintingStyle.stroke,
+        );
+      }
       canvas.drawPath(
         line,
         Paint()
-          ..color = s.color.withValues(alpha: 0.14)
-          ..strokeWidth = 6
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..style = PaintingStyle.stroke,
-      );
-      canvas.drawPath(
-        line,
-        Paint()
-          ..color = s.color
-          ..strokeWidth = 2.2
+          ..color = s.color.withValues(alpha: s.opacity)
+          ..strokeWidth = s.strokeWidth
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
           ..style = PaintingStyle.stroke,
       );
 
       // Individual points once zoomed far enough to tell them apart.
-      if (plotWidth / math.max(1, span) > 14) {
+      if (s.opacity >= 1 && plotWidth / math.max(1, span) > 14) {
         for (final run in runs) {
           for (final p in run) {
             canvas.drawCircle(p, 2.5, Paint()..color = s.color);
@@ -357,7 +409,7 @@ class _LineChartPainter extends CustomPainter {
 
     if (showAverage) {
       final used = <double>[];
-      for (final s in series) {
+      for (final s in series.where((s) => s.average)) {
         var sum = 0.0;
         var n = 0;
         for (var i = iLo; i <= iHi && i < s.values.length; i++) {
@@ -398,6 +450,36 @@ class _LineChartPainter extends CustomPainter {
           Paint()..color = surface.withValues(alpha: 0.8),
         );
         painter.paint(canvas, rect.topLeft + const Offset(3, 0.5));
+      }
+    }
+
+    for (final s in series.where((s) => s.markExtremes)) {
+      int? lowI, highI;
+      for (var i = iLo; i <= iHi && i < s.values.length; i++) {
+        final v = s.values[i];
+        if (v == null) continue;
+        if (lowI == null || v < s.values[lowI]!) lowI = i;
+        if (highI == null || v > s.values[highI]!) highI = i;
+      }
+      if (lowI == null || highI == null || lowI == highI) continue;
+      for (final (i, above) in [(highI, true), (lowI, false)]) {
+        final v = s.values[i]!;
+        final p = Offset(x(i), y(v));
+        canvas.drawCircle(p, 4, Paint()..color = surface);
+        canvas.drawCircle(p, 3, Paint()..color = s.color);
+        final tp = _textPainter(
+          format(v),
+          labelStyle.copyWith(color: s.color, fontWeight: FontWeight.w700),
+        );
+        tp.paint(
+          canvas,
+          Offset(
+            (p.dx - tp.width / 2)
+                .clamp(axisWidth, size.width - tp.width)
+                .toDouble(),
+            above ? math.max(0.0, p.dy - tp.height - 5) : p.dy + 5,
+          ),
+        );
       }
     }
 

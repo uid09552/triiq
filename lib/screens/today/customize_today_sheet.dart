@@ -9,6 +9,7 @@ String todaySectionLabel(AppLocalizations l10n, TodaySection section) =>
       TodaySection.adjustments => l10n.todayAdjustmentsTitle,
       TodaySection.metrics => l10n.todaySectionMetrics,
       TodaySection.weeklyTargets => l10n.weeklyTargetsSectionTitle,
+      TodaySection.yearGoals => l10n.todaySectionYearGoals,
       TodaySection.thresholds => l10n.todaySectionThresholds,
       TodaySection.activities => l10n.todaysActivities,
       TodaySection.todaysTraining => l10n.todaysTraining,

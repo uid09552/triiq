@@ -15,6 +15,7 @@ import '../../widgets/section_card.dart';
 import 'calendar_settings_section.dart';
 import 'feel_settings_section.dart';
 import 'weekly_targets_section.dart';
+import 'year_goals_section.dart';
 
 /// App settings: appearance and the LLM provider the chat agent talks to.
 ///
@@ -173,6 +174,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.track_changes_outlined,
               title: l10n.weeklyTargetsSectionTitle,
               child: WeeklyTargetsSection(),
+            ),
+            const SizedBox(height: 16),
+            SectionCard(
+              icon: Icons.flag_outlined,
+              title: l10n.yearGoalsTitle,
+              child: YearGoalsSection(),
             ),
             const SizedBox(height: 16),
             SectionCard(

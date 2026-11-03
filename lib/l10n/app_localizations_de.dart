@@ -2556,4 +2556,125 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get weekActivitiesEmpty => 'Diese Woche noch keine Aktivitäten.';
+
+  @override
+  String get yearGoalsTitle => 'Jahresziele';
+
+  @override
+  String get yearGoalsHelp => 'Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Sync für ein vollständiges Bild.';
+
+  @override
+  String yearGoalKmLabel(String sport) {
+    return '$sport-Ziel (km pro Jahr)';
+  }
+
+  @override
+  String get yearGoalShowOnToday => 'Auf Heute anzeigen';
+
+  @override
+  String get yearGoalShowOnTodayHelp => 'Eine Fortschrittskarte für deine Jahresziele.';
+
+  @override
+  String get yearGoalOnTrack => 'Im Plan';
+
+  @override
+  String yearGoalAhead(String km) {
+    return '$km km vor dem Soll';
+  }
+
+  @override
+  String yearGoalBehind(String km) {
+    return '$km km hinter dem Soll';
+  }
+
+  @override
+  String yearGoalProjection(String km) {
+    return 'Auf Kurs für $km km';
+  }
+
+  @override
+  String get todaySectionYearGoals => 'Jahresziele';
+
+  @override
+  String get analysisTitle => 'Analyse';
+
+  @override
+  String get moreAnalysisSubtitle => 'Kennzahlen im Vergleich';
+
+  @override
+  String get analysisFilters => 'Filter';
+
+  @override
+  String get analysisPeriod => 'Zeitraum';
+
+  @override
+  String get analysisRange30d => '30 Tage';
+
+  @override
+  String get analysisRange90d => '90 Tage';
+
+  @override
+  String get analysisRange6m => '6 Monate';
+
+  @override
+  String get analysisRange1y => '1 Jahr';
+
+  @override
+  String get analysisRangeYtd => 'Dieses Jahr';
+
+  @override
+  String get analysisRangeCustom => 'Eigener…';
+
+  @override
+  String get analysisSport => 'Sportart';
+
+  @override
+  String get analysisSportAll => 'Alle Sportarten';
+
+  @override
+  String get analysisResolution => 'Auflösung';
+
+  @override
+  String get analysisDay => 'Tag';
+
+  @override
+  String get analysisWeek => 'Woche';
+
+  @override
+  String get analysisRolling => 'Gleitender Durchschnitt';
+
+  @override
+  String get analysisShowExtremes => 'Min / Max markieren';
+
+  @override
+  String get analysisShowBand => 'Standardabweichung (±1 σ)';
+
+  @override
+  String get analysisMetrics => 'Kennzahlen';
+
+  @override
+  String get analysisMetricTss => 'Trainingslast (TSS)';
+
+  @override
+  String get analysisMetricHours => 'Trainingszeit (h)';
+
+  @override
+  String get analysisMetricDistance => 'Distanz (km)';
+
+  @override
+  String get analysisMetricSleep => 'Schlaf (h)';
+
+  @override
+  String get analysisHint => 'Tippe in ein Diagramm, um alle Kennzahlen an dieser Stelle zu vergleichen. Mit Pinch oder + / − zoomst du alle gemeinsam.';
+
+  @override
+  String get analysisNoData => 'Keine Daten in diesem Zeitraum.';
+
+  @override
+  String get analysisPickMetric => 'Wähle oben mindestens eine Kennzahl.';
+
+  @override
+  String analysisWeekOf(String date) {
+    return 'Woche ab $date';
+  }
 }
