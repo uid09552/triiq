@@ -16,7 +16,11 @@ class WeeklyCalendarView extends StatelessWidget {
     required this.eventsByDate,
     required this.activitiesByDate,
     required this.onSelect,
+    this.onLongPress,
   });
+
+  /// Long-press on a day, e.g. to offer clearing it.
+  final ValueChanged<DateTime>? onLongPress;
 
   /// Monday of the displayed week.
   final DateTime weekStart;
@@ -63,6 +67,7 @@ class WeeklyCalendarView extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () => onSelect(date),
+            onLongPress: onLongPress == null ? null : () => onLongPress!(date),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
