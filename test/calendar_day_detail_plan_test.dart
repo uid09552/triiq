@@ -46,7 +46,8 @@ void main() {
 
     expect(find.textContaining('TriIQ plan · 150 min · 145 TSS'), findsOneWidget);
     expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.delete_outline), findsNothing);
+    // A session that only lives in TriIQ can always be deleted.
+    expect(find.byIcon(Icons.delete_outline), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('plan-session-7')));
     await tester.pumpAndSettle();
@@ -59,6 +60,9 @@ void main() {
     await pump(tester, session(sent: true));
 
     expect(find.byIcon(Icons.cloud_done_outlined), findsOneWidget);
+    // Deleting a sent one removes it in Intervals.icu too, so it needs a
+    // connection, which the test doesn't have.
+    expect(find.byIcon(Icons.delete_outline), findsNothing);
     await tester.tap(find.byKey(const ValueKey('plan-session-7')));
     await tester.pumpAndSettle();
     expect(find.text('Sent to Intervals.icu'), findsOneWidget);

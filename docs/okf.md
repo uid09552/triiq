@@ -853,6 +853,18 @@ refetches that whole span (independent of "Copy planned events"); the
 (`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
 older than an hour, and pull-to-refresh forces it.
 
+### Deleting planned sessions
+
+Deleting a planned session (the trash button in the Calendar day list, the
+detail screen, or the long-press on a day / Today's training) removes it
+everywhere (`planned_workout_actions.dart`): on Intervals.icu (already gone
+counts as deleted), in the event cache, and in the TriIQ plan — a plan
+session, or the plan session an Intervals.icu event was created from, so it
+cannot reappear as a local-only session. A plan session that was sent needs a
+connection; one that only lives in TriIQ can always be deleted. Afterwards
+the affected day is refetched from Intervals.icu (`syncRange(day, day)`), so
+the cache matches the calendar upstream.
+
 ### Ask the trainer
 
 Every "Ask the trainer" entry point hands Chat a `ChatTopic` through
