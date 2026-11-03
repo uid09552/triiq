@@ -770,6 +770,12 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get appearanceDark;
 
+  /// No description provided for @appearanceDeveloper.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get appearanceDeveloper;
+
   /// No description provided for @languageTitle.
   ///
   /// In en, this message translates to:

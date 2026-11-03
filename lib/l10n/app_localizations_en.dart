@@ -379,6 +379,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceDark => 'Dark';
 
   @override
+  String get appearanceDeveloper => 'Developer';
+
+  @override
   String get languageTitle => 'Language';
 
   @override

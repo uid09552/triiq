@@ -67,7 +67,7 @@ athlete can:
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
-| Appearance (light/dark/system theme) | ✅ Implemented — Settings → Appearance, applies instantly, in-memory only |
+| Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → Appearance, applies instantly, in-memory only |
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
@@ -537,7 +537,7 @@ rather than hardcoding `Colors.*`.
 
 Which one is active is controlled by `ThemeController`
 (`lib/theme_controller.dart`), a singleton `ChangeNotifier` holding a
-`ThemeMode` (`system` | `light` | `dark`, default `system`). `TriiqApp`
+`AppThemeChoice` (`system` | `light` | `dark` | `developer`, default `system`; `developer` is a terminal-style theme — black, monospace, green/amber/cyan, square corners — served as the dark theme). `TriiqApp`
 wraps `MaterialApp` in a `ListenableBuilder` on it, so changing the mode
 (from Settings → Appearance) re-themes the whole app immediately. Unlike
 `IntervalsSession`, this choice is **not** persisted yet — it resets to
