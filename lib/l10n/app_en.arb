@@ -156,6 +156,8 @@
   "appearanceLight": "Light",
   "appearanceDark": "Dark",
   "appearanceDeveloper": "Developer",
+  "performanceUpTooltip": "More efficient than your recent average",
+  "performanceDownTooltip": "Less efficient than your recent average",
   "languageTitle": "Language",
   "languageSystem": "System",
   "notificationsTitle": "Notifications",

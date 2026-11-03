@@ -156,6 +156,8 @@
   "appearanceLight": "Hell",
   "appearanceDark": "Dunkel",
   "appearanceDeveloper": "Developer",
+  "performanceUpTooltip": "Effizienter als dein jüngster Durchschnitt",
+  "performanceDownTooltip": "Weniger effizient als dein jüngster Durchschnitt",
   "languageTitle": "Sprache",
   "languageSystem": "System",
   "notificationsTitle": "Benachrichtigungen",

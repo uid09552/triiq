@@ -389,6 +389,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appearanceDeveloper => 'Developer';
 
   @override
+  String get performanceUpTooltip => 'Effizienter als dein jüngster Durchschnitt';
+
+  @override
+  String get performanceDownTooltip => 'Weniger effizient als dein jüngster Durchschnitt';
+
+  @override
   String get languageTitle => 'Sprache';
 
   @override

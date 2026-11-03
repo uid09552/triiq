@@ -382,6 +382,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceDeveloper => 'Developer';
 
   @override
+  String get performanceUpTooltip => 'More efficient than your recent average';
+
+  @override
+  String get performanceDownTooltip => 'Less efficient than your recent average';
+
+  @override
   String get languageTitle => 'Language';
 
   @override
