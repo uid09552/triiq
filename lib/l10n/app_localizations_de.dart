@@ -2538,4 +2538,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get zoomToInterval => 'Auf Intervall zoomen';
+
+  @override
+  String get metricTssTodayExplainer => 'Der TSS (Training Stress Score) fasst in einer Zahl zusammen, wie hart die heutigen Einheiten waren – aus Dauer und Intensität. 100 entspricht etwa einer Stunde an deiner Schwelle. Vergleiche ihn mit dem Plan, nicht mit anderen.';
+
+  @override
+  String get metricTssWeekExplainer => 'Die Summe des TSS dieser Woche (Montag bis Sonntag) im Vergleich zum Plan – der schnellste Check, ob du im Soll bist. Ein einzelner leichter oder harter Tag zählt weniger als die ganze Woche.';
+
+  @override
+  String get tileShowHistory => 'Verlauf anzeigen';
+
+  @override
+  String get weekActivitiesThisWeek => 'Diese Woche';
+
+  @override
+  String get weekActivitiesAllSports => 'Alle Sportarten';
+
+  @override
+  String get weekActivitiesEmpty => 'Diese Woche noch keine Aktivitäten.';
 }

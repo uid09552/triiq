@@ -33,7 +33,14 @@ Future<void> showOpenInIntervalsSheet(
     ),
   );
   if (open != true || !context.mounted) return;
+  await openInIntervals(context, path);
+}
 
+/// Opens `https://intervals.icu/athlete/{id}/{path}` in the browser.
+Future<void> openInIntervals(BuildContext context, String path) async {
+  final athleteId = IntervalsSession.instance.athleteId;
+  if (athleteId == null) return;
+  final l10n = AppLocalizations.of(context)!;
   final uri = Uri.parse('https://intervals.icu/athlete/$athleteId/$path');
   // externalApplication: same hand-off to the OS as "Open in Intervals.icu"
   // on the activity detail screen.

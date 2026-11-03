@@ -20,7 +20,6 @@ import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
 import '../../evaluation/readiness_service.dart';
 import '../../util/dates.dart';
-import '../../util/intervals_links.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
@@ -36,6 +35,8 @@ import 'metric_history_screen.dart';
 import 'readiness_card.dart';
 import 'train_now_screen.dart';
 import 'customize_today_sheet.dart';
+import 'tile_details_sheet.dart';
+import 'tile_metric.dart';
 import 'today_layout_settings.dart';
 import '../activities/planned_workout_actions.dart';
 import '../statistics/threshold_suggestion_card.dart';
@@ -670,10 +671,19 @@ class _MetricTiles extends StatelessWidget {
               icon: Icons.bolt_outlined,
               color: colorScheme.primary,
               onTap: () => open(const TssHistoryScreen()),
-              onLongPress: () => showOpenInIntervalsSheet(
+              compact: true,
+              hoverPreview: (_) => MetricPreview(
+                metric: TileMetric.tssToday,
+                color: colorScheme.primary,
+              ),
+              onLongPress: () => showTileDetailsSheet(
                 context,
+                metric: TileMetric.tssToday,
                 label: l10n.tssToday,
-                path: 'fitness',
+                value: todaysLoad?.toString() ?? '—',
+                color: colorScheme.primary,
+                intervalsPath: 'fitness',
+                onShowHistory: () => open(const TssHistoryScreen()),
               ),
             ),
             StatTile(
@@ -687,15 +697,24 @@ class _MetricTiles extends StatelessWidget {
               icon: Icons.calendar_view_week_outlined,
               color: colorScheme.tertiary,
               onTap: () => open(const WeeklyLoadScreen()),
-              onLongPress: () => showOpenInIntervalsSheet(
+              compact: true,
+              hoverPreview: (_) => MetricPreview(
+                metric: TileMetric.tssWeek,
+                color: colorScheme.tertiary,
+              ),
+              onLongPress: () => showTileDetailsSheet(
                 context,
+                metric: TileMetric.tssWeek,
                 label: l10n.tssWeek,
-                path: 'fitness',
+                value: weekLoad.toString(),
+                color: colorScheme.tertiary,
+                intervalsPath: 'fitness',
+                onShowHistory: () => open(const WeeklyLoadScreen()),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         _TileRow(
           children: [
             StatTile(
@@ -706,10 +725,19 @@ class _MetricTiles extends StatelessWidget {
               color: colorScheme.tertiary,
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
-              onLongPress: () => showOpenInIntervalsSheet(
+              compact: true,
+              hoverPreview: (_) => MetricPreview(
+                metric: TileMetric.ctl,
+                color: colorScheme.tertiary,
+              ),
+              onLongPress: () => showTileDetailsSheet(
                 context,
+                metric: TileMetric.ctl,
                 label: l10n.ctlLabel,
-                path: 'fitness',
+                value: _format(ctl),
+                color: colorScheme.tertiary,
+                intervalsPath: 'fitness',
+                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
               ),
             ),
             StatTile(
@@ -720,15 +748,24 @@ class _MetricTiles extends StatelessWidget {
               color: colorScheme.secondary,
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.atl)),
-              onLongPress: () => showOpenInIntervalsSheet(
+              compact: true,
+              hoverPreview: (_) => MetricPreview(
+                metric: TileMetric.atl,
+                color: colorScheme.secondary,
+              ),
+              onLongPress: () => showTileDetailsSheet(
                 context,
+                metric: TileMetric.atl,
                 label: l10n.atlLabel,
-                path: 'fitness',
+                value: _format(atl),
+                color: colorScheme.secondary,
+                intervalsPath: 'fitness',
+                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.atl)),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         _TileRow(
           children: [
             StatTile(
@@ -739,10 +776,19 @@ class _MetricTiles extends StatelessWidget {
               color: colorScheme.primary,
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.form)),
-              onLongPress: () => showOpenInIntervalsSheet(
+              compact: true,
+              hoverPreview: (_) => MetricPreview(
+                metric: TileMetric.form,
+                color: colorScheme.primary,
+              ),
+              onLongPress: () => showTileDetailsSheet(
                 context,
+                metric: TileMetric.form,
                 label: l10n.formLabel,
-                path: 'fitness',
+                value: _format(form),
+                color: colorScheme.primary,
+                intervalsPath: 'fitness',
+                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.form)),
               ),
             ),
             StatTile(
@@ -753,10 +799,19 @@ class _MetricTiles extends StatelessWidget {
               color: colorScheme.secondary,
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
-              onLongPress: () => showOpenInIntervalsSheet(
+              compact: true,
+              hoverPreview: (_) => MetricPreview(
+                metric: TileMetric.rampRate,
+                color: colorScheme.secondary,
+              ),
+              onLongPress: () => showTileDetailsSheet(
                 context,
+                metric: TileMetric.rampRate,
                 label: l10n.rampRateLabel,
-                path: 'fitness',
+                value: _format(wellness?.rampRate),
+                color: colorScheme.secondary,
+                intervalsPath: 'fitness',
+                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
               ),
             ),
           ],
@@ -794,7 +849,7 @@ class _TileRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (index, child) in children.indexed) ...[
-          if (index > 0) const SizedBox(width: 12),
+          if (index > 0) const SizedBox(width: 6),
           Expanded(child: child),
         ],
       ],

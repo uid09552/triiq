@@ -4165,6 +4165,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Zoom to interval'**
   String get zoomToInterval;
+
+  /// No description provided for @metricTssTodayExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'TSS (training stress score) puts one number on how hard today\'s sessions were, from duration and intensity. 100 is roughly an hour at your threshold. Compare it with what was planned, not with other people.'**
+  String get metricTssTodayExplainer;
+
+  /// No description provided for @metricTssWeekExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'The sum of this week\'s TSS (Monday to Sunday) against what the plan asks for — the quickest check on whether you are on track. A single easy or hard day matters less than the week as a whole.'**
+  String get metricTssWeekExplainer;
+
+  /// No description provided for @tileShowHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Show history'**
+  String get tileShowHistory;
+
+  /// No description provided for @weekActivitiesThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get weekActivitiesThisWeek;
+
+  /// No description provided for @weekActivitiesAllSports.
+  ///
+  /// In en, this message translates to:
+  /// **'All sports'**
+  String get weekActivitiesAllSports;
+
+  /// No description provided for @weekActivitiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities this week yet.'**
+  String get weekActivitiesEmpty;
 }
 
 class _AppLocalizationsDelegate

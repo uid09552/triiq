@@ -855,6 +855,19 @@ older than an hour, and pull-to-refresh forces it.
 
 ### Today
 
+**Weekly-target rings.** Long-pressing a ring opens a sheet
+(`week_activities_sheet.dart`) listing this week's activities of that sport
+(date, duration, distance, TSS); the "All sports" chip widens it, and a row
+opens the activity.
+
+**Load tiles.** The six tiles (TSS today / week, CTL, ATL, form, ramp rate) are
+compact `StatTile`s (`compact: true`): icon badge beside label and figure,
+animated value changes, soft hover/press states. Resting a mouse on a tile
+opens a floating graph card automatically (`HoverPreview` +
+`MetricPreview`: 14 daily-load bars, 8 weekly bars, or a 30-day filled line
+with its Ø). Long-press (touch) opens a sheet with the plain-language
+explanation, the zoomable graph, "Show history" and "Open in Intervals.icu".
+
 **Customize / delete.** The "Customize Today" button at the bottom opens a
 sheet (`customize_today_sheet.dart`) to drag the sections below the hero
 (readiness, adjustments, load tiles, weekly targets, threshold suggestions,
