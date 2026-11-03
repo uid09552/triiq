@@ -1014,5 +1014,39 @@
       }
     }
   },
-  "todaySectionYearGoals": "Year goals"
+  "todaySectionYearGoals": "Year goals",
+  "analysisTitle": "Analysis",
+  "moreAnalysisSubtitle": "Compare metrics side by side",
+  "analysisFilters": "Filters",
+  "analysisPeriod": "Period",
+  "analysisRange30d": "30 days",
+  "analysisRange90d": "90 days",
+  "analysisRange6m": "6 months",
+  "analysisRange1y": "1 year",
+  "analysisRangeYtd": "This year",
+  "analysisRangeCustom": "Custom…",
+  "analysisSport": "Sport",
+  "analysisSportAll": "All sports",
+  "analysisResolution": "Resolution",
+  "analysisDay": "Day",
+  "analysisWeek": "Week",
+  "analysisRolling": "Rolling average",
+  "analysisShowExtremes": "Mark min / max",
+  "analysisShowBand": "Standard deviation band (±1 σ)",
+  "analysisMetrics": "Metrics",
+  "analysisMetricTss": "Training load (TSS)",
+  "analysisMetricHours": "Training time (h)",
+  "analysisMetricDistance": "Distance (km)",
+  "analysisMetricSleep": "Sleep (h)",
+  "analysisHint": "Tap any graph to compare all metrics at that point. Pinch or use + / − to zoom them together.",
+  "analysisNoData": "No data in this period.",
+  "analysisPickMetric": "Select at least one metric above.",
+  "analysisWeekOf": "Week of {date}",
+  "@analysisWeekOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

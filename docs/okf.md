@@ -853,6 +853,21 @@ refetches that whole span (independent of "Copy planned events"); the
 (`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
 older than an hour, and pull-to-refresh forces it.
 
+### Analysis
+
+More → **Analysis** (`lib/screens/analysis`) is a Power BI–style workbench over
+the cached data. Selectors: period (30/90 days, 6 months, 1 year, this year,
+custom range), sport (all/swim/ride/run — filters the activity metrics),
+resolution (day/week), rolling average (off/7/14/28 buckets), min/max
+markers, a ±1 σ band, and the metrics to chart (TSS, hours, distance, CTL,
+ATL, form, ramp rate, HRV, resting HR, sleep). Each metric is its own graph on
+one **shared x-axis**: zoom/pan (pinch, +/−, Ctrl+wheel) moves all graphs
+together (one `ChartViewport`), and tapping a point puts the crosshair at the
+same moment in every graph and lists all values in a card on top. Per graph:
+Ø, min and max with dates, σ, and Δ first→last (`series_stats.dart`).
+Activity metrics are summed per bucket (0 on rest days); wellness metrics are
+averaged (gap when missing). Week buckets start on Monday.
+
 ### Year goals
 
 Settings → **Year goals**: a yearly distance goal (km) per sport (swim, ride,

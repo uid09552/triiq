@@ -4261,6 +4261,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Year goals'**
   String get todaySectionYearGoals;
+
+  /// No description provided for @analysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get analysisTitle;
+
+  /// No description provided for @moreAnalysisSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare metrics side by side'**
+  String get moreAnalysisSubtitle;
+
+  /// No description provided for @analysisFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get analysisFilters;
+
+  /// No description provided for @analysisPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get analysisPeriod;
+
+  /// No description provided for @analysisRange30d.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get analysisRange30d;
+
+  /// No description provided for @analysisRange90d.
+  ///
+  /// In en, this message translates to:
+  /// **'90 days'**
+  String get analysisRange90d;
+
+  /// No description provided for @analysisRange6m.
+  ///
+  /// In en, this message translates to:
+  /// **'6 months'**
+  String get analysisRange6m;
+
+  /// No description provided for @analysisRange1y.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get analysisRange1y;
+
+  /// No description provided for @analysisRangeYtd.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get analysisRangeYtd;
+
+  /// No description provided for @analysisRangeCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get analysisRangeCustom;
+
+  /// No description provided for @analysisSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get analysisSport;
+
+  /// No description provided for @analysisSportAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All sports'**
+  String get analysisSportAll;
+
+  /// No description provided for @analysisResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolution'**
+  String get analysisResolution;
+
+  /// No description provided for @analysisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get analysisDay;
+
+  /// No description provided for @analysisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get analysisWeek;
+
+  /// No description provided for @analysisRolling.
+  ///
+  /// In en, this message translates to:
+  /// **'Rolling average'**
+  String get analysisRolling;
+
+  /// No description provided for @analysisShowExtremes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark min / max'**
+  String get analysisShowExtremes;
+
+  /// No description provided for @analysisShowBand.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard deviation band (±1 σ)'**
+  String get analysisShowBand;
+
+  /// No description provided for @analysisMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Metrics'**
+  String get analysisMetrics;
+
+  /// No description provided for @analysisMetricTss.
+  ///
+  /// In en, this message translates to:
+  /// **'Training load (TSS)'**
+  String get analysisMetricTss;
+
+  /// No description provided for @analysisMetricHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Training time (h)'**
+  String get analysisMetricHours;
+
+  /// No description provided for @analysisMetricDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance (km)'**
+  String get analysisMetricDistance;
+
+  /// No description provided for @analysisMetricSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep (h)'**
+  String get analysisMetricSleep;
+
+  /// No description provided for @analysisHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any graph to compare all metrics at that point. Pinch or use + / − to zoom them together.'**
+  String get analysisHint;
+
+  /// No description provided for @analysisNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data in this period.'**
+  String get analysisNoData;
+
+  /// No description provided for @analysisPickMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one metric above.'**
+  String get analysisPickMetric;
+
+  /// No description provided for @analysisWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {date}'**
+  String analysisWeekOf(String date);
 }
 
 class _AppLocalizationsDelegate

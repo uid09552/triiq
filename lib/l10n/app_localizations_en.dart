@@ -2568,4 +2568,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todaySectionYearGoals => 'Year goals';
+
+  @override
+  String get analysisTitle => 'Analysis';
+
+  @override
+  String get moreAnalysisSubtitle => 'Compare metrics side by side';
+
+  @override
+  String get analysisFilters => 'Filters';
+
+  @override
+  String get analysisPeriod => 'Period';
+
+  @override
+  String get analysisRange30d => '30 days';
+
+  @override
+  String get analysisRange90d => '90 days';
+
+  @override
+  String get analysisRange6m => '6 months';
+
+  @override
+  String get analysisRange1y => '1 year';
+
+  @override
+  String get analysisRangeYtd => 'This year';
+
+  @override
+  String get analysisRangeCustom => 'Custom…';
+
+  @override
+  String get analysisSport => 'Sport';
+
+  @override
+  String get analysisSportAll => 'All sports';
+
+  @override
+  String get analysisResolution => 'Resolution';
+
+  @override
+  String get analysisDay => 'Day';
+
+  @override
+  String get analysisWeek => 'Week';
+
+  @override
+  String get analysisRolling => 'Rolling average';
+
+  @override
+  String get analysisShowExtremes => 'Mark min / max';
+
+  @override
+  String get analysisShowBand => 'Standard deviation band (±1 σ)';
+
+  @override
+  String get analysisMetrics => 'Metrics';
+
+  @override
+  String get analysisMetricTss => 'Training load (TSS)';
+
+  @override
+  String get analysisMetricHours => 'Training time (h)';
+
+  @override
+  String get analysisMetricDistance => 'Distance (km)';
+
+  @override
+  String get analysisMetricSleep => 'Sleep (h)';
+
+  @override
+  String get analysisHint => 'Tap any graph to compare all metrics at that point. Pinch or use + / − to zoom them together.';
+
+  @override
+  String get analysisNoData => 'No data in this period.';
+
+  @override
+  String get analysisPickMetric => 'Select at least one metric above.';
+
+  @override
+  String analysisWeekOf(String date) {
+    return 'Week of $date';
+  }
 }
