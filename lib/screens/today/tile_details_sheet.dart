@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'dart:convert';
+
+import '../../agent/chat_handoff.dart';
 import '../../data/intervals_session.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/intervals_links.dart';
+import '../chat/ask_trainer.dart';
 import 'tile_metric.dart';
 
 /// Long-press on a Today tile: what the figure means, its recent graph, and
@@ -71,6 +75,30 @@ Future<void> showTileDetailsSheet(
                     onShowHistory();
                   },
                 ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.chat_bubble_outline),
+                title: Text(l10n.askTrainer),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  askTrainer(
+                    context,
+                    ChatTopic(
+                      title: label,
+                      context: jsonEncode({
+                        'metric': metric.name,
+                        'label': label,
+                        'value': value,
+                        'explanation': tileMetricExplainer(l10n, metric),
+                        'note':
+                            'Use get_training_load / readiness tools for the '
+                            'history; the value is as shown on Today.',
+                      }),
+                      draft: l10n.tileChatDraft(label, value),
+                    ),
+                  );
+                },
+              ),
               if (IntervalsSession.instance.athleteId != null)
                 ListTile(
                   contentPadding: EdgeInsets.zero,

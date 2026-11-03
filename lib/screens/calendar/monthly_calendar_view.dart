@@ -17,7 +17,11 @@ class MonthlyCalendarView extends StatelessWidget {
     required this.eventsByDate,
     required this.activitiesByDate,
     required this.onSelect,
+    this.onLongPress,
   });
+
+  /// Long-press on a day, e.g. to offer clearing it.
+  final ValueChanged<DateTime>? onLongPress;
 
   /// Any day within the month to display — only year/month are used.
   final DateTime month;
@@ -95,6 +99,9 @@ class MonthlyCalendarView extends StatelessWidget {
               isSelected: isSelected,
               markers: markers,
               onTap: () => onSelect(date),
+              onLongPress: onLongPress == null
+                  ? null
+                  : () => onLongPress!(date),
             );
           },
         ),
@@ -137,8 +144,10 @@ class _DayCell extends StatelessWidget {
     required this.isSelected,
     required this.markers,
     required this.onTap,
+    this.onLongPress,
   });
 
+  final VoidCallback? onLongPress;
   final int day;
   final bool inMonth;
   final bool isToday;
@@ -155,6 +164,7 @@ class _DayCell extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         margin: const EdgeInsets.all(2),
         padding: const EdgeInsets.symmetric(vertical: 4),

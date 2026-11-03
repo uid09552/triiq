@@ -12,6 +12,7 @@ import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/plan_changes.dart';
 import '../../widgets/main_navigation.dart';
+import '../activities/planned_workout_actions.dart';
 import 'calendar_day_detail.dart';
 import 'monthly_calendar_view.dart';
 import 'weekly_calendar_view.dart';
@@ -214,6 +215,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
   }
 
+  /// Long-press on a day cell: select it and offer to clear its planned
+  /// sessions from Intervals.icu.
+  Future<void> _clearDay(DateTime date) async {
+    _selectDate(date);
+    final events = (_eventsByDate[_fmt(date)] ?? const <LocalEvent>[])
+        .where((e) => e.isTraining)
+        .toList();
+    await confirmAndDeleteDaysWorkouts(context, events);
+  }
+
   void _setMode(CalendarViewMode mode) {
     setState(() => _mode = mode);
     _load();
@@ -314,6 +325,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         eventsByDate: _eventsByDate,
                         activitiesByDate: _activitiesByDate,
                         onSelect: _selectDate,
+                        onLongPress: _clearDay,
                       )
                     : WeeklyCalendarView(
                         weekStart: _visibleRange.$1,
@@ -321,6 +333,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         eventsByDate: _eventsByDate,
                         activitiesByDate: _activitiesByDate,
                         onSelect: _selectDate,
+                        onLongPress: _clearDay,
                       ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),

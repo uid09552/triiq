@@ -283,6 +283,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   /// Opens Chat about this session, with its figures and evaluation as
   /// the agent's context.
   void _askTrainer(BuildContext context, SessionEvaluation e) {
+    final l10n = AppLocalizations.of(context)!;
     final split = e.split;
     final plan = e.plan;
     ChatHandoff.instance.open(
@@ -321,6 +322,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               'Computed by the app (session evaluation). Use these figures; '
               'do not recompute them.',
         }),
+        draft: l10n.activityChatDraft(
+          activity.name ?? activity.type ?? l10n.activityFallback,
+          activity.date,
+        ),
       ),
     );
     Navigator.of(context).popUntil((route) => route.isFirst);

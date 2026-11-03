@@ -2651,4 +2651,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String analysisWeekOf(String date) {
     return 'Week of $date';
   }
+
+  @override
+  String activityChatDraft(String name, String date) {
+    return 'Please review my session “$name” from $date: how did it go, and what should I do differently or next?';
+  }
+
+  @override
+  String weeklyReviewChatDraft(String date) {
+    return 'Please review my training week of $date: what went well, what didn\'t, and what should I focus on next week?';
+  }
+
+  @override
+  String tileChatDraft(String label, String value) {
+    return 'My $label is $value right now. What does that mean for my training, and should I change anything this week?';
+  }
+
+  @override
+  String analysisChatDraft(String period) {
+    return 'Here is my analysis for $period. What stands out, and what should I adjust?';
+  }
 }

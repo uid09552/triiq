@@ -4423,6 +4423,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Week of {date}'**
   String analysisWeekOf(String date);
+
+  /// No description provided for @activityChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Please review my session “{name}” from {date}: how did it go, and what should I do differently or next?'**
+  String activityChatDraft(String name, String date);
+
+  /// No description provided for @weeklyReviewChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Please review my training week of {date}: what went well, what didn\'t, and what should I focus on next week?'**
+  String weeklyReviewChatDraft(String date);
+
+  /// No description provided for @tileChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'My {label} is {value} right now. What does that mean for my training, and should I change anything this week?'**
+  String tileChatDraft(String label, String value);
+
+  /// No description provided for @analysisChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Here is my analysis for {period}. What stands out, and what should I adjust?'**
+  String analysisChatDraft(String period);
 }
 
 class _AppLocalizationsDelegate

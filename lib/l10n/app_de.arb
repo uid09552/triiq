@@ -909,5 +909,9 @@
   "analysisHint": "Tippe in ein Diagramm, um alle Kennzahlen an dieser Stelle zu vergleichen. Mit Pinch oder + / − zoomst du alle gemeinsam.",
   "analysisNoData": "Keine Daten in diesem Zeitraum.",
   "analysisPickMetric": "Wähle oben mindestens eine Kennzahl.",
-  "analysisWeekOf": "Woche ab {date}"
+  "analysisWeekOf": "Woche ab {date}",
+  "activityChatDraft": "Bitte bewerte meine Einheit „{name}“ vom {date}: Wie lief sie, und was sollte ich anders oder als Nächstes machen?",
+  "weeklyReviewChatDraft": "Bitte bewerte meine Trainingswoche ab {date}: Was lief gut, was nicht, und worauf soll ich nächste Woche achten?",
+  "tileChatDraft": "Mein {label} liegt gerade bei {value}. Was bedeutet das für mein Training, und sollte ich diese Woche etwas ändern?",
+  "analysisChatDraft": "Hier ist meine Analyse für {period}. Was fällt auf, und was sollte ich anpassen?"
 }
