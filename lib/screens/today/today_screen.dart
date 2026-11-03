@@ -434,6 +434,10 @@ class _TodayScreenState extends State<TodayScreen> {
             icon: Icons.event_outlined,
             title: l10n.tomorrowsTraining,
             child: _PlannedTraining(
+              onLongPress: _tomorrowsPlan.any(canDeletePlannedWorkout)
+                  ? () =>
+                        confirmAndDeleteDaysWorkouts(context, _tomorrowsPlan)
+                  : null,
               events: _tomorrowsPlan,
               emptyLabel: connected
                   ? l10n.nothingPlannedTomorrow
