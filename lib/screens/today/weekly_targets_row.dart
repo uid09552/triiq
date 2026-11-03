@@ -74,9 +74,9 @@ class WeeklyTargetsRow extends StatelessWidget {
             color: sportColor(representativeType, colorScheme),
             doneColor: colorScheme.tertiary,
           );
-          // Long-press lists the week's activities behind the ring.
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
+          // Long-press lists the week's activities behind the ring, with
+          // the same press feedback as the Today tiles.
+          return _PressableRing(
             onLongPress: () => showWeekActivitiesSheet(
               context,
               sportLabel: label,
@@ -101,6 +101,44 @@ class WeeklyTargetsRow extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Press feedback for a ring, matching `StatTile`'s compact style: a quick
+/// scale-down, an ink ripple and the platform's long-press haptic
+/// (`InkWell` fires it for any long-press handler).
+class _PressableRing extends StatefulWidget {
+  const _PressableRing({required this.child, required this.onLongPress});
+
+  final Widget child;
+  final VoidCallback onLongPress;
+
+  @override
+  State<_PressableRing> createState() => _PressableRingState();
+}
+
+class _PressableRingState extends State<_PressableRing> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _pressed ? 0.94 : 1,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onLongPress: widget.onLongPress,
+          onHighlightChanged: (v) => setState(() => _pressed = v),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: widget.child,
+          ),
+        ),
+      ),
     );
   }
 }
