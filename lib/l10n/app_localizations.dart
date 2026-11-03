@@ -4129,6 +4129,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Season start'**
   String get eventCategorySeasonStart;
+
+  /// No description provided for @chartZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get chartZoomIn;
+
+  /// No description provided for @chartZoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get chartZoomOut;
+
+  /// No description provided for @chartZoomReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get chartZoomReset;
+
+  /// No description provided for @streamSmoothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Smoothing'**
+  String get streamSmoothing;
+
+  /// No description provided for @smoothOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get smoothOff;
+
+  /// No description provided for @zoomToInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom to interval'**
+  String get zoomToInterval;
 }
 
 class _AppLocalizationsDelegate

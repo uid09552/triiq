@@ -2494,4 +2494,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventCategorySeasonStart => 'Season start';
+
+  @override
+  String get chartZoomIn => 'Zoom in';
+
+  @override
+  String get chartZoomOut => 'Zoom out';
+
+  @override
+  String get chartZoomReset => 'Show all';
+
+  @override
+  String get streamSmoothing => 'Smoothing';
+
+  @override
+  String get smoothOff => 'Off';
+
+  @override
+  String get zoomToInterval => 'Zoom to interval';
 }

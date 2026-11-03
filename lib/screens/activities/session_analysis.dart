@@ -8,6 +8,7 @@ import '../../evaluation/intensity.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../evaluation/session_streams.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/charts/chart_viewport.dart';
 import '../../widgets/charts/stream_chart.dart';
 import '../../widgets/section_card.dart';
 
@@ -56,6 +57,16 @@ class SessionDiagramCard extends StatefulWidget {
 class _SessionDiagramCardState extends State<SessionDiagramCard> {
   late Future<SessionStreams> _future = widget.streams.load(widget.activity.id);
   Set<String>? _visible;
+  final _viewport = ChartViewport();
+
+  /// Rolling-mean window (seconds) for what the chart draws; 0 = raw.
+  int _smooth = 0;
+
+  @override
+  void dispose() {
+    _viewport.dispose();
+    super.dispose();
+  }
 
   void _retry() {
     setState(() {
@@ -136,7 +147,38 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                     ),
                 ],
               ),
-              StreamChart(streams: streams, visible: visible, format: _format),
+              if (drawable.any(StreamChart.smoothable.contains)) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text(l10n.streamSmoothing, style: muted),
+                    const SizedBox(width: 12),
+                    SegmentedButton<int>(
+                      key: const ValueKey('stream-smoothing'),
+                      showSelectedIcon: false,
+                      style: const ButtonStyle(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      segments: [
+                        ButtonSegment(value: 0, label: Text(l10n.smoothOff)),
+                        const ButtonSegment(value: 10, label: Text('10 s')),
+                        const ButtonSegment(value: 30, label: Text('30 s')),
+                      ],
+                      selected: {_smooth},
+                      onSelectionChanged: (v) =>
+                          setState(() => _smooth = v.first),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+              ],
+              StreamChart(
+                streams: streams,
+                visible: visible,
+                format: _format,
+                smoothSeconds: _smooth,
+                viewport: _viewport,
+              ),
               if (streams.intervals.any((i) => i.isWork)) ...[
                 const SizedBox(height: 12),
                 Text(l10n.sessionIntervalsTitle, style: theme.textTheme.titleSmall),
@@ -147,6 +189,14 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                     key: ValueKey('interval-$n'),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
+                    trailing: Tooltip(
+                      message: l10n.zoomToInterval,
+                      child: const Icon(Icons.zoom_in_map, size: 20),
+                    ),
+                    onTap: () {
+                      final pad = (i.end - i.start) * 0.15 + 5;
+                      _viewport.setRange(i.start - pad, i.end + pad);
+                    },
                     title: Text(i.label ?? l10n.sessionIntervalN(n + 1)),
                     subtitle: Text(
                       [

@@ -829,6 +829,15 @@ a dashed **Ø average** line over the visible window (streams also show their
 averages above the chart); curves are monotone-smoothed. Bar charts draw a
 dashed Ø line at the mean. The shared zoom/pan logic is `chart_viewport.dart`.
 
+**Activity chart.** The session diagram on an activity (`StreamChart`) has
+labelled axes: the first selected stream on the left, the second on the
+right (round tick values, in the stream's colour), a time axis, dashed Ø
+lines, a peak marker and a crosshair with a time chip. Zoom with pinch,
+double tap, Ctrl + wheel or the +/− buttons; an overview strip under the
+chart shows the window and moves it by tap or drag. Tapping a detected
+interval zooms to it, and a 10 s / 30 s smoothing switch calms noisy power
+(averages and the readout always use the raw samples).
+
 ### Events
 
 More → **Events** lists races (A/B/C), notes, holidays, sick/injured markers,

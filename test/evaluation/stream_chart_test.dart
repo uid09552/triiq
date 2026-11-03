@@ -29,6 +29,21 @@ void main() {
     expect(downsample(const [1, null, 3], 600), [(0, 1.0), (2, 3.0)]);
   });
 
+  test('rolling mean smooths, keeps gaps and the length', () {
+    final out = rollingMean([0, 10, null, 10, 0], 3);
+    expect(out.length, 5);
+    expect(out[2], isNull);
+    expect(out[1], closeTo(5, 1e-9)); // mean of 0 and 10
+    expect(rollingMean([1, 2, 3], 1), [1, 2, 3]);
+  });
+
+  test('time and index map onto each other', () {
+    final t = <double?>[0, 2, 4, 6, 8];
+    expect(timeAtIndex(t, 1.5), closeTo(3, 1e-9));
+    expect(indexAtTime(t, 5), closeTo(2.5, 1e-9));
+    expect(indexAtTime(null, 5), 5);
+  });
+
   Future<void> pump(WidgetTester tester, Set<String> visible) async {
     tester.view.physicalSize = const Size(800, 600);
     tester.view.devicePixelRatio = 1;
