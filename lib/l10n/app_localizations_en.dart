@@ -2530,4 +2530,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weekActivitiesEmpty => 'No activities this week yet.';
+
+  @override
+  String get yearGoalsTitle => 'Year goals';
+
+  @override
+  String get yearGoalsHelp => 'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.';
+
+  @override
+  String yearGoalKmLabel(String sport) {
+    return '$sport goal (km per year)';
+  }
+
+  @override
+  String get yearGoalShowOnToday => 'Show on Today';
+
+  @override
+  String get yearGoalShowOnTodayHelp => 'A progress card for your year goals.';
+
+  @override
+  String get yearGoalOnTrack => 'On track';
+
+  @override
+  String yearGoalAhead(String km) {
+    return '$km km ahead of pace';
+  }
+
+  @override
+  String yearGoalBehind(String km) {
+    return '$km km behind pace';
+  }
+
+  @override
+  String yearGoalProjection(String km) {
+    return 'On pace for $km km';
+  }
+
+  @override
+  String get todaySectionYearGoals => 'Year goals';
 }

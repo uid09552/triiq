@@ -872,5 +872,15 @@
   "tileShowHistory": "Verlauf anzeigen",
   "weekActivitiesThisWeek": "Diese Woche",
   "weekActivitiesAllSports": "Alle Sportarten",
-  "weekActivitiesEmpty": "Diese Woche noch keine Aktivitäten."
+  "weekActivitiesEmpty": "Diese Woche noch keine Aktivitäten.",
+  "yearGoalsTitle": "Jahresziele",
+  "yearGoalsHelp": "Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Sync für ein vollständiges Bild.",
+  "yearGoalKmLabel": "{sport}-Ziel (km pro Jahr)",
+  "yearGoalShowOnToday": "Auf Heute anzeigen",
+  "yearGoalShowOnTodayHelp": "Eine Fortschrittskarte für deine Jahresziele.",
+  "yearGoalOnTrack": "Im Plan",
+  "yearGoalAhead": "{km} km vor dem Soll",
+  "yearGoalBehind": "{km} km hinter dem Soll",
+  "yearGoalProjection": "Auf Kurs für {km} km",
+  "todaySectionYearGoals": "Jahresziele"
 }

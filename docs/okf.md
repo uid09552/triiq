@@ -853,6 +853,18 @@ refetches that whole span (independent of "Copy planned events"); the
 (`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
 older than an hour, and pull-to-refresh forces it.
 
+### Year goals
+
+Settings → **Year goals**: a yearly distance goal (km) per sport (swim, ride,
+run), stored by `YearGoalsSettings` (`shared_preferences`; blank = no goal).
+Right under the fields, and on Today as the "Year goals" section (switchable
+and reorderable; "Show on Today" in the same Settings card), a progress bar
+per sport shows km so far against the goal with a tick where an even pace
+would be today, the percentage, how far ahead/behind that pace is, and the
+year-end projection at the current pace (`YearGoalsProgress`). It counts the
+calendar year's activities cached on the device, so sync the year (Settings →
+Sync) for complete numbers.
+
 ### Today
 
 **Weekly-target rings.** Long-pressing a ring opens a sheet

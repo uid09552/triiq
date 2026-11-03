@@ -4201,6 +4201,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No activities this week yet.'**
   String get weekActivitiesEmpty;
+
+  /// No description provided for @yearGoalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Year goals'**
+  String get yearGoalsTitle;
+
+  /// No description provided for @yearGoalsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.'**
+  String get yearGoalsHelp;
+
+  /// No description provided for @yearGoalKmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} goal (km per year)'**
+  String yearGoalKmLabel(String sport);
+
+  /// No description provided for @yearGoalShowOnToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on Today'**
+  String get yearGoalShowOnToday;
+
+  /// No description provided for @yearGoalShowOnTodayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A progress card for your year goals.'**
+  String get yearGoalShowOnTodayHelp;
+
+  /// No description provided for @yearGoalOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'On track'**
+  String get yearGoalOnTrack;
+
+  /// No description provided for @yearGoalAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km ahead of pace'**
+  String yearGoalAhead(String km);
+
+  /// No description provided for @yearGoalBehind.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km behind pace'**
+  String yearGoalBehind(String km);
+
+  /// No description provided for @yearGoalProjection.
+  ///
+  /// In en, this message translates to:
+  /// **'On pace for {km} km'**
+  String yearGoalProjection(String km);
+
+  /// No description provided for @todaySectionYearGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Year goals'**
+  String get todaySectionYearGoals;
 }
 
 class _AppLocalizationsDelegate

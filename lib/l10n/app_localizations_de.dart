@@ -2556,4 +2556,42 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get weekActivitiesEmpty => 'Diese Woche noch keine Aktivitäten.';
+
+  @override
+  String get yearGoalsTitle => 'Jahresziele';
+
+  @override
+  String get yearGoalsHelp => 'Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Sync für ein vollständiges Bild.';
+
+  @override
+  String yearGoalKmLabel(String sport) {
+    return '$sport-Ziel (km pro Jahr)';
+  }
+
+  @override
+  String get yearGoalShowOnToday => 'Auf Heute anzeigen';
+
+  @override
+  String get yearGoalShowOnTodayHelp => 'Eine Fortschrittskarte für deine Jahresziele.';
+
+  @override
+  String get yearGoalOnTrack => 'Im Plan';
+
+  @override
+  String yearGoalAhead(String km) {
+    return '$km km vor dem Soll';
+  }
+
+  @override
+  String yearGoalBehind(String km) {
+    return '$km km hinter dem Soll';
+  }
+
+  @override
+  String yearGoalProjection(String km) {
+    return 'Auf Kurs für $km km';
+  }
+
+  @override
+  String get todaySectionYearGoals => 'Jahresziele';
 }
