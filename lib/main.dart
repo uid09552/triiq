@@ -13,10 +13,10 @@ import 'locale_controller.dart';
 import 'notifications/app_lifecycle_tracker.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_settings.dart';
-import 'theme_controller.dart';
 import 'screens/settings/weekly_targets_settings.dart';
 import 'screens/settings/year_goals_settings.dart';
 import 'screens/today/today_layout_settings.dart';
+import 'theme_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
