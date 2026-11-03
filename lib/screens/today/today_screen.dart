@@ -6,6 +6,7 @@ import '../../agent/plan_proposals.dart';
 import '../../data/intervals_session.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/adaptation_service.dart';
+import '../season/health_card.dart';
 import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
 import '../../data/models/local_activity.dart';
@@ -320,6 +321,8 @@ class _TodayScreenState extends State<TodayScreen> {
 
     List<Widget> sectionWidgets(TodaySection section) => switch (section) {
       TodaySection.readiness => [
+          const SizedBox(height: 16),
+          const HealthBanner(),
           if (_readiness case final readiness?) ...[
             const SizedBox(height: 16),
             ReadinessCard(report: readiness),

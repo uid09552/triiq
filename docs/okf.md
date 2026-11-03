@@ -64,6 +64,10 @@ athlete can:
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
+| Season (More → Season) | ✅ Implemented — **fitness forecast** (CTL/ATL/form projected from the planned sessions, with "form on race day" per race), **season timeline** (build / taper / race / recovery blocks across all `RACE_A/B/C` events and the goal's event date, with a conflict check), the **illness / injury mode** card, and the **race predictor** |
+| Race predictor | ✅ Implemented — finish time per leg from the pace curves (Riegel) and power curve (race-intensity fraction + physics model), a CTL / race-day-form allowance, a pacing plan and a fuelling plan; swim/ride/run presets from 5 km to 140.6 |
+| Illness / injury mode | ✅ Implemented — a `SICK` / `INJURED` Intervals.icu event reshapes the plan: rest (sick) or cross-training (injury), then a graded return ramp; shown on Today and Season, applied only after confirming |
+| Brick / transition tracking | ✅ Implemented — a bike→run or swim→bike pair on one day gets a card on Activity detail: transition time, how fast the legs settled, early speed/HR cost |
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
@@ -1234,6 +1238,53 @@ CTL / ATL / form change. It is computed from the cache and works offline.
 With an LLM provider set up, a short **Next week** note from the trainer
 follows, labelled as an inference; **Discuss in Chat** carries the week's
 figures over.
+
+### Season, forecast, race predictor, illness mode and bricks
+
+**More → Season** has three cards. *Fitness forecast* runs the standard 42-day
+CTL / 7-day ATL model forward from the last synced values over the planned
+sessions (TriIQ plan sessions and Intervals.icu events; empty days are rest),
+and states **form on race day** for every upcoming race with a plain-language
+reading (still loaded / balanced / fresh / fading). *Season timeline* lays out
+each race (Intervals.icu `RACE_A/B/C`, plus the training goal's event date as an
+A race): a taper before it (A 14 d, B 7 d, C 2 d), the race day and a recovery
+after it (10 / 5 / 2 d), with build between. The **conflict check** flags two A
+races under 42 days apart, a race inside another's taper or recovery window,
+two races on one day, and a race inside a logged illness / injury. *Race
+predictor* opens the predictor.
+
+**Race predictor** (`lib/season/race_predictor.dart`). Run and swim times come from your
+best efforts on the pace curves (Riegel, exponent 1.06; open-water +3 % in a
+triathlon). The ride finds the duration at which the power curve's best
+effort, scaled by a race fraction (97 % up to 1 h, 72 % by 6+ h, a further
+−7 % in a triathlon), produces the speed that takes that long (CdA 0.32, Crr
+0.005, 9 kg bike, climbing work from elevation gain). The run after a ride is
+3–12 % slower. Past ~1.5 h an allowance of up to 15 % applies when CTL is far
+below what the event needs, plus 1–1.5 % for arriving very loaded or very
+rested. Legs without curve data are named, never guessed. The **pacing plan**
+starts 3–5 % easier and (≤ 12 km) finishes slightly faster; the **fuelling
+plan** gives carbs/fluid/sodium per hour by duration (0 under ~45 min up to 85 g/h
+over 3 h), the day-before and pre-race carbs per kg, and an intake schedule
+(bike every 20 min, run every 30). It is a model estimate, not a promise.
+
+**Illness / injury mode** (`lib/season/illness_mode.dart`). Log a `SICK` or `INJURED`
+event in More → Events (with an end date once it is over). While it lasts and
+for a graded return afterwards (3 / 7 / 14 / 21 days by length, ×1.5 for an
+injury) TriIQ proposes: **sick** — rest instead of every planned session;
+**injured** — the affected sport becomes easy cross-training (45 TSS/h);
+**return** — load climbs linearly from 50 % to 100 %, hard sessions in the first
+half become easy. Races are never touched. Nothing happens until you press
+*Apply* (Today banner or Season); changes go upstream to Intervals.icu first
+and fail safe. The chat agent can read the proposals (`get_health_status`) but
+not apply them.
+
+**Bricks** (`lib/season/brick_analysis.dart`). A bike→run or swim→bike on the same day,
+with the second starting within 45 min of the first ending, is a brick.
+Activity detail shows the transition time, and for bike→run — from the run's
+stream — how long the legs took to reach 95 % of steady speed, the first 10
+min against the rest, and the heart-rate cost per speed early on, as a
+good / decent / rough verdict with reasons (e.g. a hard bike). Chat tools:
+`get_fitness_forecast`, `get_health_status`, `get_race_prediction`, `get_bricks`.
 
 ### Training plan
 

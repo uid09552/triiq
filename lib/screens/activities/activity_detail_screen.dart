@@ -26,6 +26,7 @@ import 'activity_icons.dart';
 import 'feel_dialog.dart';
 import '../insights/insights_card.dart';
 import '../today/train_now_screen.dart';
+import 'brick_card.dart';
 import 'session_analysis.dart';
 
 /// One activity's stats, its evaluation against the plan, its streams over
@@ -237,6 +238,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           const SizedBox(height: 16),
           SessionDiagramCard(activity: activity, streams: widget.streams),
           const SizedBox(height: 16),
+          BrickCard(
+            activity: activity,
+            loader: BrickLoader(streams: widget.streams),
+          ),
           InsightsCard(
             activity: activity,
             loader: widget.insights,

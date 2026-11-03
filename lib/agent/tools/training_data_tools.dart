@@ -17,6 +17,7 @@ import '../../data/threshold_suggestions_service.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
+import '../../season/race_predictor.dart' show RaceSpec;
 import '../../plan/adaptation_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../evaluation/intensity.dart';
@@ -30,6 +31,7 @@ import '../../util/dates.dart';
 import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
 import 'plan_assistant_tools.dart';
+import 'season_tools.dart';
 
 /// The tools the training agent can call.
 ///
@@ -128,6 +130,11 @@ class TrainingDataTools {
     goals: _goalStore,
   );
 
+  /// Fitness forecast, race calendar, illness mode, race predictor, bricks.
+  late final SeasonTools _seasonTools = SeasonTools(
+    activities: _activitiesRepository,
+  );
+
   /// Reading the plan and making proposals on it (no writes).
   late final PlanAssistantTools _planTools = PlanAssistantTools(
     service: _planService,
@@ -206,6 +213,66 @@ class TrainingDataTools {
           'the rest of the week. Never applies anything.',
       schema: const {'type': 'object', 'properties': <String, dynamic>{}},
       run: (_) => _planAdjustments(),
+    ),
+    _tool(
+      name: 'get_fitness_forecast',
+      description:
+          'CTL / ATL / form projected forward from the planned sessions '
+          '(days with nothing planned count as rest), the race calendar '
+          'with the forecast form on each race day, the season blocks '
+          '(build, taper, race, recovery) and race-calendar conflicts. Use '
+          'for "what will my form be on race day" and season-planning '
+          'questions. Read-only; an estimate.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _seasonTools.fitnessForecast(),
+    ),
+    _tool(
+      name: 'get_health_status',
+      description:
+          'Whether the athlete is logged as sick or injured (Intervals.icu '
+          'SICK / INJURED events), the return-to-training ramp, and the '
+          'changes proposed to the planned sessions (rest, easier, '
+          'cross-training). The athlete applies them on the Season screen; '
+          'you cannot. Read-only.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _seasonTools.healthStatus(),
+    ),
+    _tool(
+      name: 'get_race_prediction',
+      description:
+          'Predicted finish time, per-leg pacing targets and a fuelling '
+          'plan for a race, from the athlete\'s power and pace curves, CTL '
+          'and forecast race-day form. race is one of: '
+          '${RaceSpec.presets.map((p) => p.id).join(', ')}. Optional '
+          'race_date (YYYY-MM-DD) to include the forecast form, hot (bool). '
+          'Legs without data come back in missing_legs. A model estimate — '
+          'say so. Read-only.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'race': {'type': 'string'},
+          'race_date': {'type': 'string'},
+          'hot': {'type': 'boolean'},
+        },
+        'required': ['race'],
+      },
+      run: (args) => _seasonTools.racePrediction(args),
+    ),
+    _tool(
+      name: 'get_bricks',
+      description:
+          'Brick sessions (bike then run, swim then bike) from recent '
+          'days: the transition time and, where the run stream is cached, '
+          'how quickly the legs settled and whether the first 10 minutes '
+          'were slower or costlier than the rest. Optional days (default '
+          '60). Read-only.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'days': {'type': 'integer'},
+        },
+      },
+      run: (args) => _seasonTools.bricks(args),
     ),
     _tool(
       name: 'get_readiness',

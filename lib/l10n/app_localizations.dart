@@ -3923,7 +3923,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteDayTrainingsConfirm.
   ///
   /// In en, this message translates to:
-  /// **'{count} planned session(s) are removed from your Intervals.icu calendar. This can't be undone.'**
+  /// **'{count} planned session(s) are removed from your Intervals.icu calendar. This can\'t be undone.'**
   String deleteDayTrainingsConfirm(int count);
 
   /// No description provided for @dayTrainingsDeleted.
@@ -4465,6 +4465,672 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Here is my analysis for {period}. What stands out, and what should I adjust?'**
   String analysisChatDraft(String period);
+
+  /// No description provided for @seasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get seasonTitle;
+
+  /// No description provided for @moreSeasonSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness forecast, race calendar, race predictor'**
+  String get moreSeasonSubtitle;
+
+  /// No description provided for @seasonNoFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'No fitness data yet. Sync Intervals.icu first.'**
+  String get seasonNoFitness;
+
+  /// No description provided for @seasonLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the season: {error}'**
+  String seasonLoadError(String error);
+
+  /// No description provided for @forecastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness forecast'**
+  String get forecastTitle;
+
+  /// No description provided for @forecastSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness, fatigue and form projected from your planned sessions. Days without a plan count as rest.'**
+  String get forecastSubtitle;
+
+  /// No description provided for @forecastCtl.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness (CTL)'**
+  String get forecastCtl;
+
+  /// No description provided for @forecastAtl.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue (ATL)'**
+  String get forecastAtl;
+
+  /// No description provided for @forecastForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get forecastForm;
+
+  /// No description provided for @forecastRaceForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form on race day ({name}): {form}'**
+  String forecastRaceForm(String name, String form);
+
+  /// No description provided for @forecastBandLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Still carrying fatigue — expect heavy legs.'**
+  String get forecastBandLoaded;
+
+  /// No description provided for @forecastBandNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced: neither fresh nor tired.'**
+  String get forecastBandNeutral;
+
+  /// No description provided for @forecastBandFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh — a good place to race from.'**
+  String get forecastBandFresh;
+
+  /// No description provided for @forecastBandDetrained.
+  ///
+  /// In en, this message translates to:
+  /// **'Very fresh: fitness is starting to fade from too much rest.'**
+  String get forecastBandDetrained;
+
+  /// No description provided for @forecastPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Form peaks on {date} at {form}.'**
+  String forecastPeak(String date, String form);
+
+  /// No description provided for @forecastPlannedEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness on {date}: {ctl} (form {form})'**
+  String forecastPlannedEnd(String date, String ctl, String form);
+
+  /// No description provided for @seasonTimelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Season timeline'**
+  String get seasonTimelineTitle;
+
+  /// No description provided for @seasonNoRaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No races yet. Add a race (priority A, B or C) under More → Events, or set an event date in your training goal.'**
+  String get seasonNoRaces;
+
+  /// No description provided for @seasonRaceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{priority} race · {name} · {date} ({weeks} wk)'**
+  String seasonRaceLine(String priority, String name, String date, int weeks);
+
+  /// No description provided for @blockBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get blockBase;
+
+  /// No description provided for @blockBuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get blockBuild;
+
+  /// No description provided for @blockTaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Taper'**
+  String get blockTaper;
+
+  /// No description provided for @blockRace.
+  ///
+  /// In en, this message translates to:
+  /// **'Race'**
+  String get blockRace;
+
+  /// No description provided for @blockRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery'**
+  String get blockRecovery;
+
+  /// No description provided for @conflictsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicts'**
+  String get conflictsTitle;
+
+  /// No description provided for @conflictNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No conflicts in your race calendar.'**
+  String get conflictNone;
+
+  /// No description provided for @conflictTooCloseA.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second} are both A races only {days} days apart. Peaking twice needs about 6 weeks — make one a B race.'**
+  String conflictTooCloseA(String first, String second, int days);
+
+  /// No description provided for @conflictInsideTaper.
+  ///
+  /// In en, this message translates to:
+  /// **'{second} falls in the taper for {first}. Treat it as a training race or skip it.'**
+  String conflictInsideTaper(String first, String second);
+
+  /// No description provided for @conflictSameDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second} are on the same day.'**
+  String conflictSameDay(String first, String second);
+
+  /// No description provided for @conflictInsideRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'{second} comes while you are still recovering from {first}.'**
+  String conflictInsideRecovery(String first, String second);
+
+  /// No description provided for @conflictDuringIllness.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} falls in a period you logged as sick or injured.'**
+  String conflictDuringIllness(String first);
+
+  /// No description provided for @healthSickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are logged as sick'**
+  String get healthSickTitle;
+
+  /// No description provided for @healthInjuredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are logged as injured'**
+  String get healthInjuredTitle;
+
+  /// No description provided for @healthReturningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Easing back into training'**
+  String get healthReturningTitle;
+
+  /// No description provided for @healthSickSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {days}. Rest is the plan — hard sessions come off the calendar.'**
+  String healthSickSubtitle(int days);
+
+  /// No description provided for @healthInjuredSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {days}. Affected sessions become easy cross-training.'**
+  String healthInjuredSubtitle(int days);
+
+  /// No description provided for @healthReturnSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load builds from 50 % back to normal until {date}.'**
+  String healthReturnSubtitle(String date);
+
+  /// No description provided for @healthNoChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing planned needs to change.'**
+  String get healthNoChanges;
+
+  /// No description provided for @healthChangeRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get healthChangeRest;
+
+  /// No description provided for @healthChangeEasier.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy, {minutes} min (about {load} TSS)'**
+  String healthChangeEasier(int minutes, int load);
+
+  /// No description provided for @healthChangeCross.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy {sport}, {minutes} min instead'**
+  String healthChangeCross(String sport, int minutes);
+
+  /// No description provided for @healthReasonIllness.
+  ///
+  /// In en, this message translates to:
+  /// **'Illness'**
+  String get healthReasonIllness;
+
+  /// No description provided for @healthReasonInjury.
+  ///
+  /// In en, this message translates to:
+  /// **'Injury'**
+  String get healthReasonInjury;
+
+  /// No description provided for @healthReasonReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return ramp'**
+  String get healthReasonReturn;
+
+  /// No description provided for @healthApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply {count} changes'**
+  String healthApply(int count);
+
+  /// No description provided for @healthApplyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This changes your planned sessions on Intervals.icu and in TriIQ.'**
+  String get healthApplyConfirm;
+
+  /// No description provided for @healthApplyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions updated.'**
+  String healthApplyDone(int count);
+
+  /// No description provided for @healthApplyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped after {done}: {error}'**
+  String healthApplyFailed(int done, String error);
+
+  /// No description provided for @healthLogHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick or injured? Log it as an event and TriIQ will reshape your plan.'**
+  String get healthLogHint;
+
+  /// No description provided for @healthLogButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log illness or injury'**
+  String get healthLogButton;
+
+  /// No description provided for @racePredictorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Race predictor'**
+  String get racePredictorTitle;
+
+  /// No description provided for @racePredictorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish time, pacing and fuelling from your power and pace curves, your fitness and your race-day form.'**
+  String get racePredictorSubtitle;
+
+  /// No description provided for @raceChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Race'**
+  String get raceChoose;
+
+  /// No description provided for @raceSpec5k.
+  ///
+  /// In en, this message translates to:
+  /// **'5 km run'**
+  String get raceSpec5k;
+
+  /// No description provided for @raceSpec10k.
+  ///
+  /// In en, this message translates to:
+  /// **'10 km run'**
+  String get raceSpec10k;
+
+  /// No description provided for @raceSpecHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Half marathon'**
+  String get raceSpecHalf;
+
+  /// No description provided for @raceSpecMarathon.
+  ///
+  /// In en, this message translates to:
+  /// **'Marathon'**
+  String get raceSpecMarathon;
+
+  /// No description provided for @raceSpecRide100.
+  ///
+  /// In en, this message translates to:
+  /// **'100 km ride'**
+  String get raceSpecRide100;
+
+  /// No description provided for @raceSpecSprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sprint triathlon'**
+  String get raceSpecSprint;
+
+  /// No description provided for @raceSpecOlympic.
+  ///
+  /// In en, this message translates to:
+  /// **'Olympic triathlon'**
+  String get raceSpecOlympic;
+
+  /// No description provided for @raceSpec703.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-distance triathlon (70.3)'**
+  String get raceSpec703;
+
+  /// No description provided for @raceSpec1406.
+  ///
+  /// In en, this message translates to:
+  /// **'Full-distance triathlon (140.6)'**
+  String get raceSpec1406;
+
+  /// No description provided for @raceDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Race day'**
+  String get raceDayLabel;
+
+  /// No description provided for @raceDayAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'From my races'**
+  String get raceDayAuto;
+
+  /// No description provided for @raceDayNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No date (ignore form)'**
+  String get raceDayNone;
+
+  /// No description provided for @raceHot.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot conditions'**
+  String get raceHot;
+
+  /// No description provided for @raceTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Predicted finish'**
+  String get raceTotal;
+
+  /// No description provided for @raceTransitions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transitions: T1 {t1}, T2 {t2}'**
+  String raceTransitions(String t1, String t2);
+
+  /// No description provided for @raceLegSwim.
+  ///
+  /// In en, this message translates to:
+  /// **'Swim'**
+  String get raceLegSwim;
+
+  /// No description provided for @raceLegRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride'**
+  String get raceLegRide;
+
+  /// No description provided for @raceLegRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get raceLegRun;
+
+  /// No description provided for @raceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data for: {legs}. Some hard efforts in training, then sync, will fix this.'**
+  String raceMissing(String legs);
+
+  /// No description provided for @raceSlowdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes a {pct} % allowance for fitness (CTL) and race-day form.'**
+  String raceSlowdown(String pct);
+
+  /// No description provided for @raceWatts.
+  ///
+  /// In en, this message translates to:
+  /// **'{watts} W ({pct} % FTP)'**
+  String raceWatts(int watts, String pct);
+
+  /// No description provided for @raceWattsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{watts} W'**
+  String raceWattsOnly(int watts);
+
+  /// No description provided for @racePacingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pacing plan'**
+  String get racePacingTitle;
+
+  /// No description provided for @pacingStartControlled.
+  ///
+  /// In en, this message translates to:
+  /// **'Start controlled'**
+  String get pacingStartControlled;
+
+  /// No description provided for @pacingHoldSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold steady'**
+  String get pacingHoldSteady;
+
+  /// No description provided for @pacingFinishStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish strong'**
+  String get pacingFinishStrong;
+
+  /// No description provided for @pacingNegativeSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle in, build gently'**
+  String get pacingNegativeSplit;
+
+  /// No description provided for @pacingRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start}–{end} km'**
+  String pacingRange(String start, String end);
+
+  /// No description provided for @fuelingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuelling plan'**
+  String get fuelingTitle;
+
+  /// No description provided for @fuelNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Under about 45 minutes water is enough.'**
+  String get fuelNone;
+
+  /// No description provided for @fuelCarbsPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'{g} g carbohydrate per hour'**
+  String fuelCarbsPerHour(int g);
+
+  /// No description provided for @fuelFluidPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'{ml} ml fluid per hour'**
+  String fuelFluidPerHour(int ml);
+
+  /// No description provided for @fuelSodiumPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'{mg} mg sodium per hour'**
+  String fuelSodiumPerHour(int mg);
+
+  /// No description provided for @fuelTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Race total: {carbs} g carbohydrate, {fluid} ml fluid'**
+  String fuelTotals(int carbs, int fluid);
+
+  /// No description provided for @fuelDayBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Day before: about {g} g carbohydrate'**
+  String fuelDayBefore(int g);
+
+  /// No description provided for @fuelPreRace.
+  ///
+  /// In en, this message translates to:
+  /// **'1–4 h before the start: about {g} g carbohydrate'**
+  String fuelPreRace(int g);
+
+  /// No description provided for @fuelStep.
+  ///
+  /// In en, this message translates to:
+  /// **'{minute} min · {sport}: {carbs} g carbs, {fluid} ml'**
+  String fuelStep(int minute, String sport, int carbs, int fluid);
+
+  /// No description provided for @raceDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'A model estimate from your best efforts, not a promise. Course, weather and pacing decide the day.'**
+  String get raceDisclaimer;
+
+  /// No description provided for @raceAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the trainer'**
+  String get raceAskTrainer;
+
+  /// No description provided for @raceChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'My race predictor says {time} for the {race}. Is that realistic, and what should I work on before race day?'**
+  String raceChatDraft(String time, String race);
+
+  /// No description provided for @brickTitleBikeRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Brick: bike → run'**
+  String get brickTitleBikeRun;
+
+  /// No description provided for @brickTitleSwimBike.
+  ///
+  /// In en, this message translates to:
+  /// **'Brick: swim → bike'**
+  String get brickTitleSwimBike;
+
+  /// No description provided for @brickTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Transition: {time}'**
+  String brickTransition(String time);
+
+  /// No description provided for @brickSettle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legs settled after {time}'**
+  String brickSettle(String time);
+
+  /// No description provided for @brickEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'First 10 min at {pct} % of your later speed'**
+  String brickEarly(String pct);
+
+  /// No description provided for @brickVerdictGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong brick'**
+  String get brickVerdictGood;
+
+  /// No description provided for @brickVerdictOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Decent brick'**
+  String get brickVerdictOk;
+
+  /// No description provided for @brickVerdictRough.
+  ///
+  /// In en, this message translates to:
+  /// **'Rough start off the bike'**
+  String get brickVerdictRough;
+
+  /// No description provided for @brickVerdictUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Transition only'**
+  String get brickVerdictUnknown;
+
+  /// No description provided for @brickNoteSettledFast.
+  ///
+  /// In en, this message translates to:
+  /// **'Legs came round quickly.'**
+  String get brickNoteSettledFast;
+
+  /// No description provided for @brickNoteSettledSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'It took a long time to find your rhythm.'**
+  String get brickNoteSettledSlow;
+
+  /// No description provided for @brickNoteSlowStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The opening minutes were much slower than the rest.'**
+  String get brickNoteSlowStart;
+
+  /// No description provided for @brickNoteHighEarlyCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate was high for the speed early on — pace the first 10 minutes by effort, not speed.'**
+  String get brickNoteHighEarlyCost;
+
+  /// No description provided for @brickNoteHardFirstLeg.
+  ///
+  /// In en, this message translates to:
+  /// **'The first leg was hard (intensity 85 % or more), which usually costs the next one.'**
+  String get brickNoteHardFirstLeg;
+
+  /// No description provided for @brickNoteQuickTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick transition.'**
+  String get brickNoteQuickTransition;
+
+  /// No description provided for @brickNoteLongTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Long transition — fine in training, but practise it before a race.'**
+  String get brickNoteLongTransition;
+
+  /// No description provided for @brickNoteNoStream.
+  ///
+  /// In en, this message translates to:
+  /// **'No data stream for the second leg, so only the transition is judged.'**
+  String get brickNoteNoStream;
+
+  /// No description provided for @brickSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} + {second}'**
+  String brickSessions(String first, String second);
 }
 
 class _AppLocalizationsDelegate
