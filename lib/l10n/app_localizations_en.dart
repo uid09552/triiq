@@ -3107,4 +3107,102 @@ class AppLocalizationsEn extends AppLocalizations {
   String brickSessions(String first, String second) {
     return '$first + $second';
   }
+
+  @override
+  String get memoryTitle => 'Trainer memory';
+
+  @override
+  String get moreMemorySubtitle => 'What the trainer remembers about you';
+
+  @override
+  String get memoryIntro =>
+      'Standing preferences the trainer follows in every chat, e.g. \"No hard sessions on Fridays\" or \"Swim only in the mornings\". You can add, edit by deleting and re-adding, or remove them here. The trainer only saves one when you ask it to.';
+
+  @override
+  String get memoryEmpty => 'Nothing remembered yet.';
+
+  @override
+  String get memoryAddHint => 'Add a preference…';
+
+  @override
+  String get memoryAddButton => 'Add';
+
+  @override
+  String get memoryFromTrainer => 'saved by the trainer';
+
+  @override
+  String get memoryDelete => 'Remove';
+
+  @override
+  String get memoryClear => 'Remove all';
+
+  @override
+  String get memoryClearConfirm => 'Remove everything the trainer remembers?';
+
+  @override
+  String memoryFull(int max) {
+    return 'The memory is full ($max items). Remove one first.';
+  }
+
+  @override
+  String memoryCount(int count, int max) {
+    return '$count of $max';
+  }
+
+  @override
+  String get backupTitle => 'Backup';
+
+  @override
+  String get backupIntro =>
+      'Export your synced data, plans, knowledge library and settings as one JSON file, and restore it on another device. Your Intervals.icu and AI keys are not included — reconnect after restoring.';
+
+  @override
+  String get backupIncludeCaches => 'Include chart caches';
+
+  @override
+  String get backupIncludeCachesHelp =>
+      'Session streams and performance curves. Larger file; they can be fetched again.';
+
+  @override
+  String get backupExport => 'Export backup';
+
+  @override
+  String get backupRestore => 'Restore from backup…';
+
+  @override
+  String backupExported(String path) {
+    return 'Backup saved to $path';
+  }
+
+  @override
+  String get backupShared => 'Backup ready to share.';
+
+  @override
+  String backupFailed(String error) {
+    return 'Backup failed: $error';
+  }
+
+  @override
+  String get backupRestoreTitle => 'Restore this backup?';
+
+  @override
+  String backupRestoreBody(
+    String date,
+    int activities,
+    int plans,
+    int total,
+    int settings,
+  ) {
+    return 'From $date: $activities activities, $plans plans, $total rows in all, $settings settings. This replaces the synced data, plans and knowledge library on this device.';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Replace';
+
+  @override
+  String get backupRestored =>
+      'Restored. Restart TriIQ to apply the settings, and reconnect Intervals.icu if needed.';
+
+  @override
+  String get backupUnknownDate => 'an unknown date';
 }

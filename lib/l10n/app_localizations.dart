@@ -5131,6 +5131,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{first} + {second}'**
   String brickSessions(String first, String second);
+
+  /// No description provided for @memoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer memory'**
+  String get memoryTitle;
+
+  /// No description provided for @moreMemorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the trainer remembers about you'**
+  String get moreMemorySubtitle;
+
+  /// No description provided for @memoryIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing preferences the trainer follows in every chat, e.g. \"No hard sessions on Fridays\" or \"Swim only in the mornings\". You can add, edit by deleting and re-adding, or remove them here. The trainer only saves one when you ask it to.'**
+  String get memoryIntro;
+
+  /// No description provided for @memoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing remembered yet.'**
+  String get memoryEmpty;
+
+  /// No description provided for @memoryAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a preference…'**
+  String get memoryAddHint;
+
+  /// No description provided for @memoryAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get memoryAddButton;
+
+  /// No description provided for @memoryFromTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'saved by the trainer'**
+  String get memoryFromTrainer;
+
+  /// No description provided for @memoryDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get memoryDelete;
+
+  /// No description provided for @memoryClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all'**
+  String get memoryClear;
+
+  /// No description provided for @memoryClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove everything the trainer remembers?'**
+  String get memoryClearConfirm;
+
+  /// No description provided for @memoryFull.
+  ///
+  /// In en, this message translates to:
+  /// **'The memory is full ({max} items). Remove one first.'**
+  String memoryFull(int max);
+
+  /// No description provided for @memoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max}'**
+  String memoryCount(int count, int max);
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get backupTitle;
+
+  /// No description provided for @backupIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Export your synced data, plans, knowledge library and settings as one JSON file, and restore it on another device. Your Intervals.icu and AI keys are not included — reconnect after restoring.'**
+  String get backupIntro;
+
+  /// No description provided for @backupIncludeCaches.
+  ///
+  /// In en, this message translates to:
+  /// **'Include chart caches'**
+  String get backupIncludeCaches;
+
+  /// No description provided for @backupIncludeCachesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Session streams and performance curves. Larger file; they can be fetched again.'**
+  String get backupIncludeCachesHelp;
+
+  /// No description provided for @backupExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup'**
+  String get backupExport;
+
+  /// No description provided for @backupRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup…'**
+  String get backupRestore;
+
+  /// No description provided for @backupExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved to {path}'**
+  String backupExported(String path);
+
+  /// No description provided for @backupShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup ready to share.'**
+  String get backupShared;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed: {error}'**
+  String backupFailed(String error);
+
+  /// No description provided for @backupRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this backup?'**
+  String get backupRestoreTitle;
+
+  /// No description provided for @backupRestoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'From {date}: {activities} activities, {plans} plans, {total} rows in all, {settings} settings. This replaces the synced data, plans and knowledge library on this device.'**
+  String backupRestoreBody(
+    String date,
+    int activities,
+    int plans,
+    int total,
+    int settings,
+  );
+
+  /// No description provided for @backupRestoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get backupRestoreConfirm;
+
+  /// No description provided for @backupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored. Restart TriIQ to apply the settings, and reconnect Intervals.icu if needed.'**
+  String get backupRestored;
+
+  /// No description provided for @backupUnknownDate.
+  ///
+  /// In en, this message translates to:
+  /// **'an unknown date'**
+  String get backupUnknownDate;
 }
 
 class _AppLocalizationsDelegate

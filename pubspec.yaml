@@ -84,6 +84,7 @@ dependencies:
   # Picking files to import into the knowledge library (lib/screens/knowledge)
   # — Android and Windows only, per CLAUDE.md's supported-targets note.
   file_selector: ^1.1.0
+  share_plus: ^12.0.2
 
 dev_dependencies:
   flutter_test:

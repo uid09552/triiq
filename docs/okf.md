@@ -64,6 +64,8 @@ athlete can:
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
+| Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
+| Backup (Settings → Backup) | ✅ Implemented — export synced data, plans, knowledge library and settings as one JSON file (share sheet on phones, save dialog on desktop), restore on another device; secrets are never included |
 | Season (More → Season) | ✅ Implemented — **fitness forecast** (CTL/ATL/form projected from the planned sessions, with "form on race day" per race), **season timeline** (build / taper / race / recovery blocks across all `RACE_A/B/C` events and the goal's event date, with a conflict check), the **illness / injury mode** card, and the **race predictor** |
 | Race predictor | ✅ Implemented — finish time per leg from the pace curves (Riegel) and power curve (race-intensity fraction + physics model), a CTL / race-day-form allowance, a pacing plan and a fuelling plan; swim/ride/run presets from 5 km to 140.6 |
 | Illness / injury mode | ✅ Implemented — a `SICK` / `INJURED` Intervals.icu event reshapes the plan: rest (sick) or cross-training (injury), then a graded return ramp; shown on Today and Season, applied only after confirming |
@@ -1285,6 +1287,34 @@ stream — how long the legs took to reach 95 % of steady speed, the first 10
 min against the rest, and the heart-rate cost per speed early on, as a
 good / decent / rough verdict with reasons (e.g. a hard bike). Chat tools:
 `get_fitness_forecast`, `get_health_status`, `get_race_prediction`, `get_bricks`.
+
+### Trainer memory and backup
+
+**Trainer memory** (`lib/agent/agent_memory.dart`, More → Trainer memory). Up to 30
+short preferences (200 characters each, duplicates ignored) in shared
+preferences. Every chat turn gets them as a system block of *preferences, not
+instructions*: the trainer respects them when suggesting or changing
+training, says so when one shapes an answer, and flags a clash with safety or
+the data instead of ignoring it. The trainer saves one only when you state or
+ask for it, says it did, and it appears in the list tagged "saved by the
+trainer"; you can delete any item or all of them. It is advice-level: the plan
+engine and adaptation rules do not enforce a preference (set training days
+and long/interval days in the goal for that).
+
+**Backup** (`lib/data/backup/`, Settings → Backup). *Export* writes one JSON file
+(`format: triiq-backup`, `version: 1`) with the tables wellness, activities,
+sync_state, events, plans, plan_sessions, knowledge_docs and knowledge_sections,
+plus the settings stored in shared preferences (goal, targets, theme, language,
+trainer memory, …); optionally the re-fetchable chart caches (activity
+streams, performance curves). Excluded always: the Intervals.icu key and the
+AI keys (OS vault) and device-runtime keys (background-sync status). On
+phones the file goes to the share sheet (Drive, Files, mail); on desktop to a
+save dialog. *Restore* validates the file (format, version not newer than the
+app, core tables present, only plain values), shows what it holds, and after
+confirmation **replaces** the synced data, plans and knowledge library in one
+database transaction — a bad row rolls everything back. Unknown columns from
+a newer schema are skipped. Settings are applied afterwards; restart the app
+to pick them up, and reconnect Intervals.icu (Profile) on the new device.
 
 ### Training plan
 

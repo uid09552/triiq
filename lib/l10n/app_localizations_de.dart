@@ -3137,4 +3137,103 @@ class AppLocalizationsDe extends AppLocalizations {
   String brickSessions(String first, String second) {
     return '$first + $second';
   }
+
+  @override
+  String get memoryTitle => 'Trainer-Gedächtnis';
+
+  @override
+  String get moreMemorySubtitle => 'Was sich der Trainer über dich merkt';
+
+  @override
+  String get memoryIntro =>
+      'Dauerhafte Vorlieben, die der Trainer in jedem Chat beachtet, z. B. „Keine harten Einheiten freitags“ oder „Schwimmen nur morgens“. Hier kannst du sie hinzufügen oder entfernen. Der Trainer speichert nur etwas, wenn du ihn darum bittest.';
+
+  @override
+  String get memoryEmpty => 'Noch nichts gemerkt.';
+
+  @override
+  String get memoryAddHint => 'Vorliebe hinzufügen…';
+
+  @override
+  String get memoryAddButton => 'Hinzufügen';
+
+  @override
+  String get memoryFromTrainer => 'vom Trainer gespeichert';
+
+  @override
+  String get memoryDelete => 'Entfernen';
+
+  @override
+  String get memoryClear => 'Alle entfernen';
+
+  @override
+  String get memoryClearConfirm =>
+      'Alles entfernen, was sich der Trainer merkt?';
+
+  @override
+  String memoryFull(int max) {
+    return 'Das Gedächtnis ist voll ($max Einträge). Entferne zuerst einen.';
+  }
+
+  @override
+  String memoryCount(int count, int max) {
+    return '$count von $max';
+  }
+
+  @override
+  String get backupTitle => 'Datensicherung';
+
+  @override
+  String get backupIntro =>
+      'Exportiere deine synchronisierten Daten, Pläne, Wissensbibliothek und Einstellungen als eine JSON-Datei und stelle sie auf einem anderen Gerät wieder her. Deine Intervals.icu- und KI-Schlüssel sind nicht enthalten — verbinde dich nach der Wiederherstellung neu.';
+
+  @override
+  String get backupIncludeCaches => 'Diagramm-Zwischenspeicher einschließen';
+
+  @override
+  String get backupIncludeCachesHelp =>
+      'Verläufe und Leistungskurven. Größere Datei; sie lassen sich neu laden.';
+
+  @override
+  String get backupExport => 'Sicherung exportieren';
+
+  @override
+  String get backupRestore => 'Aus Sicherung wiederherstellen…';
+
+  @override
+  String backupExported(String path) {
+    return 'Sicherung gespeichert unter $path';
+  }
+
+  @override
+  String get backupShared => 'Sicherung zum Teilen bereit.';
+
+  @override
+  String backupFailed(String error) {
+    return 'Sicherung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get backupRestoreTitle => 'Diese Sicherung wiederherstellen?';
+
+  @override
+  String backupRestoreBody(
+    String date,
+    int activities,
+    int plans,
+    int total,
+    int settings,
+  ) {
+    return 'Vom $date: $activities Aktivitäten, $plans Pläne, insgesamt $total Zeilen, $settings Einstellungen. Das ersetzt die synchronisierten Daten, Pläne und die Wissensbibliothek auf diesem Gerät.';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Ersetzen';
+
+  @override
+  String get backupRestored =>
+      'Wiederhergestellt. Starte TriIQ neu, um die Einstellungen zu übernehmen, und verbinde Intervals.icu bei Bedarf neu.';
+
+  @override
+  String get backupUnknownDate => 'einem unbekannten Datum';
 }

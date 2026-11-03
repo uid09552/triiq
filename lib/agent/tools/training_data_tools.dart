@@ -30,6 +30,7 @@ import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
 import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
+import '../agent_memory.dart';
 import 'plan_assistant_tools.dart';
 import 'season_tools.dart';
 
@@ -63,7 +64,9 @@ class TrainingDataTools {
     PerformanceCurvesRepository? performanceCurves,
     ReadinessService? readinessService,
     ThresholdSuggestionsService? thresholdSuggestions,
-  }) : _readinessOverride = readinessService,
+    AgentMemoryStore? memory,
+  }) : _memory = memory ?? AgentMemoryStore.instance,
+       _readinessOverride = readinessService,
        _thresholdSuggestions =
            thresholdSuggestions ?? ThresholdSuggestionsService(),
        _performanceCurves = performanceCurves ?? PerformanceCurvesRepository(),
@@ -93,6 +96,7 @@ class TrainingDataTools {
        _knowledgeLibrary =
            knowledgeLibraryRepository ?? KnowledgeLibraryRepository();
 
+  final AgentMemoryStore _memory;
   final IntervalsSession _session;
   final PerformanceCurvesRepository _performanceCurves;
   final WellnessRepository _wellnessRepository;
@@ -273,6 +277,61 @@ class TrainingDataTools {
         },
       },
       run: (args) => _seasonTools.bricks(args),
+    ),
+    _tool(
+      name: 'remember_preference',
+      description:
+          'Saves one standing preference or constraint the athlete just '
+          'stated or asked you to remember — e.g. "No hard sessions on '
+          'Fridays", "Swim only in the mornings", "Right knee: no '
+          'downhill running". Call it only when the athlete says so '
+          '("remember that…", "I never…", "always…"); never to store '
+          'facts you can read from their data or things you guessed. One '
+          'short sentence in their words. It is listed under More → '
+          'Trainer memory where they can delete it, and you must tell '
+          'them you saved it.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'text': {
+            'type': 'string',
+            'description': 'The preference, one short sentence.',
+          },
+        },
+        'required': ['text'],
+      },
+      run: (args) async {
+        try {
+          final item = await _memory.add(
+            '${args['text'] ?? ''}',
+            fromAgent: true,
+          );
+          if (item == null) return {'error': 'Nothing to remember.'};
+          return {'saved': true, 'id': item.id, 'text': item.text};
+        } on MemoryFullException catch (e) {
+          return {'error': '$e'};
+        }
+      },
+    ),
+    _tool(
+      name: 'forget_preference',
+      description:
+          'Removes a remembered preference by its id (shown in the '
+          '"remember" context block). Call it when the athlete says a '
+          'preference no longer applies, and tell them you removed it.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'id': {'type': 'string'},
+        },
+        'required': ['id'],
+      },
+      run: (args) async {
+        final removed = await _memory.remove('${args['id'] ?? ''}');
+        return removed
+            ? {'removed': true}
+            : {'error': 'No remembered preference with that id.'};
+      },
     ),
     _tool(
       name: 'get_readiness',

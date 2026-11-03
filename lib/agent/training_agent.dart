@@ -8,6 +8,7 @@ import 'package:langchain_core/tools.dart';
 
 import '../data/intervals_session.dart';
 import 'chat_model_factory.dart';
+import 'agent_memory.dart';
 import 'llm_settings.dart';
 import 'plan_proposals.dart';
 import 'system_prompt.dart';
@@ -66,6 +67,7 @@ class TrainingAgent {
     TrainingDataTools? tools,
     DateTime Function()? clock,
     PlanProposals? proposals,
+    AgentMemoryStore? memory,
     BaseChatModel Function(LlmSettings settings, List<ToolSpec> tools)?
     chatModelFactory,
   }) : _settings = settings ?? LlmSettings.instance,
@@ -73,6 +75,7 @@ class TrainingAgent {
        _tools = tools ?? TrainingDataTools(),
        _clock = clock ?? DateTime.now,
        _proposals = proposals ?? PlanProposals.instance,
+       _memory = memory ?? AgentMemoryStore.instance,
        _chatModelFactory =
            chatModelFactory ??
            ((settings, tools) => createChatModel(settings, tools: tools));
@@ -82,6 +85,7 @@ class TrainingAgent {
   final TrainingDataTools _tools;
   final DateTime Function() _clock;
   final PlanProposals _proposals;
+  final AgentMemoryStore _memory;
   final BaseChatModel Function(LlmSettings, List<ToolSpec>) _chatModelFactory;
 
   /// How many model turns one question may take. Each tool round-trip costs
@@ -122,9 +126,11 @@ class TrainingAgent {
     _history.add(ChatMessage.humanText(_withOutcomes(input)));
     _trimHistory();
 
+    final memoryBlock = await _memory.promptBlock();
     final systemMessages = [
       ChatMessage.system(trainingAgentSystemPrompt),
       ChatMessage.system(await _runtimeContext()),
+      if (memoryBlock != null) ChatMessage.system(memoryBlock),
       if (attachedContext != null)
         ChatMessage.system(
           '# The athlete is asking about this\n\n$attachedContext',

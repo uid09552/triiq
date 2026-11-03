@@ -12,6 +12,7 @@ import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../theme_controller.dart';
 import '../../widgets/section_card.dart';
+import 'backup_settings_section.dart';
 import 'calendar_settings_section.dart';
 import 'feel_settings_section.dart';
 import 'weekly_targets_section.dart';
@@ -167,6 +168,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.calendar_month_outlined,
               title: l10n.calendarSettingsTitle,
               child: CalendarSettingsSection(),
+            ),
+            const SizedBox(height: 16),
+            SectionCard(
+              icon: Icons.backup_outlined,
+              title: l10n.backupTitle,
+              child: const BackupSettingsSection(),
             ),
             const SizedBox(height: 16),
             SectionCard(
