@@ -155,6 +155,7 @@
   "appearanceSystem": "System",
   "appearanceLight": "Hell",
   "appearanceDark": "Dunkel",
+  "appearanceDeveloper": "Developer",
   "languageTitle": "Sprache",
   "languageSystem": "System",
   "notificationsTitle": "Benachrichtigungen",

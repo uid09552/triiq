@@ -386,6 +386,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appearanceDark => 'Dunkel';
 
   @override
+  String get appearanceDeveloper => 'Developer';
+
+  @override
   String get languageTitle => 'Sprache';
 
   @override

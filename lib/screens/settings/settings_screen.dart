@@ -115,27 +115,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: l10n.appearanceTitle,
               child: ListenableBuilder(
                 listenable: ThemeController.instance,
-                builder: (context, _) => SegmentedButton<ThemeMode>(
+                builder: (context, _) => SegmentedButton<AppThemeChoice>(
                   segments: [
                     ButtonSegment(
-                      value: ThemeMode.system,
+                      value: AppThemeChoice.system,
                       label: Text(l10n.appearanceSystem),
                       icon: const Icon(Icons.brightness_auto_outlined),
                     ),
                     ButtonSegment(
-                      value: ThemeMode.light,
+                      value: AppThemeChoice.light,
                       label: Text(l10n.appearanceLight),
                       icon: const Icon(Icons.light_mode_outlined),
                     ),
                     ButtonSegment(
-                      value: ThemeMode.dark,
+                      value: AppThemeChoice.dark,
                       label: Text(l10n.appearanceDark),
                       icon: const Icon(Icons.dark_mode_outlined),
                     ),
+                    ButtonSegment(
+                      value: AppThemeChoice.developer,
+                      label: Text(l10n.appearanceDeveloper),
+                      icon: const Icon(Icons.terminal),
+                    ),
                   ],
-                  selected: {ThemeController.instance.mode},
+                  selected: {ThemeController.instance.choice},
                   onSelectionChanged: (selection) =>
-                      ThemeController.instance.setMode(selection.first),
+                      ThemeController.instance.setChoice(selection.first),
                 ),
               ),
             ),
