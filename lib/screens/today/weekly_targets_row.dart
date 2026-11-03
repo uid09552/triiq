@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/progress_ring.dart';
 import '../activities/activity_icons.dart';
 import '../settings/weekly_targets_settings.dart';
+import 'week_activities_sheet.dart';
 
 /// Sums moving time (seconds) per canonical sport across this week's
 /// cached activities — the data behind the weekly-target rings on Today.
@@ -62,7 +63,7 @@ class WeeklyTargetsRow extends StatelessWidget {
           if (targetHours == null) return null;
           final achievedHours = (achievedSeconds[sport] ?? 0) / 3600;
           final progress = achievedHours / targetHours;
-          return ProgressRing(
+          final indicator = ProgressRing(
             key: ValueKey('weekly-target-ring-$sport'),
             label: label,
             percentLabel: '${(progress * 100).round()}%',
@@ -72,6 +73,17 @@ class WeeklyTargetsRow extends StatelessWidget {
             progress: progress,
             color: sportColor(representativeType, colorScheme),
             doneColor: colorScheme.tertiary,
+          );
+          // Long-press lists the week's activities behind the ring.
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onLongPress: () => showWeekActivitiesSheet(
+              context,
+              sportLabel: label,
+              sport: sport,
+              weekActivities: weekActivities,
+            ),
+            child: indicator,
           );
         }
 

@@ -855,6 +855,11 @@ older than an hour, and pull-to-refresh forces it.
 
 ### Today
 
+**Weekly-target rings.** Long-pressing a ring opens a sheet
+(`week_activities_sheet.dart`) listing this week's activities of that sport
+(date, duration, distance, TSS); the "All sports" chip widens it, and a row
+opens the activity.
+
 **Load tiles.** The six tiles (TSS today / week, CTL, ATL, form, ramp rate) are
 compact `StatTile`s (`compact: true`): icon badge beside label and figure,
 animated value changes, soft hover/press states. Resting a mouse on a tile

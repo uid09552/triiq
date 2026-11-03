@@ -4183,6 +4183,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show history'**
   String get tileShowHistory;
+
+  /// No description provided for @weekActivitiesThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get weekActivitiesThisWeek;
+
+  /// No description provided for @weekActivitiesAllSports.
+  ///
+  /// In en, this message translates to:
+  /// **'All sports'**
+  String get weekActivitiesAllSports;
+
+  /// No description provided for @weekActivitiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities this week yet.'**
+  String get weekActivitiesEmpty;
 }
 
 class _AppLocalizationsDelegate

@@ -2547,4 +2547,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tileShowHistory => 'Verlauf anzeigen';
+
+  @override
+  String get weekActivitiesThisWeek => 'Diese Woche';
+
+  @override
+  String get weekActivitiesAllSports => 'Alle Sportarten';
+
+  @override
+  String get weekActivitiesEmpty => 'Diese Woche noch keine Aktivitäten.';
 }

@@ -2521,4 +2521,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tileShowHistory => 'Show history';
+
+  @override
+  String get weekActivitiesThisWeek => 'This week';
+
+  @override
+  String get weekActivitiesAllSports => 'All sports';
+
+  @override
+  String get weekActivitiesEmpty => 'No activities this week yet.';
 }

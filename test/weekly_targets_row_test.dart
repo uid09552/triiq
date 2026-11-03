@@ -89,4 +89,28 @@ void main() {
     expect(find.text('1.0 / 2.0 h'), findsOneWidget);
     expect(find.text('50%'), findsOneWidget);
   });
+
+  testWidgets('long-press on a ring lists that sport\'s week activities', (
+    tester,
+  ) async {
+    await settings.setRunHours(3);
+    await pump(
+      tester,
+      activities: [
+        _activity(type: 'Run', movingTime: 3600),
+        _activity(type: 'Ride', movingTime: 1800),
+      ],
+    );
+
+    await tester.longPress(find.byType(ProgressRing));
+    await tester.pumpAndSettle();
+
+    expect(find.text('This week', skipOffstage: false), findsNothing);
+    expect(find.textContaining('This week'), findsOneWidget);
+    // Only the run is listed until "All sports" is switched on.
+    expect(find.byType(ListTile), findsOneWidget);
+    await tester.tap(find.byType(FilterChip));
+    await tester.pumpAndSettle();
+    expect(find.byType(ListTile), findsNWidgets(2));
+  });
 }
