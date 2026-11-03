@@ -866,5 +866,8 @@
   "chartZoomReset": "Alles anzeigen",
   "streamSmoothing": "Glättung",
   "smoothOff": "Aus",
-  "zoomToInterval": "Auf Intervall zoomen"
+  "zoomToInterval": "Auf Intervall zoomen",
+  "metricTssTodayExplainer": "Der TSS (Training Stress Score) fasst in einer Zahl zusammen, wie hart die heutigen Einheiten waren – aus Dauer und Intensität. 100 entspricht etwa einer Stunde an deiner Schwelle. Vergleiche ihn mit dem Plan, nicht mit anderen.",
+  "metricTssWeekExplainer": "Die Summe des TSS dieser Woche (Montag bis Sonntag) im Vergleich zum Plan – der schnellste Check, ob du im Soll bist. Ein einzelner leichter oder harter Tag zählt weniger als die ganze Woche.",
+  "tileShowHistory": "Verlauf anzeigen"
 }

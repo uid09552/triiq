@@ -2512,4 +2512,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get zoomToInterval => 'Zoom to interval';
+
+  @override
+  String get metricTssTodayExplainer => 'TSS (training stress score) puts one number on how hard today\'s sessions were, from duration and intensity. 100 is roughly an hour at your threshold. Compare it with what was planned, not with other people.';
+
+  @override
+  String get metricTssWeekExplainer => 'The sum of this week\'s TSS (Monday to Sunday) against what the plan asks for — the quickest check on whether you are on track. A single easy or hard day matters less than the week as a whole.';
+
+  @override
+  String get tileShowHistory => 'Show history';
 }
