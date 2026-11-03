@@ -62,6 +62,10 @@ class CalendarDayDetail extends StatelessWidget {
                         '${l10n.planSessionBadge} · '
                         '${l10n.planSessionMinutes((event.plannedTime ?? 0) ~/ 60, event.plannedLoad ?? 0)}',
                     onTap: () => showPlanSessionSheetForEvent(context, event),
+                    onDelete: canDeletePlannedWorkout(event)
+                        ? () => confirmAndDeletePlannedWorkout(context, event)
+                        : null,
+                    deleteTooltip: l10n.deleteTooltip,
                     status: Tooltip(
                       message: event.planSessionSent
                           ? l10n.planSessionSent
