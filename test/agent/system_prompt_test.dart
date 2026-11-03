@@ -29,4 +29,9 @@ void main() {
       );
     },
   );
+
+  test('keeps replies short but asks for detailed proposal reasoning', () {
+    expect(trainingAgentSystemPrompt, contains('Keep ordinary replies short'));
+    expect(trainingAgentSystemPrompt, contains('give the effect and the'));
+  });
 }
