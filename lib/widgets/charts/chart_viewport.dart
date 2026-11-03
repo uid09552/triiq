@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// The visible slice of a chart's x-axis, in data-index space, with the
 /// zoom and pan arithmetic every zoomable chart shares.
 class ChartViewport extends ChangeNotifier {
@@ -59,6 +61,18 @@ class ChartViewport extends ChangeNotifier {
     _set(_lo - fraction * span, span);
   }
 
+  /// Shows exactly [from]..[to] (data indices), e.g. one interval.
+  void setRange(double from, double to) {
+    if (_length < 2) return;
+    final minSpan = math.min(fullSpan, (minPoints - 1).toDouble());
+    final newSpan = math.max(minSpan, to - from).clamp(minSpan, fullSpan).toDouble();
+    final centre = (from + to) / 2;
+    _set(centre - newSpan / 2, newSpan);
+  }
+
+  /// Moves the window so [index] is in its middle, keeping its width.
+  void centerOn(double index) => _set(index - span / 2, span);
+
   /// Data index under [fraction] across the plot.
   double indexAt(double fraction) => _lo + fraction.clamp(0.0, 1.0) * span;
 
@@ -86,6 +100,7 @@ class ChartInteraction extends StatefulWidget {
     super.key,
     required this.viewport,
     required this.plotLeft,
+    this.plotRight = 0,
     required this.child,
     this.onSelectAt,
     this.zoomable = true,
@@ -95,6 +110,9 @@ class ChartInteraction extends StatefulWidget {
 
   /// Pixels left of the plot (the y-axis labels).
   final double plotLeft;
+
+  /// Pixels right of the plot (a second y-axis).
+  final double plotRight;
 
   /// Called with the data index under the finger.
   final ValueChanged<int>? onSelectAt;
@@ -110,7 +128,7 @@ class _ChartInteractionState extends State<ChartInteraction> {
   Offset _doubleTapAt = Offset.zero;
 
   double _fraction(double dx, double width) {
-    final plot = width - widget.plotLeft;
+    final plot = width - widget.plotLeft - widget.plotRight;
     return plot <= 0
         ? 0.0
         : ((dx - widget.plotLeft) / plot).clamp(0.0, 1.0).toDouble();
@@ -162,11 +180,11 @@ class _ChartInteractionState extends State<ChartInteraction> {
                 _lastScale = d.scale;
                 vp.zoomAt(factor, _fraction(d.localFocalPoint.dx, width));
                 vp.panByFraction(
-                  d.focalPointDelta.dx / math.max(1, width - widget.plotLeft),
+                  d.focalPointDelta.dx / math.max(1, width - widget.plotLeft - widget.plotRight),
                 );
               } else if (widget.zoomable && vp.isZoomed) {
                 vp.panByFraction(
-                  d.focalPointDelta.dx / math.max(1, width - widget.plotLeft),
+                  d.focalPointDelta.dx / math.max(1, width - widget.plotLeft - widget.plotRight),
                 );
               } else {
                 _select(d.localFocalPoint.dx, width);
@@ -176,6 +194,65 @@ class _ChartInteractionState extends State<ChartInteraction> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Zoom in / out / reset buttons to float over a chart, for mouse users and
+/// anyone who doesn't find the pinch.
+class ZoomControls extends StatelessWidget {
+  const ZoomControls({super.key, required this.viewport});
+
+  final ChartViewport viewport;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    Widget button(IconData icon, String tooltip, VoidCallback? onTap) =>
+        Tooltip(
+          message: tooltip,
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Icon(
+                icon,
+                size: 18,
+                color: onTap == null
+                    ? scheme.outlineVariant
+                    : scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        );
+    return ListenableBuilder(
+      listenable: viewport,
+      builder: (context, _) => Material(
+        color: scheme.surfaceContainerHighest.withValues(alpha: 0.85),
+        shape: const StadiumBorder(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            button(
+              Icons.add,
+              l10n?.chartZoomIn ?? 'Zoom in',
+              () => viewport.zoomAt(2, 0.5),
+            ),
+            button(
+              Icons.remove,
+              l10n?.chartZoomOut ?? 'Zoom out',
+              viewport.isZoomed ? () => viewport.zoomAt(0.5, 0.5) : null,
+            ),
+            button(
+              Icons.zoom_out_map,
+              l10n?.chartZoomReset ?? 'Show all',
+              viewport.isZoomed ? viewport.reset : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

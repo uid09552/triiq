@@ -964,5 +964,11 @@
   "eventCategorySick": "Sick",
   "eventCategoryInjured": "Injured",
   "eventCategoryTarget": "Target",
-  "eventCategorySeasonStart": "Season start"
+  "eventCategorySeasonStart": "Season start",
+  "chartZoomIn": "Zoom in",
+  "chartZoomOut": "Zoom out",
+  "chartZoomReset": "Show all",
+  "streamSmoothing": "Smoothing",
+  "smoothOff": "Off",
+  "zoomToInterval": "Zoom to interval"
 }

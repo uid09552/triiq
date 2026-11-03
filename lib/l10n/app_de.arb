@@ -860,5 +860,11 @@
   "eventCategorySick": "Krank",
   "eventCategoryInjured": "Verletzt",
   "eventCategoryTarget": "Ziel",
-  "eventCategorySeasonStart": "Saisonstart"
+  "eventCategorySeasonStart": "Saisonstart",
+  "chartZoomIn": "Vergrößern",
+  "chartZoomOut": "Verkleinern",
+  "chartZoomReset": "Alles anzeigen",
+  "streamSmoothing": "Glättung",
+  "smoothOff": "Aus",
+  "zoomToInterval": "Auf Intervall zoomen"
 }

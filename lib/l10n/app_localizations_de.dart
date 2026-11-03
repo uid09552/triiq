@@ -2520,4 +2520,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get eventCategorySeasonStart => 'Saisonstart';
+
+  @override
+  String get chartZoomIn => 'Vergrößern';
+
+  @override
+  String get chartZoomOut => 'Verkleinern';
+
+  @override
+  String get chartZoomReset => 'Alles anzeigen';
+
+  @override
+  String get streamSmoothing => 'Glättung';
+
+  @override
+  String get smoothOff => 'Aus';
+
+  @override
+  String get zoomToInterval => 'Auf Intervall zoomen';
 }
