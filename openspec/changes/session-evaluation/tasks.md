@@ -13,7 +13,7 @@
 
 ## 3. Session screens
 
-- [ ] 3.1 Add diagram, interval list, evaluation card to `ActivityDetailScreen` with loading/error/no-data states, en + de; verify widget tests and manual check in light/dark
+- [x] 3.1 Add diagram, interval list, evaluation card to `ActivityDetailScreen` with loading/error/no-data states, en + de; verify widget tests and manual check in light/dark
 - [x] 3.2 Add planned-vs-actual to planned and activity detail; verify against a matched fixture
 - [x] 3.3 "Ask the trainer" hand-off: ChatScreen initial context; verify the context reaches the agent runtime message and shows no user bubble
 
