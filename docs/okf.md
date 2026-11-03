@@ -853,6 +853,17 @@ refetches that whole span (independent of "Copy planned events"); the
 (`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
 older than an hour, and pull-to-refresh forces it.
 
+### Ask the trainer
+
+Every "Ask the trainer" entry point hands Chat a `ChatTopic` through
+`askTrainer()` (`lib/screens/chat/ask_trainer.dart`): the topic's context goes
+to the agent as system context, its **draft** lands in the Chat input field
+ready to send or edit (never sent for the athlete), and the shell switches to
+the Chat tab. Entry points: an activity's evaluation, the weekly review,
+the readiness card, a Today tile's long-press sheet, and the Analysis
+screen's app-bar button (period, filters and per-metric statistics as
+context).
+
 ### Analysis
 
 More → **Analysis** (`lib/screens/analysis`) is a Power BI–style workbench over

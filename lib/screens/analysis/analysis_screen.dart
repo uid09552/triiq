@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import 'dart:convert';
+
+import '../../agent/chat_handoff.dart';
 import '../../data/repositories/activities_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
@@ -10,6 +13,7 @@ import '../../util/dates.dart';
 import '../../widgets/charts/chart_viewport.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../chat/ask_trainer.dart';
 import 'analysis_data.dart';
 
 enum _Range { d30, d90, m6, y1, ytd, custom }
@@ -151,6 +155,48 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
   }
 
+  /// Opens Chat about what is on screen: the period, filters and each
+  /// shown metric's summary statistics as the agent's context.
+  void _askTrainer() {
+    final series = _series;
+    if (series == null || series.length == 0) return;
+    final l10n = AppLocalizations.of(context)!;
+    final fmt = DateFormat.yMMMd(Localizations.localeOf(context).toString());
+    final (from, to) = _period;
+    final period = '${fmt.format(from)} – ${fmt.format(to)}';
+    double r(double v) => double.parse(v.toStringAsFixed(2));
+    askTrainer(
+      context,
+      ChatTopic(
+        title: l10n.analysisTitle,
+        context: jsonEncode({
+          'period': {'from': isoDate(from), 'to': isoDate(to)},
+          'sport': _sport ?? 'all',
+          'resolution': _weekly ? 'week' : 'day',
+          'metrics': {
+            for (final m in AnalysisMetric.values)
+              if (_metrics.contains(m))
+                m.name: switch (computeStats(series.values[m]!)) {
+                  null => null,
+                  final st => {
+                    'mean': r(st.mean),
+                    'min': r(st.min),
+                    'min_date': isoDate(series.dates[st.minIndex]),
+                    'max': r(st.max),
+                    'max_date': isoDate(series.dates[st.maxIndex]),
+                    'std_dev': r(st.stdDev),
+                    'change_first_to_last': r(st.change),
+                    'points': st.count,
+                  },
+                },
+          },
+          'note': 'Figures computed by the app from the cached data.',
+        }),
+        draft: l10n.analysisChatDraft(period),
+      ),
+    );
+  }
+
   void _change(VoidCallback update) {
     setState(update);
     _load();
@@ -182,7 +228,16 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.analysisTitle)),
+      appBar: AppBar(
+        title: Text(l10n.analysisTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.askTrainer,
+            icon: const Icon(Icons.chat_bubble_outline),
+            onPressed: _askTrainer,
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

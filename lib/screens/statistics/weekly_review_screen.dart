@@ -150,6 +150,11 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
           ).format(review.weekStart),
         ),
         context: summaryJson(review),
+        draft: l10n.weeklyReviewChatDraft(
+          DateFormat.MMMd(
+            Localizations.localeOf(context).toString(),
+          ).format(review.weekStart),
+        ),
       ),
     );
     Navigator.of(context).popUntil((route) => route.isFirst);

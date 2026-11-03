@@ -1048,5 +1048,13 @@
         "type": "String"
       }
     }
-  }
+  },
+  "activityChatDraft": "Please review my session “{name}” from {date}: how did it go, and what should I do differently or next?",
+  "@activityChatDraft": {"placeholders": {"name": {"type": "String"},"date": {"type": "String"}}},
+  "weeklyReviewChatDraft": "Please review my training week of {date}: what went well, what didn't, and what should I focus on next week?",
+  "@weeklyReviewChatDraft": {"placeholders": {"date": {"type": "String"}}},
+  "tileChatDraft": "My {label} is {value} right now. What does that mean for my training, and should I change anything this week?",
+  "@tileChatDraft": {"placeholders": {"label": {"type": "String"},"value": {"type": "String"}}},
+  "analysisChatDraft": "Here is my analysis for {period}. What stands out, and what should I adjust?",
+  "@analysisChatDraft": {"placeholders": {"period": {"type": "String"}}}
 }
