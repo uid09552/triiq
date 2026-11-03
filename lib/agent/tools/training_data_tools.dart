@@ -17,6 +17,7 @@ import '../../data/threshold_suggestions_service.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
+import '../../season/race_predictor.dart' show RaceSpec;
 import '../../plan/adaptation_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../evaluation/intensity.dart';
@@ -29,7 +30,9 @@ import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
 import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
+import '../agent_memory.dart';
 import 'plan_assistant_tools.dart';
+import 'season_tools.dart';
 
 /// The tools the training agent can call.
 ///
@@ -61,7 +64,9 @@ class TrainingDataTools {
     PerformanceCurvesRepository? performanceCurves,
     ReadinessService? readinessService,
     ThresholdSuggestionsService? thresholdSuggestions,
-  }) : _readinessOverride = readinessService,
+    AgentMemoryStore? memory,
+  }) : _memory = memory ?? AgentMemoryStore.instance,
+       _readinessOverride = readinessService,
        _thresholdSuggestions =
            thresholdSuggestions ?? ThresholdSuggestionsService(),
        _performanceCurves = performanceCurves ?? PerformanceCurvesRepository(),
@@ -91,6 +96,7 @@ class TrainingDataTools {
        _knowledgeLibrary =
            knowledgeLibraryRepository ?? KnowledgeLibraryRepository();
 
+  final AgentMemoryStore _memory;
   final IntervalsSession _session;
   final PerformanceCurvesRepository _performanceCurves;
   final WellnessRepository _wellnessRepository;
@@ -126,6 +132,11 @@ class TrainingDataTools {
     plans: _plans,
     activities: _activitiesRepository,
     goals: _goalStore,
+  );
+
+  /// Fitness forecast, race calendar, illness mode, race predictor, bricks.
+  late final SeasonTools _seasonTools = SeasonTools(
+    activities: _activitiesRepository,
   );
 
   /// Reading the plan and making proposals on it (no writes).
@@ -206,6 +217,121 @@ class TrainingDataTools {
           'the rest of the week. Never applies anything.',
       schema: const {'type': 'object', 'properties': <String, dynamic>{}},
       run: (_) => _planAdjustments(),
+    ),
+    _tool(
+      name: 'get_fitness_forecast',
+      description:
+          'CTL / ATL / form projected forward from the planned sessions '
+          '(days with nothing planned count as rest), the race calendar '
+          'with the forecast form on each race day, the season blocks '
+          '(build, taper, race, recovery) and race-calendar conflicts. Use '
+          'for "what will my form be on race day" and season-planning '
+          'questions. Read-only; an estimate.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _seasonTools.fitnessForecast(),
+    ),
+    _tool(
+      name: 'get_health_status',
+      description:
+          'Whether the athlete is logged as sick or injured (Intervals.icu '
+          'SICK / INJURED events), the return-to-training ramp, and the '
+          'changes proposed to the planned sessions (rest, easier, '
+          'cross-training). The athlete applies them on the Season screen; '
+          'you cannot. Read-only.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) => _seasonTools.healthStatus(),
+    ),
+    _tool(
+      name: 'get_race_prediction',
+      description:
+          'Predicted finish time, per-leg pacing targets and a fuelling '
+          'plan for a race, from the athlete\'s power and pace curves, CTL '
+          'and forecast race-day form. race is one of: '
+          '${RaceSpec.presets.map((p) => p.id).join(', ')}. Optional '
+          'race_date (YYYY-MM-DD) to include the forecast form, hot (bool). '
+          'Legs without data come back in missing_legs. A model estimate — '
+          'say so. Read-only.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'race': {'type': 'string'},
+          'race_date': {'type': 'string'},
+          'hot': {'type': 'boolean'},
+        },
+        'required': ['race'],
+      },
+      run: (args) => _seasonTools.racePrediction(args),
+    ),
+    _tool(
+      name: 'get_bricks',
+      description:
+          'Brick sessions (bike then run, swim then bike) from recent '
+          'days: the transition time and, where the run stream is cached, '
+          'how quickly the legs settled and whether the first 10 minutes '
+          'were slower or costlier than the rest. Optional days (default '
+          '60). Read-only.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'days': {'type': 'integer'},
+        },
+      },
+      run: (args) => _seasonTools.bricks(args),
+    ),
+    _tool(
+      name: 'remember_preference',
+      description:
+          'Saves one standing preference or constraint the athlete just '
+          'stated or asked you to remember — e.g. "No hard sessions on '
+          'Fridays", "Swim only in the mornings", "Right knee: no '
+          'downhill running". Call it only when the athlete says so '
+          '("remember that…", "I never…", "always…"); never to store '
+          'facts you can read from their data or things you guessed. One '
+          'short sentence in their words. It is listed under More → '
+          'Trainer memory where they can delete it, and you must tell '
+          'them you saved it.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'text': {
+            'type': 'string',
+            'description': 'The preference, one short sentence.',
+          },
+        },
+        'required': ['text'],
+      },
+      run: (args) async {
+        try {
+          final item = await _memory.add(
+            '${args['text'] ?? ''}',
+            fromAgent: true,
+          );
+          if (item == null) return {'error': 'Nothing to remember.'};
+          return {'saved': true, 'id': item.id, 'text': item.text};
+        } on MemoryFullException catch (e) {
+          return {'error': '$e'};
+        }
+      },
+    ),
+    _tool(
+      name: 'forget_preference',
+      description:
+          'Removes a remembered preference by its id (shown in the '
+          '"remember" context block). Call it when the athlete says a '
+          'preference no longer applies, and tell them you removed it.',
+      schema: {
+        'type': 'object',
+        'properties': {
+          'id': {'type': 'string'},
+        },
+        'required': ['id'],
+      },
+      run: (args) async {
+        final removed = await _memory.remove('${args['id'] ?? ''}');
+        return removed
+            ? {'removed': true}
+            : {'error': 'No remembered preference with that id.'};
+      },
     ),
     _tool(
       name: 'get_readiness',

@@ -1,5 +1,7 @@
 import '../analysis/analysis_screen.dart';
 import '../events/events_screen.dart';
+import '../memory/memory_screen.dart';
+import '../season/season_screen.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
@@ -28,6 +30,24 @@ class MoreScreen extends StatelessWidget {
           subtitle: l10n.moreAnalysisSubtitle,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const AnalysisScreen()),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _MoreTile(
+          icon: Icons.psychology_alt_outlined,
+          title: l10n.memoryTitle,
+          subtitle: l10n.moreMemorySubtitle,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MemoryScreen()),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _MoreTile(
+          icon: Icons.timeline,
+          title: l10n.seasonTitle,
+          subtitle: l10n.moreSeasonSubtitle,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const SeasonScreen()),
           ),
         ),
         const SizedBox(height: 10),

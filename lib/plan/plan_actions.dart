@@ -199,6 +199,27 @@ class PlanActions {
     return deleted ? ReplaceOutcome.replaced : ReplaceOutcome.bothExist;
   }
 
+  /// Takes the planned session [planned] off the calendar: a TriIQ plan
+  /// session through [removeSession], an Intervals.icu event upstream first
+  /// and then from the cache. Throws [ReplaceRefusedException] when an
+  /// event can't be removed cleanly.
+  Future<void> removePlanned(LocalEvent planned) async {
+    if (planned.isPlanSession) {
+      await removeSession(planned.planSessionId!);
+      return;
+    }
+    if (!_connected()) {
+      throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
+    }
+    if (!await _deleteUpstream(planned.id)) {
+      throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
+    }
+    await _events.deleteById(planned.id);
+    final day = DateTime.tryParse(planned.date);
+    if (day != null) await _safeResync(day);
+    _notify();
+  }
+
   /// Saves [goal] — a load-graph, length or sport-mix edit — after the same
   /// validation the goal editor applies.
   Future<void> applyGoal(Goal goal) async {

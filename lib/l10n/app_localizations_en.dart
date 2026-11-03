@@ -385,7 +385,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get performanceUpTooltip => 'More efficient than your recent average';
 
   @override
-  String get performanceDownTooltip => 'Less efficient than your recent average';
+  String get performanceDownTooltip =>
+      'Less efficient than your recent average';
 
   @override
   String get languageTitle => 'Language';
@@ -2397,7 +2398,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customizeTodayTitle => 'Customize Today';
 
   @override
-  String get customizeTodayHelp => 'Drag to reorder. Switch a section off to remove it from Today.';
+  String get customizeTodayHelp =>
+      'Drag to reorder. Switch a section off to remove it from Today.';
 
   @override
   String get customizeTodayReset => 'Reset';
@@ -2460,7 +2462,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventNameRequired => 'Enter a name';
 
   @override
-  String get eventNotConnected => 'Connect Intervals.icu to add or edit events.';
+  String get eventNotConnected =>
+      'Connect Intervals.icu to add or edit events.';
 
   @override
   String eventCouldNotSave(String error) {
@@ -2523,10 +2526,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get zoomToInterval => 'Zoom to interval';
 
   @override
-  String get metricTssTodayExplainer => 'TSS (training stress score) puts one number on how hard today\'s sessions were, from duration and intensity. 100 is roughly an hour at your threshold. Compare it with what was planned, not with other people.';
+  String get metricTssTodayExplainer =>
+      'TSS (training stress score) puts one number on how hard today\'s sessions were, from duration and intensity. 100 is roughly an hour at your threshold. Compare it with what was planned, not with other people.';
 
   @override
-  String get metricTssWeekExplainer => 'The sum of this week\'s TSS (Monday to Sunday) against what the plan asks for — the quickest check on whether you are on track. A single easy or hard day matters less than the week as a whole.';
+  String get metricTssWeekExplainer =>
+      'The sum of this week\'s TSS (Monday to Sunday) against what the plan asks for — the quickest check on whether you are on track. A single easy or hard day matters less than the week as a whole.';
 
   @override
   String get tileShowHistory => 'Show history';
@@ -2544,7 +2549,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yearGoalsTitle => 'Year goals';
 
   @override
-  String get yearGoalsHelp => 'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.';
+  String get yearGoalsHelp =>
+      'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.';
 
   @override
   String yearGoalKmLabel(String sport) {
@@ -2648,7 +2654,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analysisMetricSleep => 'Sleep (h)';
 
   @override
-  String get analysisHint => 'Tap any graph to compare all metrics at that point. Pinch or use + / − to zoom them together.';
+  String get analysisHint =>
+      'Tap any graph to compare all metrics at that point. Pinch or use + / − to zoom them together.';
 
   @override
   String get analysisNoData => 'No data in this period.';
@@ -2680,4 +2687,522 @@ class AppLocalizationsEn extends AppLocalizations {
   String analysisChatDraft(String period) {
     return 'Here is my analysis for $period. What stands out, and what should I adjust?';
   }
+
+  @override
+  String get seasonTitle => 'Season';
+
+  @override
+  String get moreSeasonSubtitle =>
+      'Fitness forecast, race calendar, race predictor';
+
+  @override
+  String get seasonNoFitness =>
+      'No fitness data yet. Sync Intervals.icu first.';
+
+  @override
+  String seasonLoadError(String error) {
+    return 'Could not load the season: $error';
+  }
+
+  @override
+  String get forecastTitle => 'Fitness forecast';
+
+  @override
+  String get forecastSubtitle =>
+      'Fitness, fatigue and form projected from your planned sessions. Days without a plan count as rest.';
+
+  @override
+  String get forecastCtl => 'Fitness (CTL)';
+
+  @override
+  String get forecastAtl => 'Fatigue (ATL)';
+
+  @override
+  String get forecastForm => 'Form';
+
+  @override
+  String forecastRaceForm(String name, String form) {
+    return 'Form on race day ($name): $form';
+  }
+
+  @override
+  String get forecastBandLoaded =>
+      'Still carrying fatigue — expect heavy legs.';
+
+  @override
+  String get forecastBandNeutral => 'Balanced: neither fresh nor tired.';
+
+  @override
+  String get forecastBandFresh => 'Fresh — a good place to race from.';
+
+  @override
+  String get forecastBandDetrained =>
+      'Very fresh: fitness is starting to fade from too much rest.';
+
+  @override
+  String forecastPeak(String date, String form) {
+    return 'Form peaks on $date at $form.';
+  }
+
+  @override
+  String forecastPlannedEnd(String date, String ctl, String form) {
+    return 'Fitness on $date: $ctl (form $form)';
+  }
+
+  @override
+  String get seasonTimelineTitle => 'Season timeline';
+
+  @override
+  String get seasonNoRaces =>
+      'No races yet. Add a race (priority A, B or C) under More → Events, or set an event date in your training goal.';
+
+  @override
+  String seasonRaceLine(String priority, String name, String date, int weeks) {
+    return '$priority race · $name · $date ($weeks wk)';
+  }
+
+  @override
+  String get blockBase => 'Base';
+
+  @override
+  String get blockBuild => 'Build';
+
+  @override
+  String get blockTaper => 'Taper';
+
+  @override
+  String get blockRace => 'Race';
+
+  @override
+  String get blockRecovery => 'Recovery';
+
+  @override
+  String get conflictsTitle => 'Conflicts';
+
+  @override
+  String get conflictNone => 'No conflicts in your race calendar.';
+
+  @override
+  String conflictTooCloseA(String first, String second, int days) {
+    return '$first and $second are both A races only $days days apart. Peaking twice needs about 6 weeks — make one a B race.';
+  }
+
+  @override
+  String conflictInsideTaper(String first, String second) {
+    return '$second falls in the taper for $first. Treat it as a training race or skip it.';
+  }
+
+  @override
+  String conflictSameDay(String first, String second) {
+    return '$first and $second are on the same day.';
+  }
+
+  @override
+  String conflictInsideRecovery(String first, String second) {
+    return '$second comes while you are still recovering from $first.';
+  }
+
+  @override
+  String conflictDuringIllness(String first) {
+    return '$first falls in a period you logged as sick or injured.';
+  }
+
+  @override
+  String get healthSickTitle => 'You are logged as sick';
+
+  @override
+  String get healthInjuredTitle => 'You are logged as injured';
+
+  @override
+  String get healthReturningTitle => 'Easing back into training';
+
+  @override
+  String healthSickSubtitle(int days) {
+    return 'Day $days. Rest is the plan — hard sessions come off the calendar.';
+  }
+
+  @override
+  String healthInjuredSubtitle(int days) {
+    return 'Day $days. Affected sessions become easy cross-training.';
+  }
+
+  @override
+  String healthReturnSubtitle(String date) {
+    return 'Load builds from 50 % back to normal until $date.';
+  }
+
+  @override
+  String get healthNoChanges => 'Nothing planned needs to change.';
+
+  @override
+  String get healthChangeRest => 'Rest';
+
+  @override
+  String healthChangeEasier(int minutes, int load) {
+    return 'Easy, $minutes min (about $load TSS)';
+  }
+
+  @override
+  String healthChangeCross(String sport, int minutes) {
+    return 'Easy $sport, $minutes min instead';
+  }
+
+  @override
+  String get healthReasonIllness => 'Illness';
+
+  @override
+  String get healthReasonInjury => 'Injury';
+
+  @override
+  String get healthReasonReturn => 'Return ramp';
+
+  @override
+  String healthApply(int count) {
+    return 'Apply $count changes';
+  }
+
+  @override
+  String get healthApplyConfirm =>
+      'This changes your planned sessions on Intervals.icu and in TriIQ.';
+
+  @override
+  String healthApplyDone(int count) {
+    return '$count sessions updated.';
+  }
+
+  @override
+  String healthApplyFailed(int done, String error) {
+    return 'Stopped after $done: $error';
+  }
+
+  @override
+  String get healthLogHint =>
+      'Sick or injured? Log it as an event and TriIQ will reshape your plan.';
+
+  @override
+  String get healthLogButton => 'Log illness or injury';
+
+  @override
+  String get racePredictorTitle => 'Race predictor';
+
+  @override
+  String get racePredictorSubtitle =>
+      'Finish time, pacing and fuelling from your power and pace curves, your fitness and your race-day form.';
+
+  @override
+  String get raceChoose => 'Race';
+
+  @override
+  String get raceSpec5k => '5 km run';
+
+  @override
+  String get raceSpec10k => '10 km run';
+
+  @override
+  String get raceSpecHalf => 'Half marathon';
+
+  @override
+  String get raceSpecMarathon => 'Marathon';
+
+  @override
+  String get raceSpecRide100 => '100 km ride';
+
+  @override
+  String get raceSpecSprint => 'Sprint triathlon';
+
+  @override
+  String get raceSpecOlympic => 'Olympic triathlon';
+
+  @override
+  String get raceSpec703 => 'Half-distance triathlon (70.3)';
+
+  @override
+  String get raceSpec1406 => 'Full-distance triathlon (140.6)';
+
+  @override
+  String get raceDayLabel => 'Race day';
+
+  @override
+  String get raceDayAuto => 'From my races';
+
+  @override
+  String get raceDayNone => 'No date (ignore form)';
+
+  @override
+  String get raceHot => 'Hot conditions';
+
+  @override
+  String get raceTotal => 'Predicted finish';
+
+  @override
+  String raceTransitions(String t1, String t2) {
+    return 'Transitions: T1 $t1, T2 $t2';
+  }
+
+  @override
+  String get raceLegSwim => 'Swim';
+
+  @override
+  String get raceLegRide => 'Ride';
+
+  @override
+  String get raceLegRun => 'Run';
+
+  @override
+  String raceMissing(String legs) {
+    return 'Not enough data for: $legs. Some hard efforts in training, then sync, will fix this.';
+  }
+
+  @override
+  String raceSlowdown(String pct) {
+    return 'Includes a $pct % allowance for fitness (CTL) and race-day form.';
+  }
+
+  @override
+  String raceWatts(int watts, String pct) {
+    return '$watts W ($pct % FTP)';
+  }
+
+  @override
+  String raceWattsOnly(int watts) {
+    return '$watts W';
+  }
+
+  @override
+  String get racePacingTitle => 'Pacing plan';
+
+  @override
+  String get pacingStartControlled => 'Start controlled';
+
+  @override
+  String get pacingHoldSteady => 'Hold steady';
+
+  @override
+  String get pacingFinishStrong => 'Finish strong';
+
+  @override
+  String get pacingNegativeSplit => 'Settle in, build gently';
+
+  @override
+  String pacingRange(String start, String end) {
+    return '$start–$end km';
+  }
+
+  @override
+  String get fuelingTitle => 'Fuelling plan';
+
+  @override
+  String get fuelNone => 'Under about 45 minutes water is enough.';
+
+  @override
+  String fuelCarbsPerHour(int g) {
+    return '$g g carbohydrate per hour';
+  }
+
+  @override
+  String fuelFluidPerHour(int ml) {
+    return '$ml ml fluid per hour';
+  }
+
+  @override
+  String fuelSodiumPerHour(int mg) {
+    return '$mg mg sodium per hour';
+  }
+
+  @override
+  String fuelTotals(int carbs, int fluid) {
+    return 'Race total: $carbs g carbohydrate, $fluid ml fluid';
+  }
+
+  @override
+  String fuelDayBefore(int g) {
+    return 'Day before: about $g g carbohydrate';
+  }
+
+  @override
+  String fuelPreRace(int g) {
+    return '1–4 h before the start: about $g g carbohydrate';
+  }
+
+  @override
+  String fuelStep(int minute, String sport, int carbs, int fluid) {
+    return '$minute min · $sport: $carbs g carbs, $fluid ml';
+  }
+
+  @override
+  String get raceDisclaimer =>
+      'A model estimate from your best efforts, not a promise. Course, weather and pacing decide the day.';
+
+  @override
+  String get raceAskTrainer => 'Ask the trainer';
+
+  @override
+  String raceChatDraft(String time, String race) {
+    return 'My race predictor says $time for the $race. Is that realistic, and what should I work on before race day?';
+  }
+
+  @override
+  String get brickTitleBikeRun => 'Brick: bike → run';
+
+  @override
+  String get brickTitleSwimBike => 'Brick: swim → bike';
+
+  @override
+  String brickTransition(String time) {
+    return 'Transition: $time';
+  }
+
+  @override
+  String brickSettle(String time) {
+    return 'Legs settled after $time';
+  }
+
+  @override
+  String brickEarly(String pct) {
+    return 'First 10 min at $pct % of your later speed';
+  }
+
+  @override
+  String get brickVerdictGood => 'Strong brick';
+
+  @override
+  String get brickVerdictOk => 'Decent brick';
+
+  @override
+  String get brickVerdictRough => 'Rough start off the bike';
+
+  @override
+  String get brickVerdictUnknown => 'Transition only';
+
+  @override
+  String get brickNoteSettledFast => 'Legs came round quickly.';
+
+  @override
+  String get brickNoteSettledSlow => 'It took a long time to find your rhythm.';
+
+  @override
+  String get brickNoteSlowStart =>
+      'The opening minutes were much slower than the rest.';
+
+  @override
+  String get brickNoteHighEarlyCost =>
+      'Heart rate was high for the speed early on — pace the first 10 minutes by effort, not speed.';
+
+  @override
+  String get brickNoteHardFirstLeg =>
+      'The first leg was hard (intensity 85 % or more), which usually costs the next one.';
+
+  @override
+  String get brickNoteQuickTransition => 'Quick transition.';
+
+  @override
+  String get brickNoteLongTransition =>
+      'Long transition — fine in training, but practise it before a race.';
+
+  @override
+  String get brickNoteNoStream =>
+      'No data stream for the second leg, so only the transition is judged.';
+
+  @override
+  String brickSessions(String first, String second) {
+    return '$first + $second';
+  }
+
+  @override
+  String get memoryTitle => 'Trainer memory';
+
+  @override
+  String get moreMemorySubtitle => 'What the trainer remembers about you';
+
+  @override
+  String get memoryIntro =>
+      'Standing preferences the trainer follows in every chat, e.g. \"No hard sessions on Fridays\" or \"Swim only in the mornings\". You can add, edit by deleting and re-adding, or remove them here. The trainer only saves one when you ask it to.';
+
+  @override
+  String get memoryEmpty => 'Nothing remembered yet.';
+
+  @override
+  String get memoryAddHint => 'Add a preference…';
+
+  @override
+  String get memoryAddButton => 'Add';
+
+  @override
+  String get memoryFromTrainer => 'saved by the trainer';
+
+  @override
+  String get memoryDelete => 'Remove';
+
+  @override
+  String get memoryClear => 'Remove all';
+
+  @override
+  String get memoryClearConfirm => 'Remove everything the trainer remembers?';
+
+  @override
+  String memoryFull(int max) {
+    return 'The memory is full ($max items). Remove one first.';
+  }
+
+  @override
+  String memoryCount(int count, int max) {
+    return '$count of $max';
+  }
+
+  @override
+  String get backupTitle => 'Backup';
+
+  @override
+  String get backupIntro =>
+      'Export your synced data, plans, knowledge library and settings as one JSON file, and restore it on another device. Your Intervals.icu and AI keys are not included — reconnect after restoring.';
+
+  @override
+  String get backupIncludeCaches => 'Include chart caches';
+
+  @override
+  String get backupIncludeCachesHelp =>
+      'Session streams and performance curves. Larger file; they can be fetched again.';
+
+  @override
+  String get backupExport => 'Export backup';
+
+  @override
+  String get backupRestore => 'Restore from backup…';
+
+  @override
+  String backupExported(String path) {
+    return 'Backup saved to $path';
+  }
+
+  @override
+  String get backupShared => 'Backup ready to share.';
+
+  @override
+  String backupFailed(String error) {
+    return 'Backup failed: $error';
+  }
+
+  @override
+  String get backupRestoreTitle => 'Restore this backup?';
+
+  @override
+  String backupRestoreBody(
+    String date,
+    int activities,
+    int plans,
+    int total,
+    int settings,
+  ) {
+    return 'From $date: $activities activities, $plans plans, $total rows in all, $settings settings. This replaces the synced data, plans and knowledge library on this device.';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Replace';
+
+  @override
+  String get backupRestored =>
+      'Restored. Restart TriIQ to apply the settings, and reconnect Intervals.icu if needed.';
+
+  @override
+  String get backupUnknownDate => 'an unknown date';
 }

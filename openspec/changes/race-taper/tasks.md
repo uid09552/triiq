@@ -26,7 +26,7 @@
 ## 5. UI
 
 - [x] 5.1 Load graph and plan preview label Taper / Race week and show the >16-week notice; en + de strings; verify widget tests
-- [ ] 5.2 Today countdown ("Race in N days" / race day) from the saved plan's event date; en + de; verify widget tests for future, today and no event, plus a manual run on Android and Windows
+- [x] 5.2 Today countdown ("Race in N days" / race day) from the saved plan's event date; en + de; verify widget tests for future, today and no event, plus a manual run on Android and Windows
 
 ## 6. Agent and docs
 

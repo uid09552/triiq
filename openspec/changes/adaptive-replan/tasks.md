@@ -14,7 +14,7 @@
 ## 3. Today
 
 - [x] 3.1 `AdaptationService` (runs after auto-sync and on Today open, registers proposals, drops ones that no longer hold) and persisted dismissals in shared preferences; verify unit tests that a late-synced activity removes its suggestion and a dismissed key survives a reload
-- [ ] 3.2 Suggestion cards on Today with Apply / Dismiss, progress and error states; en + de; verify widget tests and a manual run on Android (move a session that was sent to Intervals.icu) and Windows
+- [x] 3.2 Suggestion cards on Today with Apply / Dismiss, progress and error states; en + de; verify widget tests and a manual run on Android (move a session that was sent to Intervals.icu) and Windows
 
 ## 4. Readiness trigger
 
