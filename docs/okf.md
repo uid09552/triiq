@@ -62,12 +62,12 @@ athlete can:
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
-| Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail |
+| Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
-| Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → Appearance, applies instantly, in-memory only |
+| Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → Appearance, applies instantly, persisted |
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
@@ -539,9 +539,8 @@ Which one is active is controlled by `ThemeController`
 (`lib/theme_controller.dart`), a singleton `ChangeNotifier` holding a
 `AppThemeChoice` (`system` | `light` | `dark` | `developer`, default `system`; `developer` is a terminal-style theme — black, monospace, green/amber/cyan, square corners — served as the dark theme). `TriiqApp`
 wraps `MaterialApp` in a `ListenableBuilder` on it, so changing the mode
-(from Settings → Appearance) re-themes the whole app immediately. Unlike
-`IntervalsSession`, this choice is **not** persisted yet — it resets to
-`system` on restart.
+(from Settings → Appearance) re-themes the whole app immediately. The choice is persisted
+in shared_preferences (`theme.choice`) and loaded at startup in `main.dart`.
 
 ### App icon
 

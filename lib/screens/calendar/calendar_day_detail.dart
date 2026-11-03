@@ -10,6 +10,7 @@ import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../plan/plan_session_sheet.dart';
 import 'calendar_day_marker.dart';
+import 'performance_trend_icon.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
 /// same way as the grid/list markers and tappable through to full detail.
@@ -108,6 +109,10 @@ class CalendarDayDetail extends StatelessWidget {
                     title:
                         activity.name ?? activity.type ?? l10n.activityFallback,
                     subtitle: l10n.completedStatus,
+                    status: PerformanceTrendIcon(
+                      key: ValueKey('trend-${activity.id}'),
+                      activity: activity,
+                    ),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) =>

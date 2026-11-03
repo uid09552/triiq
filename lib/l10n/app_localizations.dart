@@ -776,6 +776,18 @@ abstract class AppLocalizations {
   /// **'Developer'**
   String get appearanceDeveloper;
 
+  /// No description provided for @performanceUpTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More efficient than your recent average'**
+  String get performanceUpTooltip;
+
+  /// No description provided for @performanceDownTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Less efficient than your recent average'**
+  String get performanceDownTooltip;
+
   /// No description provided for @languageTitle.
   ///
   /// In en, this message translates to:
