@@ -13,6 +13,7 @@ import 'locale_controller.dart';
 import 'notifications/app_lifecycle_tracker.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_settings.dart';
+import 'theme_controller.dart';
 import 'screens/settings/weekly_targets_settings.dart';
 import 'screens/settings/year_goals_settings.dart';
 import 'screens/today/today_layout_settings.dart';
@@ -38,6 +39,8 @@ void main() {
   // The chosen app language (System/English/German) — TriiqApp listens and
   // rebuilds once it resolves.
   unawaited(LocaleController.instance.load());
+  // The chosen theme (System/Light/Dark/Developer).
+  unawaited(ThemeController.instance.load());
   // The per-sport weekly targets and whether their rings show on Today —
   // Settings and Today listen and rebuild once it resolves.
   unawaited(WeeklyTargetsSettings.instance.load());
