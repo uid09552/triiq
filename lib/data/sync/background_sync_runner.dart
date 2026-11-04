@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
+import '../home_widget_data.dart';
 import '../intervals_session.dart';
 import '../repositories/sync_state_repository.dart';
 import 'sync_service.dart';
@@ -41,6 +42,7 @@ class BackgroundSyncRunner {
     required this.notify,
     required this.settings,
     this.syncEvents,
+    this.afterSuccess,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
@@ -58,6 +60,7 @@ class BackgroundSyncRunner {
           (await SyncStateRepository().get('activities'))?.lastSyncedAt,
       sync: () => SyncService().syncTodayWindow().then((_) {}),
       syncEvents: () => SyncService().syncEventsHorizon().then((_) {}),
+      afterSuccess: () => HomeWidgetUpdater().update(),
       notify: ({required bool reconnectNeeded}) async {
         await NotificationSettings.instance.load();
         if (!NotificationSettings.instance.enabled) return;
@@ -81,6 +84,9 @@ class BackgroundSyncRunner {
   /// Fetches the Events horizon (a month back to a year ahead) after the
   /// week, so the Events list is current every morning.
   final Future<void> Function()? syncEvents;
+
+  /// Runs after a successful sync (refreshes the home-screen widget).
+  final Future<void> Function()? afterSuccess;
 
   final Future<void> Function({required bool reconnectNeeded}) notify;
   final SyncSettings settings;
@@ -124,6 +130,11 @@ class BackgroundSyncRunner {
     } catch (error) {
       debugPrint('BackgroundSyncRunner: sync failed: $error');
       return _failed();
+    }
+    try {
+      await afterSuccess?.call();
+    } catch (error) {
+      debugPrint('BackgroundSyncRunner: after-sync hook failed: $error');
     }
     return _record(BackgroundSyncOutcome.success);
   }

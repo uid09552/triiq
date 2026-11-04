@@ -64,6 +64,8 @@ athlete can:
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
+| Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). Replace/alternative flows still need a connection |
+| Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
 | Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
 | Backup (Settings → Backup) | ✅ Implemented — export synced data, plans, knowledge library and settings as one JSON file (share sheet on phones, save dialog on desktop), restore on another device; secrets are never included |
 | Season (More → Season) | ✅ Implemented — **fitness forecast** (CTL/ATL/form projected from the planned sessions, with "form on race day" per race), **season timeline** (build / taper / race / recovery blocks across all `RACE_A/B/C` events and the goal's event date, with a conflict check), the **illness / injury mode** card, and the **race predictor** |
@@ -1246,7 +1248,7 @@ figures over.
 **More → Season** has three cards. *Fitness forecast* runs the standard 42-day
 CTL / 7-day ATL model forward from the last synced values over the planned
 sessions (TriIQ plan sessions and Intervals.icu events; empty days are rest),
-and states **form on race day** for every upcoming race with a plain-language
+and — beyond the last planned session, where the calendar is empty — assumes you keep training at your current fitness (daily load = CTL) so fitness does not decay to zero; it says from which date. It states **form on race day** for every upcoming race with a plain-language
 reading (still loaded / balanced / fresh / fading). *Season timeline* lays out
 each race (Intervals.icu `RACE_A/B/C`, plus the training goal's event date as an
 A race): a taper before it (A 14 d, B 7 d, C 2 d), the race day and a recovery
@@ -1315,6 +1317,30 @@ confirmation **replaces** the synced data, plans and knowledge library in one
 database transaction — a bad row rolls everything back. Unknown columns from
 a newer schema are skipped. Settings are applied afterwards; restart the app
 to pick them up, and reconnect Intervals.icu (Profile) on the new device.
+
+### Offline queue and home-screen widget
+
+**Offline queue** (`lib/data/pending_writes.dart`). `QueuedWorkoutWriter` wraps the
+Intervals.icu writer. When a delete or move cannot reach the server (no
+network, timeout, no connection) it is stored and the caller carries on — the
+local plan or cache already shows the change. Plan sends are queued too
+(`PlanWriter` reports them as `queued`, not failed); at send time the queued
+create re-reads the plan session, so a session moved or deleted meanwhile is
+sent as it is now, or dropped. `PendingWritesService.flush()` runs before every
+sync (so the fetch that follows reflects it), stops at the first write that
+still cannot reach the server, retries a rejected write up to 5 times (4xx
+other than 408/429 fails at once) and then parks it as *failed* for Retry or
+Discard. A 404 on delete/move counts as done. Events with a delete waiting are
+kept out of sync results so they don't reappear. Not queued: replacing a
+session with an alternative and Train Now's create — they need the created
+event back, so they still ask for a connection.
+
+**Home-screen widget** (Android; `lib/data/home_widget_data.dart`,
+`TriiqWidgetProvider.kt`, `res/layout/triiq_widget.xml`). Long-press the home
+screen → Widgets → TriIQ. It shows today's planned workouts, what was done
+(TSS), form (CTL − ATL) with CTL/ATL, and the update time; tapping opens the
+app. Flutter writes the strings through the `home_widget` plugin; the native
+provider only lays them out.
 
 ### Training plan
 
