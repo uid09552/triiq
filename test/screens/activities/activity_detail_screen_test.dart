@@ -18,6 +18,7 @@ import 'package:triiq/data/repositories/events_repository.dart';
 import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
 import 'package:triiq/data/wellness_actions.dart';
+import 'package:triiq/evaluation/activity_route.dart';
 import 'package:triiq/evaluation/session_streams.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/data/planned_items.dart';
@@ -110,6 +111,10 @@ void main() {
           streams: ActivityStreamsRepository(
             database: database,
             fetch: (_) async => const SessionStreams(series: {}, intervals: []),
+          ),
+          routes: ActivityRouteRepository(
+            database: database,
+            fetch: (_) async => const ActivityRoute([]),
           ),
           plannedItems: PlannedItemsRepository(
             events: EventsRepository(database: database),

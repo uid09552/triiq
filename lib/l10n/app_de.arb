@@ -1102,5 +1102,6 @@
   "readinessFitness": "Fitness",
   "dayCardToday": "Heute",
   "dayCardLoadOfPlanned": "{done} / {planned} TSS",
-  "dayCardLoadDone": "{done} TSS"
+  "dayCardLoadDone": "{done} TSS",
+  "routeTitle": "Strecke"
 }

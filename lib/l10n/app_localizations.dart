@@ -5587,6 +5587,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{done} TSS'**
   String dayCardLoadDone(int done);
+
+  /// No description provided for @routeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get routeTitle;
 }
 
 class _AppLocalizationsDelegate

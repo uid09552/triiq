@@ -1309,5 +1309,6 @@
   "dayCardLoadOfPlanned": "{done} / {planned} TSS",
   "@dayCardLoadOfPlanned": {"placeholders": {"done": {"type": "int"}, "planned": {"type": "int"}}},
   "dayCardLoadDone": "{done} TSS",
-  "@dayCardLoadDone": {"placeholders": {"done": {"type": "int"}}}
+  "@dayCardLoadDone": {"placeholders": {"done": {"type": "int"}}},
+  "routeTitle": "Route"
 }

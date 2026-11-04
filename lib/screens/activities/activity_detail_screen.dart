@@ -26,7 +26,9 @@ import 'activity_icons.dart';
 import 'feel_dialog.dart';
 import '../insights/insights_card.dart';
 import '../today/train_now_screen.dart';
+import '../../evaluation/activity_route.dart';
 import 'brick_card.dart';
+import 'route_card.dart';
 import 'session_analysis.dart';
 
 /// One activity's stats, its evaluation against the plan, its streams over
@@ -38,6 +40,7 @@ class ActivityDetailScreen extends StatefulWidget {
     super.key,
     required this.activity,
     this.streams,
+    this.routes,
     this.plannedItems,
     this.insights,
     this.seenStore,
@@ -51,6 +54,7 @@ class ActivityDetailScreen extends StatefulWidget {
 
   /// Test seams; the app uses the defaults.
   final ActivityStreamsRepository? streams;
+  final ActivityRouteRepository? routes;
   final PlannedItemsRepository? plannedItems;
   final SessionInsightsLoader? insights;
   final SeenSessionsStore? seenStore;
@@ -238,6 +242,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           const SizedBox(height: 16),
           SessionDiagramCard(activity: activity, streams: widget.streams),
           const SizedBox(height: 16),
+          ActivityRouteCard(activity: activity, routes: widget.routes),
           BrickCard(
             activity: activity,
             loader: BrickLoader(streams: widget.streams),
