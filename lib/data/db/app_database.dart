@@ -23,11 +23,27 @@ class AppDatabase {
   /// touch the real cache. Each call is an independent handle.
   factory AppDatabase.atPath(String path) => AppDatabase._(path: path);
 
-  final String? _overridePath;
+  String? _overridePath;
 
   Database? _db;
 
   Future<Database> get database async => _db ??= await _open();
+
+  /// Points this database at [path] for the rest of a test, closing any open
+  /// handle. Lets tests that go through the shared [instance] (via the
+  /// repositories' defaults) run against a throwaway file instead of the
+  /// `triiq.db` in the working directory. Undo with [resetTestPath].
+  @visibleForTesting
+  Future<void> useTestPath(String path) async {
+    await close();
+    _overridePath = path;
+  }
+
+  @visibleForTesting
+  Future<void> resetTestPath() async {
+    await close();
+    _overridePath = null;
+  }
 
   /// Releases the underlying handle. Mainly for tests, so a temp database
   /// file can be deleted afterwards.
@@ -296,7 +312,8 @@ class AppDatabase {
       'CREATE INDEX idx_knowledge_sections_doc ON knowledge_sections(doc_id)';
 
   Future<String> _resolvePath() async {
-    if (_overridePath != null) return _overridePath;
+    final override = _overridePath;
+    if (override != null) return override;
     if (Platform.isAndroid || Platform.isIOS) {
       final dir = await getApplicationDocumentsDirectory();
       return p.join(dir.path, 'triiq.db');

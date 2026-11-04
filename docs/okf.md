@@ -73,6 +73,7 @@ athlete can:
 | Season (More → Season) | ✅ Implemented — **fitness forecast** (CTL/ATL/form projected from the planned sessions, with "form on race day" per race), **season timeline** (build / taper / race / recovery blocks across all `RACE_A/B/C` events and the goal's event date, with a conflict check), the **illness / injury mode** card, and the **race predictor** |
 | Race predictor | ✅ Implemented — finish time per leg from the pace curves (Riegel) and power curve (race-intensity fraction + physics model), a CTL / race-day-form allowance, a pacing plan and a fuelling plan; swim/ride/run presets from 5 km to 140.6 |
 | Illness / injury mode | ✅ Implemented — a `SICK` / `INJURED` Intervals.icu event reshapes the plan: rest (sick) or cross-training (injury), then a graded return ramp; shown on Today and Season, applied only after confirming |
+| Route map (activity detail) | ✅ Implemented — outdoor runs and rides show their GPS track on a still `flutter_map` map (start green, finish red) in Activities → detail only; tap for a full-screen map you can pan and zoom. The track is fetched once (`latlng` stream, thinned to ≤ 1200 points) and cached; indoor/virtual rides, other sports and activities without GPS show nothing |
 | Brick / transition tracking | ✅ Implemented — a bike→run or swim→bike pair on one day gets a card on Activity detail: transition time, how fast the legs settled, early speed/HR cost |
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
@@ -1365,6 +1366,21 @@ the nightly background sync. It lists the day's planned workouts, readiness
 (only when today's wearable data is already in and the briefing is for
 today), the fatigue level, a note if you are logged sick or injured, and form
 with CTL.
+
+### Route map
+
+The activity detail of an outdoor run or ride (`hasRouteMap`: run or ride
+family, not virtual / trainer / treadmill) shows a **Route** card after the
+session diagram: the GPS track from Intervals.icu's `latlng` stream drawn with
+`flutter_map` over OpenStreetMap tiles (© OpenStreetMap contributors shown on
+the map). The card's map is a still picture so it never steals the page
+scroll; tapping opens a full-screen map with pan and zoom. The track is
+fetched the first time (not as part of sync), thinned to ≤ 1200 points and
+cached in SQLite beside the diagram streams (`route:<id>`; an activity with
+no GPS is remembered as empty). Offline, or without GPS, the card simply
+doesn't appear. Tiles come from `tile.openstreetmap.org` with the app's
+user agent; that server is for light use, so if TriIQ is distributed widely
+point `_tileUrl` in `route_card.dart` at a tile provider with an API key.
 
 ### Training plan
 

@@ -83,7 +83,8 @@ void main() {
 
     final box = tester.getRect(find.byKey(const ValueKey('stream-chart-paint')));
     await tester.tapAt(Offset(box.left + box.width / 2, box.center.dy));
-    await tester.pump();
+    // A tap selects once the double-tap (zoom) window has passed.
+    await tester.pump(const Duration(milliseconds: 400));
 
     // Halfway through: 3:00:00 (index 10800 of 21600).
     expect(find.textContaining('3:00:0'), findsOneWidget);

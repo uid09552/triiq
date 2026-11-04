@@ -28,6 +28,8 @@ flutter test --dart-define=INTERVALS_API_KEY=<key>            # also run the liv
 dart run build_runner build --delete-conflicting-outputs      # regenerate *.g.dart (json_serializable/copy_with) after editing lib/client/intervalls
 ```
 
+`test/flutter_test_config.dart` points the shared database at a temp file for every test, so tests need no `triiq.db` or SQLite setup of their own (tests that build their own `AppDatabase.atPath(...)` are unaffected).
+
 No backend/server in this repo — it's Flutter-only. **Supported targets are Android and Windows.** `ios/` and `web/` still exist and build, but are not actively targeted; Linux and macOS were removed (regenerate with `flutter create --platforms=linux,macos .` if they are ever wanted back).
 
 `.claude/launch.json` defines a `triiq-web` config (`flutter run -d web-server --web-port 8765`) for previewing in the Browser pane.

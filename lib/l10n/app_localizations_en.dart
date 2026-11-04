@@ -3416,4 +3416,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String dayCardLoadDone(int done) {
     return '$done TSS';
   }
+
+  @override
+  String get routeTitle => 'Route';
 }
