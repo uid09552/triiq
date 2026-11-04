@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -35,7 +36,12 @@ class RouteMap extends StatelessWidget {
     this.interactive = false,
     this.showTiles = true,
     this.padding = 28,
+    this.cursor,
   });
+
+  /// The elapsed seconds the athlete is pointing at on the diagram; the map
+  /// marks where the activity was then. Null or unknown: no marker.
+  final ValueListenable<double?>? cursor;
 
   final ActivityRoute route;
   final bool interactive;
@@ -79,6 +85,34 @@ class RouteMap extends StatelessWidget {
             _dot(points.last, Colors.red.shade600),
           ],
         ),
+        if (cursor != null)
+          ValueListenableBuilder<double?>(
+            valueListenable: cursor!,
+            builder: (context, seconds, _) {
+              final at = seconds == null ? null : route.pointAt(seconds);
+              if (at == null) return const SizedBox.shrink();
+              return MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(at.lat, at.lng),
+                    width: 22,
+                    height: 22,
+                    child: DecoratedBox(
+                      key: const ValueKey('route-cursor'),
+                      decoration: BoxDecoration(
+                        color: scheme.tertiary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black38, blurRadius: 4),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         if (showTiles)
           const SimpleAttributionWidget(
             source: Text('© OpenStreetMap contributors'),
@@ -111,7 +145,11 @@ class ActivityRouteCard extends StatefulWidget {
     required this.activity,
     ActivityRouteRepository? routes,
     this.showTiles = true,
+    this.cursor,
   }) : routes = routes ?? ActivityRouteRepository();
+
+  /// Where the pointer is on the session diagram (elapsed seconds).
+  final ValueListenable<double?>? cursor;
 
   final LocalActivity activity;
   final ActivityRouteRepository routes;
@@ -148,7 +186,11 @@ class _ActivityRouteCardState extends State<ActivityRouteCard> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    RouteMap(route: route, showTiles: widget.showTiles),
+                    RouteMap(
+                      route: route,
+                      showTiles: widget.showTiles,
+                      cursor: widget.cursor,
+                    ),
                     // The still map hands taps to the full-screen view.
                     Positioned.fill(
                       child: Material(
@@ -161,6 +203,7 @@ class _ActivityRouteCardState extends State<ActivityRouteCard> {
                                 title: widget.activity.name ?? l10n.routeTitle,
                                 route: route,
                                 showTiles: widget.showTiles,
+                                cursor: widget.cursor,
                               ),
                             ),
                           ),
@@ -194,11 +237,13 @@ class RouteScreen extends StatelessWidget {
     required this.title,
     required this.route,
     this.showTiles = true,
+    this.cursor,
   });
 
   final String title;
   final ActivityRoute route;
   final bool showTiles;
+  final ValueListenable<double?>? cursor;
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +255,7 @@ class RouteScreen extends StatelessWidget {
         interactive: true,
         showTiles: showTiles,
         padding: 48,
+        cursor: cursor,
       ),
     );
   }

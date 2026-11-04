@@ -16,6 +16,7 @@ import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/plan/plan_engine.dart';
 import 'package:triiq/plan/plan_models.dart';
 import 'package:triiq/screens/today/today_screen.dart';
+import 'package:triiq/screens/today/train_now_screen.dart';
 import 'package:triiq/util/dates.dart';
 
 void main() {
@@ -96,5 +97,47 @@ void main() {
     for (final s in tomorrows) {
       expect(find.text(s.name), findsWidgets, reason: 'tomorrow: ${s.name}');
     }
+  });
+
+  testWidgets('long-pressing "nothing planned" offers Train now for today',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(
+          body: TodayScreen(
+            wellnessRepository: WellnessRepository(database: database),
+            activitiesRepository: ActivitiesRepository(database: database),
+            plannedItems: PlannedItemsRepository(
+              events: EventsRepository(database: database),
+              plans: PlansRepository(database: database),
+              copyEvents: () async => true,
+            ),
+          ),
+        ),
+      ),
+    );
+    for (var i = 0; i < 20; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+
+    final empty = find.byKey(const ValueKey('planned-empty'));
+    expect(empty, findsWidgets); // today's and tomorrow's
+    await tester.longPress(empty.first);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
+    expect(find.byKey(const ValueKey('day-delete')), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('day-propose')));
+    await tester.pumpAndSettle();
+    expect(find.byType(TrainNowScreen), findsOneWidget);
   });
 }

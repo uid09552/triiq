@@ -40,4 +40,37 @@ void main() {
     expect(fetches, 2);
     expect(await repo.cached('never'), isNull);
   });
+
+  test('a track cached without times is fetched once more; offline keeps it',
+      () async {
+    final db = await database.database;
+    await db.insert('activity_streams', {
+      'activity_id': 'route:old',
+      'data': '{"lat":[48.0,48.1],"lng":[11.0,11.1]}',
+      'fetched_at': 1,
+    });
+    var fetches = 0;
+    var offline = false;
+    final repo = ActivityRouteRepository(
+      database: database,
+      fetch: (id) async {
+        fetches++;
+        if (offline) throw StateError('offline');
+        return const ActivityRoute(
+          [RoutePoint(48.0, 11.0), RoutePoint(48.1, 11.1)],
+          times: [0, 60],
+        );
+      },
+    );
+    offline = true;
+    final kept = await repo.load('old');
+    expect(kept.points, hasLength(2));
+    expect(kept.hasTimes, isFalse);
+
+    offline = false;
+    final fresh = await repo.load('old');
+    expect(fresh.hasTimes, isTrue);
+    await repo.load('old');
+    expect(fetches, 2, reason: 'once offline, once online; then cached');
+  });
 }

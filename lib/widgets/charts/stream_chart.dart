@@ -139,9 +139,14 @@ class StreamChart extends StatefulWidget {
     this.height = 240,
     this.smoothSeconds = 0,
     this.viewport,
+    this.onCursorSeconds,
   });
 
   final SessionStreams streams;
+
+  /// Told the elapsed seconds under the pointer (tap, drag or mouse hover),
+  /// e.g. to mark the same moment on a map.
+  final ValueChanged<double>? onCursorSeconds;
 
   /// Stream types to draw, in [SessionStreams.drawable] order.
   final Set<String> visible;
@@ -312,7 +317,16 @@ class _StreamChartState extends State<StreamChart> {
           viewport: vp,
           plotLeft: leftW,
           plotRight: rightW,
-          onSelectAt: (i) => setState(() => _readout = i),
+          hoverSelects: true,
+          onSelectAt: (i) {
+            setState(() => _readout = i);
+            final cb = widget.onCursorSeconds;
+            final time = widget.streams.time;
+            if (cb != null && time != null && i < time.length) {
+              final t = time[i];
+              if (t != null) cb(t);
+            }
+          },
           child: SizedBox(
             height: widget.height,
             child: Stack(

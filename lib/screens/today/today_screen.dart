@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../plan/adaptation_service.dart';
 import '../../widgets/pending_changes_card.dart';
 import '../season/health_card.dart';
+import '../calendar/day_actions.dart';
 import 'fatigue_warning_card.dart';
 import 'tile_spark.dart';
 import '../../plan/plan_changes.dart';
@@ -433,6 +434,12 @@ class _TodayScreenState extends State<TodayScreen> {
                       ? () => confirmAndDeleteDaysWorkouts(context, _todaysPlan)
                       : null,
                   events: _todaysPlan,
+                  // Nothing planned: a long press offers Train now.
+                  onEmptyLongPress: () => showDayActions(
+                    context,
+                    DateTime.now(),
+                    const [],
+                  ),
                   emptyLabel: connected
                       ? l10n.nothingPlannedToday
                       : l10n.connectToSeePlan,
@@ -452,6 +459,11 @@ class _TodayScreenState extends State<TodayScreen> {
                         confirmAndDeleteDaysWorkouts(context, _tomorrowsPlan)
                   : null,
               events: _tomorrowsPlan,
+              onEmptyLongPress: () => showDayActions(
+                context,
+                DateTime.now().add(const Duration(days: 1)),
+                const [],
+              ),
               emptyLabel: connected
                   ? l10n.nothingPlannedTomorrow
                   : l10n.connectToSeePlan,
@@ -1080,7 +1092,12 @@ class _PlannedTraining extends StatelessWidget {
     required this.events,
     required this.emptyLabel,
     this.onLongPress,
+    this.onEmptyLongPress,
   });
+
+  /// Offered on a long press of the "nothing planned" line, e.g. to propose
+  /// a training for the day.
+  final VoidCallback? onEmptyLongPress;
 
   /// Offered on a long press of any session, e.g. to delete the day's.
   final VoidCallback? onLongPress;
@@ -1093,11 +1110,17 @@ class _PlannedTraining extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     if (events.isEmpty) {
-      return Text(
+      final text = Text(
         emptyLabel,
         style: theme.textTheme.bodyMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
         ),
+      );
+      if (onEmptyLongPress == null) return text;
+      return InkWell(
+        key: const ValueKey('planned-empty'),
+        onLongPress: onEmptyLongPress,
+        child: SizedBox(width: double.infinity, child: text),
       );
     }
 
