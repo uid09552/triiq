@@ -55,7 +55,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 7,
+      version: 8,
       onUpgrade: (db, oldVersion, newVersion) async {
         // v2 added planned calendar entries. Existing caches only held what
         // already happened, so the table is simply created empty and filled
@@ -95,6 +95,11 @@ class AppDatabase {
         // fresh above (always in its original, v3 shape) a few lines up.
         if (oldVersion < 7) {
           await _addPlanSessionContentColumns(db);
+        }
+        // v8 added the offline write queue: nothing to migrate, it starts
+        // empty.
+        if (oldVersion < 8) {
+          await db.execute(_createPendingWritesTable);
         }
       },
       onCreate: (db, version) async {
@@ -137,6 +142,7 @@ class AppDatabase {
         await db.execute(_createKnowledgeDocsTable);
         await db.execute(_createKnowledgeSectionsTable);
         await db.execute(_createKnowledgeSectionsDocIndex);
+        await db.execute(_createPendingWritesTable);
         await db.execute('''
           CREATE TABLE sync_state (
             scope TEXT PRIMARY KEY,
@@ -148,6 +154,20 @@ class AppDatabase {
       },
     );
   }
+
+  /// Writes to Intervals.icu that could not be sent (offline) and wait to be
+  /// replayed in order. `payload` is JSON; `status` is `pending` or `failed`.
+  static const _createPendingWritesTable = '''
+    CREATE TABLE pending_writes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      kind TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      last_error TEXT,
+      status TEXT NOT NULL DEFAULT 'pending'
+    )
+  ''';
 
   /// Planned calendar entries (workouts, races, notes). Kept as SQL
   /// constants so [_open]'s `onCreate` and `onUpgrade` cannot drift apart.

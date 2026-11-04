@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/intervals_session.dart';
 import '../data/intervals_workout_service.dart';
+import '../data/pending_writes.dart';
 import '../data/models/local_event.dart';
 import '../data/repositories/activities_repository.dart';
 import '../data/repositories/events_repository.dart';
@@ -80,7 +81,7 @@ class PlanActions {
     bool Function()? connected,
     Future<void> Function(DateTime day)? resync,
     DateTime Function()? clock,
-  }) : _workouts = workouts ?? IntervalsWorkoutService(),
+  }) : _workouts = workouts ?? QueuedWorkoutWriter(),
        _plans = plans ?? PlansRepository(),
        _events = events ?? EventsRepository(),
        _activities = activities ?? ActivitiesRepository(),
@@ -208,9 +209,6 @@ class PlanActions {
       await removeSession(planned.planSessionId!);
       return;
     }
-    if (!_connected()) {
-      throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
-    }
     if (!await _deleteUpstream(planned.id)) {
       throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
     }
@@ -255,7 +253,8 @@ class PlanActions {
     }
     final eventId = session.intervalsEventId;
     if (eventId != null) {
-      _requireUpstream();
+      // Offline, the writer queues the move and the local change goes ahead.
+      _requireSendEnabled();
       await _workouts.updatePlannedWorkoutDate(eventId, target);
     }
     await _plans.updateSession(session.copyWith(date: target));
@@ -272,7 +271,7 @@ class PlanActions {
     final session = await _editable(sessionId, missed: missed);
     final eventId = session.intervalsEventId;
     if (eventId != null) {
-      _requireUpstream();
+      _requireSendEnabled();
       try {
         await _workouts.deletePlannedWorkout(eventId);
       } on DioException catch (error) {
@@ -348,8 +347,10 @@ class PlanActions {
     return _insidePlan(plan, a) && _insidePlan(plan, b) && index(a) == index(b);
   }
 
-  void _requireUpstream() {
-    if (!_sendEnabled() || !_connected()) {
+  /// Moving or deleting a sent session is refused only when the athlete
+  /// switched sending off; being offline just queues the change.
+  void _requireSendEnabled() {
+    if (!_sendEnabled()) {
       throw const ReplaceRefusedException(ReplaceRefusal.sentButCannotSend);
     }
   }

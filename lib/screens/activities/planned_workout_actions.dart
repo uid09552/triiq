@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/intervals_session.dart';
 import '../../data/intervals_workout_service.dart';
+import '../../data/pending_writes.dart';
 import '../../data/models/local_event.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/plans_repository.dart';
@@ -22,7 +23,7 @@ import '../../util/calendar_export.dart';
 /// itself, so it doesn't reappear as a local-only session.
 Future<void> _deleteEverywhere(
   LocalEvent event, {
-  required IntervalsWorkoutService service,
+  required PlannedWorkoutWriter service,
   required EventsRepository events,
   required PlansRepository plans,
 }) async {
@@ -76,7 +77,7 @@ Future<void> _syncDay(String day) async {
 Future<bool> confirmAndDeletePlannedWorkout(
   BuildContext context,
   LocalEvent event, {
-  IntervalsWorkoutService? workoutService,
+  PlannedWorkoutWriter? workoutService,
   EventsRepository? eventsRepository,
   PlansRepository? plansRepository,
 }) async {
@@ -113,7 +114,7 @@ Future<bool> confirmAndDeletePlannedWorkout(
   try {
     await _deleteEverywhere(
       event,
-      service: workoutService ?? IntervalsWorkoutService(),
+      service: workoutService ?? QueuedWorkoutWriter(),
       events: eventsRepository ?? EventsRepository(),
       plans: plansRepository ?? PlansRepository(),
     );
@@ -141,7 +142,7 @@ Future<bool> confirmAndDeletePlannedWorkout(
 Future<int> confirmAndDeleteDaysWorkouts(
   BuildContext context,
   List<LocalEvent> events, {
-  IntervalsWorkoutService? workoutService,
+  PlannedWorkoutWriter? workoutService,
   EventsRepository? eventsRepository,
   PlansRepository? plansRepository,
 }) async {
@@ -176,7 +177,7 @@ Future<int> confirmAndDeleteDaysWorkouts(
   );
   if (confirmed != true) return 0;
 
-  final service = workoutService ?? IntervalsWorkoutService();
+  final service = workoutService ?? QueuedWorkoutWriter();
   final repository = eventsRepository ?? EventsRepository();
   final plans = plansRepository ?? PlansRepository();
   var deleted = 0;

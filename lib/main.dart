@@ -6,6 +6,7 @@ import 'agent/llm_settings.dart';
 import 'app.dart';
 import 'data/feel_settings.dart';
 import 'data/intervals_session.dart';
+import 'data/pending_writes.dart';
 import 'data/sync/auto_sync_service.dart';
 import 'data/sync/background_sync.dart';
 import 'data/sync/sync_settings.dart';
@@ -36,6 +37,7 @@ void main() {
     SyncSettings.instance.load().then((_) => BackgroundSync.instance.apply()),
   );
   AutoSyncService.instance.start();
+  unawaited(PendingWritesService.instance.refresh());
   // The chosen app language (System/English/German) — TriiqApp listens and
   // rebuilds once it resolves.
   unawaited(LocaleController.instance.load());

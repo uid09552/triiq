@@ -1054,5 +1054,12 @@
   "backupRestoreConfirm": "Ersetzen",
   "backupRestored": "Wiederhergestellt. Starte TriIQ neu, um die Einstellungen zu übernehmen, und verbinde Intervals.icu bei Bedarf neu.",
   "backupUnknownDate": "einem unbekannten Datum",
-  "forecastAssumed": "Nach dem {date} ist nichts geplant; ab dann nimmt die Prognose an, dass du auf deinem aktuellen Fitnessniveau weitertrainierst."
+  "forecastAssumed": "Nach dem {date} ist nichts geplant; ab dann nimmt die Prognose an, dass du auf deinem aktuellen Fitnessniveau weitertrainierst.",
+  "pendingTitle": "{count, plural, =1{1 Änderung wartet auf die Synchronisierung} other{{count} Änderungen warten auf die Synchronisierung}}",
+  "pendingSubtitle": "Während Intervals.icu nicht erreichbar war vorgenommen. Sie werden automatisch gesendet, sobald du wieder online bist.",
+  "pendingSyncNow": "Jetzt senden",
+  "pendingFailedTitle": "{count, plural, =1{1 Änderung konnte nicht gesendet werden} other{{count} Änderungen konnten nicht gesendet werden}}",
+  "pendingRetry": "Erneut versuchen",
+  "pendingDiscard": "Verwerfen",
+  "planQueuedOffline": "{count} Einheiten werden an Intervals.icu gesendet, sobald du wieder online bist."
 }

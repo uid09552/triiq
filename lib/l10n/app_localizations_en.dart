@@ -3210,4 +3210,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String forecastAssumed(String date) {
     return 'Nothing is planned after $date, so from then on the forecast assumes you keep training at your current fitness level.';
   }
+
+  @override
+  String pendingTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingSubtitle =>
+      'Made while Intervals.icu was out of reach. They are sent automatically when you are back online.';
+
+  @override
+  String get pendingSyncNow => 'Send now';
+
+  @override
+  String pendingFailedTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes could not be sent',
+      one: '1 change could not be sent',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingRetry => 'Retry';
+
+  @override
+  String get pendingDiscard => 'Discard';
+
+  @override
+  String planQueuedOffline(int count) {
+    return '$count sessions will be sent to Intervals.icu when you are back online.';
+  }
 }

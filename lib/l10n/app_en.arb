@@ -1239,5 +1239,15 @@
   "backupRestored": "Restored. Restart TriIQ to apply the settings, and reconnect Intervals.icu if needed.",
   "backupUnknownDate": "an unknown date",
   "forecastAssumed": "Nothing is planned after {date}, so from then on the forecast assumes you keep training at your current fitness level.",
-  "@forecastAssumed": {"placeholders": {"date": {"type": "String"}}}
+  "@forecastAssumed": {"placeholders": {"date": {"type": "String"}}},
+  "pendingTitle": "{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
+  "@pendingTitle": {"placeholders": {"count": {"type": "int"}}},
+  "pendingSubtitle": "Made while Intervals.icu was out of reach. They are sent automatically when you are back online.",
+  "pendingSyncNow": "Send now",
+  "pendingFailedTitle": "{count, plural, =1{1 change could not be sent} other{{count} changes could not be sent}}",
+  "@pendingFailedTitle": {"placeholders": {"count": {"type": "int"}}},
+  "pendingRetry": "Retry",
+  "pendingDiscard": "Discard",
+  "planQueuedOffline": "{count} sessions will be sent to Intervals.icu when you are back online.",
+  "@planQueuedOffline": {"placeholders": {"count": {"type": "int"}}}
 }

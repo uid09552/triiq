@@ -5299,6 +5299,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing is planned after {date}, so from then on the forecast assumes you keep training at your current fitness level.'**
   String forecastAssumed(String date);
+
+  /// No description provided for @pendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String pendingTitle(int count);
+
+  /// No description provided for @pendingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Made while Intervals.icu was out of reach. They are sent automatically when you are back online.'**
+  String get pendingSubtitle;
+
+  /// No description provided for @pendingSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Send now'**
+  String get pendingSyncNow;
+
+  /// No description provided for @pendingFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change could not be sent} other{{count} changes could not be sent}}'**
+  String pendingFailedTitle(int count);
+
+  /// No description provided for @pendingRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get pendingRetry;
+
+  /// No description provided for @pendingDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get pendingDiscard;
+
+  /// No description provided for @planQueuedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions will be sent to Intervals.icu when you are back online.'**
+  String planQueuedOffline(int count);
 }
 
 class _AppLocalizationsDelegate
