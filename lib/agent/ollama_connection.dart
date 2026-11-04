@@ -29,6 +29,11 @@ bool isOllamaCloudUrl(String url) {
       uri.host.toLowerCase() == LlmSettings.ollamaCloudHost;
 }
 
+/// Whether [url] is unencrypted `http://` — fine for a server on the
+/// athlete's own network, worth a warning anywhere else.
+bool isPlainHttpUrl(String url) =>
+    Uri.tryParse(url.trim())?.scheme.toLowerCase() == 'http';
+
 Future<List<String>> fetchOllamaModels({
   required String baseUrl,
   String? apiKey,

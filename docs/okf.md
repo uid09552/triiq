@@ -1432,6 +1432,16 @@ would be 100+ minutes). Minute-based swims (the plan engine's templates) and pac
   key is an Ollama Cloud key and is only ever sent to `https://ollama.com`** — never to a
   self-hosted server and never over plain http (saving a key for another server URL is
   refused with an explanation).
+- **Plain http**: on Android cleartext is allowed only so a self-hosted Ollama server on
+  your own network (`http://192.168.…:11434`) works
+  (`res/xml/network_security_config.xml`); Intervals.icu, Anthropic, Ollama Cloud and
+  OpenStreetMap stay https-only. Settings warns under the server URL when it is `http://`.
+- **Offline writes belong to an account**: each queued write is tagged with the
+  Intervals.icu athlete it was made for (the connected one, or the last one connected on
+  this device). Without a known account nothing is queued and the error shows; a write for
+  another account is dropped instead of sent; disconnecting in Profile clears the queue.
+- **Charts** select on touch-down, so a quick tap no longer waits ~300 ms for the
+  double-tap (zoom) window.
 
 ### Training plan
 

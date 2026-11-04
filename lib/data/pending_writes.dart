@@ -9,6 +9,7 @@ import '../client/intervalls/intervalls_client.dart';
 import '../plan/plan_models.dart';
 import '../util/dates.dart';
 import 'db/app_database.dart';
+import 'intervals_session.dart';
 import 'intervals_workout_service.dart';
 import 'repositories/events_repository.dart';
 import 'repositories/plans_repository.dart';
@@ -169,8 +170,9 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
     try {
       return await _inner.createPlannedWorkout(draft);
     } catch (e) {
-      if (queueCreates && isOfflineError(e)) {
-        await _queue.enqueue(PendingKind.createWorkout, draftToJson(draft));
+      if (queueCreates &&
+          isOfflineError(e) &&
+          await _queue.enqueue(PendingKind.createWorkout, draftToJson(draft))) {
         throw const QueuedOfflineException();
       }
       rethrow;
@@ -183,7 +185,9 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
       await _inner.deletePlannedWorkout(eventId);
     } catch (e) {
       if (!isOfflineError(e)) rethrow;
-      await _queue.enqueue(PendingKind.deleteEvent, {'event_id': eventId});
+      if (!await _queue.enqueue(PendingKind.deleteEvent, {'event_id': eventId})) {
+        rethrow;
+      }
     }
   }
 
@@ -193,10 +197,11 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
       await _inner.updatePlannedWorkoutDate(eventId, date);
     } catch (e) {
       if (!isOfflineError(e)) rethrow;
-      await _queue.enqueue(PendingKind.moveEvent, {
+      final queued = await _queue.enqueue(PendingKind.moveEvent, {
         'event_id': eventId,
         'date': isoDate(date),
       });
+      if (!queued) rethrow;
     }
   }
 
@@ -234,11 +239,16 @@ class PendingWritesService extends ChangeNotifier {
     PlannedWorkoutWriter? writer,
     PlansRepository? plans,
     EventsRepository? events,
+    Future<String?> Function()? athleteId,
+    String? Function()? connectedAthleteId,
     this.maxAttempts = 5,
   }) : _repo = repository ?? PendingWritesRepository(),
        _writer = writer ?? IntervalsWorkoutService(),
        _plans = plans ?? PlansRepository(),
-       _events = events ?? EventsRepository();
+       _events = events ?? EventsRepository(),
+       _athleteId = athleteId ?? IntervalsSession.lastKnownAthleteId,
+       _connectedAthleteId =
+           connectedAthleteId ?? (() => IntervalsSession.instance.athleteId);
 
   static final PendingWritesService instance = PendingWritesService();
 
@@ -246,6 +256,12 @@ class PendingWritesService extends ChangeNotifier {
   final PlannedWorkoutWriter _writer;
   final PlansRepository _plans;
   final EventsRepository _events;
+
+  /// The account a write belongs to: connected now, or last connected.
+  final Future<String?> Function() _athleteId;
+
+  /// The account connected right now (null while offline).
+  final String? Function() _connectedAthleteId;
   final int maxAttempts;
 
   int pending = 0;
@@ -263,8 +279,27 @@ class PendingWritesService extends ChangeNotifier {
     }
   }
 
-  Future<void> enqueue(PendingKind kind, Map<String, dynamic> payload) async {
-    await _repo.add(kind, payload);
+  /// Whether a write can be queued: only for a known Intervals.icu account
+  /// (one that was connected on this device and not disconnected since).
+  Future<bool> canQueue() async => await _athleteId() != null;
+
+  /// Stores a write for later, tagged with its account. Returns false (and
+  /// stores nothing) when no account is known — the caller then reports the
+  /// original error instead of keeping a write nobody can send.
+  Future<bool> enqueue(PendingKind kind, Map<String, dynamic> payload) async {
+    final athlete = await _athleteId();
+    if (athlete == null) return false;
+    await _repo.add(kind, {...payload, 'athlete_id': athlete});
+    await refresh();
+    return true;
+  }
+
+  /// Drops every waiting write — when the athlete disconnects, so nothing
+  /// made in one account is ever sent to another.
+  Future<void> clearAll() async {
+    for (final w in await _repo.all()) {
+      await _repo.remove(w.id);
+    }
     await refresh();
   }
 
@@ -281,8 +316,16 @@ class PendingWritesService extends ChangeNotifier {
     _flushing = true;
     var sent = 0;
     try {
+      final current = _connectedAthleteId();
       for (final w in await _repo.all()) {
         if (w.failed) continue;
+        final owner = w.payload['athlete_id'];
+        if (current != null && owner is String && owner != current) {
+          // Made in another Intervals.icu account: never send it here.
+          debugPrint('PendingWritesService: dropping a write for $owner');
+          await _repo.remove(w.id);
+          continue;
+        }
         try {
           await _send(w);
           await _repo.remove(w.id);

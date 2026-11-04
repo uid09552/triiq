@@ -198,6 +198,9 @@ class PlanActions {
         if (!isOfflineError(error)) rethrow;
       }
     }
+    if (!await _queue.canQueue()) {
+      throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
+    }
     // Offline: the session shows the new content now; the upstream replace
     // (create the new event, delete the old one) waits in the queue.
     await store(null, PlanSessionStatus.planned);
@@ -224,6 +227,9 @@ class PlanActions {
       } catch (error) {
         if (!isOfflineError(error)) rethrow;
       }
+    }
+    if (!await _queue.canQueue()) {
+      throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
     }
     // Offline: show the new workout as a placeholder in the calendar and
     // queue the real replace.

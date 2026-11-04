@@ -3440,4 +3440,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ollamaKeyCloudOnly =>
       'An Ollama API key is only used with Ollama Cloud (https://ollama.com). A self-hosted server needs no key here.';
+
+  @override
+  String get ollamaHttpWarning =>
+      'Unencrypted (http): prompts and training data are sent in plain text. Use it only for a server on your own network.';
 }

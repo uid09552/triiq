@@ -142,10 +142,8 @@ void main() {
     expect(find.byKey(const ValueKey('analysis-selection')), findsNothing);
 
     await tester.tap(find.byType(MetricLineChart).first);
-    // The chart's tap waits out the double-tap window (zoom) before it
-    // selects, and a timer alone doesn't make pumpAndSettle advance time.
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.pumpAndSettle();
+    // Selected at once: no waiting for the double-tap (zoom) window.
+    await tester.pump();
     expect(find.byKey(const ValueKey('analysis-selection')), findsOneWidget);
 
     // Switching a metric off removes its graph.

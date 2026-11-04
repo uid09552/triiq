@@ -3471,4 +3471,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get ollamaKeyCloudOnly =>
       'Ein Ollama-API-Schlüssel wird nur mit Ollama Cloud (https://ollama.com) verwendet. Ein eigener Server braucht hier keinen Schlüssel.';
+
+  @override
+  String get ollamaHttpWarning =>
+      'Unverschlüsselt (http): Anfragen und Trainingsdaten gehen im Klartext. Nur für einen Server im eigenen Netz verwenden.';
 }

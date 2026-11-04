@@ -19,6 +19,25 @@ void main() {
     });
   });
 
+  group('plain http for a self-hosted Ollama', () {
+    test('isPlainHttpUrl flags http only', () {
+      expect(isPlainHttpUrl('http://192.168.1.20:11434'), isTrue);
+      expect(isPlainHttpUrl('HTTP://localhost:11434'), isTrue);
+      expect(isPlainHttpUrl('https://ollama.com'), isFalse);
+      expect(isPlainHttpUrl(''), isFalse);
+    });
+
+    test('Android allows cleartext only outside the services TriIQ uses', () {
+      final manifest = File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
+      expect(manifest, contains('android:networkSecurityConfig="@xml/network_security_config"'));
+      final config = File('android/app/src/main/res/xml/network_security_config.xml').readAsStringSync();
+      expect(config, contains('<domain-config cleartextTrafficPermitted="false">'));
+      for (final d in ['intervals.icu', 'anthropic.com', 'ollama.com', 'openstreetmap.org']) {
+        expect(config, contains('>$d<'), reason: d);
+      }
+    });
+  });
+
   group('backup never carries LLM connection settings', () {
     test('llm.* keys are excluded on export and restore', () {
       expect(BackupService.excludedPref('llm.ollama_base_url'), isTrue);

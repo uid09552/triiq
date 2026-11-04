@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Everything TriIQ itself talks to (Intervals.icu, the Claude API, Ollama
+  Cloud, OpenStreetMap tiles) is https-only. Plain http is allowed for other
+  hosts only so that a self-hosted Ollama server on the athlete's own network
+  (http://192.168.x.x:11434, usually without a certificate) works; the app only
+  ever uses http for a server URL typed into Settings, and never sends a key
+  over it.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">intervals.icu</domain>
+        <domain includeSubdomains="true">anthropic.com</domain>
+        <domain includeSubdomains="true">ollama.com</domain>
+        <domain includeSubdomains="true">openstreetmap.org</domain>
+    </domain-config>
+</network-security-config>

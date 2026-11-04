@@ -74,6 +74,8 @@ void main() {
     upstream = _Upstream();
     plans = PlansRepository(database: database);
     service = PendingWritesService(
+      athleteId: () async => 'i1',
+      connectedAthleteId: () => 'i1',
       repository: PendingWritesRepository(database: database),
       writer: upstream,
       plans: plans,
@@ -255,6 +257,59 @@ void main() {
       upstream.offline = false;
       await service.flush();
       expect(upstream.calls, ['delete 900']);
+    });
+  });
+
+  group('writes belong to an account', () {
+    PendingWritesService withAccount({
+      required Future<String?> Function() athlete,
+      required String? Function() connected,
+    }) => PendingWritesService(
+      athleteId: athlete,
+      connectedAthleteId: connected,
+      repository: PendingWritesRepository(database: database),
+      writer: upstream,
+      plans: plans,
+      events: EventsRepository(database: database),
+    );
+
+    test('with no known account nothing is queued and the error surfaces',
+        () async {
+      final none = withAccount(athlete: () async => null, connected: () => null);
+      final w = QueuedWorkoutWriter(inner: upstream, queue: none);
+      upstream.offline = true;
+      await expectLater(w.deletePlannedWorkout('1'), throwsA(isA<DioException>()));
+      await expectLater(
+        w.updatePlannedWorkoutDate('1', DateTime(2026, 5, 3)),
+        throwsA(isA<DioException>()),
+      );
+      expect(none.pending, 0);
+      expect(await none.canQueue(), isFalse);
+    });
+
+    test('a write made in another account is dropped, never sent', () async {
+      var connected = 'i1';
+      final svc = withAccount(athlete: () async => connected, connected: () => connected);
+      final w = QueuedWorkoutWriter(inner: upstream, queue: svc);
+      upstream.offline = true;
+      await w.deletePlannedWorkout('77'); // queued for i1
+      upstream.offline = false;
+      connected = 'i2'; // the athlete switched accounts
+      expect(await svc.flush(), 0);
+      expect(upstream.calls, isEmpty);
+      expect(svc.pending, 0);
+    });
+
+    test('clearAll (on disconnect) drops everything waiting', () async {
+      upstream.offline = true;
+      await writer.deletePlannedWorkout('1');
+      await writer.updatePlannedWorkoutDate('2', DateTime(2026, 5, 3));
+      expect(service.pending, 2);
+      await service.clearAll();
+      expect(service.pending, 0);
+      upstream.offline = false;
+      expect(await service.flush(), 0);
+      expect(upstream.calls, isEmpty);
     });
   });
 
