@@ -3380,4 +3380,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get morningBriefingHelp =>
       'A notification with today\'s session, readiness and form. It is prepared from your last sync, so readiness appears when your watch data is already in.';
+
+  @override
+  String get weeklyHoursLabel => 'All sports';
+
+  @override
+  String weeklyHoursTotal(String hours) {
+    return '$hours h';
+  }
+
+  @override
+  String weeklyHoursOfTarget(String hours, String target) {
+    return '$hours / $target h';
+  }
 }

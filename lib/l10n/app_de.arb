@@ -1093,5 +1093,8 @@
   "briefingLevelWatch": "im Aufbau",
   "briefingLevelWarning": "Warnung",
   "morningBriefing": "Morgenbriefing",
-  "morningBriefingHelp": "Eine Benachrichtigung mit der heutigen Einheit, Bereitschaft und Form. Sie wird aus deinem letzten Sync erstellt; die Bereitschaft erscheint, wenn die Daten deiner Uhr schon da sind."
+  "morningBriefingHelp": "Eine Benachrichtigung mit der heutigen Einheit, Bereitschaft und Form. Sie wird aus deinem letzten Sync erstellt; die Bereitschaft erscheint, wenn die Daten deiner Uhr schon da sind.",
+  "weeklyHoursLabel": "Alle Sportarten",
+  "weeklyHoursTotal": "{hours} Std.",
+  "weeklyHoursOfTarget": "{hours} / {target} Std."
 }

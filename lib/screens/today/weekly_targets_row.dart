@@ -93,11 +93,27 @@ class WeeklyTargetsRow extends StatelessWidget {
           ring('run', _settings.runHours, l10n.sportRun, 'Run'),
         ].whereType<Widget>().toList();
 
+        final targets = <double>[
+          ?_settings.swimHours,
+          ?_settings.cycleHours,
+          ?_settings.runHours,
+        ];
         return Padding(
           padding: const EdgeInsets.only(top: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: rings,
+          child: Column(
+            children: [
+              WeeklyHoursBar(
+                weekActivities: weekActivities,
+                targetHours: targets.isEmpty
+                    ? null
+                    : targets.reduce((a, b) => a + b),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: rings,
+              ),
+            ],
           ),
         );
       },
@@ -139,6 +155,103 @@ class _PressableRingState extends State<_PressableRing> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Total training time this week as a slim stacked bar above the rings:
+/// one segment per sport (swim / ride / run, everything else in grey),
+/// scaled against the sum of the weekly targets when there is one, so the
+/// bar fills as the week goes. Counts every cached activity, not only the
+/// three target sports.
+class WeeklyHoursBar extends StatelessWidget {
+  const WeeklyHoursBar({
+    super.key,
+    required this.weekActivities,
+    this.targetHours,
+  });
+
+  final List<LocalActivity> weekActivities;
+
+  /// Sum of the sport targets, or null when none is set.
+  final double? targetHours;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final bySport = weeklySportSeconds(weekActivities);
+    final totalSeconds = weekActivities.fold<int>(
+      0,
+      (sum, a) => sum + (a.movingTime ?? 0),
+    );
+    final otherSeconds = totalSeconds -
+        bySport.values.fold<int>(0, (sum, v) => sum + v);
+    final hours = totalSeconds / 3600;
+    final target = targetHours;
+    final scaleSeconds = (target != null && target > 0
+            ? target * 3600
+            : totalSeconds.toDouble())
+        .clamp(1, double.infinity)
+        .toDouble();
+    final denominator = totalSeconds > scaleSeconds ? totalSeconds : scaleSeconds;
+
+    Widget segment(int seconds, Color color) => seconds <= 0
+        ? const SizedBox.shrink()
+        : Expanded(
+            flex: (seconds * 1000 / denominator).round().clamp(1, 1000),
+            child: Container(color: color),
+          );
+
+    final fill = totalSeconds <= 0
+        ? 0
+        : (totalSeconds * 1000 / denominator).round().clamp(0, 1000);
+    final text = target == null
+        ? l10n.weeklyHoursTotal(hours.toStringAsFixed(1))
+        : l10n.weeklyHoursOfTarget(
+            hours.toStringAsFixed(1),
+            target.toStringAsFixed(1),
+          );
+    return Column(
+      key: const ValueKey('weekly-hours-bar'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text(
+              l10n.weeklyHoursLabel,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              text,
+              key: const ValueKey('weekly-hours-text'),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(3),
+          child: Container(
+            height: 6,
+            color: scheme.surfaceContainerHighest,
+            child: Row(
+              children: [
+                segment(bySport['swim'] ?? 0, sportColor('Swim', scheme)),
+                segment(bySport['cycle'] ?? 0, sportColor('Ride', scheme)),
+                segment(bySport['run'] ?? 0, sportColor('Run', scheme)),
+                segment(otherSeconds, scheme.outline),
+                if (fill < 1000) Spacer(flex: 1000 - fill),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

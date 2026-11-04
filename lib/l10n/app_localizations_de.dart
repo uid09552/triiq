@@ -3411,4 +3411,17 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get morningBriefingHelp =>
       'Eine Benachrichtigung mit der heutigen Einheit, Bereitschaft und Form. Sie wird aus deinem letzten Sync erstellt; die Bereitschaft erscheint, wenn die Daten deiner Uhr schon da sind.';
+
+  @override
+  String get weeklyHoursLabel => 'Alle Sportarten';
+
+  @override
+  String weeklyHoursTotal(String hours) {
+    return '$hours Std.';
+  }
+
+  @override
+  String weeklyHoursOfTarget(String hours, String target) {
+    return '$hours / $target Std.';
+  }
 }

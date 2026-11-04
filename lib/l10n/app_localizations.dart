@@ -5533,6 +5533,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A notification with today\'s session, readiness and form. It is prepared from your last sync, so readiness appears when your watch data is already in.'**
   String get morningBriefingHelp;
+
+  /// No description provided for @weeklyHoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All sports'**
+  String get weeklyHoursLabel;
+
+  /// No description provided for @weeklyHoursTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String weeklyHoursTotal(String hours);
+
+  /// No description provided for @weeklyHoursOfTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} / {target} h'**
+  String weeklyHoursOfTarget(String hours, String target);
 }
 
 class _AppLocalizationsDelegate

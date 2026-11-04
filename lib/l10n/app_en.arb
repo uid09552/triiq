@@ -1296,5 +1296,10 @@
   "briefingLevelWatch": "building",
   "briefingLevelWarning": "warning",
   "morningBriefing": "Morning briefing",
-  "morningBriefingHelp": "A notification with today's session, readiness and form. It is prepared from your last sync, so readiness appears when your watch data is already in."
+  "morningBriefingHelp": "A notification with today's session, readiness and form. It is prepared from your last sync, so readiness appears when your watch data is already in.",
+  "weeklyHoursLabel": "All sports",
+  "weeklyHoursTotal": "{hours} h",
+  "@weeklyHoursTotal": {"placeholders": {"hours": {"type": "String"}}},
+  "weeklyHoursOfTarget": "{hours} / {target} h",
+  "@weeklyHoursOfTarget": {"placeholders": {"hours": {"type": "String"}, "target": {"type": "String"}}}
 }

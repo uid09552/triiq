@@ -86,7 +86,13 @@ void main() {
       ],
     );
 
-    expect(find.text('1.0 / 2.0 h'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ProgressRing),
+        matching: find.text('1.0 / 2.0 h'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('50%'), findsOneWidget);
   });
 
@@ -112,5 +118,45 @@ void main() {
     await tester.tap(find.byType(FilterChip));
     await tester.pumpAndSettle();
     expect(find.byType(ListTile), findsNWidgets(2));
+  });
+
+  testWidgets('hours bar sums every activity against the summed targets',
+      (tester) async {
+    await settings.setCycleHours(6);
+    await settings.setRunHours(4);
+    await pump(tester, activities: [
+      _activity(type: 'Ride', movingTime: 3 * 3600),
+      _activity(type: 'Run', movingTime: 3600 + 1800),
+      _activity(type: 'Hike', movingTime: 1800), // not a target sport
+    ]);
+
+    expect(find.byKey(const ValueKey('weekly-hours-bar')), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('weekly-hours-text'))).data,
+      '5.0 / 10.0 h',
+    );
+  });
+
+  testWidgets('hours bar sits above the rings', (tester) async {
+    await settings.setRunHours(4);
+    await pump(tester);
+
+    final bar = tester.getTopLeft(find.byKey(const ValueKey('weekly-hours-bar')));
+    final ring = tester.getTopLeft(find.byKey(const ValueKey('weekly-target-ring-run')));
+    expect(bar.dy, lessThan(ring.dy));
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('weekly-hours-text'))).data,
+      '0.0 / 4.0 h',
+    );
+  });
+
+  testWidgets('hours bar copes with more done than planned', (tester) async {
+    await settings.setRunHours(1);
+    await pump(tester, activities: [_activity(type: 'Run', movingTime: 7200)]);
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey('weekly-hours-text'))).data,
+      '2.0 / 1.0 h',
+    );
   });
 }
