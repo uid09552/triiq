@@ -1,8 +1,11 @@
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/evaluation/activity_route.dart';
+import 'package:triiq/evaluation/session_streams.dart';
+import 'package:triiq/screens/activities/session_analysis.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/screens/activities/route_card.dart';
 
@@ -54,12 +57,51 @@ void main() {
       expect(r.points.last.lat, closeTo(48.0 + 19999 * 1e-5, 1e-9));
     });
 
+    test('times follow the points through filtering and thinning', () {
+      final r = ActivityRoute.fromSamples(
+        [48.0, null, 48.2, 48.3],
+        [11.0, 11.1, 11.2, 11.3],
+        time: [0, 1, 2, 3],
+      );
+      expect(r.times, [0, 2, 3]);
+      final lat = [for (var i = 0; i < 20000; i++) 48.0 + i * 1e-5];
+      final lng = [for (var i = 0; i < 20000; i++) 11.0 + i * 1e-5];
+      final big = ActivityRoute.fromSamples(lat, lng, time: [for (var i = 0; i < 20000; i++) i]);
+      expect(big.times.length, big.points.length);
+      expect(big.times.first, 0);
+      expect(big.times.last, 19999);
+    });
+
+    test('pointAt finds the nearest fix; null without times', () {
+      final r = ActivityRoute(
+        [RoutePoint(1, 1), RoutePoint(2, 2), RoutePoint(3, 3)],
+        times: const [0, 10, 30],
+      );
+      expect(r.pointAt(-5)!.lat, 1);
+      expect(r.pointAt(4)!.lat, 1);
+      expect(r.pointAt(6)!.lat, 2);
+      expect(r.pointAt(19)!.lat, 2);
+      expect(r.pointAt(21)!.lat, 3);
+      expect(r.pointAt(999)!.lat, 3);
+      expect(ActivityRoute([RoutePoint(1, 1), RoutePoint(2, 2)]).pointAt(5), isNull);
+    });
+
     test('one fix or none is an empty route; JSON round-trips', () {
       expect(ActivityRoute.fromSamples([48.0], [11.0]).isEmpty, isTrue);
       expect(ActivityRoute.fromSamples(const [], const []).isEmpty, isTrue);
       final back = ActivityRoute.fromJson(track(5).toJson());
       expect(back.points.length, 5);
       expect(back.points.last.lng, closeTo(11.004, 1e-9));
+      // Times survive the round trip; a track stored without them says so.
+      final timed = ActivityRoute.fromJson(
+        ActivityRoute(track(3).points, times: const [0, 5, 9]).toJson(),
+      );
+      expect(timed.times, [0, 5, 9]);
+      expect(timed.timesKnown, isTrue);
+      expect(
+        ActivityRoute.fromJson({'lat': [1.0, 2.0], 'lng': [1.0, 2.0]}).timesKnown,
+        isFalse,
+      );
     });
   });
 
@@ -74,6 +116,106 @@ void main() {
       expect(hasRouteMap(act('Swim')), isFalse);
       expect(hasRouteMap(act('WeightTraining')), isFalse);
     });
+  });
+
+  group('map cursor', () {
+    testWidgets('marks where the activity was at the diagram cursor', (t) async {
+      final cursor = ValueNotifier<double?>(null);
+      final route = ActivityRoute(
+        track(10).points,
+        times: [for (var i = 0; i < 10; i++) i * 60.0],
+      );
+      await t.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 300, height: 300,
+            child: RouteMap(route: route, showTiles: false, cursor: cursor),
+          ),
+        ),
+      ));
+      expect(find.byKey(const ValueKey('route-cursor')), findsNothing);
+      cursor.value = 250;
+      await t.pump();
+      expect(find.byKey(const ValueKey('route-cursor')), findsOneWidget);
+      cursor.value = null;
+      await t.pump();
+      expect(find.byKey(const ValueKey('route-cursor')), findsNothing);
+    });
+
+    testWidgets('a track without times shows no cursor', (t) async {
+      final cursor = ValueNotifier<double?>(120);
+      await t.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 300, height: 300,
+            child: RouteMap(route: track(10), showTiles: false, cursor: cursor),
+          ),
+        ),
+      ));
+      expect(find.byKey(const ValueKey('route-cursor')), findsNothing);
+    });
+  });
+
+  testWidgets('hovering the session diagram moves the marker on the map',
+      (t) async {
+    t.view.physicalSize = const Size(900, 2600);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.reset);
+    final cursor = ValueNotifier<double?>(null);
+    final streams = ActivityStreamsRepository(
+      fetch: (_) async => SessionStreams(
+        series: {
+          'time': [for (var i = 0; i < 600; i++) i.toDouble()],
+          'watts': [for (var i = 0; i < 600; i++) 150 + (i % 50).toDouble()],
+        },
+        intervals: const [],
+      ),
+    );
+    final run = act('Run');
+    await t.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Column(children: [
+            SessionDiagramCard(
+              activity: run,
+              streams: streams,
+              onCursorSeconds: (s) => cursor.value = s,
+            ),
+            ActivityRouteCard(
+              activity: run,
+              routes: _Repo(ActivityRoute(
+                track(30).points,
+                times: [for (var i = 0; i < 30; i++) i * 20.0],
+              )),
+              showTiles: false,
+              cursor: cursor,
+            ),
+          ]),
+        ),
+      ),
+    ));
+    // The streams come through SQLite, which needs real time.
+    for (var i = 0; i < 60; i++) {
+      if (find.byKey(const ValueKey('stream-chart-paint')).evaluate().isNotEmpty) {
+        break;
+      }
+      await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await t.pump();
+    }
+    await t.pump();
+    expect(find.byKey(const ValueKey('route-cursor')), findsNothing);
+
+    final box = t.getRect(find.byKey(const ValueKey('stream-chart-paint')));
+    final mouse = await t.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset(box.left + 5, box.center.dy));
+    await t.pump();
+    await mouse.moveTo(Offset(box.left + box.width / 2, box.center.dy));
+    await t.pump();
+    expect(find.byKey(const ValueKey('route-cursor')), findsOneWidget);
+    expect(cursor.value, closeTo(300, 80));
   });
 
   group('ActivityRouteCard', () {

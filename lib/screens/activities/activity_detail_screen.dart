@@ -83,6 +83,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     return date == today || date == yesterday;
   }
 
+  /// Elapsed seconds under the pointer on the session diagram, shared with
+  /// the route map so it can mark the same moment.
+  final _cursor = ValueNotifier<double?>(null);
+
   LocalWellness? _dayWellness;
   bool _autoPromptHandled = false;
 
@@ -100,6 +104,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   @override
   void dispose() {
     IntervalsSession.instance.removeListener(_onConnectionChanged);
+    _cursor.dispose();
     super.dispose();
   }
 
@@ -240,9 +245,17 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             onAskTrainer: (e) => _askTrainer(context, e),
           ),
           const SizedBox(height: 16),
-          SessionDiagramCard(activity: activity, streams: widget.streams),
+          SessionDiagramCard(
+            activity: activity,
+            streams: widget.streams,
+            onCursorSeconds: (s) => _cursor.value = s,
+          ),
           const SizedBox(height: 16),
-          ActivityRouteCard(activity: activity, routes: widget.routes),
+          ActivityRouteCard(
+            activity: activity,
+            routes: widget.routes,
+            cursor: _cursor,
+          ),
           BrickCard(
             activity: activity,
             loader: BrickLoader(streams: widget.streams),

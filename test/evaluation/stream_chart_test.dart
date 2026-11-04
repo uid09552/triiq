@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:triiq/evaluation/session_streams.dart';
@@ -97,5 +98,52 @@ void main() {
     await pump(tester, {'heartrate'});
 
     expect(painter(tester).series.keys, ['heartrate']);
+  });
+
+  group('cursor callback', () {
+    Future<List<double>> pumpWithCursor(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final seen = <double>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StreamChart(
+              streams: sixHours,
+              visible: const {'watts'},
+              format: (t, v) => '${v.round()}',
+              onCursorSeconds: seen.add,
+            ),
+          ),
+        ),
+      );
+      return seen;
+    }
+
+    testWidgets('a mouse moving over the chart reports the elapsed seconds',
+        (tester) async {
+      final seen = await pumpWithCursor(tester);
+      final box = tester.getRect(find.byKey(const ValueKey('stream-chart-paint')));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset(box.left + 5, box.center.dy));
+      await tester.pump();
+      await mouse.moveTo(Offset(box.left + box.width / 4, box.center.dy));
+      await tester.pump();
+      await mouse.moveTo(Offset(box.left + box.width * 0.75, box.center.dy));
+      await tester.pump();
+      expect(seen, isNotEmpty);
+      // Later on the chart means later in the ride.
+      expect(seen.last, greaterThan(seen.first));
+      expect(seen.last, closeTo(21600 * 0.75, 21600 * 0.12));
+    });
+
+    testWidgets('a tap reports too', (tester) async {
+      final seen = await pumpWithCursor(tester);
+      final box = tester.getRect(find.byKey(const ValueKey('stream-chart-paint')));
+      await tester.tapAt(Offset(box.left + box.width / 2, box.center.dy));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(seen.last, closeTo(10800, 2500));
+    });
   });
 }

@@ -65,7 +65,10 @@ class ChartViewport extends ChangeNotifier {
   void setRange(double from, double to) {
     if (_length < 2) return;
     final minSpan = math.min(fullSpan, (minPoints - 1).toDouble());
-    final newSpan = math.max(minSpan, to - from).clamp(minSpan, fullSpan).toDouble();
+    final newSpan = math
+        .max(minSpan, to - from)
+        .clamp(minSpan, fullSpan)
+        .toDouble();
     final centre = (from + to) / 2;
     _set(centre - newSpan / 2, newSpan);
   }
@@ -103,6 +106,7 @@ class ChartInteraction extends StatefulWidget {
     this.plotRight = 0,
     required this.child,
     this.onSelectAt,
+    this.hoverSelects = false,
     this.zoomable = true,
   });
 
@@ -116,6 +120,9 @@ class ChartInteraction extends StatefulWidget {
 
   /// Called with the data index under the finger.
   final ValueChanged<int>? onSelectAt;
+
+  /// A mouse moving over the chart selects like a tap does (desktop).
+  final bool hoverSelects;
   final bool zoomable;
   final Widget child;
 
@@ -138,9 +145,7 @@ class _ChartInteractionState extends State<ChartInteraction> {
     final select = widget.onSelectAt;
     final vp = widget.viewport;
     if (select == null || vp.length == 0) return;
-    select(
-      vp.indexAt(_fraction(dx, width)).round().clamp(0, vp.length - 1),
-    );
+    select(vp.indexAt(_fraction(dx, width)).round().clamp(0, vp.length - 1));
   }
 
   @override
@@ -149,48 +154,57 @@ class _ChartInteractionState extends State<ChartInteraction> {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final vp = widget.viewport;
-        return Listener(
-          onPointerSignal: (event) {
-            if (!widget.zoomable ||
-                event is! PointerScrollEvent ||
-                !HardwareKeyboard.instance.isControlPressed) {
-              return;
-            }
-            GestureBinding.instance.pointerSignalResolver.register(event, (e) {
-              final scroll = e as PointerScrollEvent;
-              vp.zoomAt(
-                math.exp(-scroll.scrollDelta.dy / 300),
-                _fraction(scroll.localPosition.dx, width),
-              );
-            });
-          },
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTapDown: (d) => _select(d.localPosition.dx, width),
-            onDoubleTapDown: (d) => _doubleTapAt = d.localPosition,
-            onDoubleTap: widget.zoomable
-                ? () => vp.isZoomed
-                      ? vp.reset()
-                      : vp.zoomAt(3, _fraction(_doubleTapAt.dx, width))
-                : null,
-            onScaleStart: (_) => _lastScale = 1,
-            onScaleUpdate: (d) {
-              if (widget.zoomable && d.pointerCount >= 2) {
-                final factor = d.scale / _lastScale;
-                _lastScale = d.scale;
-                vp.zoomAt(factor, _fraction(d.localFocalPoint.dx, width));
-                vp.panByFraction(
-                  d.focalPointDelta.dx / math.max(1, width - widget.plotLeft - widget.plotRight),
-                );
-              } else if (widget.zoomable && vp.isZoomed) {
-                vp.panByFraction(
-                  d.focalPointDelta.dx / math.max(1, width - widget.plotLeft - widget.plotRight),
-                );
-              } else {
-                _select(d.localFocalPoint.dx, width);
+        return MouseRegion(
+          onHover: widget.hoverSelects
+              ? (e) => _select(e.localPosition.dx, width)
+              : null,
+          child: Listener(
+            onPointerSignal: (event) {
+              if (!widget.zoomable ||
+                  event is! PointerScrollEvent ||
+                  !HardwareKeyboard.instance.isControlPressed) {
+                return;
               }
+              GestureBinding.instance.pointerSignalResolver.register(event, (
+                e,
+              ) {
+                final scroll = e as PointerScrollEvent;
+                vp.zoomAt(
+                  math.exp(-scroll.scrollDelta.dy / 300),
+                  _fraction(scroll.localPosition.dx, width),
+                );
+              });
             },
-            child: widget.child,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (d) => _select(d.localPosition.dx, width),
+              onDoubleTapDown: (d) => _doubleTapAt = d.localPosition,
+              onDoubleTap: widget.zoomable
+                  ? () => vp.isZoomed
+                        ? vp.reset()
+                        : vp.zoomAt(3, _fraction(_doubleTapAt.dx, width))
+                  : null,
+              onScaleStart: (_) => _lastScale = 1,
+              onScaleUpdate: (d) {
+                if (widget.zoomable && d.pointerCount >= 2) {
+                  final factor = d.scale / _lastScale;
+                  _lastScale = d.scale;
+                  vp.zoomAt(factor, _fraction(d.localFocalPoint.dx, width));
+                  vp.panByFraction(
+                    d.focalPointDelta.dx /
+                        math.max(1, width - widget.plotLeft - widget.plotRight),
+                  );
+                } else if (widget.zoomable && vp.isZoomed) {
+                  vp.panByFraction(
+                    d.focalPointDelta.dx /
+                        math.max(1, width - widget.plotLeft - widget.plotRight),
+                  );
+                } else {
+                  _select(d.localFocalPoint.dx, width);
+                }
+              },
+              child: widget.child,
+            ),
           ),
         );
       },

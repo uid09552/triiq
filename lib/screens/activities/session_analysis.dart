@@ -45,10 +45,14 @@ class SessionDiagramCard extends StatefulWidget {
     super.key,
     required this.activity,
     ActivityStreamsRepository? streams,
+    this.onCursorSeconds,
   }) : streams = streams ?? ActivityStreamsRepository();
 
   final LocalActivity activity;
   final ActivityStreamsRepository streams;
+
+  /// The elapsed seconds under the pointer on the chart.
+  final ValueChanged<double>? onCursorSeconds;
 
   @override
   State<SessionDiagramCard> createState() => _SessionDiagramCardState();
@@ -178,6 +182,7 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                 format: _format,
                 smoothSeconds: _smooth,
                 viewport: _viewport,
+                onCursorSeconds: widget.onCursorSeconds,
               ),
               if (streams.intervals.any((i) => i.isWork)) ...[
                 const SizedBox(height: 12),

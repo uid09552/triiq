@@ -1045,7 +1045,7 @@ sent to Intervals.icu and opens its steps; it is managed on the Plan screen
 (no delete here). Data is read from the local cache the same
 way Today does, syncing the visible range from Intervals.icu if it isn't
 cached yet, and refetching it when it has gone stale (see the sync notes
-above; the header's refresh button forces it). **Long-press a day** (cell or day card) for a sheet with **Propose training** — Train now for that day, so the created session lands on it (future days and today) — next to *Delete day's training*. The day card is slim: the date (with a Today pill) and done-vs-planned TSS with a hairline progress bar, then one compact row per session — duration and load on every row, a check on a planned session a same-sport activity covers. Tap a day to see its planned
+above; the header's refresh button forces it). On Today, **long-pressing the "nothing planned" line** of today's (or tomorrow's) training offers *Propose training* — Train now for that day — and opens it. **Long-press a day** (cell or day card) for a sheet with **Propose training** — Train now for that day, so the created session lands on it (future days and today) — next to *Delete day's training*. The day card is slim: the date (with a Today pill) and done-vs-planned TSS with a hairline progress bar, then one compact row per session — duration and load on every row, a check on a planned session a same-sport activity covers. Tap a day to see its planned
 and completed sessions below the grid/list; tap one of those to open its
 full detail (`PlannedWorkoutDetailScreen` or `ActivityDetailScreen`).
 
@@ -1377,7 +1377,7 @@ the map). The card's map is a still picture so it never steals the page
 scroll; tapping opens a full-screen map with pan and zoom. The track is
 fetched the first time (not as part of sync), thinned to ≤ 1200 points and
 cached in SQLite beside the diagram streams (`route:<id>`; an activity with
-no GPS is remembered as empty). Offline, or without GPS, the card simply
+no GPS is remembered as empty). **Moving the mouse (or dragging a finger) over the session diagram marks the same moment on the map** with a highlighted dot — the track is stored with the elapsed seconds of each point (`time` stream), and a track cached before that is fetched once more. Offline, or without GPS, the card simply
 doesn't appear. Tiles come from `tile.openstreetmap.org` with the app's
 user agent; that server is for light use, so if TriIQ is distributed widely
 point `_tileUrl` in `route_card.dart` at a tile provider with an API key.
