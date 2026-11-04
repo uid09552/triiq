@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 
+import '../screens/activities/activity_icons.dart' show canonicalSport;
+import '../screens/settings/weekly_targets_settings.dart';
 import 'models/local_activity.dart';
 import 'models/local_event.dart';
 import 'models/local_wellness.dart';
@@ -22,7 +24,11 @@ class HomeWidgetData {
     required this.ctl,
     required this.atl,
     required this.updated,
+    this.rings = const [],
   });
+
+  /// One entry per sport with a weekly target (swim, cycle, run).
+  final List<WidgetRing> rings;
 
   /// Up to two lines for today's planned training sessions.
   final List<String> sessions;
@@ -38,6 +44,17 @@ class HomeWidgetData {
 
   double? get form => ctl != null && atl != null ? ctl! - atl! : null;
 
+  Map<String, String> _ringEntries(String sport) {
+    final ring = rings.where((r) => r.sport == sport).firstOrNull;
+    return {
+      'w_${sport}_pct': ring == null ? '' : '${ring.percent}',
+      'w_${sport}_val': ring == null
+          ? ''
+          : '${ring.doneHours.toStringAsFixed(1)} / '
+                '${ring.targetHours.toStringAsFixed(1)} h',
+    };
+  }
+
   static String _minutes(int? seconds) =>
       seconds == null || seconds <= 0 ? '' : ' · ${(seconds / 60).round()} min';
 
@@ -49,6 +66,8 @@ class HomeWidgetData {
 
   /// The widget's storage entries.
   Map<String, String> toEntries() => {
+    for (final sport in const ['swim', 'cycle', 'run'])
+      ..._ringEntries(sport),
     'w_session1': sessions.isNotEmpty ? sessions[0] : '',
     'w_session2': sessions.length > 1 ? sessions[1] : '',
     'w_extra': extra > 0 ? '+$extra' : '',
@@ -65,6 +84,47 @@ class HomeWidgetData {
   };
 }
 
+/// A weekly target and how far this week has got towards it.
+class WidgetRing {
+  const WidgetRing({
+    required this.sport,
+    required this.targetHours,
+    required this.doneHours,
+  });
+
+  /// `swim`, `cycle` or `run`.
+  final String sport;
+  final double targetHours;
+  final double doneHours;
+
+  /// Whole percent of the target, not capped (the widget caps the ring).
+  int get percent => targetHours <= 0 ? 0 : (doneHours / targetHours * 100).round();
+}
+
+/// The rings for the sports that have a weekly target: [targets] maps
+/// `swim` / `cycle` / `run` to hours (null = no target), [weekActivities]
+/// are this week's activities.
+List<WidgetRing> buildWidgetRings(
+  Map<String, double?> targets,
+  List<LocalActivity> weekActivities,
+) {
+  final seconds = <String, int>{};
+  for (final a in weekActivities) {
+    final sport = canonicalSport(a.type);
+    if (sport == null) continue;
+    seconds[sport] = (seconds[sport] ?? 0) + (a.movingTime ?? 0);
+  }
+  return [
+    for (final sport in const ['swim', 'cycle', 'run'])
+      if (targets[sport] case final t? when t > 0)
+        WidgetRing(
+          sport: sport,
+          targetHours: t,
+          doneHours: (seconds[sport] ?? 0) / 3600,
+        ),
+  ];
+}
+
 /// Builds the widget content from today's planned items, today's completed
 /// activities and the latest wellness row that has CTL/ATL.
 HomeWidgetData buildHomeWidgetData({
@@ -72,6 +132,7 @@ HomeWidgetData buildHomeWidgetData({
   required List<LocalActivity> done,
   required LocalWellness? latest,
   required DateTime now,
+  List<WidgetRing> rings = const [],
 }) {
   final today = [
     for (final e in planned)
@@ -84,6 +145,7 @@ HomeWidgetData buildHomeWidgetData({
     ctl: latest?.ctl,
     atl: latest?.atl,
     updated: now,
+    rings: rings,
   );
 }
 
@@ -94,8 +156,10 @@ class HomeWidgetUpdater {
     PlannedItemsRepository? planned,
     ActivitiesRepository? activities,
     WellnessRepository? wellness,
+    WeeklyTargetsSettings? targets,
     DateTime Function()? clock,
-  }) : _planned = planned ?? PlannedItemsRepository(),
+  }) : _targets = targets ?? WeeklyTargetsSettings.instance,
+       _planned = planned ?? PlannedItemsRepository(),
        _activities = activities ?? ActivitiesRepository(),
        _wellness = wellness ?? WellnessRepository(),
        _clock = clock ?? DateTime.now;
@@ -105,6 +169,7 @@ class HomeWidgetUpdater {
   final PlannedItemsRepository _planned;
   final ActivitiesRepository _activities;
   final WellnessRepository _wellness;
+  final WeeklyTargetsSettings _targets;
   final DateTime Function() _clock;
 
   static bool get supported => !kIsWeb && Platform.isAndroid;
@@ -126,11 +191,21 @@ class HomeWidgetUpdater {
         latest = w;
       }
     }
+    if (!_targets.isLoaded) await _targets.load();
+    final weekActivities = await _activities.getRange(
+      isoDate(startOfWeek(now)),
+      day,
+    );
     return buildHomeWidgetData(
       planned: planned,
       done: done,
       latest: latest,
       now: now,
+      rings: buildWidgetRings({
+        'swim': _targets.swimHours,
+        'cycle': _targets.cycleHours,
+        'run': _targets.runHours,
+      }, weekActivities),
     );
   }
 

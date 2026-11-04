@@ -10,6 +10,7 @@ import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../plan/plan_session_sheet.dart';
 import 'calendar_day_marker.dart';
+import 'day_actions.dart';
 import 'performance_trend_icon.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
@@ -33,13 +34,9 @@ class CalendarDayDetail extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final plannedEvents = events.where((e) => e.isTraining).toList();
 
-    final canDeleteDay = plannedEvents.any(canDeletePlannedWorkout);
-
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onLongPress: canDeleteDay
-          ? () => confirmAndDeleteDaysWorkouts(context, plannedEvents)
-          : null,
+      onLongPress: () => showDayActions(context, date, plannedEvents),
       child: SectionCard(
       icon: Icons.event_note_outlined,
       title: formatIsoDate(_fmt(date)),

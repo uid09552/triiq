@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'hover_preview.dart';
 
+/// Which way a metric is heading, for the arrow beside a tile's sparkline.
+enum StatTrend { up, down, flat }
+
 /// A compact, colour-accented metric tile (e.g. TSS, CTL, ATL, distance).
 class StatTile extends StatelessWidget {
   const StatTile({
@@ -15,10 +18,17 @@ class StatTile extends StatelessWidget {
     this.onLongPress,
     this.compact = false,
     this.hoverPreview,
+    this.sparkValues,
+    this.trend,
   });
 
   final String label;
   final String value;
+
+  /// Recent values drawn as a tiny chart inside a [compact] tile, with
+  /// [trend] as an arrow beside it. Both must be given to show either.
+  final List<double>? sparkValues;
+  final StatTrend? trend;
 
   /// An optional second line under the label — a comparison the number
   /// alone doesn't carry ("of 420 planned", "+3.1 in 7 days").
@@ -57,6 +67,8 @@ class StatTile extends StatelessWidget {
         accent: accent,
         onTap: onTap,
         onLongPress: onLongPress,
+        sparkValues: sparkValues,
+        trend: trend,
       );
       final preview = hoverPreview;
       return preview == null
@@ -132,8 +144,12 @@ class _CompactStatTile extends StatefulWidget {
     required this.accent,
     required this.onTap,
     required this.onLongPress,
+    this.sparkValues,
+    this.trend,
   });
 
+  final List<double>? sparkValues;
+  final StatTrend? trend;
   final String label;
   final String value;
   final String? subtitle;
@@ -266,6 +282,17 @@ class _CompactStatTileState extends State<_CompactStatTile> {
                       ],
                     ),
                   ),
+                  if (widget.sparkValues != null &&
+                      widget.sparkValues!.length >= 2 &&
+                      widget.trend != null) ...[
+                    const SizedBox(width: 6),
+                    _TileSpark(
+                      key: const ValueKey('tile-spark'),
+                      values: widget.sparkValues!,
+                      trend: widget.trend!,
+                      color: accent,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -273,5 +300,104 @@ class _CompactStatTileState extends State<_CompactStatTile> {
         ),
       ),
     );
+  }
+}
+
+/// A 44×18 line with its last point marked, and a small arrow for the
+/// trend above it.
+class _TileSpark extends StatelessWidget {
+  const _TileSpark({
+    super.key,
+    required this.values,
+    required this.trend,
+    required this.color,
+  });
+
+  final List<double> values;
+  final StatTrend trend;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = switch (trend) {
+      StatTrend.up => Icons.arrow_upward_rounded,
+      StatTrend.down => Icons.arrow_downward_rounded,
+      StatTrend.flat => Icons.arrow_forward_rounded,
+    };
+    return Semantics(
+      label: switch (trend) {
+        StatTrend.up => 'trend rising',
+        StatTrend.down => 'trend falling',
+        StatTrend.flat => 'trend steady',
+      },
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Icon(icon, key: ValueKey('tile-trend-${trend.name}'), size: 13, color: color),
+          const SizedBox(height: 2),
+          SizedBox(
+            width: 44,
+            height: 18,
+            child: CustomPaint(painter: _SparkPainter(values, color)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SparkPainter extends CustomPainter {
+  _SparkPainter(this.values, this.color);
+
+  final List<double> values;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (values.length < 2) return;
+    var lo = values.reduce((a, b) => a < b ? a : b);
+    var hi = values.reduce((a, b) => a > b ? a : b);
+    if (hi - lo < 1e-9) {
+      lo -= 1;
+      hi += 1;
+    }
+    const pad = 2.0;
+    Offset at(int i) => Offset(
+      pad + (size.width - 2 * pad) * i / (values.length - 1),
+      pad + (size.height - 2 * pad) * (1 - (values[i] - lo) / (hi - lo)),
+    );
+    final path = Path()..moveTo(at(0).dx, at(0).dy);
+    for (var i = 1; i < values.length; i++) {
+      path.lineTo(at(i).dx, at(i).dy);
+    }
+    final fill = Path.from(path)
+      ..lineTo(at(values.length - 1).dx, size.height)
+      ..lineTo(at(0).dx, size.height)
+      ..close();
+    canvas.drawPath(fill, Paint()..color = color.withValues(alpha: 0.12));
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawCircle(at(values.length - 1), 2.2, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_SparkPainter old) =>
+      old.color != color || !_same(old.values, values);
+
+  static bool _same(List<double> a, List<double> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }

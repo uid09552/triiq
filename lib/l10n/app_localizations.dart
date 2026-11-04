@@ -5551,6 +5551,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{hours} / {target} h'**
   String weeklyHoursOfTarget(String hours, String target);
+
+  /// No description provided for @dayProposeTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose training'**
+  String get dayProposeTraining;
+
+  /// No description provided for @dayProposeTrainingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Like Train now, but the session is placed on this day.'**
+  String get dayProposeTrainingHelp;
 }
 
 class _AppLocalizationsDelegate

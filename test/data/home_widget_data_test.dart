@@ -61,4 +61,43 @@ void main() {
     expect(e['w_done'], '110 TSS');
     expect(e['w_form'], '+10');
   });
+
+  group('weekly target rings', () {
+    LocalActivity act(String type, int secs) => LocalActivity(
+      id: type + secs.toString(), date: '2026-05-10', type: type, name: 'x',
+      movingTime: secs, distance: null, trainingLoad: null, raw: const {},
+      syncedAt: DateTime(2026),
+    );
+
+    test('only sports with a target, with percent and hours', () {
+      final rings = buildWidgetRings(
+        {'swim': null, 'cycle': 6.0, 'run': 4.0},
+        [
+          act('Ride', 3 * 3600),
+          act('VirtualRide', 1800),
+          act('Run', 5400),
+          act('Hike', 7200), // not a target sport
+        ],
+      );
+      expect(rings.map((r) => r.sport), ['cycle', 'run']);
+      expect(rings[0].percent, 58); // 3.5 / 6
+      final e = buildHomeWidgetData(
+        planned: const [], done: const [], latest: null, now: now, rings: rings,
+      ).toEntries();
+      expect(e['w_swim_pct'], '');
+      expect(e['w_cycle_pct'], '58');
+      expect(e['w_cycle_val'], '3.5 / 6.0 h');
+      expect(e['w_run_pct'], '38');
+      expect(e['w_run_val'], '1.5 / 4.0 h');
+    });
+
+    test('over target is not capped in the data (the ring caps itself)', () {
+      final r = buildWidgetRings({'run': 2.0}, [act('Run', 3 * 3600)]);
+      expect(r.single.percent, 150);
+    });
+
+    test('no targets at all gives no rings', () {
+      expect(buildWidgetRings({'swim': null, 'cycle': 0.0, 'run': null}, const []), isEmpty);
+    });
+  });
 }
