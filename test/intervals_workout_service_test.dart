@@ -55,4 +55,66 @@ void main() {
       throwsStateError,
     );
   });
+
+  Future<String> sentDescription(PlannedWorkoutDraft draft) async {
+    final requests = <RequestOptions>[];
+    final dio = Dio(BaseOptions(baseUrl: 'https://intervals.test'));
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          requests.add(options);
+          handler.resolve(
+            Response(
+              requestOptions: options,
+              statusCode: 200,
+              data: {'id': 601, 'start_date_local': '2026-11-08T00:00:00'},
+            ),
+          );
+        },
+      ),
+    );
+    final service = IntervalsWorkoutService(
+      session: IntervalsSession.forTesting(
+        connected: true,
+        client: IntervallsClient(dio: dio, interceptors: const []),
+        athleteId: 'i42',
+      ),
+    );
+    await service.createPlannedWorkout(draft);
+    final data = requests.single.data;
+    return data is String ? data : data.toString();
+  }
+
+  test('a swim written in metres is sent as mtr, not as hundreds of minutes',
+      () async {
+    final body = await sentDescription(
+      PlannedWorkoutDraft(
+        name: 'Swim', sport: 'Swim', date: DateTime(2026, 11, 8),
+        durationSeconds: 30 * 60,
+        description: '- 300m Warm up\n4x\n  - 50m drill\n  - 50m easy\n- 200m Cool down',
+      ),
+    );
+    expect(body, contains('300mtr'));
+    expect(body, contains('200mtr'));
+    expect(body, isNot(contains('300m ')));
+  });
+
+  test('a minute-based swim and a ride are sent unchanged', () async {
+    final swim = await sentDescription(
+      PlannedWorkoutDraft(
+        name: 'Swim', sport: 'Swim', date: DateTime(2026, 11, 8),
+        durationSeconds: 31 * 60,
+        description: '- 10m 75%\n4x\n  - 3m 98%\n  - 1m 70%\n- 5m 72%',
+      ),
+    );
+    expect(swim, contains('- 10m 75%'));
+    expect(swim, isNot(contains('mtr')));
+    final ride = await sentDescription(
+      PlannedWorkoutDraft(
+        name: 'Ride', sport: 'Ride', date: DateTime(2026, 11, 8),
+        durationSeconds: 60 * 60, description: '- 300m 60%',
+      ),
+    );
+    expect(ride, contains('300m 60%'));
+  });
 }

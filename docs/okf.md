@@ -1407,6 +1407,19 @@ manual runs) only lists what it would delete.
 The APK's version name is the tag without the `v`; its version code is the
 workflow run number. Signing secrets: see the header of the workflow.
 
+### Swim steps: `m` is minutes, `mtr` is metres
+
+In Intervals.icu's step syntax a bare `m` after a number is **minutes**; metres are
+`mtr`. A swim written as `- 300m Warm up` is read as five hours (a 30-minute session
+came out as 19 h). The structuring prompt and the plan-content prompt now tell the model
+to write swim distances as `mtr`, and as a safety net `fixSwimDistanceUnits`
+(`lib/data/intervals_steps.dart`) rewrites `300m` → `300mtr` for swims — when the
+description is parsed (Train now / the trainer) and again right before any workout is
+created in Intervals.icu — but only when reading the `m` as minutes would make the steps
+add up to far more than the session's duration (or, without a duration, when a single step
+would be 100+ minutes). Minute-based swims (the plan engine's templates) and paces such as
+`1:45/100m` are never touched, and `mtr` is never converted twice.
+
 ### Training plan
 
 **More → Training plan.** Set a **goal** first: target (long distance or
