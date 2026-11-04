@@ -3419,4 +3419,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeTitle => 'Route';
+
+  @override
+  String get heroSyncNow => 'Sync now';
+
+  @override
+  String get heroMoreTooltip => 'More actions';
+
+  @override
+  String heroSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions',
+      one: '1 session',
+    );
+    return '$_temp0';
+  }
 }

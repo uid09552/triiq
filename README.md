@@ -1,5 +1,16 @@
 # TriIQ
 
+> **The goal of TriIQ: no backend, full control of your data.**
+> There is no TriIQ server, no TriIQ account and no tracking. Your training
+> data is cached in a database on your own device. The app only talks to
+> services you choose and own: **[Intervals.icu](https://intervals.icu)** for
+> your training data, and **the LLM of your choice** for the AI trainer — any
+> model you run yourself with **[Ollama](https://ollama.com)**, or **Anthropic's
+> Claude API** with your own key. Your keys stay in the operating system's secure
+> storage, and you can export or restore everything as a JSON file at any time.
+> (The only other request is for map tiles from OpenStreetMap when you open a
+> route map.)
+
 An endurance and triathlon training companion for
 [Intervals.icu](https://intervals.icu), built with Flutter for **Android** and
 **Windows**.

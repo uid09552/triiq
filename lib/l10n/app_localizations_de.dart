@@ -3450,4 +3450,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get routeTitle => 'Strecke';
+
+  @override
+  String get heroSyncNow => 'Jetzt synchronisieren';
+
+  @override
+  String get heroMoreTooltip => 'Weitere Aktionen';
+
+  @override
+  String heroSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einheiten',
+      one: '1 Einheit',
+    );
+    return '$_temp0';
+  }
 }

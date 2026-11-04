@@ -5593,6 +5593,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Route'**
   String get routeTitle;
+
+  /// No description provided for @heroSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get heroSyncNow;
+
+  /// No description provided for @heroMoreTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get heroMoreTooltip;
+
+  /// No description provided for @heroSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 session} other{{count} sessions}}'**
+  String heroSessions(int count);
 }
 
 class _AppLocalizationsDelegate
