@@ -1096,5 +1096,7 @@
   "morningBriefingHelp": "Eine Benachrichtigung mit der heutigen Einheit, Bereitschaft und Form. Sie wird aus deinem letzten Sync erstellt; die Bereitschaft erscheint, wenn die Daten deiner Uhr schon da sind.",
   "weeklyHoursLabel": "Alle Sportarten",
   "weeklyHoursTotal": "{hours} Std.",
-  "weeklyHoursOfTarget": "{hours} / {target} Std."
+  "weeklyHoursOfTarget": "{hours} / {target} Std.",
+  "dayProposeTraining": "Training vorschlagen",
+  "dayProposeTrainingHelp": "Wie „Jetzt trainieren“, aber die Einheit wird auf diesen Tag gelegt."
 }

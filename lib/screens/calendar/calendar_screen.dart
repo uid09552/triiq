@@ -12,8 +12,8 @@ import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/plan_changes.dart';
 import '../../widgets/main_navigation.dart';
-import '../activities/planned_workout_actions.dart';
 import 'calendar_day_detail.dart';
+import 'day_actions.dart';
 import 'monthly_calendar_view.dart';
 import 'weekly_calendar_view.dart';
 
@@ -215,14 +215,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
   }
 
-  /// Long-press on a day cell: select it and offer to clear its planned
-  /// sessions from Intervals.icu.
+  /// Long-press on a day cell: select it and offer to propose a training
+  /// for it or to clear its planned sessions.
   Future<void> _clearDay(DateTime date) async {
     _selectDate(date);
     final events = (_eventsByDate[_fmt(date)] ?? const <LocalEvent>[])
         .where((e) => e.isTraining)
         .toList();
-    await confirmAndDeleteDaysWorkouts(context, events);
+    await showDayActions(context, date, events);
   }
 
   void _setMode(CalendarViewMode mode) {

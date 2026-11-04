@@ -1044,7 +1044,7 @@ sent to Intervals.icu and opens its steps; it is managed on the Plan screen
 (no delete here). Data is read from the local cache the same
 way Today does, syncing the visible range from Intervals.icu if it isn't
 cached yet, and refetching it when it has gone stale (see the sync notes
-above; the header's refresh button forces it). Tap a day to see its planned
+above; the header's refresh button forces it). **Long-press a day** (cell or day card) for a sheet with **Propose training** — Train now for that day, so the created session lands on it (future days and today) — next to *Delete day's training*. Tap a day to see its planned
 and completed sessions below the grid/list; tap one of those to open its
 full detail (`PlannedWorkoutDetailScreen` or `ActivityDetailScreen`).
 

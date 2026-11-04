@@ -3424,4 +3424,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String weeklyHoursOfTarget(String hours, String target) {
     return '$hours / $target Std.';
   }
+
+  @override
+  String get dayProposeTraining => 'Training vorschlagen';
+
+  @override
+  String get dayProposeTrainingHelp =>
+      'Wie „Jetzt trainieren“, aber die Einheit wird auf diesen Tag gelegt.';
 }

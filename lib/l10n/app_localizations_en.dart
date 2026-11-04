@@ -3393,4 +3393,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String weeklyHoursOfTarget(String hours, String target) {
     return '$hours / $target h';
   }
+
+  @override
+  String get dayProposeTraining => 'Propose training';
+
+  @override
+  String get dayProposeTrainingHelp =>
+      'Like Train now, but the session is placed on this day.';
 }

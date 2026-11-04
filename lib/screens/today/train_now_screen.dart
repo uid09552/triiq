@@ -94,6 +94,7 @@ class TrainNowScreen extends StatefulWidget {
     String customPrompt = '',
     LocalEvent? reference,
     String loadContext = '',
+    String? dayLabel,
   }) {
     final ref = reference;
     var refText = '';
@@ -104,7 +105,7 @@ class TrainNowScreen extends StatefulWidget {
       }
       final refMinutes = (ref.plannedTime ?? 0) ~/ 60;
       refText =
-          'Today I have this session planned: ${ref.type ?? 'a session'} '
+          '${dayLabel == null ? 'Today' : 'On $dayLabel'} I have this session planned: ${ref.type ?? 'a session'} '
           '"${ref.name ?? 'Planned session'}", $refMinutes min, about '
           '${ref.plannedLoad ?? 'unknown'} TSS'
           '${steps.isEmpty ? '' : ', steps:\n$steps\n'}. '
@@ -114,7 +115,7 @@ class TrainNowScreen extends StatefulWidget {
     }
     return '$refText'
         'Propose $intensityWord $sport session lasting about '
-        '$minutes minutes for me to do right now. Before proposing, check my '
+        '$minutes minutes for me to do ${dayLabel == null ? 'right now' : 'on $dayLabel'}. Before proposing, check my '
         'training load from the last 7 days (TSS, CTL, ATL, ramp rate) with '
         'your tools and take it into account — back off the prescription if '
         "the data suggests I'm not recovered, and say so. Reply with the "
@@ -256,7 +257,10 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     customPrompt: _customPromptController.text.trim(),
     reference: _reference,
     loadContext: _loadContext,
+    dayLabel: _isTargetToday ? null : isoDate(_targetDay),
   );
+
+  bool get _isTargetToday => isoDate(_targetDay) == isoDate(DateTime.now());
 
   /// The session an alternative is asked for: the selected one of today's,
   /// or `null` when nothing is planned.
