@@ -46,8 +46,7 @@ const _metricsBySport = {
 };
 
 class _PerformanceScreenState extends State<PerformanceScreen> {
-  late final _repository =
-      widget.repository ?? PerformanceCurvesRepository();
+  late final _repository = widget.repository ?? PerformanceCurvesRepository();
   late final _activities = widget.activities ?? ActivitiesRepository();
 
   CurveSport _sport = CurveSport.ride;
@@ -229,84 +228,90 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ThresholdSuggestionsSection(),
-          SegmentedButton<CurveSport>(
-            segments: [
-              for (final sport in CurveSport.values)
-                ButtonSegment(
-                  value: sport,
-                  label: Text(_sportLabel(l10n, sport)),
-                ),
-            ],
-            selected: {_sport},
-            onSelectionChanged: (s) => _selectSport(s.first),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 840),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
             children: [
-              for (final metric in _metrics)
-                ChoiceChip(
-                  label: Text(_metricLabel(l10n, metric)),
-                  selected: metric == _metric,
-                  onSelected: (_) => _selectMetric(metric),
+              ThresholdSuggestionsSection(),
+              SegmentedButton<CurveSport>(
+                segments: [
+                  for (final sport in CurveSport.values)
+                    ButtonSegment(
+                      value: sport,
+                      label: Text(_sportLabel(l10n, sport)),
+                    ),
+                ],
+                selected: {_sport},
+                onSelectionChanged: (s) => _selectSport(s.first),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final metric in _metrics)
+                    ChoiceChip(
+                      label: Text(_metricLabel(l10n, metric)),
+                      selected: metric == _metric,
+                      onSelected: (_) => _selectMetric(metric),
+                    ),
+                ],
+              ),
+              if (_loading) ...[
+                const SizedBox(height: 12),
+                const LinearProgressIndicator(),
+              ],
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Card(
+                  color: colorScheme.errorContainer,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.error_outline,
+                      color: colorScheme.onErrorContainer,
+                    ),
+                    title: Text(
+                      connected
+                          ? l10n.curvesLoadFailed('$_error')
+                          : l10n.statsNotConnected,
+                      style: TextStyle(color: colorScheme.onErrorContainer),
+                    ),
+                    trailing: connected
+                        ? TextButton(
+                            onPressed: () => _load(force: true),
+                            child: Text(l10n.retryButton),
+                          )
+                        : null,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              if (curves != null && !curves.isEmpty) ...[
+                _chartCard(context, curves),
+                const SizedBox(height: 16),
+                _keyEffortsCard(context, curves),
+                if (_metric != CurveMetric.hr) ...[
+                  const SizedBox(height: 16),
+                  _modelCard(context, curves),
+                ],
+              ] else if (!_loading && _error == null)
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    curves == null && !connected
+                        ? l10n.statsNotConnected
+                        : l10n.curvesEmpty,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
             ],
           ),
-          if (_loading) ...[
-            const SizedBox(height: 12),
-            const LinearProgressIndicator(),
-          ],
-          if (_error != null) ...[
-            const SizedBox(height: 12),
-            Card(
-              color: colorScheme.errorContainer,
-              child: ListTile(
-                leading: Icon(
-                  Icons.error_outline,
-                  color: colorScheme.onErrorContainer,
-                ),
-                title: Text(
-                  connected
-                      ? l10n.curvesLoadFailed('$_error')
-                      : l10n.statsNotConnected,
-                  style: TextStyle(color: colorScheme.onErrorContainer),
-                ),
-                trailing: connected
-                    ? TextButton(
-                        onPressed: () => _load(force: true),
-                        child: Text(l10n.retryButton),
-                      )
-                    : null,
-              ),
-            ),
-          ],
-          const SizedBox(height: 16),
-          if (curves != null && !curves.isEmpty) ...[
-            _chartCard(context, curves),
-            const SizedBox(height: 16),
-            _keyEffortsCard(context, curves),
-            if (_metric != CurveMetric.hr) ...[
-              const SizedBox(height: 16),
-              _modelCard(context, curves),
-            ],
-          ] else if (!_loading && _error == null)
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                curves == null && !connected
-                    ? l10n.statsNotConnected
-                    : l10n.curvesEmpty,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -317,8 +322,9 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
 
-    String dateLabel(String? date) =>
-        date == null ? '?' : DateFormat.yMMMd(locale).format(DateTime.parse(date));
+    String dateLabel(String? date) => date == null
+        ? '?'
+        : DateFormat.yMMMd(locale).format(DateTime.parse(date));
 
     final series = <CurveSeries>[];
     final legend = <ChartSeries>[];
@@ -370,9 +376,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         ),
       );
     } else {
-      readout.add(
-        Text(_formatX(selected), style: theme.textTheme.titleSmall),
-      );
+      readout.add(Text(_formatX(selected), style: theme.textTheme.titleSmall));
       for (final id in curvePeriodIds) {
         final point = curves.period(id)?.at(selected);
         if (point == null) continue;
@@ -459,8 +463,8 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
       if (_metric.byDistance) {
         // Seconds per pace unit; negative is faster.
         final unit = paceUnitMetres(_sport);
-        final diff =
-            (now.value / now.x * unit - before.value / before.x * unit).round();
+        final diff = (now.value / now.x * unit - before.value / before.x * unit)
+            .round();
         return diff == 0 ? '±0 s' : '${diff > 0 ? '+' : '−'}${diff.abs()} s';
       }
       final diff = (now.value - before.value).round();
@@ -516,10 +520,13 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final model = curves.period('s0')?.model;
-    final settings = (widget.settingsForSport ??
-        IntervalsSession.instance.settingsForSport)(_sport.apiType);
+    final settings =
+        (widget.settingsForSport ?? IntervalsSession.instance.settingsForSport)(
+          _sport.apiType,
+        );
 
     final rows = <(String, String)>[];
+    (String, String)? settingsRow;
     String? gap;
     if (_metric == CurveMetric.power) {
       final settingsFtp = settings?.ftp?.toDouble();
@@ -533,12 +540,12 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         }
         if (model.pMax != null) rows.add(('Pmax', '${model.pMax!.round()} W'));
       }
-      rows.add((
+      settingsRow = (
         '${l10n.modelSettingsValue} (FTP)',
         settingsFtp == null
             ? l10n.modelNoSettingsValue
             : '${settingsFtp.round()} W',
-      ));
+      );
       if (model?.ftp != null && settingsFtp != null && settingsFtp > 0) {
         gap = l10n.modelGap(
           '${model!.ftp!.round()} W',
@@ -559,12 +566,12 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
       if (model?.dPrime != null) {
         rows.add(("D'", '${model!.dPrime!.round()} m'));
       }
-      rows.add((
+      settingsRow = (
         '${l10n.modelSettingsValue} (${l10n.thresholdPaceLabel})',
         settingsSpeed == null || settingsSpeed <= 0
             ? l10n.modelNoSettingsValue
             : '${formatPace(settingsSpeed, per: unit)} $suffix',
-      ));
+      );
       final cs = model?.criticalSpeed;
       if (cs != null && settingsSpeed != null && settingsSpeed > 0) {
         // Seconds per unit; negative = the model is faster than settings.
@@ -572,7 +579,11 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         gap = l10n.modelGap(
           formatPace(cs, per: unit),
           formatPace(settingsSpeed, per: unit),
-          '${seconds > 0 ? '+' : seconds < 0 ? '−' : '±'}${seconds.abs()} s'
+          '${seconds > 0
+              ? '+'
+              : seconds < 0
+              ? '−'
+              : '±'}${seconds.abs()} s'
           '$suffix (${_percent(cs / settingsSpeed - 1)})',
         );
       }
@@ -594,21 +605,57 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
                 ),
               ),
             ),
-          for (final (label, value) in rows)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // As many tiles per row as fit: the card uses its full width
+              // instead of a label on the far left and a value on the far
+              // right of a wide window.
+              const spacing = 8.0;
+              final all = [...rows, ?settingsRow];
+              final columns = (constraints.maxWidth / 150).floor().clamp(
+                1,
+                all.length < 4 ? all.length : 4,
+              );
+              final tileWidth =
+                  (constraints.maxWidth - spacing * (columns - 1)) / columns;
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: [
+                  for (final (label, value) in all)
+                    _ModelTile(
+                      key: ValueKey('model-$label'),
+                      width: tileWidth,
+                      label: label,
+                      value: value,
+                      highlight: settingsRow != null && label == settingsRow.$1,
+                    ),
+                ],
+              );
+            },
+          ),
+          if (gap != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              key: const ValueKey('model-gap'),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Text(label, style: theme.textTheme.bodyMedium),
+                  Icon(
+                    Icons.compare_arrows,
+                    size: 18,
+                    color: colorScheme.primary,
                   ),
-                  Text(value, style: theme.textTheme.titleSmall),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(gap, style: theme.textTheme.bodyMedium)),
                 ],
               ),
             ),
-          if (gap != null) ...[
-            const SizedBox(height: 8),
-            Text(gap, style: theme.textTheme.bodyMedium),
           ],
         ],
       ),
@@ -617,12 +664,83 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
 
   static String _percent(double fraction) {
     final p = (fraction * 100).round();
-    return '${p > 0 ? '+' : p < 0 ? '−' : '±'}${p.abs()}%';
+    return '${p > 0
+        ? '+'
+        : p < 0
+        ? '−'
+        : '±'}${p.abs()}%';
   }
 
   static String _diff(double absolute, double fraction, String unit) {
     final a = absolute.round();
-    return '${a > 0 ? '+' : a < 0 ? '−' : '±'}${a.abs()} $unit '
+    return '${a > 0
+            ? '+'
+            : a < 0
+            ? '−'
+            : '±'}${a.abs()} $unit '
         '(${_percent(fraction)})';
+  }
+}
+
+/// One model figure (FTP, CP, W′, Pmax, critical pace, or the value in the
+/// athlete's settings) as a small tile: the label above, the value large.
+class _ModelTile extends StatelessWidget {
+  const _ModelTile({
+    super.key,
+    required this.width,
+    required this.label,
+    required this.value,
+    this.highlight = false,
+  });
+
+  final double width;
+  final String label;
+  final String value;
+
+  /// The settings value, drawn with an outline to tell it from the fitted ones.
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      width: width,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: highlight ? Colors.transparent : scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: highlight
+              ? scheme.outline
+              : scheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+              maxLines: 1,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

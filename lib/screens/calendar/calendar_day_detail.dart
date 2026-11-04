@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
+import '../../evaluation/session_evaluator.dart' show sportFamily;
 import '../../l10n/app_localizations.dart';
-import '../../widgets/section_card.dart';
 import '../activities/activity_detail_screen.dart';
-import '../activities/activity_icons.dart';
 import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../plan/plan_session_sheet.dart';
@@ -15,41 +15,144 @@ import 'performance_trend_icon.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
 /// same way as the grid/list markers and tappable through to full detail.
+///
+/// A slim card: the date on one line (with a "Today" pill) and the day's
+/// load on the right — done against planned TSS, with a hairline progress
+/// bar — then one compact row per session. A planned session that a
+/// completed activity of the same sport covers gets a check; completed
+/// rows show their time and load instead of just "Completed".
 class CalendarDayDetail extends StatelessWidget {
   const CalendarDayDetail({
     super.key,
     required this.date,
     required this.events,
     required this.activities,
+    this.today,
   });
 
   final DateTime date;
   final List<LocalEvent> events;
   final List<LocalActivity> activities;
 
+  /// Test seam for "now"; the app uses the clock.
+  final DateTime Function()? today;
+
+  bool _isToday() {
+    final now = (today ?? DateTime.now)();
+    return now.year == date.year && now.month == date.month && now.day == date.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
     final plannedEvents = events.where((e) => e.isTraining).toList();
+
+    final plannedTss = plannedEvents.fold<int>(0, (s, e) => s + (e.plannedLoad ?? 0));
+    final doneTss = activities.fold<int>(0, (s, a) => s + (a.trainingLoad ?? 0));
+    final doneFamilies = {for (final a in activities) sportFamily(a.type)};
+    bool covered(LocalEvent e) => doneFamilies.contains(sportFamily(e.type));
+
+    String? load;
+    if (plannedTss > 0) {
+      load = l10n.dayCardLoadOfPlanned(doneTss, plannedTss);
+    } else if (doneTss > 0) {
+      load = l10n.dayCardLoadDone(doneTss);
+    }
+    final empty = plannedEvents.isEmpty && activities.isEmpty;
+
+    String detail(int? seconds, int? tss) {
+      final mins = seconds == null || seconds <= 0 ? null : (seconds / 60).round();
+      if (mins != null && tss != null) return l10n.planSessionMinutes(mins, tss);
+      if (mins != null) return '$mins min';
+      if (tss != null) return '$tss TSS';
+      return '';
+    }
+
+    String withDetail(String lead, String d) => d.isEmpty ? lead : '$lead · $d';
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onLongPress: () => showDayActions(context, date, plannedEvents),
-      child: SectionCard(
-      icon: Icons.event_note_outlined,
-      title: formatIsoDate(_fmt(date)),
-      child: plannedEvents.isEmpty && activities.isEmpty
-          ? Text(
-              l10n.nothingPlannedOrLogged,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
+      child: Card(
+        key: const ValueKey('day-detail-card'),
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 8, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Row(
+                  children: [
+                    Text(
+                      DateFormat.MMMEd(locale).format(date),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (_isToday()) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        key: const ValueKey('day-today-pill'),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          l10n.dayCardToday,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const Spacer(),
+                    if (load != null)
+                      Text(
+                        load,
+                        key: const ValueKey('day-load'),
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              if (plannedTss > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, right: 6),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: LinearProgressIndicator(
+                      key: const ValueKey('day-progress'),
+                      minHeight: 3,
+                      value: (doneTss / plannedTss).clamp(0.0, 1.0),
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                    ),
+                  ),
+                ),
+              if (empty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: Text(
+                    l10n.nothingPlannedOrLogged,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else ...[
+                const SizedBox(height: 2),
                 for (final event in plannedEvents.where((e) => e.isPlanSession))
                   _Row(
                     key: ValueKey('plan-session-${event.planSessionId}'),
@@ -64,17 +167,30 @@ class CalendarDayDetail extends StatelessWidget {
                         ? () => confirmAndDeletePlannedWorkout(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
-                    status: Tooltip(
-                      message: event.planSessionSent
-                          ? l10n.planSessionSent
-                          : l10n.planSessionLocalOnly,
-                      child: Icon(
-                        event.planSessionSent
-                            ? Icons.cloud_done_outlined
-                            : Icons.cloud_off_outlined,
-                        size: 18,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                    status: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (covered(event))
+                          Icon(
+                            Icons.check_circle,
+                            key: const ValueKey('planned-done'),
+                            size: 16,
+                            color: colorScheme.tertiary,
+                          ),
+                        const SizedBox(width: 4),
+                        Tooltip(
+                          message: event.planSessionSent
+                              ? l10n.planSessionSent
+                              : l10n.planSessionLocalOnly,
+                          child: Icon(
+                            event.planSessionSent
+                                ? Icons.cloud_done_outlined
+                                : Icons.cloud_off_outlined,
+                            size: 16,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 for (final event in plannedEvents.where(
@@ -84,7 +200,18 @@ class CalendarDayDetail extends StatelessWidget {
                     color: colorScheme.tertiary,
                     type: event.type,
                     title: plannedWorkoutTitle(l10n, event),
-                    subtitle: l10n.plannedStatus,
+                    subtitle: withDetail(
+                      l10n.plannedStatus,
+                      detail(event.plannedTime, event.plannedLoad),
+                    ),
+                    status: covered(event)
+                        ? Icon(
+                            Icons.check_circle,
+                            key: const ValueKey('planned-done'),
+                            size: 16,
+                            color: colorScheme.tertiary,
+                          )
+                        : null,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) =>
@@ -105,7 +232,10 @@ class CalendarDayDetail extends StatelessWidget {
                     type: activity.type,
                     title:
                         activity.name ?? activity.type ?? l10n.activityFallback,
-                    subtitle: l10n.completedStatus,
+                    subtitle: withDetail(
+                      l10n.completedStatus,
+                      detail(activity.movingTime, activity.trainingLoad),
+                    ),
                     status: PerformanceTrendIcon(
                       key: ValueKey('trend-${activity.id}'),
                       activity: activity,
@@ -118,15 +248,12 @@ class CalendarDayDetail extends StatelessWidget {
                     ),
                   ),
               ],
-            ),
+            ],
+          ),
+        ),
       ),
     );
   }
-
-  static String _fmt(DateTime date) =>
-      '${date.year.toString().padLeft(4, '0')}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
 }
 
 class _Row extends StatelessWidget {
@@ -164,25 +291,29 @@ class _Row extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 5),
         child: Row(
           children: [
-            CalendarDayMarker(type: type, color: color, size: 26),
-            const SizedBox(width: 12),
+            CalendarDayMarker(type: type, color: color, size: 22),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w600, height: 1.2),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     subtitle,
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: theme.textTheme.labelSmall?.copyWith(
                       color: color,
                       fontWeight: FontWeight.w600,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -193,6 +324,7 @@ class _Row extends StatelessWidget {
                 onPressed: onDelete,
                 tooltip: deleteTooltip,
                 visualDensity: VisualDensity.compact,
+                iconSize: 20,
                 icon: Icon(
                   Icons.delete_outline,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -200,6 +332,7 @@ class _Row extends StatelessWidget {
               ),
             Icon(
               Icons.chevron_right,
+              size: 20,
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ],

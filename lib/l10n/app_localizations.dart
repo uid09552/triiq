@@ -5569,6 +5569,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fitness'**
   String get readinessFitness;
+
+  /// No description provided for @dayCardToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dayCardToday;
+
+  /// No description provided for @dayCardLoadOfPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {planned} TSS'**
+  String dayCardLoadOfPlanned(int done, int planned);
+
+  /// No description provided for @dayCardLoadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} TSS'**
+  String dayCardLoadDone(int done);
 }
 
 class _AppLocalizationsDelegate

@@ -1099,5 +1099,8 @@
   "weeklyHoursOfTarget": "{hours} / {target} Std.",
   "dayProposeTraining": "Training vorschlagen",
   "dayProposeTrainingHelp": "Wie „Jetzt trainieren“, aber die Einheit wird auf diesen Tag gelegt.",
-  "readinessFitness": "Fitness"
+  "readinessFitness": "Fitness",
+  "dayCardToday": "Heute",
+  "dayCardLoadOfPlanned": "{done} / {planned} TSS",
+  "dayCardLoadDone": "{done} TSS"
 }
