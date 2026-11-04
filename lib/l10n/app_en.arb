@@ -1304,5 +1304,10 @@
   "@weeklyHoursOfTarget": {"placeholders": {"hours": {"type": "String"}, "target": {"type": "String"}}},
   "dayProposeTraining": "Propose training",
   "dayProposeTrainingHelp": "Like Train now, but the session is placed on this day.",
-  "readinessFitness": "Fitness"
+  "readinessFitness": "Fitness",
+  "dayCardToday": "Today",
+  "dayCardLoadOfPlanned": "{done} / {planned} TSS",
+  "@dayCardLoadOfPlanned": {"placeholders": {"done": {"type": "int"}, "planned": {"type": "int"}}},
+  "dayCardLoadDone": "{done} TSS",
+  "@dayCardLoadDone": {"placeholders": {"done": {"type": "int"}}}
 }

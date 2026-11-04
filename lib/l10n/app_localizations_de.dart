@@ -3434,4 +3434,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readinessFitness => 'Fitness';
+
+  @override
+  String get dayCardToday => 'Heute';
+
+  @override
+  String dayCardLoadOfPlanned(int done, int planned) {
+    return '$done / $planned TSS';
+  }
+
+  @override
+  String dayCardLoadDone(int done) {
+    return '$done TSS';
+  }
 }
