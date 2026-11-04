@@ -1398,6 +1398,12 @@ publishes it as a GitHub release.
   pre-release.
 - **Manual run** of the workflow → only an APK artifact, no tag or release.
 
+**Clean-up:** `.github/workflows/cleanup-prereleases.yml` runs daily (03:17 UTC) and
+deletes the automatic `v<x.y.z>-rc<hash>` pre-releases published more than 3 days ago,
+together with their tags. Pre-releases you tagged yourself (e.g. `v1.0.0-beta1`) and
+normal releases are never touched. Run it by hand to try it — "dry run" (the default for
+manual runs) only lists what it would delete.
+
 The APK's version name is the tag without the `v`; its version code is the
 workflow run number. Signing secrets: see the header of the workflow.
 
