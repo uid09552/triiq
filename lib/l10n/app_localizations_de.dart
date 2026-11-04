@@ -3467,4 +3467,8 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ollamaKeyCloudOnly =>
+      'Ein Ollama-API-Schlüssel wird nur mit Ollama Cloud (https://ollama.com) verwendet. Ein eigener Server braucht hier keinen Schlüssel.';
 }

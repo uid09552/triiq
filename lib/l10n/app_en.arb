@@ -1314,5 +1314,6 @@
   "heroSyncNow": "Sync now",
   "heroMoreTooltip": "More actions",
   "heroSessions": "{count, plural, =1{1 session} other{{count} sessions}}",
-  "@heroSessions": {"placeholders": {"count": {"type": "int"}}}
+  "@heroSessions": {"placeholders": {"count": {"type": "int"}}},
+  "ollamaKeyCloudOnly": "An Ollama API key is only used with Ollama Cloud (https://ollama.com). A self-hosted server needs no key here."
 }

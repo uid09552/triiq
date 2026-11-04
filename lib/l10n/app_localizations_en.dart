@@ -3436,4 +3436,8 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ollamaKeyCloudOnly =>
+      'An Ollama API key is only used with Ollama Cloud (https://ollama.com). A self-hosted server needs no key here.';
 }

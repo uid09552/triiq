@@ -318,6 +318,44 @@ class AppDatabase {
       final dir = await getApplicationDocumentsDirectory();
       return p.join(dir.path, 'triiq.db');
     }
-    return p.join(Directory.current.path, 'triiq.db');
+    // Desktop: the per-user app-data folder (on Windows
+    // %APPDATA%\<company>\triiq). Not the working directory: that depends
+    // on how the app was started — a shortcut or the installer can make it
+    // the read-only install folder, or a different folder each time, so the
+    // cache would fail to open or seem to vanish.
+    final dir = await getApplicationSupportDirectory();
+    await dir.create(recursive: true);
+    final path = p.join(dir.path, 'triiq.db');
+    await migrateLegacyDatabase(
+      from: p.join(Directory.current.path, 'triiq.db'),
+      to: path,
+    );
+    return path;
+  }
+
+  /// Moves a database left in the working directory by earlier versions to
+  /// [to], once — only when nothing is at [to] yet, so an existing database
+  /// is never overwritten. SQLite's `-wal`/`-shm` side files move with it.
+  /// A failure leaves the old file where it was and starts fresh.
+  @visibleForTesting
+  static Future<void> migrateLegacyDatabase({
+    required String from,
+    required String to,
+  }) async {
+    try {
+      if (from == to) return;
+      final legacy = File(from);
+      if (!await legacy.exists() || await File(to).exists()) return;
+      for (final suffix in const ['', '-wal', '-shm']) {
+        final f = File('$from$suffix');
+        if (await f.exists()) await f.copy('$to$suffix');
+      }
+      for (final suffix in const ['', '-wal', '-shm']) {
+        final f = File('$from$suffix');
+        if (await f.exists()) await f.delete();
+      }
+    } catch (error) {
+      debugPrint('AppDatabase: cannot move the old database: $error');
+    }
   }
 }

@@ -1310,7 +1310,8 @@ and long/interval days in the goal for that).
 (`format: triiq-backup`, `version: 1`) with the tables wellness, activities,
 sync_state, events, plans, plan_sessions, knowledge_docs and knowledge_sections,
 plus the settings stored in shared preferences (goal, targets, theme, language,
-trainer memory, …); optionally the re-fetchable chart caches (activity
+trainer memory, …) — except the LLM connection settings (`llm.*`: provider, server URL,
+models), which are device setup and must never be redirected by a backup file; optionally the re-fetchable chart caches (activity
 streams, performance curves). Excluded always: the Intervals.icu key and the
 AI keys (OS vault) and device-runtime keys (background-sync status). On
 phones the file goes to the share sheet (Drive, Files, mail); on desktop to a
@@ -1419,6 +1420,18 @@ created in Intervals.icu — but only when reading the `m` as minutes would make
 add up to far more than the session's duration (or, without a duration, when a single step
 would be 100+ minutes). Minute-based swims (the plan engine's templates) and paces such as
 `1:45/100m` are never touched, and `mtr` is never converted twice.
+
+### Where data lives, and where keys go
+
+- **Database**: on Android/iOS in the app's documents folder; on Windows in the per-user
+  app-data folder (`getApplicationSupportDirectory`, e.g. `%APPDATA%\…\triiq\triiq.db`).
+  Earlier versions wrote `triiq.db` into the working directory, which depends on how the
+  app is started (a shortcut can make it the read-only install folder); on first start the
+  old file is moved over once, and an existing database is never overwritten.
+- **Keys**: Intervals.icu, Claude and Ollama keys are kept in the OS vault. The **Ollama
+  key is an Ollama Cloud key and is only ever sent to `https://ollama.com`** — never to a
+  self-hosted server and never over plain http (saving a key for another server URL is
+  refused with an explanation).
 
 ### Training plan
 

@@ -67,8 +67,13 @@ class BackupService {
 
   /// Preferences that describe this device's runtime, not the athlete's
   /// choices, and keys that look like credentials.
+  ///
+  /// LLM connection settings (`llm.*`: provider, server URL, models) are
+  /// device setup, not training data, and a restore must never point the
+  /// trainer — and the data it sends — at a server from a backup file.
   static bool excludedPref(String key) =>
       key.startsWith('sync.background_') ||
+      key.startsWith('llm.') ||
       RegExp(r'(api[_-]?key|token|secret|password)', caseSensitive: false)
           .hasMatch(key);
 
