@@ -1400,7 +1400,7 @@ publishes it as a GitHub release.
 
 **Clean-up:** `.github/workflows/cleanup-prereleases.yml` runs daily (03:17 UTC) and
 deletes the automatic `v<x.y.z>-rc<hash>` pre-releases published more than 3 days ago,
-together with their tags. Pre-releases you tagged yourself (e.g. `v1.0.0-beta1`) and
+together with their tags — the newest one always stays, however old. Pre-releases you tagged yourself (e.g. `v1.0.0-beta1`) and
 normal releases are never touched. Run it by hand to try it — "dry run" (the default for
 manual runs) only lists what it would delete.
 

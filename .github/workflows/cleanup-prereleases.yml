@@ -1,6 +1,7 @@
 # Deletes the automatic release candidates (v<x.y.z>-rc<hash>, made by
 # "Android release" on every merge to main) that are older than 3 days,
-# together with their tags. Pre-releases you tagged yourself (e.g.
+# together with their tags — except the newest one, which always stays so
+# there is a build to install after a quiet week. Pre-releases you tagged yourself (e.g.
 # v1.0.0-beta1) and normal releases are never touched.
 #
 # Runs daily; run it by hand to try it: Actions -> Clean up pre-releases ->
@@ -44,11 +45,18 @@ jobs:
           case "$DAYS" in ''|*[!0-9]*) echo "::error::days must be a whole number"; exit 1 ;; esac
           cutoff=$(date -u -d "$DAYS days ago" +%s)
           echo "Release candidates published before $(date -u -d "@$cutoff" +%FT%TZ) are removed (dry run: $DRY_RUN)."
+          # The automatic scheme: v<x.y.z>-rc<7 hex chars>. Everything else
+          # (your own pre-releases, normal releases) is ignored.
+          candidates=$(gh api --paginate "repos/$REPO/releases?per_page=100" \
+                         --jq '.[] | select(.prerelease) | [.tag_name, .published_at] | @tsv' \
+                       | grep -E $'^v[0-9]+\\.[0-9]+\\.[0-9]+-rc[0-9a-f]{7}\t' || true)
+          # The newest one is kept, however old.
+          newest=$(printf '%s\n' "$candidates" | sort -t $'\t' -k2,2r | head -n1 | cut -f1)
+          echo "Keeping the newest release candidate: ${newest:-none}"
           deleted=0
           while IFS=$'\t' read -r tag published; do
             [ -n "$tag" ] || continue
-            # Only the automatic scheme: v<x.y.z>-rc<7 hex chars>
-            [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9a-f]{7}$ ]] || continue
+            [ "$tag" != "$newest" ] || continue
             ts=$(date -u -d "$published" +%s)
             if [ "$ts" -lt "$cutoff" ]; then
               if [ "$DRY_RUN" = "true" ]; then
@@ -59,6 +67,5 @@ jobs:
               fi
               deleted=$((deleted + 1))
             fi
-          done < <(gh api --paginate "repos/$REPO/releases?per_page=100" \
-                     --jq '.[] | select(.prerelease) | [.tag_name, .published_at] | @tsv')
+          done <<< "$candidates"
           echo "$deleted release candidate(s) older than $DAYS day(s)."
