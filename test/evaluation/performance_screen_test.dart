@@ -144,6 +144,52 @@ void main() {
     );
   });
 
+  testWidgets('model card: figures as tiles across the card width', (tester) async {
+    final repo = _FakeCurves({(CurveSport.ride, CurveMetric.power): _ride()});
+    await pump(tester, repo);
+
+    final card = find.byKey(const ValueKey('model-FTP'));
+    expect(card, findsOneWidget);
+    expect(find.byKey(const ValueKey('model-CP')), findsOneWidget);
+    expect(find.byKey(const ValueKey('model-gap')), findsOneWidget);
+    // Several tiles sit side by side instead of one label/value row each.
+    final ftp = tester.getTopLeft(find.byKey(const ValueKey('model-FTP')));
+    final cp = tester.getTopLeft(find.byKey(const ValueKey('model-CP')));
+    expect(cp.dy, ftp.dy);
+    expect(cp.dx, greaterThan(ftp.dx));
+    // And together they use the card's width.
+    final gapBox = tester.getRect(find.byKey(const ValueKey('model-gap')));
+    final lastTile = [
+      for (final k in ['model-FTP', 'model-CP', "model-W'", 'model-Pmax'])
+        if (tester.any(find.byKey(ValueKey(k)))) tester.getRect(find.byKey(ValueKey(k))),
+    ].map((r) => r.right).reduce((a, b) => a > b ? a : b);
+    expect(lastTile, greaterThan(gapBox.left + gapBox.width * 0.6));
+  });
+
+  testWidgets('on a very wide window the content stays centred and capped',
+      (tester) async {
+    tester.view.physicalSize = const Size(2000, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeCurves({(CurveSport.ride, CurveMetric.power): _ride()});
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: PerformanceScreen(
+          repository: repo,
+          activities: _FakeActivities(const {}),
+          settingsForSport: _settings,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final gap = tester.getRect(find.byKey(const ValueKey('model-gap')));
+    expect(gap.width, lessThanOrEqualTo(840));
+    expect(gap.center.dx, closeTo(1000, 2));
+  });
+
   testWidgets('run without power offers pace, with critical speed', (
     tester,
   ) async {
