@@ -1,9 +1,18 @@
 # Builds the Android release APK and publishes it as a GitHub release.
 #
-# Triggers: pushing a tag `v*` (e.g. `git tag v1.0.0 && git push origin v1.0.0`)
-# creates a release with the APK attached; running it manually
-# (Actions → Android release → Run workflow) only uploads the APK as a
-# build artifact.
+# Triggers
+#   * push to `main` (a merged PR): builds, then creates the tag
+#     `v<pubspec version>-rc<short commit hash>` (e.g. `v0.9.0-rc1a2b3c4`) and
+#     publishes it as a **pre-release**. The base version is the one in
+#     pubspec.yaml (`version: 0.9.0+1` -> 0.9.0): bump it there for a new line.
+#   * push of a tag `v*` (e.g. `git tag v1.0.0 && git push origin v1.0.0`):
+#     builds and publishes a release for exactly that tag, with that version.
+#     A tag containing `-` (v1.0.0-beta1) is marked as a pre-release.
+#   * manual run (Actions -> Android release -> Run workflow): only uploads the
+#     APK as a build artifact, no tag, no release.
+# Skip the automatic release for a commit by putting `[skip release]` in the
+# merge commit message. (A tag created by this workflow does not trigger it
+# again: tags made with the built-in token never start workflows.)
 #
 # Signing: set these repository secrets for a stable release key. Without
 # them the APK is signed with a throwaway debug key, and updates over an
@@ -16,6 +25,7 @@ name: Android release
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
   workflow_dispatch:
 
@@ -28,10 +38,46 @@ concurrency:
 
 jobs:
   build:
+    # A merge to main releases unless its commit message says otherwise.
+    if: >-
+      github.ref_type == 'tag' ||
+      github.event_name == 'workflow_dispatch' ||
+      !contains(github.event.head_commit.message, '[skip release]')
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    outputs:
+      tag: ${{ steps.ver.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: ver
+        run: |
+          BASE="$(grep -m1 '^version:' pubspec.yaml | sed -E 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+          if ! echo "$BASE" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Cannot read a x.y.z version from pubspec.yaml (got '$BASE')."
+            exit 1
+          fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            # Your tag, used as is.
+            TAG="${GITHUB_REF_NAME}"
+            NAME="${TAG#v}"
+            PUBLISH=true
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            TAG="v${BASE}-rc${GITHUB_SHA::7}"
+            NAME="${TAG#v}"
+            PUBLISH=true
+          else
+            TAG=""
+            NAME="${BASE}-dev${GITHUB_RUN_NUMBER}"
+            PUBLISH=false
+          fi
+          case "$NAME" in *-*) PRE=true ;; *) PRE=false ;; esac
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "publish=$PUBLISH" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRE" >> "$GITHUB_OUTPUT"
+          echo "Version $NAME (tag '${TAG:-none}', publish $PUBLISH, pre-release $PRE)"
 
       - uses: actions/setup-java@v4
         with:
@@ -72,14 +118,11 @@ jobs:
 
       - name: Build APK
         run: |
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            NAME="${GITHUB_REF_NAME#v}"
-            flutter build apk --release --build-name="$NAME" --build-number="${GITHUB_RUN_NUMBER}"
-          else
-            flutter build apk --release --build-number="${GITHUB_RUN_NUMBER}"
-          fi
+          flutter build apk --release \
+            --build-name="${{ steps.ver.outputs.name }}" \
+            --build-number="${GITHUB_RUN_NUMBER}"
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk "dist/triiq-${GITHUB_REF_NAME//\//-}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/triiq-${{ steps.ver.outputs.name }}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -88,8 +131,14 @@ jobs:
           if-no-files-found: error
 
       - name: Publish release
-        if: github.ref_type == 'tag'
+        if: steps.ver.outputs.publish == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          # For a pushed tag this is that tag; for a merge to main the
+          # release creates the tag on the merged commit.
+          tag_name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.ver.outputs.tag }}
+          prerelease: ${{ steps.ver.outputs.prerelease == 'true' }}
           files: dist/*.apk
           generate_release_notes: true

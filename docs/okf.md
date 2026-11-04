@@ -1382,6 +1382,23 @@ doesn't appear. Tiles come from `tile.openstreetmap.org` with the app's
 user agent; that server is for light use, so if TriIQ is distributed widely
 point `_tileUrl` in `route_card.dart` at a tile provider with an API key.
 
+### Releases
+
+`.github/workflows/android-release.yml` builds the signed Android APK and
+publishes it as a GitHub release.
+
+- **Merge to `main`** → automatic **pre-release**, tagged
+  `v<version>-rc<short commit hash>` (e.g. `v0.9.0-rc1a2b3c4`). `<version>` is the
+  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.0+1`); bump it there to start
+  a new line. Put `[skip release]` in the merge commit message to skip it.
+- **Your own tag** (`git tag v1.0.0 && git push origin v1.0.0`) → a release for
+  exactly that tag, built with that version; a tag containing `-` is a
+  pre-release.
+- **Manual run** of the workflow → only an APK artifact, no tag or release.
+
+The APK's version name is the tag without the `v`; its version code is the
+workflow run number. Signing secrets: see the header of the workflow.
+
 ### Training plan
 
 **More → Training plan.** Set a **goal** first: target (long distance or
