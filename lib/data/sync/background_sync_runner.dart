@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../notifications/morning_briefing.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../home_widget_data.dart';
@@ -60,7 +61,11 @@ class BackgroundSyncRunner {
           (await SyncStateRepository().get('activities'))?.lastSyncedAt,
       sync: () => SyncService().syncTodayWindow().then((_) {}),
       syncEvents: () => SyncService().syncEventsHorizon().then((_) {}),
-      afterSuccess: () => HomeWidgetUpdater().update(),
+      afterSuccess: () async {
+        await HomeWidgetUpdater().update();
+        await NotificationService.instance.init();
+        await MorningBriefingScheduler().refresh();
+      },
       notify: ({required bool reconnectNeeded}) async {
         await NotificationSettings.instance.load();
         if (!NotificationSettings.instance.enabled) return;

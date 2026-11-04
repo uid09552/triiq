@@ -5425,6 +5425,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My fatigue check says: {reasons}. Should I change anything this week?'**
   String fatigueChatDraft(String reasons);
+
+  /// No description provided for @briefingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today · {date}'**
+  String briefingTitle(String date);
+
+  /// No description provided for @briefingNoSession.
+  ///
+  /// In en, this message translates to:
+  /// **'No session planned today.'**
+  String get briefingNoSession;
+
+  /// No description provided for @briefingSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned: {sessions}'**
+  String briefingSessions(String sessions);
+
+  /// No description provided for @briefingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String briefingMore(int count);
+
+  /// No description provided for @briefingReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness: {level}'**
+  String briefingReadiness(String level);
+
+  /// No description provided for @briefingFatigue.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue: {level}'**
+  String briefingFatigue(String level);
+
+  /// No description provided for @briefingForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form {form} · CTL {ctl}'**
+  String briefingForm(String form, String ctl);
+
+  /// No description provided for @briefingRace.
+  ///
+  /// In en, this message translates to:
+  /// **'{race}'**
+  String briefingRace(String race);
+
+  /// No description provided for @briefingHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'You are logged as {kind} — check the Season screen.'**
+  String briefingHealth(String kind);
+
+  /// No description provided for @briefingSick.
+  ///
+  /// In en, this message translates to:
+  /// **'sick'**
+  String get briefingSick;
+
+  /// No description provided for @briefingInjured.
+  ///
+  /// In en, this message translates to:
+  /// **'injured'**
+  String get briefingInjured;
+
+  /// No description provided for @briefingLevelReady.
+  ///
+  /// In en, this message translates to:
+  /// **'ready'**
+  String get briefingLevelReady;
+
+  /// No description provided for @briefingLevelCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'caution'**
+  String get briefingLevelCaution;
+
+  /// No description provided for @briefingLevelBackOff.
+  ///
+  /// In en, this message translates to:
+  /// **'back off'**
+  String get briefingLevelBackOff;
+
+  /// No description provided for @briefingLevelWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'building'**
+  String get briefingLevelWatch;
+
+  /// No description provided for @briefingLevelWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'warning'**
+  String get briefingLevelWarning;
+
+  /// No description provided for @morningBriefing.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning briefing'**
+  String get morningBriefing;
+
+  /// No description provided for @morningBriefingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification with today\'s session, readiness and form. It is prepared from your last sync, so readiness appears when your watch data is already in.'**
+  String get morningBriefingHelp;
 }
 
 class _AppLocalizationsDelegate

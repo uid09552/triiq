@@ -3340,4 +3340,75 @@ class AppLocalizationsDe extends AppLocalizations {
   String fatigueChatDraft(String reasons) {
     return 'Mein Ermüdungscheck sagt: $reasons. Sollte ich diese Woche etwas ändern?';
   }
+
+  @override
+  String briefingTitle(String date) {
+    return 'Heute · $date';
+  }
+
+  @override
+  String get briefingNoSession => 'Heute ist keine Einheit geplant.';
+
+  @override
+  String briefingSessions(String sessions) {
+    return 'Geplant: $sessions';
+  }
+
+  @override
+  String briefingMore(int count) {
+    return '+$count weitere';
+  }
+
+  @override
+  String briefingReadiness(String level) {
+    return 'Bereitschaft: $level';
+  }
+
+  @override
+  String briefingFatigue(String level) {
+    return 'Ermüdung: $level';
+  }
+
+  @override
+  String briefingForm(String form, String ctl) {
+    return 'Form $form · CTL $ctl';
+  }
+
+  @override
+  String briefingRace(String race) {
+    return '$race';
+  }
+
+  @override
+  String briefingHealth(String kind) {
+    return 'Du bist als $kind eingetragen — sieh dir die Saison-Ansicht an.';
+  }
+
+  @override
+  String get briefingSick => 'krank';
+
+  @override
+  String get briefingInjured => 'verletzt';
+
+  @override
+  String get briefingLevelReady => 'bereit';
+
+  @override
+  String get briefingLevelCaution => 'Vorsicht';
+
+  @override
+  String get briefingLevelBackOff => 'zurückhalten';
+
+  @override
+  String get briefingLevelWatch => 'im Aufbau';
+
+  @override
+  String get briefingLevelWarning => 'Warnung';
+
+  @override
+  String get morningBriefing => 'Morgenbriefing';
+
+  @override
+  String get morningBriefingHelp =>
+      'Eine Benachrichtigung mit der heutigen Einheit, Bereitschaft und Form. Sie wird aus deinem letzten Sync erstellt; die Bereitschaft erscheint, wenn die Daten deiner Uhr schon da sind.';
 }

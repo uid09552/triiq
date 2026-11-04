@@ -63,6 +63,17 @@ abstract class NotificationService {
   Future<void> scheduleDailyReminder(TimeOfDay time);
 
   Future<void> cancelDailyReminder();
+
+  /// Arms one notification at [at] with already-composed text, replacing
+  /// the previous one. The text is a snapshot, so callers re-arm after each
+  /// sync.
+  Future<void> scheduleBriefing({
+    required DateTime at,
+    required String title,
+    required String body,
+  });
+
+  Future<void> cancelBriefing();
 }
 
 String _syncProblemBody(bool reconnectNeeded) => reconnectNeeded
@@ -97,6 +108,16 @@ class _NoopNotificationService implements NotificationService {
 
   @override
   Future<void> cancelDailyReminder() async {}
+
+  @override
+  Future<void> scheduleBriefing({
+    required DateTime at,
+    required String title,
+    required String body,
+  }) async {}
+
+  @override
+  Future<void> cancelBriefing() async {}
 }
 
 class _MobileNotificationService implements NotificationService {
@@ -111,6 +132,7 @@ class _MobileNotificationService implements NotificationService {
   static const _agentNotificationId = 2;
   static const _reminderNotificationId = 3;
   static const _syncProblemNotificationId = 4;
+  static const _briefingNotificationId = 5;
 
   static const _syncDetails = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -271,6 +293,55 @@ class _MobileNotificationService implements NotificationService {
     }
   }
 
+  static const _briefingDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'briefing_channel',
+      'Morning briefing',
+      channelDescription: "Today's session, readiness and form.",
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+      styleInformation: BigTextStyleInformation(''),
+    ),
+    iOS: DarwinNotificationDetails(),
+  );
+
+  @override
+  Future<void> scheduleBriefing({
+    required DateTime at,
+    required String title,
+    required String body,
+  }) async {
+    if (!_initialized) return;
+    try {
+      await _plugin.zonedSchedule(
+        id: _briefingNotificationId,
+        scheduledDate: tz.TZDateTime(
+          tz.local,
+          at.year,
+          at.month,
+          at.day,
+          at.hour,
+          at.minute,
+        ),
+        title: title,
+        body: body,
+        notificationDetails: _briefingDetails,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    } catch (error) {
+      debugPrint('NotificationService: scheduling briefing failed: $error');
+    }
+  }
+
+  @override
+  Future<void> cancelBriefing() async {
+    try {
+      await _plugin.cancel(id: _briefingNotificationId);
+    } catch (error) {
+      debugPrint('NotificationService: cancelling briefing failed: $error');
+    }
+  }
+
   tz.TZDateTime _nextInstanceOf(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(
@@ -368,4 +439,14 @@ class _WindowsNotificationService implements NotificationService {
 
   @override
   Future<void> cancelDailyReminder() async {}
+
+  @override
+  Future<void> scheduleBriefing({
+    required DateTime at,
+    required String title,
+    required String body,
+  }) async {}
+
+  @override
+  Future<void> cancelBriefing() async {}
 }
