@@ -121,6 +121,45 @@ void main() {
       expect(find.text('Due to HRV, Sleep'), findsOneWidget);
     });
 
+    testWidgets('shows a score ring, a pill per signal and the fitness trend',
+        (tester) async {
+      final records = [
+        for (var i = 1; i <= 40; i++)
+          _day(i, hrv: 62 + (i.isEven ? 6 : -6), rhr: 48, sleepSecs: 8 * 3600,
+              ctl: i > 7 ? 50 : 56),
+        _day(0, hrv: 63, rhr: 47, sleepSecs: 8 * 3600, ctl: 60),
+      ];
+      await tester.pumpWidget(_app(ReadinessCard(report: _report(records))));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<Text>(find.byKey(const ValueKey('readiness-score'))).data, '100');
+      for (final kind in ['hrv', 'restingHr', 'sleep', 'form', 'subjective']) {
+        expect(find.byKey(ValueKey('pill-$kind')), findsOneWidget, reason: kind);
+      }
+      expect(find.byKey(const ValueKey('pill-fitness')), findsOneWidget);
+      expect(find.text('60 ↗'), findsOneWidget); // CTL 60, 50 a week earlier
+      expect(find.text('8.0 h'), findsOneWidget);
+    });
+
+    testWidgets('a back-off score is below 100 and pills keep their values',
+        (tester) async {
+      await tester.pumpWidget(
+        _app(ReadinessCard(report: _report([..._baseline(), _day(0, hrv: 52, rhr: 48, sleepSecs: 5 * 3600)]))),
+      );
+      await tester.pumpAndSettle();
+      final score = int.parse(tester.widget<Text>(find.byKey(const ValueKey('readiness-score'))).data!);
+      expect(score, lessThan(100));
+      expect(find.text('52'), findsOneWidget); // HRV pill
+      expect(find.text('5.0 h'), findsOneWidget);
+    });
+
+    testWidgets('no wellness data: no ring score, no pills', (tester) async {
+      await tester.pumpWidget(_app(ReadinessCard(report: _report([_day(0)]))));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pill-hrv')), findsNothing);
+      expect(tester.widget<Text>(find.byKey(const ValueKey('readiness-score'))).data, '–');
+    });
+
     testWidgets('no wellness data', (tester) async {
       await tester.pumpWidget(_app(ReadinessCard(report: _report([_day(0)]))));
 

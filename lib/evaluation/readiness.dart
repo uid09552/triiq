@@ -157,6 +157,25 @@ class Readiness {
       signals.firstWhere((s) => s.kind == kind);
 }
 
+/// A 0–100 summary of how many of today's signals are in their normal range:
+/// each rated signal counts 100 (ok), 65 (caution) or 30 (back off), averaged.
+/// Null when no signal could be rated (no baseline or no values yet) — the
+/// level alone is then all there is to say. A display aid; the [Readiness.level]
+/// stays the verdict.
+int? readinessScore(Readiness r) {
+  final rated = [
+    for (final s in r.signals)
+      switch (s.rating) {
+        SignalRating.ok => 100,
+        SignalRating.caution => 65,
+        SignalRating.backOff => 30,
+        _ => null,
+      },
+  ].whereType<int>().toList();
+  if (rated.isEmpty) return null;
+  return (rated.reduce((a, b) => a + b) / rated.length).round();
+}
+
 /// Rates [today] from [records] (any order; only the [today] row and the
 /// [ReadinessRules.baselineDays] before it are read).
 Readiness evaluateReadiness(

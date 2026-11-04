@@ -3400,4 +3400,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dayProposeTrainingHelp =>
       'Like Train now, but the session is placed on this day.';
+
+  @override
+  String get readinessFitness => 'Fitness';
 }

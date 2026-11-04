@@ -43,9 +43,10 @@ bool isHardSession(LocalEvent event) =>
     event.planSessionSlot == 'long' ||
     SessionEvaluator.intentOf(event) == SessionIntent.hard;
 
-/// Today's readiness in one full-width row above the load tiles: the
-/// status and what drives it, or why there is no status yet. Opens the
-/// detail screen on tap.
+/// Today's readiness as a compact card: a score ring in the status colour,
+/// the status and what drives it, and a row of small signal pills (HRV,
+/// resting HR, sleep, form, feel, and CTL with its trend) each tinted by how
+/// it rates. Opens the detail screen on tap.
 class ReadinessCard extends StatelessWidget {
   const ReadinessCard({super.key, required this.report});
 
@@ -55,8 +56,10 @@ class ReadinessCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final r = report.readiness;
-    final color = readinessColor(theme.colorScheme, r.level);
+    final color = readinessColor(scheme, r.level);
+    final hasData = r.dataState != ReadinessDataState.noData;
 
     final String subtitle;
     switch (r.dataState) {
@@ -75,31 +78,282 @@ class ReadinessCard extends StatelessWidget {
                     .join(', '),
               );
     }
+    final score = r.dataState == ReadinessDataState.complete
+        ? readinessScore(r)
+        : null;
 
     return Card(
+      key: const ValueKey('readiness-card'),
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      child: ListTile(
+      child: InkWell(
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => ReadinessScreen(report: report)),
         ),
-        leading: CircleAvatar(
-          backgroundColor: color.withValues(alpha: 0.15),
-          child: Icon(Icons.favorite_outline, color: color),
-        ),
-        title: Text.rich(
-          TextSpan(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextSpan(text: '${l10n.readinessTitle}: '),
-              TextSpan(
-                text: readinessLevelLabel(l10n, r.level),
-                style: TextStyle(color: color, fontWeight: FontWeight.w700),
+              Row(
+                children: [
+                  _ScoreRing(score: score, color: color, dim: !hasData),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.readinessTitle.toUpperCase(),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        Text(
+                          readinessLevelLabel(l10n, r.level),
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: hasData ? color : scheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ),
+                        Text(
+                          subtitle,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+                ],
               ),
+              if (hasData) ...[
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: _SignalPills(report: report),
+                ),
+              ],
             ],
           ),
         ),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+      ),
+    );
+  }
+}
+
+/// A circular gauge with the score in the middle; an empty track and "–"
+/// when there is no score yet.
+class _ScoreRing extends StatelessWidget {
+  const _ScoreRing({required this.score, required this.color, this.dim = false});
+
+  final int? score;
+  final Color color;
+  final bool dim;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: (score ?? 0) / 100),
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, _) => CustomPaint(
+          painter: _RingPainter(
+            progress: value,
+            color: dim ? scheme.outline : color,
+            track: scheme.surfaceContainerHighest,
+          ),
+          child: Center(
+            child: Text(
+              score == null ? '–' : '$score',
+              key: const ValueKey('readiness-score'),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: dim ? scheme.onSurfaceVariant : null,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  _RingPainter({required this.progress, required this.color, required this.track});
+
+  final double progress;
+  final Color color;
+  final Color track;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 6.0;
+    final rect = Rect.fromLTWH(
+      stroke / 2,
+      stroke / 2,
+      size.width - stroke,
+      size.height - stroke,
+    );
+    final base = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(rect, 0, 6.2831853, false, base..color = track);
+    if (progress > 0) {
+      canvas.drawArc(
+        rect,
+        -1.5707963,
+        6.2831853 * progress.clamp(0.0, 1.0),
+        false,
+        base..color = color,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) =>
+      old.progress != progress || old.color != color || old.track != track;
+}
+
+/// HRV, resting HR, sleep, form and feel with today's value, tinted by
+/// rating — plus CTL with its change over the last week as the fitness
+/// indicator.
+class _SignalPills extends StatelessWidget {
+  const _SignalPills({required this.report});
+
+  final ReadinessReport report;
+
+  static String _num(double v, [int digits = 0]) => v.toStringAsFixed(digits);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final r = report.readiness;
+
+    String? valueOf(ReadinessSignal s) {
+      final v = s.value;
+      if (v == null) return null;
+      return switch (s.kind) {
+        ReadinessSignalKind.hrv => _num(v),
+        ReadinessSignalKind.restingHr => _num(v),
+        ReadinessSignalKind.sleep => '${_num(v, 1)} h',
+        ReadinessSignalKind.form => '${v >= 0 ? '+' : ''}${_num(v)}',
+        ReadinessSignalKind.subjective => '${v.round()}/4',
+      };
+    }
+
+    Color tint(SignalRating rating) => switch (rating) {
+      SignalRating.ok => Colors.green.shade600,
+      SignalRating.caution => Colors.amber.shade700,
+      SignalRating.backOff => scheme.error,
+      _ => scheme.outline,
+    };
+
+    final pills = <Widget>[
+      for (final s in r.signals)
+        _Pill(
+          key: ValueKey('pill-${s.kind.name}'),
+          label: readinessSignalLabel(l10n, s.kind),
+          value: valueOf(s) ?? '–',
+          color: tint(s.rating),
+        ),
+    ];
+
+    // Fitness: latest CTL and its change against a week before.
+    final withCtl = [
+      for (final w in report.records)
+        if (w.ctl != null) w,
+    ]..sort((a, b) => a.date.compareTo(b.date));
+    if (withCtl.isNotEmpty) {
+      final last = withCtl.last;
+      final lastDay = DateTime.tryParse(last.date);
+      double? before;
+      if (lastDay != null) {
+        final target = lastDay.subtract(const Duration(days: 7));
+        for (final w in withCtl) {
+          final d = DateTime.tryParse(w.date);
+          if (d != null && !d.isAfter(target)) before = w.ctl;
+        }
+      }
+      final delta = before == null ? null : last.ctl! - before;
+      pills.add(
+        _Pill(
+          key: const ValueKey('pill-fitness'),
+          label: l10n.readinessFitness,
+          value:
+              '${_num(last.ctl!)}'
+              '${delta == null ? '' : delta > 0.5 ? ' ↗' : delta < -0.5 ? ' ↘' : ' →'}',
+          color: scheme.primary,
+        ),
+      );
+    }
+
+    return Wrap(spacing: 6, runSpacing: 6, children: pills);
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontSize: 10,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                value,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

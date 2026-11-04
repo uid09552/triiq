@@ -1303,5 +1303,6 @@
   "weeklyHoursOfTarget": "{hours} / {target} h",
   "@weeklyHoursOfTarget": {"placeholders": {"hours": {"type": "String"}, "target": {"type": "String"}}},
   "dayProposeTraining": "Propose training",
-  "dayProposeTrainingHelp": "Like Train now, but the session is placed on this day."
+  "dayProposeTrainingHelp": "Like Train now, but the session is placed on this day.",
+  "readinessFitness": "Fitness"
 }
