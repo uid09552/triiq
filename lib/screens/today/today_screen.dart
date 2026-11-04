@@ -9,6 +9,7 @@ import '../../plan/adaptation_service.dart';
 import '../../widgets/pending_changes_card.dart';
 import '../season/health_card.dart';
 import 'fatigue_warning_card.dart';
+import 'tile_spark.dart';
 import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
 import '../../data/models/local_activity.dart';
@@ -65,6 +66,7 @@ class TodayScreen extends StatefulWidget {
     this.plannedItems,
     this.readinessService,
     this.adaptationService,
+    this.sparkLoader,
     this.goalStore,
     this.plansRepository,
   });
@@ -75,6 +77,9 @@ class TodayScreen extends StatefulWidget {
   final PlannedItemsRepository? plannedItems;
   final ReadinessService? readinessService;
   final AdaptationService? adaptationService;
+
+  /// Test seam for the tiles' sparklines.
+  final TileSparkLoader? sparkLoader;
   final GoalStore? goalStore;
   final PlansRepository? plansRepository;
 
@@ -371,6 +376,7 @@ class _TodayScreenState extends State<TodayScreen> {
             weekPlannedLoad: _weekPlannedLoad,
             wellness: _wellness,
             wellnessWeekAgo: _wellnessWeekAgo,
+            sparkLoader: widget.sparkLoader,
           ),
       ],
       TodaySection.weeklyTargets => [
@@ -652,7 +658,7 @@ class _TodayScreenState extends State<TodayScreen> {
 /// in context. Each tile carries the comparison the number needs — today
 /// against what was planned, CTL/ATL against the same day last week — and
 /// opens the chart behind it on tap.
-class _MetricTiles extends StatelessWidget {
+class _MetricTiles extends StatefulWidget {
   const _MetricTiles({
     required this.todaysLoad,
     required this.todaysPlannedLoad,
@@ -660,8 +666,10 @@ class _MetricTiles extends StatelessWidget {
     required this.weekPlannedLoad,
     required this.wellness,
     required this.wellnessWeekAgo,
+    this.sparkLoader,
   });
 
+  final TileSparkLoader? sparkLoader;
   final int? todaysLoad;
   final int todaysPlannedLoad;
   final int weekLoad;
@@ -670,7 +678,54 @@ class _MetricTiles extends StatelessWidget {
   final LocalWellness? wellnessWeekAgo;
 
   @override
+  State<_MetricTiles> createState() => _MetricTilesState();
+}
+
+class _MetricTilesState extends State<_MetricTiles> {
+  Map<TileMetric, TileSpark> _spark = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    AutoSyncService.instance.addListener(_loadSpark);
+    _loadSpark();
+  }
+
+  @override
+  void didUpdateWidget(_MetricTiles old) {
+    super.didUpdateWidget(old);
+    // New numbers (a sync landed): redraw the charts from the same cache.
+    if (old.weekLoad != widget.weekLoad ||
+        old.todaysLoad != widget.todaysLoad ||
+        old.wellness?.date != widget.wellness?.date ||
+        old.wellness?.ctl != widget.wellness?.ctl) {
+      _loadSpark();
+    }
+  }
+
+  @override
+  void dispose() {
+    AutoSyncService.instance.removeListener(_loadSpark);
+    super.dispose();
+  }
+
+  Future<void> _loadSpark() async {
+    try {
+      final spark = await (widget.sparkLoader ?? TileSparkLoader()).load();
+      if (mounted) setState(() => _spark = spark);
+    } catch (_) {
+      // Sparklines are decoration: the tiles work without them.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final todaysLoad = widget.todaysLoad;
+    final todaysPlannedLoad = widget.todaysPlannedLoad;
+    final weekLoad = widget.weekLoad;
+    final weekPlannedLoad = widget.weekPlannedLoad;
+    final wellness = widget.wellness;
+    final wellnessWeekAgo = widget.wellnessWeekAgo;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
@@ -679,7 +734,7 @@ class _MetricTiles extends StatelessWidget {
     final form = ctl != null && atl != null ? ctl - atl : null;
     final formWeekAgo =
         wellnessWeekAgo?.ctl != null && wellnessWeekAgo?.atl != null
-        ? wellnessWeekAgo!.ctl! - wellnessWeekAgo!.atl!
+        ? wellnessWeekAgo!.ctl! - wellnessWeekAgo.atl!
         : null;
 
     void open(Widget screen) =>
@@ -699,6 +754,8 @@ class _MetricTiles extends StatelessWidget {
               color: colorScheme.primary,
               onTap: () => open(const TssHistoryScreen()),
               compact: true,
+              sparkValues: _spark[TileMetric.tssToday]?.values,
+              trend: _spark[TileMetric.tssToday]?.trend,
               hoverPreview: (_) => MetricPreview(
                 metric: TileMetric.tssToday,
                 color: colorScheme.primary,
@@ -725,6 +782,8 @@ class _MetricTiles extends StatelessWidget {
               color: colorScheme.tertiary,
               onTap: () => open(const WeeklyLoadScreen()),
               compact: true,
+              sparkValues: _spark[TileMetric.tssWeek]?.values,
+              trend: _spark[TileMetric.tssWeek]?.trend,
               hoverPreview: (_) => MetricPreview(
                 metric: TileMetric.tssWeek,
                 color: colorScheme.tertiary,
@@ -753,6 +812,8 @@ class _MetricTiles extends StatelessWidget {
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
               compact: true,
+              sparkValues: _spark[TileMetric.ctl]?.values,
+              trend: _spark[TileMetric.ctl]?.trend,
               hoverPreview: (_) => MetricPreview(
                 metric: TileMetric.ctl,
                 color: colorScheme.tertiary,
@@ -776,6 +837,8 @@ class _MetricTiles extends StatelessWidget {
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.atl)),
               compact: true,
+              sparkValues: _spark[TileMetric.atl]?.values,
+              trend: _spark[TileMetric.atl]?.trend,
               hoverPreview: (_) => MetricPreview(
                 metric: TileMetric.atl,
                 color: colorScheme.secondary,
@@ -804,6 +867,8 @@ class _MetricTiles extends StatelessWidget {
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.form)),
               compact: true,
+              sparkValues: _spark[TileMetric.form]?.values,
+              trend: _spark[TileMetric.form]?.trend,
               hoverPreview: (_) => MetricPreview(
                 metric: TileMetric.form,
                 color: colorScheme.primary,
@@ -827,6 +892,8 @@ class _MetricTiles extends StatelessWidget {
               onTap: () =>
                   open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
               compact: true,
+              sparkValues: _spark[TileMetric.rampRate]?.values,
+              trend: _spark[TileMetric.rampRate]?.trend,
               hoverPreview: (_) => MetricPreview(
                 metric: TileMetric.rampRate,
                 color: colorScheme.secondary,
