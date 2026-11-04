@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/agent/chat_handoff.dart';
 import 'package:triiq/data/db/app_database.dart';
+import 'package:triiq/data/feel_settings.dart';
 import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/planned_items.dart';
@@ -25,7 +26,7 @@ void main() {
   late EventsRepository events;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({'feel.prompt_on_new_activity': false});
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
     dir = await Directory.systemTemp.createTemp('triiq_detail_analysis');
@@ -85,6 +86,10 @@ void main() {
         locale: const Locale('en'),
         home: ActivityDetailScreen(
           activity: ride,
+          // A recent activity would open the fatigue/soreness dialog, whose
+          // barrier blocks taps (and "recent" depends on the date): the
+          // preference is switched off in the stored settings.
+          feelSettings: FeelSettings.forTesting(),
           streams: ActivityStreamsRepository(database: database, fetch: fetch),
           plannedItems: PlannedItemsRepository(
             events: events,
@@ -129,6 +134,14 @@ void main() {
 
     expect(find.text('Over time'), findsOneWidget);
     expect(find.byKey(const ValueKey('stream-watts')), findsOneWidget);
+    // The intervals sit behind a collapsed header until it is tapped.
+    expect(find.byKey(const ValueKey('intervals-toggle')), findsOneWidget);
+    expect(find.text('Intervals (1)'), findsOneWidget);
+    expect(find.byKey(const ValueKey('interval-0')), findsNothing);
+    await tester.ensureVisible(find.text('Intervals (1)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Intervals (1)'));
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('interval-0')), findsOneWidget);
     expect(find.textContaining('260 W'), findsOneWidget);
 

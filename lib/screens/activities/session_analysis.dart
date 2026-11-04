@@ -184,37 +184,55 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                 viewport: _viewport,
                 onCursorSeconds: widget.onCursorSeconds,
               ),
-              if (streams.intervals.any((i) => i.isWork)) ...[
-                const SizedBox(height: 12),
-                Text(l10n.sessionIntervalsTitle, style: theme.textTheme.titleSmall),
-                for (final (n, i) in streams.intervals
-                    .where((i) => i.isWork)
-                    .indexed)
-                  ListTile(
-                    key: ValueKey('interval-$n'),
+              if (streams.intervals.any((i) => i.isWork))
+                // Collapsed until asked for: the diagram comes first, the
+                // list of work intervals opens on a tap.
+                Theme(
+                  data: theme.copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    key: const ValueKey('intervals-toggle'),
+                    tilePadding: EdgeInsets.zero,
+                    childrenPadding: EdgeInsets.zero,
                     dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    trailing: Tooltip(
-                      message: l10n.zoomToInterval,
-                      child: const Icon(Icons.zoom_in_map, size: 20),
+                    title: Text(
+                      '${l10n.sessionIntervalsTitle} '
+                      '(${streams.intervals.where((i) => i.isWork).length})',
+                      style: theme.textTheme.titleSmall,
                     ),
-                    onTap: () {
-                      final pad = (i.end - i.start) * 0.15 + 5;
-                      _viewport.setRange(i.start - pad, i.end + pad);
-                    },
-                    title: Text(i.label ?? l10n.sessionIntervalN(n + 1)),
-                    subtitle: Text(
-                      [
-                        if (i.movingTime != null) _clock(i.movingTime!),
-                        if (i.averageWatts != null) '${i.averageWatts} W',
-                        if (i.averageHeartrate != null)
-                          '${i.averageHeartrate} bpm',
-                        if (i.averageSpeed != null)
-                          _speed(i.averageSpeed!, widget.activity.type),
-                      ].join(' · '),
-                    ),
+                    children: [
+                      for (final (n, i) in streams.intervals
+                          .where((i) => i.isWork)
+                          .indexed)
+                        ListTile(
+                          key: ValueKey('interval-$n'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          trailing: Tooltip(
+                            message: l10n.zoomToInterval,
+                            child: const Icon(Icons.zoom_in_map, size: 20),
+                          ),
+                          onTap: () {
+                            final pad = (i.end - i.start) * 0.15 + 5;
+                            _viewport.setRange(i.start - pad, i.end + pad);
+                          },
+                          title: Text(
+                            i.label ?? l10n.sessionIntervalN(n + 1),
+                          ),
+                          subtitle: Text(
+                            [
+                              if (i.movingTime != null) _clock(i.movingTime!),
+                              if (i.averageWatts != null)
+                                '${i.averageWatts} W',
+                              if (i.averageHeartrate != null)
+                                '${i.averageHeartrate} bpm',
+                              if (i.averageSpeed != null)
+                                _speed(i.averageSpeed!, widget.activity.type),
+                            ].join(' · '),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
+                ),
             ],
           );
         },

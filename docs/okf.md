@@ -1367,6 +1367,8 @@ the nightly background sync. It lists the day's planned workouts, readiness
 today), the fatigue level, a note if you are logged sick or injured, and form
 with CTL.
 
+The work **intervals** under the session diagram are collapsed ("Intervals (n)"); tap the header to open the list, tap an interval to zoom the diagram to it.
+
 ### Route map
 
 The activity detail of an outdoor run or ride (`hasRouteMap`: run or ride
