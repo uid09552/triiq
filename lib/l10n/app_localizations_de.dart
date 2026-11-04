@@ -3431,4 +3431,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get dayProposeTrainingHelp =>
       'Wie „Jetzt trainieren“, aber die Einheit wird auf diesen Tag gelegt.';
+
+  @override
+  String get readinessFitness => 'Fitness';
 }

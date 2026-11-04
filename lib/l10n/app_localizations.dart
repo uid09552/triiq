@@ -5563,6 +5563,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Like Train now, but the session is placed on this day.'**
   String get dayProposeTrainingHelp;
+
+  /// No description provided for @readinessFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness'**
+  String get readinessFitness;
 }
 
 class _AppLocalizationsDelegate

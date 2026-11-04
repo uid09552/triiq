@@ -284,4 +284,25 @@ void main() {
       expect(r.level, ReadinessLevel.ready);
     });
   });
+
+  group('readinessScore', () {
+    test('null without any rated signal', () {
+      final r = evaluateReadiness(const [], DateTime(2026, 5, 20));
+      expect(readinessScore(r), isNull);
+    });
+
+    test('averages ok / caution / back-off signals', () {
+      const r = Readiness(
+        level: ReadinessLevel.caution,
+        dataState: ReadinessDataState.complete,
+        signals: [
+          ReadinessSignal(kind: ReadinessSignalKind.hrv, rating: SignalRating.ok),
+          ReadinessSignal(kind: ReadinessSignalKind.restingHr, rating: SignalRating.caution),
+          ReadinessSignal(kind: ReadinessSignalKind.sleep, rating: SignalRating.backOff),
+          ReadinessSignal(kind: ReadinessSignalKind.form, rating: SignalRating.noBaseline),
+        ],
+      );
+      expect(readinessScore(r), 65); // (100 + 65 + 30) / 3
+    });
+  });
 }
