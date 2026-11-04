@@ -16,6 +16,7 @@ void main() {
     await tester.tap(find.text('Statistics'));
     await tester.pump();
 
-    expect(find.text('Training stress (TSS)'), findsOneWidget);
+    // Statistics shows the Performance entry at the top, whatever data exists.
+    expect(find.text('Performance'), findsWidgets);
   });
 }

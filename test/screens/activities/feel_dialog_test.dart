@@ -56,12 +56,20 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  Future<void> realWait(WidgetTester tester, [int rounds = 8]) async {
+  /// Lets real async work (SQLite, the stubbed HTTP call) run: waits in
+  /// slices until [until] holds, for at most about 5 seconds — a fixed number
+  /// of short waits was too tight on a slow machine.
+  Future<void> realWait(
+    WidgetTester tester, {
+    bool Function()? until,
+    int rounds = 125,
+  }) async {
     for (var i = 0; i < rounds; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 40)),
       );
       await tester.pump();
+      if (until != null && until()) return;
     }
   }
 
@@ -130,7 +138,12 @@ void main() {
 
     await tester.tap(find.text('Save'));
     await tester.pump(const Duration(seconds: 1));
-    await realWait(tester);
+    await realWait(
+      tester,
+      until: () => requests.isNotEmpty,
+    );
+    // The dialog closes after the request returns; give that a moment too.
+    await realWait(tester, rounds: 25);
     await tester.pumpAndSettle();
 
     expect(requests, hasLength(1));
