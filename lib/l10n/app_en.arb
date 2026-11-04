@@ -1310,5 +1310,9 @@
   "@dayCardLoadOfPlanned": {"placeholders": {"done": {"type": "int"}, "planned": {"type": "int"}}},
   "dayCardLoadDone": "{done} TSS",
   "@dayCardLoadDone": {"placeholders": {"done": {"type": "int"}}},
-  "routeTitle": "Route"
+  "routeTitle": "Route",
+  "heroSyncNow": "Sync now",
+  "heroMoreTooltip": "More actions",
+  "heroSessions": "{count, plural, =1{1 session} other{{count} sessions}}",
+  "@heroSessions": {"placeholders": {"count": {"type": "int"}}}
 }

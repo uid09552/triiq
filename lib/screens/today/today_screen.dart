@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../agent/llm_settings.dart';
 import '../../agent/plan_proposals.dart';
@@ -10,6 +9,9 @@ import '../../widgets/pending_changes_card.dart';
 import '../season/health_card.dart';
 import '../calendar/day_actions.dart';
 import 'fatigue_warning_card.dart';
+import '../../util/intervals_links.dart';
+import '../activities/feel_dialog.dart';
+import 'today_header.dart';
 import 'tile_spark.dart';
 import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
@@ -310,6 +312,24 @@ class _TodayScreenState extends State<TodayScreen> {
     }
   }
 
+  /// "How do I feel?" from the header's quick actions: today's fatigue and
+  /// soreness, prefilled with what is already logged for the day.
+  Future<void> _logFeel() {
+    final today = isoDate(DateTime.now());
+    final w = _wellness != null && _wellness!.date == today ? _wellness : null;
+    int? score(String key) {
+      final v = w?.raw[key];
+      return v is num && v > 0 ? v.toInt() : null;
+    }
+
+    return showFeelDialog(
+      context,
+      date: today,
+      initialFatigue: score('fatigue'),
+      initialSoreness: score('soreness'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -507,83 +527,27 @@ class _TodayScreenState extends State<TodayScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colorScheme.primary, colorScheme.tertiary],
-              ),
+          TodayHeader(
+            date: DateTime.now(),
+            title: l10n.heroActivitiesStatus(_activities.length),
+            subtitle: _describeStatus(context, connected),
+            loading: _loading,
+            onRefresh: _refreshFromGesture,
+            onTrainNow: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const TrainNowScreen())),
+            onFeel: _logFeel,
+            onCustomize: () => showCustomizeTodaySheet(context, _layout),
+            onOpenIntervals: connected
+                ? () => openInIntervals(context, 'calendar')
+                : null,
+            doneTss: todaysLoad ?? 0,
+            plannedTss: todaysPlannedLoad,
+            doneSeconds: _activities.fold<int>(
+              0,
+              (sum, a) => sum + (a.movingTime ?? 0),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        DateFormat.MMMMEEEEd(
-                          Localizations.localeOf(context).toString(),
-                        ).format(DateTime.now()).toUpperCase(),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.heroActivitiesStatus(_activities.length),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _describeStatus(context, connected),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Doubles as the refresh affordance: pull-to-refresh is
-                // fine on a phone but awkward with a mouse on Windows.
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    shape: BoxShape.circle,
-                  ),
-                  child: _loading
-                      ? const Padding(
-                          padding: EdgeInsets.all(14),
-                          child: SizedBox(
-                            width: 28,
-                            height: 28,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          ),
-                        )
-                      : IconButton(
-                          onPressed: _refreshFromGesture,
-                          padding: const EdgeInsets.all(14),
-                          constraints: const BoxConstraints(),
-                          tooltip: l10n.refreshTooltip,
-                          icon: const Icon(
-                            Icons.refresh,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                ),
-              ],
-            ),
+            sessions: _activities.length,
           ),
           if (_raceDays case final days?) ...[
             const SizedBox(height: 12),
