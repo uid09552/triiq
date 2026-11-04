@@ -8,6 +8,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/client/intervalls/intervalls_client.dart';
 import 'package:triiq/data/db/app_database.dart';
 import 'package:triiq/data/intervals_workout_service.dart';
+import 'package:triiq/data/pending_writes.dart';
 import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/planned_items.dart';
@@ -61,6 +62,7 @@ void main() {
   late PlansRepository plans;
   late EventsRepository events;
   late _FakeWorkouts workouts;
+  late PendingWritesService queue;
   var send = true;
   var connected = true;
   final resynced = <DateTime>[];
@@ -75,6 +77,12 @@ void main() {
     plans = PlansRepository(database: database);
     events = EventsRepository(database: database);
     workouts = _FakeWorkouts();
+    queue = PendingWritesService(
+      repository: PendingWritesRepository(database: database),
+      writer: workouts,
+      plans: plans,
+      events: events,
+    );
     send = true;
     connected = true;
     resynced.clear();
@@ -91,6 +99,7 @@ void main() {
     events: events,
     sendEnabled: () => send,
     connected: () => connected,
+    queue: queue,
     resync: (d) async => resynced.add(d),
     goals: GoalStore(),
     clock: () => DateTime(2026, 11, 2, 9),
@@ -301,14 +310,79 @@ void main() {
       expect(await events.getByDate(isoDate(day)), hasLength(1));
     });
 
-    test('not connected: refused before anything happens', () async {
+    test('not connected: shown as a placeholder, replace queued', () async {
+      connected = false;
+      await events.upsert(intervalsEvent());
+
+      final outcome = await actions().replaceSession(
+        intervalsEvent(),
+        alternative(),
+      );
+
+      expect(outcome, ReplaceOutcome.queued);
+      expect(workouts.created, isEmpty);
+      final shown = await events.getByDate(isoDate(day));
+      expect(shown.single.name, 'Easy run');
+      expect(shown.single.id, startsWith('pending:'));
+      expect(await queue.pendingDeleteIds(), {'501'});
+
+      // Back online: the new workout is created, the old one deleted, the
+      // placeholder dropped.
+      connected = true;
+      expect(await queue.flush(), 1);
+      expect(workouts.created.single.name, 'Easy run');
+      expect(workouts.deleted, ['501']);
+      expect(await events.getByDate(isoDate(day)), isEmpty);
+    });
+
+    test('a sent plan session replaced offline shows the new content at once',
+        () async {
+      final session = await planSession(eventId: '300');
+      await events.upsert(
+        LocalEvent(
+          id: '300', date: isoDate(day), category: 'WORKOUT', type: 'Run',
+          name: 'old', description: '', plannedLoad: 50, plannedTime: 3600,
+          plannedDistance: null, indoor: false, raw: const {}, syncedAt: day,
+        ),
+      );
       connected = false;
 
-      await expectLater(
-        actions().replaceSession(intervalsEvent(), alternative()),
-        throwsA(isA<ReplaceRefusedException>()),
+      final outcome = await actions().replaceSession(
+        PlannedItemsRepository.toLocalEvent(session),
+        alternative(),
       );
-      expect(workouts.created, isEmpty);
+
+      expect(outcome, ReplaceOutcome.queued);
+      final local = (await plans.getSession(session.id!))!;
+      expect(local.name, 'Easy run');
+      expect(local.intervalsEventId, isNull);
+      expect(await events.getByDate(isoDate(day)), isEmpty); // old one hidden
+      expect(queue.pending, 1);
+
+      connected = true;
+      await queue.flush();
+      final after = (await plans.getSession(session.id!))!;
+      expect(after.intervalsEventId, '901');
+      expect(after.status, PlanSessionStatus.created);
+      expect(workouts.deleted, ['300']);
+    });
+
+    test('a failed delete after the create does not create twice', () async {
+      final session = await planSession(eventId: '300');
+      connected = false;
+      await actions().replaceSession(
+        PlannedItemsRepository.toLocalEvent(session),
+        alternative(),
+      );
+      connected = true;
+      workouts.deleteError = StateError('boom');
+      await queue.flush();
+      expect(workouts.created, hasLength(1));
+      workouts.deleteError = null;
+      await queue.flush();
+      expect(workouts.created, hasLength(1)); // not re-created
+      expect(workouts.deleted, ['300']);
+      expect(queue.pending, 0);
     });
   });
 

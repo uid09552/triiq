@@ -3250,4 +3250,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String planQueuedOffline(int count) {
     return '$count sessions will be sent to Intervals.icu when you are back online.';
   }
+
+  @override
+  String get replaceQueuedOffline =>
+      'Saved here. Intervals.icu can\'t be reached, so the swap will be sent when you are back online.';
+
+  @override
+  String get fatigueWatchTitle => 'Fatigue is building';
+
+  @override
+  String get fatigueWarningTitle => 'Fatigue warning';
+
+  @override
+  String get fatigueAdviceWatch =>
+      'Keep the next hard session honest — if it feels bad, cut it short or swap it for an easy one.';
+
+  @override
+  String get fatigueAdviceWarning =>
+      'Several signals have been off for days. Take an easy or rest day and ask the trainer to ease this week.';
+
+  @override
+  String fatigueSignalHrv(int bad, int of) {
+    return 'HRV below your normal on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalRestingHr(int bad, int of) {
+    return 'Resting heart rate raised on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalSleep(int bad, int of) {
+    return 'Under 6.5 hours of sleep on $bad of the last $of nights';
+  }
+
+  @override
+  String fatigueSignalForm(int bad, int of) {
+    return 'Form deeply negative on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalRamp(int bad, int of) {
+    return 'Fitness ramping up fast on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalSubjective(int bad, int of) {
+    return 'You rated fatigue or soreness high on $bad of the last $of days';
+  }
+
+  @override
+  String get fatigueAsk => 'Ask the trainer';
+
+  @override
+  String get fatigueDismiss => 'Not now';
+
+  @override
+  String fatigueChatDraft(String reasons) {
+    return 'My fatigue check says: $reasons. Should I change anything this week?';
+  }
 }

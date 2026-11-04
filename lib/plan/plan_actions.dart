@@ -29,6 +29,10 @@ enum ReplaceOutcome {
   /// The new workout was created but the old Intervals.icu event could not
   /// be deleted: both exist now.
   bothExist,
+
+  /// Intervals.icu was unreachable: the change is made locally and the
+  /// upstream replace is queued for when it is back.
+  queued,
 }
 
 /// Replacing was refused before anything changed.
@@ -79,6 +83,7 @@ class PlanActions {
     GoalStore? goals,
     bool Function()? sendEnabled,
     bool Function()? connected,
+    PendingWritesService? queue,
     Future<void> Function(DateTime day)? resync,
     DateTime Function()? clock,
   }) : _workouts = workouts ?? QueuedWorkoutWriter(),
@@ -87,12 +92,14 @@ class PlanActions {
        _activities = activities ?? ActivitiesRepository(),
        _goals = goals ?? GoalStore(),
        _clock = clock ?? DateTime.now,
+       _queue = queue ?? PendingWritesService.instance,
        _sendEnabled =
            sendEnabled ?? (() => SyncSettings.instance.sendPlanToIntervals),
        _connected = connected ?? (() => IntervalsSession.instance.isConnected),
        _resync = resync ?? _resyncMonth;
 
   final PlannedWorkoutWriter _workouts;
+  final PendingWritesService _queue;
   final PlansRepository _plans;
   final EventsRepository _events;
   final ActivitiesRepository _activities;
@@ -159,45 +166,95 @@ class PlanActions {
       await store(null, PlanSessionStatus.planned);
       return ReplaceOutcome.replacedLocally;
     }
-    if (!_sendEnabled() || !_connected()) {
+    if (!_sendEnabled()) {
       throw const ReplaceRefusedException(ReplaceRefusal.sentButCannotSend);
     }
 
     final planId = await _plans.planIdOfSession(sessionId);
-    final created = await _workouts.createPlannedWorkout(
-      PlannedWorkoutDraft(
-        name: draft.name,
-        sport: draft.sport,
-        description: description,
-        date: session.date,
-        durationSeconds: minutes * 60,
-        load: load,
-        indoor: draft.indoor,
-        tags: planId == null ? null : [PlanWriter.tagFor(planId)],
-        externalId: planId == null
-            ? null
-            : '${PlanWriter.tagFor(planId)}-$sessionId',
-      ),
+    final externalId = planId == null
+        ? null
+        : '${PlanWriter.tagFor(planId)}-$sessionId';
+    final sendDraft = PlannedWorkoutDraft(
+      name: draft.name,
+      sport: draft.sport,
+      description: description,
+      date: session.date,
+      durationSeconds: minutes * 60,
+      load: load,
+      indoor: draft.indoor,
+      tags: planId == null ? null : [PlanWriter.tagFor(planId)],
+      externalId: externalId,
     );
-    // The new event is the session from here on, whatever the delete does.
-    await store(created.id?.toString(), PlanSessionStatus.created);
-    final deleted = await _deleteUpstream(oldEventId);
-    await _safeResync(session.date);
-    return deleted ? ReplaceOutcome.replaced : ReplaceOutcome.bothExist;
+    if (_connected()) {
+      try {
+        final created = await _workouts.createPlannedWorkout(sendDraft);
+        // The new event is the session from here on, whatever the delete
+        // does.
+        await store(created.id?.toString(), PlanSessionStatus.created);
+        final deleted = await _deleteUpstream(oldEventId);
+        await _safeResync(session.date);
+        return deleted ? ReplaceOutcome.replaced : ReplaceOutcome.bothExist;
+      } catch (error) {
+        if (!isOfflineError(error)) rethrow;
+      }
+    }
+    // Offline: the session shows the new content now; the upstream replace
+    // (create the new event, delete the old one) waits in the queue.
+    await store(null, PlanSessionStatus.planned);
+    await _events.deleteById(oldEventId);
+    await _queue.enqueue(PendingKind.replaceWorkout, {
+      'old_event_id': oldEventId,
+      'plan_session_id': sessionId,
+      'draft': QueuedWorkoutWriter.draftToJson(sendDraft),
+    });
+    return ReplaceOutcome.queued;
   }
 
   Future<ReplaceOutcome> _replaceEvent(
     LocalEvent planned,
     PlannedWorkoutDraft draft,
   ) async {
-    if (!_connected()) {
-      throw const ReplaceRefusedException(ReplaceRefusal.notConnected);
+    if (_connected()) {
+      try {
+        await _workouts.createPlannedWorkout(draft);
+        final deleted = await _deleteUpstream(planned.id);
+        if (deleted) await _events.deleteById(planned.id);
+        await _safeResync(draft.date);
+        return deleted ? ReplaceOutcome.replaced : ReplaceOutcome.bothExist;
+      } catch (error) {
+        if (!isOfflineError(error)) rethrow;
+      }
     }
-    await _workouts.createPlannedWorkout(draft);
-    final deleted = await _deleteUpstream(planned.id);
-    if (deleted) await _events.deleteById(planned.id);
-    await _safeResync(draft.date);
-    return deleted ? ReplaceOutcome.replaced : ReplaceOutcome.bothExist;
+    // Offline: show the new workout as a placeholder in the calendar and
+    // queue the real replace.
+    final placeholderId = 'pending:${_clock().microsecondsSinceEpoch}';
+    await _events.upsert(
+      LocalEvent(
+        id: placeholderId,
+        date: isoDate(draft.date),
+        category: 'WORKOUT',
+        type: draft.sport,
+        name: draft.name,
+        description: draft.description,
+        plannedLoad: draft.load,
+        plannedTime: draft.durationSeconds,
+        plannedDistance: null,
+        indoor: draft.indoor,
+        raw: {
+          'start_date_local': '${isoDate(draft.date)}T00:00:00',
+          'triiq_pending': true,
+        },
+        syncedAt: _clock(),
+      ),
+    );
+    await _events.deleteById(planned.id);
+    await _queue.enqueue(PendingKind.replaceWorkout, {
+      'old_event_id': planned.id,
+      'placeholder_id': placeholderId,
+      'draft': QueuedWorkoutWriter.draftToJson(draft),
+    });
+    _notify();
+    return ReplaceOutcome.queued;
   }
 
   /// Takes the planned session [planned] off the calendar: a TriIQ plan

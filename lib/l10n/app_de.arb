@@ -1061,5 +1061,19 @@
   "pendingFailedTitle": "{count, plural, =1{1 Änderung konnte nicht gesendet werden} other{{count} Änderungen konnten nicht gesendet werden}}",
   "pendingRetry": "Erneut versuchen",
   "pendingDiscard": "Verwerfen",
-  "planQueuedOffline": "{count} Einheiten werden an Intervals.icu gesendet, sobald du wieder online bist."
+  "planQueuedOffline": "{count} Einheiten werden an Intervals.icu gesendet, sobald du wieder online bist.",
+  "replaceQueuedOffline": "Hier gespeichert. Intervals.icu ist nicht erreichbar, der Austausch wird gesendet, sobald du wieder online bist.",
+  "fatigueWatchTitle": "Die Ermüdung baut sich auf",
+  "fatigueWarningTitle": "Ermüdungswarnung",
+  "fatigueAdviceWatch": "Nimm die nächste harte Einheit ernst — wenn sie sich schlecht anfühlt, kürze sie oder tausche sie gegen eine lockere.",
+  "fatigueAdviceWarning": "Mehrere Werte sind seit Tagen auffällig. Gönn dir einen lockeren oder freien Tag und bitte den Trainer, die Woche zu entschärfen.",
+  "fatigueSignalHrv": "HRV unter deinem Normalwert an {bad} der letzten {of} Tage",
+  "fatigueSignalRestingHr": "Ruhepuls erhöht an {bad} der letzten {of} Tage",
+  "fatigueSignalSleep": "Unter 6,5 Stunden Schlaf in {bad} der letzten {of} Nächte",
+  "fatigueSignalForm": "Form deutlich im Minus an {bad} der letzten {of} Tage",
+  "fatigueSignalRamp": "Fitness steigt schnell an an {bad} der letzten {of} Tage",
+  "fatigueSignalSubjective": "Du hast Müdigkeit oder Muskelkater an {bad} der letzten {of} Tage hoch bewertet",
+  "fatigueAsk": "Trainer fragen",
+  "fatigueDismiss": "Jetzt nicht",
+  "fatigueChatDraft": "Mein Ermüdungscheck sagt: {reasons}. Sollte ich diese Woche etwas ändern?"
 }

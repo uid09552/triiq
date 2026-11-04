@@ -30,6 +30,7 @@ import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
 import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
+import '../../evaluation/fatigue_warning_service.dart';
 import '../agent_memory.dart';
 import 'plan_assistant_tools.dart';
 import 'season_tools.dart';
@@ -332,6 +333,22 @@ class TrainingDataTools {
             ? {'removed': true}
             : {'error': 'No remembered preference with that id.'};
       },
+    ),
+    _tool(
+      name: 'get_fatigue_warning',
+      description:
+          'The multi-day fatigue early warning: whether HRV, resting HR, '
+          'sleep, form, CTL ramp rate and the logged fatigue/soreness scores '
+          'have stayed off on enough of the last 5 days to matter (level '
+          'none / watch / warning, with how many days each signal was off). '
+          'Complements get_readiness, which rates only today. Call it '
+          'when the athlete feels flat or asks if they are overdoing it. '
+          'Read-only.',
+      schema: const {'type': 'object', 'properties': <String, dynamic>{}},
+      run: (_) async => (await FatigueWarningService(
+        wellness: _wellnessRepository,
+        clock: _clock,
+      ).load()).toJson(),
     ),
     _tool(
       name: 'get_readiness',

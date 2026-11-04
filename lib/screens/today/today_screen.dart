@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../plan/adaptation_service.dart';
 import '../../widgets/pending_changes_card.dart';
 import '../season/health_card.dart';
+import 'fatigue_warning_card.dart';
 import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
 import '../../data/models/local_activity.dart';
@@ -328,6 +329,7 @@ class _TodayScreenState extends State<TodayScreen> {
           if (_readiness case final readiness?) ...[
             const SizedBox(height: 16),
             ReadinessCard(report: readiness),
+            const FatigueWarningBanner(),
             if (ReadinessHint.hardSessionFor(
                   readiness.readiness,
                   _todaysPlan,

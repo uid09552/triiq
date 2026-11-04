@@ -41,7 +41,7 @@ class QueuedOfflineException implements Exception {
   String toString() => 'Saved offline; it will be sent when you are back online.';
 }
 
-enum PendingKind { createWorkout, deleteEvent, moveEvent }
+enum PendingKind { createWorkout, deleteEvent, moveEvent, replaceWorkout }
 
 class PendingWrite {
   const PendingWrite({
@@ -97,6 +97,18 @@ class PendingWritesRepository {
     ];
   }
 
+  /// Rewrites a write's payload — a multi-step write records how far it got
+  /// so a retry does not repeat a step that already succeeded.
+  Future<void> updatePayload(int id, Map<String, dynamic> payload) async {
+    final db = await _database.database;
+    await db.update(
+      'pending_writes',
+      {'payload': jsonEncode(payload)},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<void> remove(int id) async {
     final db = await _database.database;
     await db.delete('pending_writes', where: 'id = ?', whereArgs: [id]);
@@ -127,8 +139,10 @@ class PendingWritesRepository {
     final writes = await all();
     return {
       for (final w in writes)
-        if (w.kind == PendingKind.deleteEvent && !w.failed)
-          '${w.payload['event_id']}',
+        if (!w.failed && w.kind == PendingKind.deleteEvent)
+          '${w.payload['event_id']}'
+        else if (!w.failed && w.kind == PendingKind.replaceWorkout)
+          '${w.payload['old_event_id']}',
     };
   }
 }
@@ -326,7 +340,64 @@ class PendingWritesService extends ChangeNotifier {
         }
       case PendingKind.createWorkout:
         await _sendCreate(w);
+      case PendingKind.replaceWorkout:
+        await _sendReplace(w);
     }
+  }
+
+  /// Replace = create the new workout, then delete the old event. The
+  /// payload records that the create happened, so a retry after a failed
+  /// delete does not create a second copy.
+  Future<void> _sendReplace(PendingWrite w) async {
+    final payload = Map<String, dynamic>.from(w.payload);
+    final oldId = '${payload['old_event_id']}';
+    if (payload['created'] != true) {
+      var draft = QueuedWorkoutWriter.draftFromJson(
+        payload['draft'] as Map<String, dynamic>,
+      );
+      final sessionId = (payload['plan_session_id'] as num?)?.toInt();
+      PlanSession? session;
+      var skipCreate = false;
+      if (sessionId != null) {
+        session = await _plans.getSession(sessionId);
+        if (session == null) {
+          skipCreate = true; // removed while offline: only clean up
+        } else {
+          draft = PlannedWorkoutDraft(
+            name: session.name,
+            sport: session.sport,
+            description: session.description,
+            date: session.date,
+            durationSeconds: session.minutes * 60,
+            load: session.load,
+            indoor: draft.indoor,
+            tags: draft.tags,
+            externalId: draft.externalId,
+          );
+        }
+      }
+      if (!skipCreate) {
+        final event = await _writer.createPlannedWorkout(draft);
+        if (session != null) {
+          await _plans.updateSession(
+            session.copyWith(
+              intervalsEventId: event.id?.toString(),
+              status: PlanSessionStatus.created,
+            ),
+          );
+        }
+      }
+      final placeholder = payload['placeholder_id'] as String?;
+      if (placeholder != null) await _events.deleteById(placeholder);
+      payload['created'] = true;
+      await _repo.updatePayload(w.id, payload);
+    }
+    try {
+      await _writer.deletePlannedWorkout(oldId);
+    } catch (e) {
+      if (!_gone(e)) rethrow;
+    }
+    await _events.deleteById(oldId);
   }
 
   static final _sessionIdPattern = RegExp(r'-(\d+)$');

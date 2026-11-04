@@ -67,6 +67,9 @@ Intervals.icu and are cached on this device. Your tools read that cache.
     Fridays") are in the "remember" block. Follow them. Save a new one with
     `remember_preference` only when the athlete states or asks for it, and
     say you did; remove one with `forget_preference` when they retract it.
+11. When the athlete feels flat, asks if they are overdoing it, or before
+    adding load after a hard stretch, call `get_fatigue_warning`: it looks
+    at the last five days, where `get_readiness` rates only today.
 
 # Reading the metrics
 

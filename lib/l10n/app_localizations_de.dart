@@ -3281,4 +3281,63 @@ class AppLocalizationsDe extends AppLocalizations {
   String planQueuedOffline(int count) {
     return '$count Einheiten werden an Intervals.icu gesendet, sobald du wieder online bist.';
   }
+
+  @override
+  String get replaceQueuedOffline =>
+      'Hier gespeichert. Intervals.icu ist nicht erreichbar, der Austausch wird gesendet, sobald du wieder online bist.';
+
+  @override
+  String get fatigueWatchTitle => 'Die Ermüdung baut sich auf';
+
+  @override
+  String get fatigueWarningTitle => 'Ermüdungswarnung';
+
+  @override
+  String get fatigueAdviceWatch =>
+      'Nimm die nächste harte Einheit ernst — wenn sie sich schlecht anfühlt, kürze sie oder tausche sie gegen eine lockere.';
+
+  @override
+  String get fatigueAdviceWarning =>
+      'Mehrere Werte sind seit Tagen auffällig. Gönn dir einen lockeren oder freien Tag und bitte den Trainer, die Woche zu entschärfen.';
+
+  @override
+  String fatigueSignalHrv(int bad, int of) {
+    return 'HRV unter deinem Normalwert an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalRestingHr(int bad, int of) {
+    return 'Ruhepuls erhöht an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalSleep(int bad, int of) {
+    return 'Unter 6,5 Stunden Schlaf in $bad der letzten $of Nächte';
+  }
+
+  @override
+  String fatigueSignalForm(int bad, int of) {
+    return 'Form deutlich im Minus an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalRamp(int bad, int of) {
+    return 'Fitness steigt schnell an an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalSubjective(int bad, int of) {
+    return 'Du hast Müdigkeit oder Muskelkater an $bad der letzten $of Tage hoch bewertet';
+  }
+
+  @override
+  String get fatigueAsk => 'Trainer fragen';
+
+  @override
+  String get fatigueDismiss => 'Jetzt nicht';
+
+  @override
+  String fatigueChatDraft(String reasons) {
+    return 'Mein Ermüdungscheck sagt: $reasons. Sollte ich diese Woche etwas ändern?';
+  }
 }

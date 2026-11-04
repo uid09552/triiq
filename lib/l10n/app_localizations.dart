@@ -5341,6 +5341,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} sessions will be sent to Intervals.icu when you are back online.'**
   String planQueuedOffline(int count);
+
+  /// No description provided for @replaceQueuedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved here. Intervals.icu can\'t be reached, so the swap will be sent when you are back online.'**
+  String get replaceQueuedOffline;
+
+  /// No description provided for @fatigueWatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue is building'**
+  String get fatigueWatchTitle;
+
+  /// No description provided for @fatigueWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue warning'**
+  String get fatigueWarningTitle;
+
+  /// No description provided for @fatigueAdviceWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the next hard session honest — if it feels bad, cut it short or swap it for an easy one.'**
+  String get fatigueAdviceWatch;
+
+  /// No description provided for @fatigueAdviceWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Several signals have been off for days. Take an easy or rest day and ask the trainer to ease this week.'**
+  String get fatigueAdviceWarning;
+
+  /// No description provided for @fatigueSignalHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV below your normal on {bad} of the last {of} days'**
+  String fatigueSignalHrv(int bad, int of);
+
+  /// No description provided for @fatigueSignalRestingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting heart rate raised on {bad} of the last {of} days'**
+  String fatigueSignalRestingHr(int bad, int of);
+
+  /// No description provided for @fatigueSignalSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 6.5 hours of sleep on {bad} of the last {of} nights'**
+  String fatigueSignalSleep(int bad, int of);
+
+  /// No description provided for @fatigueSignalForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form deeply negative on {bad} of the last {of} days'**
+  String fatigueSignalForm(int bad, int of);
+
+  /// No description provided for @fatigueSignalRamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness ramping up fast on {bad} of the last {of} days'**
+  String fatigueSignalRamp(int bad, int of);
+
+  /// No description provided for @fatigueSignalSubjective.
+  ///
+  /// In en, this message translates to:
+  /// **'You rated fatigue or soreness high on {bad} of the last {of} days'**
+  String fatigueSignalSubjective(int bad, int of);
+
+  /// No description provided for @fatigueAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the trainer'**
+  String get fatigueAsk;
+
+  /// No description provided for @fatigueDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get fatigueDismiss;
+
+  /// No description provided for @fatigueChatDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'My fatigue check says: {reasons}. Should I change anything this week?'**
+  String fatigueChatDraft(String reasons);
 }
 
 class _AppLocalizationsDelegate

@@ -482,6 +482,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
         ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
         ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
         ReplaceOutcome.bothExist => l10n.replaceBothExist,
+        ReplaceOutcome.queued => l10n.replaceQueuedOffline,
       });
       await _loadTodays();
     } on ReplaceRefusedException catch (error) {
