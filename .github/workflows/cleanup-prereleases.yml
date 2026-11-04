@@ -1,0 +1,71 @@
+# Deletes the automatic release candidates (v<x.y.z>-rc<hash>, made by
+# "Android release" on every merge to main) that are older than 3 days,
+# together with their tags — except the newest one, which always stays so
+# there is a build to install after a quiet week. Pre-releases you tagged yourself (e.g.
+# v1.0.0-beta1) and normal releases are never touched.
+#
+# Runs daily; run it by hand to try it: Actions -> Clean up pre-releases ->
+# Run workflow (dry run lists what would be deleted).
+name: Clean up pre-releases
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Delete release candidates older than this many days'
+        default: '3'
+      dry_run:
+        description: 'Only list what would be deleted'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cleanup-prereleases
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Delete old release candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DAYS: ${{ inputs.days || '3' }}
+          # Scheduled runs delete; a manual run deletes only when asked to.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: |
+          set -euo pipefail
+          case "$DAYS" in ''|*[!0-9]*) echo "::error::days must be a whole number"; exit 1 ;; esac
+          cutoff=$(date -u -d "$DAYS days ago" +%s)
+          echo "Release candidates published before $(date -u -d "@$cutoff" +%FT%TZ) are removed (dry run: $DRY_RUN)."
+          # The automatic scheme: v<x.y.z>-rc<7 hex chars>. Everything else
+          # (your own pre-releases, normal releases) is ignored.
+          candidates=$(gh api --paginate "repos/$REPO/releases?per_page=100" \
+                         --jq '.[] | select(.prerelease) | [.tag_name, .published_at] | @tsv' \
+                       | grep -E $'^v[0-9]+\\.[0-9]+\\.[0-9]+-rc[0-9a-f]{7}\t' || true)
+          # The newest one is kept, however old.
+          newest=$(printf '%s\n' "$candidates" | sort -t $'\t' -k2,2r | head -n1 | cut -f1)
+          echo "Keeping the newest release candidate: ${newest:-none}"
+          deleted=0
+          while IFS=$'\t' read -r tag published; do
+            [ -n "$tag" ] || continue
+            [ "$tag" != "$newest" ] || continue
+            ts=$(date -u -d "$published" +%s)
+            if [ "$ts" -lt "$cutoff" ]; then
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "would delete $tag (published $published)"
+              else
+                gh release delete "$tag" --repo "$REPO" --cleanup-tag --yes
+                echo "deleted $tag (published $published)"
+              fi
+              deleted=$((deleted + 1))
+            fi
+          done <<< "$candidates"
+          echo "$deleted release candidate(s) older than $DAYS day(s)."

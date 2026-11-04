@@ -1367,6 +1367,8 @@ the nightly background sync. It lists the day's planned workouts, readiness
 today), the fatigue level, a note if you are logged sick or injured, and form
 with CTL.
 
+The work **intervals** under the session diagram are collapsed ("Intervals (n)"); tap the header to open the list, tap an interval to zoom the diagram to it.
+
 ### Route map
 
 The activity detail of an outdoor run or ride (`hasRouteMap`: run or ride
@@ -1395,6 +1397,12 @@ publishes it as a GitHub release.
   exactly that tag, built with that version; a tag containing `-` is a
   pre-release.
 - **Manual run** of the workflow → only an APK artifact, no tag or release.
+
+**Clean-up:** `.github/workflows/cleanup-prereleases.yml` runs daily (03:17 UTC) and
+deletes the automatic `v<x.y.z>-rc<hash>` pre-releases published more than 3 days ago,
+together with their tags — the newest one always stays, however old. Pre-releases you tagged yourself (e.g. `v1.0.0-beta1`) and
+normal releases are never touched. Run it by hand to try it — "dry run" (the default for
+manual runs) only lists what it would delete.
 
 The APK's version name is the tag without the `v`; its version code is the
 workflow run number. Signing secrets: see the header of the workflow.
