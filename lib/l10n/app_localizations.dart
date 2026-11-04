@@ -5293,6 +5293,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'an unknown date'**
   String get backupUnknownDate;
+
+  /// No description provided for @forecastAssumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is planned after {date}, so from then on the forecast assumes you keep training at your current fitness level.'**
+  String forecastAssumed(String date);
 }
 
 class _AppLocalizationsDelegate

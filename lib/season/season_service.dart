@@ -25,6 +25,7 @@ class SeasonSnapshot {
     required this.health,
     required this.healthChanges,
     required this.horizon,
+    this.assumedFrom,
   });
 
   final DateTime today;
@@ -39,6 +40,11 @@ class SeasonSnapshot {
   final ({HealthIssue issue, HealthPhase phase})? health;
   final List<ReturnChange> healthChanges;
   final DateTime horizon;
+
+  /// First day with no planned load: from here the forecast assumes the
+  /// athlete keeps training at their current fitness level. Null when the
+  /// plan covers the whole horizon.
+  final DateTime? assumedFrom;
 
   bool get hasFitness => startCtl != null && startAtl != null;
 
@@ -93,16 +99,21 @@ class SeasonService {
     );
 
     final loadByDate = <String, double>{};
+    DateTime? planEnd;
     final upcoming = <LocalEvent>[];
     for (final e in events) {
       final day = DateTime.tryParse(e.date);
       if (day == null) continue;
       if (e.isTraining && !dateOnly(day).isBefore(today)) {
         upcoming.add(e);
-        // Races count at their planned load when they have one.
-        final load = e.plannedLoad;
+        // Races count at their planned load when they have one; a session
+        // with a duration but no load counts as easy aerobic work.
+        final secs = e.plannedTime ?? 0;
+        final load =
+            e.plannedLoad ?? (secs > 0 ? (secs / 3600 * easyLoadPerHour).round() : null);
         if (load != null) {
           loadByDate.update(e.date, (v) => v + load, ifAbsent: () => load.toDouble());
+          if (planEnd == null || day.isAfter(planEnd)) planEnd = dateOnly(day);
         }
       }
     }
@@ -145,6 +156,11 @@ class SeasonService {
             ),
     ];
 
+    // Beyond the last planned load, assume the athlete holds their current
+    // fitness (daily load = CTL) rather than resting for months.
+    final assumeFrom = planEnd == null
+        ? today
+        : planEnd.add(const Duration(days: 1));
     final forecast = last == null
         ? const <ForecastDay>[]
         : forecastFitness(
@@ -153,6 +169,8 @@ class SeasonService {
             lastKnownDay: DateTime.parse(last.date),
             until: horizon,
             loadByDate: loadByDate,
+            assumeFrom: assumeFrom,
+            assumedLoad: last.ctl!,
           );
 
     return SeasonSnapshot(
@@ -175,6 +193,7 @@ class SeasonService {
               today: today,
             ),
       horizon: horizon,
+      assumedFrom: assumeFrom.isAfter(horizon) ? null : assumeFrom,
     );
   }
 }

@@ -29,6 +29,21 @@ void main() {
       expect(days.first.load, 150);
     });
 
+    test('beyond the plan the load is assumed, so CTL does not decay to zero', () {
+      final days = forecastFitness(
+        startCtl: 60, startAtl: 60,
+        lastKnownDay: DateTime(2026, 5, 1),
+        until: DateTime(2026, 10, 1),
+        loadByDate: const {'2026-05-02': 80},
+        assumeFrom: DateTime(2026, 5, 3),
+        assumedLoad: 60,
+      );
+      expect(days.first.assumed, isFalse);
+      expect(days[1].assumed, isTrue);
+      expect(days.last.ctl, closeTo(60, 3));
+      expect(days.last.form.abs(), lessThan(3));
+    });
+
     test('forecastOn and peakForm find the day', () {
       final days = forecastFitness(
         startCtl: 70, startAtl: 90,

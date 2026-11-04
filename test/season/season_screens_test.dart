@@ -108,6 +108,7 @@ void main() {
     });
 
     testWidgets('no races: explains where to add one', (t) async {
+      tall(t);
       await t.pumpWidget(wrap(SeasonScreen(service: service(const []))));
       await t.pumpAndSettle();
       expect(find.textContaining('No races yet'), findsOneWidget);

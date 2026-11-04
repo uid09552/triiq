@@ -3205,4 +3205,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupUnknownDate => 'an unknown date';
+
+  @override
+  String forecastAssumed(String date) {
+    return 'Nothing is planned after $date, so from then on the forecast assumes you keep training at your current fitness level.';
+  }
 }

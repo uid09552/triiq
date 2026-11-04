@@ -1053,5 +1053,6 @@
   "backupRestoreBody": "Vom {date}: {activities} Aktivitäten, {plans} Pläne, insgesamt {total} Zeilen, {settings} Einstellungen. Das ersetzt die synchronisierten Daten, Pläne und die Wissensbibliothek auf diesem Gerät.",
   "backupRestoreConfirm": "Ersetzen",
   "backupRestored": "Wiederhergestellt. Starte TriIQ neu, um die Einstellungen zu übernehmen, und verbinde Intervals.icu bei Bedarf neu.",
-  "backupUnknownDate": "einem unbekannten Datum"
+  "backupUnknownDate": "einem unbekannten Datum",
+  "forecastAssumed": "Nach dem {date} ist nichts geplant; ab dann nimmt die Prognose an, dass du auf deinem aktuellen Fitnessniveau weitertrainierst."
 }

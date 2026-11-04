@@ -9,6 +9,7 @@ class ForecastDay {
     required this.load,
     required this.ctl,
     required this.atl,
+    this.assumed = false,
   });
 
   final DateTime date;
@@ -17,6 +18,10 @@ class ForecastDay {
   final double load;
   final double ctl;
   final double atl;
+
+  /// The load for this day is an assumption (nothing planned this far
+  /// ahead), not a planned session.
+  final bool assumed;
 
   /// Form (TSB) as the app shows it everywhere: fitness minus fatigue.
   double get form => ctl - atl;
@@ -27,6 +32,7 @@ class ForecastDay {
     'ctl': double.parse(ctl.toStringAsFixed(1)),
     'atl': double.parse(atl.toStringAsFixed(1)),
     'form': double.parse(form.toStringAsFixed(1)),
+    if (assumed) 'assumed_load': true,
   };
 }
 
@@ -35,7 +41,10 @@ class ForecastDay {
 ///
 /// [startCtl] / [startAtl] are the values at the end of [lastKnownDay]; the
 /// projection begins the next day. [loadByDate] maps ISO dates to planned
-/// TSS; days without an entry count as rest.
+/// TSS; days without an entry count as rest. From [assumeFrom] on (where the
+/// plan ends) every day is assumed to carry [assumedLoad] instead — without
+/// that, the empty calendar beyond the plan would read as months of rest and
+/// fitness would decay towards zero.
 List<ForecastDay> forecastFitness({
   required double startCtl,
   required double startAtl,
@@ -43,6 +52,8 @@ List<ForecastDay> forecastFitness({
   required DateTime until,
   required Map<String, double> loadByDate,
   double scale = 1.0,
+  DateTime? assumeFrom,
+  double assumedLoad = 0,
   int ctlDays = 42,
   int atlDays = 7,
 }) {
@@ -54,10 +65,13 @@ List<ForecastDay> forecastFitness({
   var day = dateOnly(lastKnownDay).add(const Duration(days: 1));
   final end = dateOnly(until);
   while (!day.isAfter(end)) {
-    final load = (loadByDate[isoDate(day)] ?? 0) * scale;
+    final assume = assumeFrom != null && !day.isBefore(dateOnly(assumeFrom));
+    final load = assume ? assumedLoad : (loadByDate[isoDate(day)] ?? 0) * scale;
     ctl = ctl * ctlK + load * (1 - ctlK);
     atl = atl * atlK + load * (1 - atlK);
-    days.add(ForecastDay(date: day, load: load, ctl: ctl, atl: atl));
+    days.add(
+      ForecastDay(date: day, load: load, ctl: ctl, atl: atl, assumed: assume),
+    );
     day = day.add(const Duration(days: 1));
   }
   return days;

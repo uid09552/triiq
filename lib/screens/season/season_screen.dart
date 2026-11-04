@@ -203,6 +203,15 @@ class _ForecastCard extends StatelessWidget {
               key: const ValueKey('forecast-selected'),
             ),
           ],
+          if (snapshot.assumedFrom != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                l10n.forecastAssumed(md.format(snapshot.assumedFrom!)),
+                key: const ValueKey('forecast-assumed'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
           const SizedBox(height: 12),
           for (final r in upcoming)
             Padding(
