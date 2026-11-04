@@ -59,7 +59,10 @@ class SeasonTools {
       'current_atl': s.startAtl,
       'method':
           'Standard 42-day CTL / 7-day ATL model run over the planned '
-          'sessions; days with nothing planned count as rest. Estimate only.',
+          'sessions (days inside the plan with nothing planned count as rest; '
+          'from assumed_from on, where nothing is planned, the athlete is '
+          'assumed to hold their current fitness). Estimate only.',
+      'assumed_from': s.assumedFrom == null ? null : isoDate(s.assumedFrom!),
       'weekly': weekly,
       'races': [for (final r in s.races) _race(r, s)],
       'blocks': [

@@ -1,4 +1,5 @@
 import '../intervals_session.dart';
+import '../pending_writes.dart';
 import '../models/local_activity.dart';
 import '../models/local_event.dart';
 import '../models/local_wellness.dart';
@@ -93,6 +94,10 @@ class SyncService {
       throw StateError('Not connected to Intervals.icu.');
     }
 
+    // Send what was changed offline first, so the events fetched below
+    // already reflect it.
+    await PendingWritesService.instance.flush();
+
     final oldestStr = _formatDate(oldest);
     final newestStr = _formatDate(newest);
 
@@ -130,8 +135,11 @@ class SyncService {
         oldest: oldestStr,
         newest: newestStr,
       );
+      final waitingDeletes = await PendingWritesService.instance
+          .pendingDeleteIds();
       eventRecords = (eventsResponse.data ?? const [])
           .map(LocalEvent.fromApi)
+          .where((e) => !waitingDeletes.contains(e.id))
           .toList();
       await _eventsRepository.replaceRange(oldestStr, newestStr, eventRecords);
     }
@@ -191,8 +199,11 @@ class SyncService {
       oldest: oldest,
       newest: newest,
     );
+    final waitingDeletes = await PendingWritesService.instance
+        .pendingDeleteIds();
     final records = (response.data ?? const [])
         .map(LocalEvent.fromApi)
+        .where((e) => !waitingDeletes.contains(e.id))
         .toList();
     await _eventsRepository.replaceRange(oldest, newest, records);
     await _syncStateRepository.recordSync(

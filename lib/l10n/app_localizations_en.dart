@@ -3205,4 +3205,192 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupUnknownDate => 'an unknown date';
+
+  @override
+  String forecastAssumed(String date) {
+    return 'Nothing is planned after $date, so from then on the forecast assumes you keep training at your current fitness level.';
+  }
+
+  @override
+  String pendingTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingSubtitle =>
+      'Made while Intervals.icu was out of reach. They are sent automatically when you are back online.';
+
+  @override
+  String get pendingSyncNow => 'Send now';
+
+  @override
+  String pendingFailedTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes could not be sent',
+      one: '1 change could not be sent',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingRetry => 'Retry';
+
+  @override
+  String get pendingDiscard => 'Discard';
+
+  @override
+  String planQueuedOffline(int count) {
+    return '$count sessions will be sent to Intervals.icu when you are back online.';
+  }
+
+  @override
+  String get replaceQueuedOffline =>
+      'Saved here. Intervals.icu can\'t be reached, so the swap will be sent when you are back online.';
+
+  @override
+  String get fatigueWatchTitle => 'Fatigue is building';
+
+  @override
+  String get fatigueWarningTitle => 'Fatigue warning';
+
+  @override
+  String get fatigueAdviceWatch =>
+      'Keep the next hard session honest — if it feels bad, cut it short or swap it for an easy one.';
+
+  @override
+  String get fatigueAdviceWarning =>
+      'Several signals have been off for days. Take an easy or rest day and ask the trainer to ease this week.';
+
+  @override
+  String fatigueSignalHrv(int bad, int of) {
+    return 'HRV below your normal on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalRestingHr(int bad, int of) {
+    return 'Resting heart rate raised on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalSleep(int bad, int of) {
+    return 'Under 6.5 hours of sleep on $bad of the last $of nights';
+  }
+
+  @override
+  String fatigueSignalForm(int bad, int of) {
+    return 'Form deeply negative on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalRamp(int bad, int of) {
+    return 'Fitness ramping up fast on $bad of the last $of days';
+  }
+
+  @override
+  String fatigueSignalSubjective(int bad, int of) {
+    return 'You rated fatigue or soreness high on $bad of the last $of days';
+  }
+
+  @override
+  String get fatigueAsk => 'Ask the trainer';
+
+  @override
+  String get fatigueDismiss => 'Not now';
+
+  @override
+  String fatigueChatDraft(String reasons) {
+    return 'My fatigue check says: $reasons. Should I change anything this week?';
+  }
+
+  @override
+  String briefingTitle(String date) {
+    return 'Today · $date';
+  }
+
+  @override
+  String get briefingNoSession => 'No session planned today.';
+
+  @override
+  String briefingSessions(String sessions) {
+    return 'Planned: $sessions';
+  }
+
+  @override
+  String briefingMore(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String briefingReadiness(String level) {
+    return 'Readiness: $level';
+  }
+
+  @override
+  String briefingFatigue(String level) {
+    return 'Fatigue: $level';
+  }
+
+  @override
+  String briefingForm(String form, String ctl) {
+    return 'Form $form · CTL $ctl';
+  }
+
+  @override
+  String briefingRace(String race) {
+    return '$race';
+  }
+
+  @override
+  String briefingHealth(String kind) {
+    return 'You are logged as $kind — check the Season screen.';
+  }
+
+  @override
+  String get briefingSick => 'sick';
+
+  @override
+  String get briefingInjured => 'injured';
+
+  @override
+  String get briefingLevelReady => 'ready';
+
+  @override
+  String get briefingLevelCaution => 'caution';
+
+  @override
+  String get briefingLevelBackOff => 'back off';
+
+  @override
+  String get briefingLevelWatch => 'building';
+
+  @override
+  String get briefingLevelWarning => 'warning';
+
+  @override
+  String get morningBriefing => 'Morning briefing';
+
+  @override
+  String get morningBriefingHelp =>
+      'A notification with today\'s session, readiness and form. It is prepared from your last sync, so readiness appears when your watch data is already in.';
+
+  @override
+  String get weeklyHoursLabel => 'All sports';
+
+  @override
+  String weeklyHoursTotal(String hours) {
+    return '$hours h';
+  }
+
+  @override
+  String weeklyHoursOfTarget(String hours, String target) {
+    return '$hours / $target h';
+  }
 }

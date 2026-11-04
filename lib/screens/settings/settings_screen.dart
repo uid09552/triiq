@@ -638,6 +638,14 @@ class _NotificationsSection extends StatelessWidget {
     }
   }
 
+  Future<void> _pickBriefingTime(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _settings.morningBriefingTime,
+    );
+    if (picked != null) await _settings.setMorningBriefingTime(picked);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -669,6 +677,24 @@ class _NotificationsSection extends StatelessWidget {
                     onPressed: () => _pickTime(context),
                     icon: const Icon(Icons.schedule_outlined),
                     label: Text(_settings.dailyReminderTime.format(context)),
+                  ),
+                ),
+              SwitchListTile(
+                key: const ValueKey('morning-briefing'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.morningBriefing),
+                subtitle: Text(l10n.morningBriefingHelp),
+                value: _settings.morningBriefingEnabled,
+                onChanged: _settings.setMorningBriefingEnabled,
+              ),
+              if (_settings.morningBriefingEnabled)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('morning-briefing-time'),
+                    onPressed: () => _pickBriefingTime(context),
+                    icon: const Icon(Icons.schedule_outlined),
+                    label: Text(_settings.morningBriefingTime.format(context)),
                   ),
                 ),
             ] else if (_settings.enabled)

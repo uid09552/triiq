@@ -53,7 +53,9 @@ Future<TrainingPlan?> previewAndTakePlan(
 }
 
 String planWriteReportMessage(AppLocalizations l10n, PlanWriteReport report) =>
-    report.allCreated
+    report.queued.isNotEmpty && report.allCreated
+    ? l10n.planQueuedOffline(report.queued.length)
+    : report.allCreated
     ? l10n.planCreatedAll(report.created.length)
     : l10n.planCreatedPartial(report.created.length, report.failed.length);
 

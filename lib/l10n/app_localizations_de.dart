@@ -3236,4 +3236,192 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupUnknownDate => 'einem unbekannten Datum';
+
+  @override
+  String forecastAssumed(String date) {
+    return 'Nach dem $date ist nichts geplant; ab dann nimmt die Prognose an, dass du auf deinem aktuellen Fitnessniveau weitertrainierst.';
+  }
+
+  @override
+  String pendingTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Änderungen warten auf die Synchronisierung',
+      one: '1 Änderung wartet auf die Synchronisierung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingSubtitle =>
+      'Während Intervals.icu nicht erreichbar war vorgenommen. Sie werden automatisch gesendet, sobald du wieder online bist.';
+
+  @override
+  String get pendingSyncNow => 'Jetzt senden';
+
+  @override
+  String pendingFailedTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Änderungen konnten nicht gesendet werden',
+      one: '1 Änderung konnte nicht gesendet werden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pendingRetry => 'Erneut versuchen';
+
+  @override
+  String get pendingDiscard => 'Verwerfen';
+
+  @override
+  String planQueuedOffline(int count) {
+    return '$count Einheiten werden an Intervals.icu gesendet, sobald du wieder online bist.';
+  }
+
+  @override
+  String get replaceQueuedOffline =>
+      'Hier gespeichert. Intervals.icu ist nicht erreichbar, der Austausch wird gesendet, sobald du wieder online bist.';
+
+  @override
+  String get fatigueWatchTitle => 'Die Ermüdung baut sich auf';
+
+  @override
+  String get fatigueWarningTitle => 'Ermüdungswarnung';
+
+  @override
+  String get fatigueAdviceWatch =>
+      'Nimm die nächste harte Einheit ernst — wenn sie sich schlecht anfühlt, kürze sie oder tausche sie gegen eine lockere.';
+
+  @override
+  String get fatigueAdviceWarning =>
+      'Mehrere Werte sind seit Tagen auffällig. Gönn dir einen lockeren oder freien Tag und bitte den Trainer, die Woche zu entschärfen.';
+
+  @override
+  String fatigueSignalHrv(int bad, int of) {
+    return 'HRV unter deinem Normalwert an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalRestingHr(int bad, int of) {
+    return 'Ruhepuls erhöht an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalSleep(int bad, int of) {
+    return 'Unter 6,5 Stunden Schlaf in $bad der letzten $of Nächte';
+  }
+
+  @override
+  String fatigueSignalForm(int bad, int of) {
+    return 'Form deutlich im Minus an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalRamp(int bad, int of) {
+    return 'Fitness steigt schnell an an $bad der letzten $of Tage';
+  }
+
+  @override
+  String fatigueSignalSubjective(int bad, int of) {
+    return 'Du hast Müdigkeit oder Muskelkater an $bad der letzten $of Tage hoch bewertet';
+  }
+
+  @override
+  String get fatigueAsk => 'Trainer fragen';
+
+  @override
+  String get fatigueDismiss => 'Jetzt nicht';
+
+  @override
+  String fatigueChatDraft(String reasons) {
+    return 'Mein Ermüdungscheck sagt: $reasons. Sollte ich diese Woche etwas ändern?';
+  }
+
+  @override
+  String briefingTitle(String date) {
+    return 'Heute · $date';
+  }
+
+  @override
+  String get briefingNoSession => 'Heute ist keine Einheit geplant.';
+
+  @override
+  String briefingSessions(String sessions) {
+    return 'Geplant: $sessions';
+  }
+
+  @override
+  String briefingMore(int count) {
+    return '+$count weitere';
+  }
+
+  @override
+  String briefingReadiness(String level) {
+    return 'Bereitschaft: $level';
+  }
+
+  @override
+  String briefingFatigue(String level) {
+    return 'Ermüdung: $level';
+  }
+
+  @override
+  String briefingForm(String form, String ctl) {
+    return 'Form $form · CTL $ctl';
+  }
+
+  @override
+  String briefingRace(String race) {
+    return '$race';
+  }
+
+  @override
+  String briefingHealth(String kind) {
+    return 'Du bist als $kind eingetragen — sieh dir die Saison-Ansicht an.';
+  }
+
+  @override
+  String get briefingSick => 'krank';
+
+  @override
+  String get briefingInjured => 'verletzt';
+
+  @override
+  String get briefingLevelReady => 'bereit';
+
+  @override
+  String get briefingLevelCaution => 'Vorsicht';
+
+  @override
+  String get briefingLevelBackOff => 'zurückhalten';
+
+  @override
+  String get briefingLevelWatch => 'im Aufbau';
+
+  @override
+  String get briefingLevelWarning => 'Warnung';
+
+  @override
+  String get morningBriefing => 'Morgenbriefing';
+
+  @override
+  String get morningBriefingHelp =>
+      'Eine Benachrichtigung mit der heutigen Einheit, Bereitschaft und Form. Sie wird aus deinem letzten Sync erstellt; die Bereitschaft erscheint, wenn die Daten deiner Uhr schon da sind.';
+
+  @override
+  String get weeklyHoursLabel => 'Alle Sportarten';
+
+  @override
+  String weeklyHoursTotal(String hours) {
+    return '$hours Std.';
+  }
+
+  @override
+  String weeklyHoursOfTarget(String hours, String target) {
+    return '$hours / $target Std.';
+  }
 }

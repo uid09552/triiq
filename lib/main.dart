@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 import 'agent/llm_settings.dart';
 import 'app.dart';
 import 'data/feel_settings.dart';
+import 'data/home_widget_data.dart';
 import 'data/intervals_session.dart';
+import 'data/pending_writes.dart';
 import 'data/sync/auto_sync_service.dart';
 import 'data/sync/background_sync.dart';
 import 'data/sync/sync_settings.dart';
 import 'locale_controller.dart';
+import 'plan/plan_changes.dart';
 import 'notifications/app_lifecycle_tracker.dart';
+import 'notifications/morning_briefing.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_settings.dart';
 import 'screens/settings/weekly_targets_settings.dart';
@@ -36,6 +40,9 @@ void main() {
     SyncSettings.instance.load().then((_) => BackgroundSync.instance.apply()),
   );
   AutoSyncService.instance.start();
+  unawaited(PendingWritesService.instance.refresh());
+  _keepHomeWidgetFresh();
+  _keepBriefingFresh();
   // The chosen app language (System/English/German) — TriiqApp listens and
   // rebuilds once it resolves.
   unawaited(LocaleController.instance.load());
@@ -62,7 +69,39 @@ void main() {
           settings.dailyReminderTime,
         );
       }
+      await MorningBriefingScheduler().refresh();
     }),
   );
   runApp(const TriiqApp());
+}
+
+/// Refreshes the Android home-screen widget at start and whenever fresh data
+/// or a plan change lands in the cache.
+void _keepHomeWidgetFresh() {
+  if (!HomeWidgetUpdater.supported) return;
+  final updater = HomeWidgetUpdater();
+  Timer? pending;
+  void schedule() {
+    pending?.cancel();
+    pending = Timer(const Duration(seconds: 2), () => unawaited(updater.update()));
+  }
+
+  AutoSyncService.instance.addListener(schedule);
+  PlanChanges.instance.addListener(schedule);
+  schedule();
+}
+
+/// Re-arms the morning briefing (its text is a snapshot) after fresh data,
+/// plan changes and settings changes.
+void _keepBriefingFresh() {
+  final scheduler = MorningBriefingScheduler();
+  Timer? pending;
+  void schedule() {
+    pending?.cancel();
+    pending = Timer(const Duration(seconds: 3), () => unawaited(scheduler.refresh()));
+  }
+
+  AutoSyncService.instance.addListener(schedule);
+  PlanChanges.instance.addListener(schedule);
+  NotificationSettings.instance.addListener(schedule);
 }

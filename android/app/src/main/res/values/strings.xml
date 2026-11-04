@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Today\'s session and your form</string>
+    <string name="widget_today">TODAY</string>
+    <string name="widget_form_label">FORM</string>
+    <string name="widget_no_session">No session planned</string>
+    <string name="widget_done">Done: %1$s</string>
+</resources>

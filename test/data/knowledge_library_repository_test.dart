@@ -24,7 +24,7 @@ void main() {
       addTearDown(database.close);
       final db = await database.database;
 
-      expect(await db.getVersion(), 7);
+      expect(await db.getVersion(), 8);
       expect(await db.query('knowledge_docs'), isEmpty);
       expect(await db.query('knowledge_sections'), isEmpty);
     });
@@ -61,7 +61,7 @@ void main() {
       addTearDown(database.close);
       final db = await database.database;
 
-      expect(await db.getVersion(), 7);
+      expect(await db.getVersion(), 8);
       expect(await db.query('knowledge_docs'), isEmpty);
       expect(await db.query('knowledge_sections'), isEmpty);
     });

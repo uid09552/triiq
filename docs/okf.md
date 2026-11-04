@@ -58,12 +58,16 @@ athlete can:
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — API key is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
-| Today screen | ✅ Real data once connected — a readiness row (Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; optional per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
+| Today screen | ✅ Real data once connected — a readiness row (Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each tappable through to its own chart; optional a slim stacked bar of this week's total training hours (swim/ride/run/other, against the summed targets) above per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
+| Fatigue early warning | ✅ Implemented — a Today card (and `get_fatigue_warning`) when HRV, resting HR, sleep, form, CTL ramp or the fatigue/soreness scores stay off on enough of the last 5 days: **watch** (two signals) or **warning** (three, or HRV/resting HR plus a load or feel signal); "Ask the trainer" or "Not now" (hidden for the day unless it worsens) |
+| Morning briefing | ✅ Implemented (Android/iOS) — Settings → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
+| Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
+| Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
 | Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
 | Backup (Settings → Backup) | ✅ Implemented — export synced data, plans, knowledge library and settings as one JSON file (share sheet on phones, save dialog on desktop), restore on another device; secrets are never included |
 | Season (More → Season) | ✅ Implemented — **fitness forecast** (CTL/ATL/form projected from the planned sessions, with "form on race day" per race), **season timeline** (build / taper / race / recovery blocks across all `RACE_A/B/C` events and the goal's event date, with a conflict check), the **illness / injury mode** card, and the **race predictor** |
@@ -1246,7 +1250,7 @@ figures over.
 **More → Season** has three cards. *Fitness forecast* runs the standard 42-day
 CTL / 7-day ATL model forward from the last synced values over the planned
 sessions (TriIQ plan sessions and Intervals.icu events; empty days are rest),
-and states **form on race day** for every upcoming race with a plain-language
+and — beyond the last planned session, where the calendar is empty — assumes you keep training at your current fitness (daily load = CTL) so fitness does not decay to zero; it says from which date. It states **form on race day** for every upcoming race with a plain-language
 reading (still loaded / balanced / fresh / fading). *Season timeline* lays out
 each race (Intervals.icu `RACE_A/B/C`, plus the training goal's event date as an
 A race): a taper before it (A 14 d, B 7 d, C 2 d), the race day and a recovery
@@ -1315,6 +1319,52 @@ confirmation **replaces** the synced data, plans and knowledge library in one
 database transaction — a bad row rolls everything back. Unknown columns from
 a newer schema are skipped. Settings are applied afterwards; restart the app
 to pick them up, and reconnect Intervals.icu (Profile) on the new device.
+
+### Offline queue and home-screen widget
+
+**Offline queue** (`lib/data/pending_writes.dart`). `QueuedWorkoutWriter` wraps the
+Intervals.icu writer. When a delete or move cannot reach the server (no
+network, timeout, no connection) it is stored and the caller carries on — the
+local plan or cache already shows the change. Plan sends are queued too
+(`PlanWriter` reports them as `queued`, not failed); at send time the queued
+create re-reads the plan session, so a session moved or deleted meanwhile is
+sent as it is now, or dropped. `PendingWritesService.flush()` runs before every
+sync (so the fetch that follows reflects it), stops at the first write that
+still cannot reach the server, retries a rejected write up to 5 times (4xx
+other than 408/429 fails at once) and then parks it as *failed* for Retry or
+Discard. A 404 on delete/move counts as done. Events with a delete waiting are
+kept out of sync results so they don't reappear. Not queued: replacing a
+session with an alternative and Train Now's create — they need the created
+event back, so they still ask for a connection.
+
+**Home-screen widget** (Android; `lib/data/home_widget_data.dart`,
+`TriiqWidgetProvider.kt`, `res/layout/triiq_widget.xml`). Long-press the home
+screen → Widgets → TriIQ. It shows today's planned workouts, what was done
+(TSS), form (CTL − ATL) with CTL/ATL, and the update time; tapping opens the
+app. Flutter writes the strings through the `home_widget` plugin; the native
+provider only lays them out.
+
+### Fatigue early warning and morning briefing
+
+**Fatigue early warning** (`lib/evaluation/fatigue_warning.dart`). Where
+readiness rates one day, this asks whether the same signals have stayed off.
+Over the last 5 days a signal *fires* when: HRV is more than 1 SD below your
+60-day baseline, or resting HR 4+ bpm above it, on 3 days; sleep is under 6.5 h
+on 3 nights; form is −25 or lower on 3 days; CTL ramps 8+/week on 2 days; or
+fatigue/soreness is rated 3–4 on 2 days. Days with no value (a wearable's 0)
+don't count, and a signal needs 3 days of data (HRV/resting HR also 14 days
+of baseline). **Warning** — three signals, or HRV/resting HR together with a
+load or feel signal; **watch** — two signals, or HRV/resting HR alone on four
+days. One bad night never triggers it.
+
+**Morning briefing** (`lib/notifications/morning_briefing.dart`). Enable under
+Settings → Notifications (needs notifications on; Android/iOS). Android/iOS can
+only fire a pre-written notification, so the text is a snapshot of the cache
+when it was armed — at app start, after every sync, on plan changes and after
+the nightly background sync. It lists the day's planned workouts, readiness
+(only when today's wearable data is already in and the briefing is for
+today), the fatigue level, a note if you are logged sick or injured, and form
+with CTL.
 
 ### Training plan
 

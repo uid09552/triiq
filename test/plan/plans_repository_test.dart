@@ -205,7 +205,7 @@ void main() {
       addTearDown(upgraded.close);
       final plan = await PlansRepository(database: upgraded).getCurrent();
 
-      expect(await upgraded.database.then((db) => db.getVersion()), 7);
+      expect(await upgraded.database.then((db) => db.getVersion()), 8);
       final session = plan!.weeks.single.sessions.single;
       expect(session.name, 'Z2 endurance');
       expect(session.shortDescription, 'Z2 endurance · 50min');

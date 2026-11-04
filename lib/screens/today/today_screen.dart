@@ -6,7 +6,9 @@ import '../../agent/plan_proposals.dart';
 import '../../data/intervals_session.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/adaptation_service.dart';
+import '../../widgets/pending_changes_card.dart';
 import '../season/health_card.dart';
+import 'fatigue_warning_card.dart';
 import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
 import '../../data/models/local_activity.dart';
@@ -322,10 +324,12 @@ class _TodayScreenState extends State<TodayScreen> {
     List<Widget> sectionWidgets(TodaySection section) => switch (section) {
       TodaySection.readiness => [
           const SizedBox(height: 16),
+          PendingChangesCard(),
           const HealthBanner(),
           if (_readiness case final readiness?) ...[
             const SizedBox(height: 16),
             ReadinessCard(report: readiness),
+            const FatigueWarningBanner(),
             if (ReadinessHint.hardSessionFor(
                   readiness.readiness,
                   _todaysPlan,

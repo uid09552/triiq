@@ -1,4 +1,4 @@
-import '../data/intervals_workout_service.dart';
+import '../data/pending_writes.dart';
 import '../data/repositories/activities_repository.dart';
 import '../data/repositories/plans_repository.dart';
 import '../util/dates.dart';
@@ -31,7 +31,10 @@ class PlanService {
        _content = content ?? SessionContentGenerator() {
     this.writer =
         writer ??
-        PlanWriter(workouts: IntervalsWorkoutService(), plans: this.plans);
+        PlanWriter(
+          workouts: QueuedWorkoutWriter(queueCreates: true),
+          plans: this.plans,
+        );
   }
 
   final KnowledgeRepository knowledge;

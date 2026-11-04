@@ -5,6 +5,7 @@ import '../../data/repositories/sync_state_repository.dart';
 import '../../data/sync/sync_scope.dart';
 import '../../data/sync/sync_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/pending_changes_card.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../widgets/section_card.dart';
@@ -82,6 +83,7 @@ class _SyncScreenState extends State<SyncScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          PendingChangesCard(),
           if (!connected)
             SectionCard(
               icon: Icons.link_off,

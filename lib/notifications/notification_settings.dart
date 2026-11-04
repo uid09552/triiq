@@ -18,6 +18,9 @@ class NotificationSettings extends ChangeNotifier {
   static const _dailyReminderHourKey = 'notifications.daily_reminder_hour';
   static const _dailyReminderMinuteKey = 'notifications.daily_reminder_minute';
   static const _insightsPopupKey = 'insights.popup_enabled';
+  static const _briefingEnabledKey = 'notifications.morning_briefing';
+  static const _briefingHourKey = 'notifications.morning_briefing_hour';
+  static const _briefingMinuteKey = 'notifications.morning_briefing_minute';
 
   static const defaultReminderTime = TimeOfDay(hour: 7, minute: 0);
 
@@ -31,6 +34,11 @@ class NotificationSettings extends ChangeNotifier {
   /// analysis. On by default; independent of OS notifications.
   bool insightsPopupEnabled = true;
   TimeOfDay dailyReminderTime = defaultReminderTime;
+
+  /// A morning notification with today's session, readiness and form,
+  /// composed from the cache and re-armed after each sync.
+  bool morningBriefingEnabled = false;
+  TimeOfDay morningBriefingTime = defaultReminderTime;
   bool isLoaded = false;
 
   Future<void> load() async {
@@ -39,6 +47,11 @@ class NotificationSettings extends ChangeNotifier {
       enabled = prefs.getBool(_enabledKey) ?? false;
       dailyReminderEnabled = prefs.getBool(_dailyReminderEnabledKey) ?? false;
       insightsPopupEnabled = prefs.getBool(_insightsPopupKey) ?? true;
+      morningBriefingEnabled = prefs.getBool(_briefingEnabledKey) ?? false;
+      morningBriefingTime = TimeOfDay(
+        hour: prefs.getInt(_briefingHourKey) ?? defaultReminderTime.hour,
+        minute: prefs.getInt(_briefingMinuteKey) ?? defaultReminderTime.minute,
+      );
       dailyReminderTime = TimeOfDay(
         hour: prefs.getInt(_dailyReminderHourKey) ?? defaultReminderTime.hour,
         minute:
@@ -84,6 +97,26 @@ class NotificationSettings extends ChangeNotifier {
       await prefs.setInt(_dailyReminderMinuteKey, time.minute);
     } catch (error) {
       debugPrint('NotificationSettings: cannot persist reminder time: $error');
+    }
+  }
+
+  Future<void> setMorningBriefingEnabled(bool value) async {
+    if (value == morningBriefingEnabled) return;
+    morningBriefingEnabled = value;
+    notifyListeners();
+    await _writeBool(_briefingEnabledKey, value);
+  }
+
+  Future<void> setMorningBriefingTime(TimeOfDay time) async {
+    if (time == morningBriefingTime) return;
+    morningBriefingTime = time;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_briefingHourKey, time.hour);
+      await prefs.setInt(_briefingMinuteKey, time.minute);
+    } catch (error) {
+      debugPrint('NotificationSettings: cannot persist briefing time: $error');
     }
   }
 

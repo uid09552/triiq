@@ -56,6 +56,10 @@ void main() {
     expect(race['forecast_form'], isA<double>());
     expect(race['weeks_to_go'], 5);
     expect(out['weekly'], isNotEmpty);
+    // Nothing planned after the race: fitness is held, not decayed to 0.
+    final last = (out['weekly'] as List).last as Map;
+    expect(last['ctl'], greaterThan(45));
+    expect(out['assumed_from'], isNotNull);
     expect((out['blocks'] as List).map((b) => (b as Map)['kind']),
         contains('taper'));
   });

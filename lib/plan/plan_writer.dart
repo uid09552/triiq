@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../data/intervals_workout_service.dart';
+import '../data/pending_writes.dart';
 import '../data/repositories/plans_repository.dart';
 import '../data/sync/auto_sync_service.dart';
 import '../data/sync/sync_service.dart';
@@ -10,9 +11,16 @@ import 'plan_models.dart';
 
 /// Which sessions made it to Intervals.icu and which did not.
 class PlanWriteReport {
-  const PlanWriteReport({required this.created, required this.failed});
+  const PlanWriteReport({
+    required this.created,
+    required this.failed,
+    this.queued = const [],
+  });
 
   final List<PlanSession> created;
+
+  /// Sessions stored for sending once Intervals.icu is reachable again.
+  final List<PlanSession> queued;
   final List<({PlanSession session, Object error})> failed;
 
   bool get allCreated => failed.isEmpty;
@@ -51,6 +59,7 @@ class PlanWriter {
 
     final created = <PlanSession>[];
     final failed = <({PlanSession session, Object error})>[];
+    final queued = <PlanSession>[];
     for (final session in plan.sessions) {
       if (session.status == PlanSessionStatus.created) continue;
       if (cutoff != null && session.date.isBefore(cutoff)) continue;
@@ -73,6 +82,8 @@ class PlanWriter {
         );
         await _plans.updateSession(done);
         created.add(done);
+      } on QueuedOfflineException {
+        queued.add(session);
       } catch (error) {
         debugPrint('PlanWriter: ${session.name} ${isoDate(session.date)}: $error');
         final marked = session.copyWith(status: PlanSessionStatus.failed);
@@ -85,7 +96,7 @@ class PlanWriter {
       await _refresh(plan);
     }
     if (failed.isEmpty) await _plans.setStatus(planId, PlanStatus.active);
-    return PlanWriteReport(created: created, failed: failed);
+    return PlanWriteReport(created: created, failed: failed, queued: queued);
   }
 
   /// Deletes the plan's sessions dated [from] or later that are on
