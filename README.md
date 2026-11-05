@@ -11,6 +11,8 @@
 > (The only other request is for map tiles from OpenStreetMap when you open a
 > route map.)
 
+📖 **Documentation: <https://uid09552.github.io/triiq/>**
+
 An endurance and triathlon training companion for
 [Intervals.icu](https://intervals.icu), built with Flutter for **Android** and
 **Windows**.
@@ -50,9 +52,10 @@ In the app, open **Profile** and enter your Intervals.icu API key (from
 Intervals.icu → Settings → Developer). For the chat, choose a provider under
 **Settings**: a Claude API key, or an Ollama server (local or cloud).
 
-Credentials stay on the device: the Intervals.icu and Claude keys go to the OS
-secure storage, other settings (including an Ollama key) to app preferences.
-The app talks only to Intervals.icu and the LLM provider you choose.
+Credentials stay on the device: the Intervals.icu, Claude and Ollama keys go to
+the OS secure storage, other settings to app preferences. The app talks only to
+Intervals.icu and the LLM provider you choose (plus OpenStreetMap tiles for
+route maps). See [Privacy & data](https://uid09552.github.io/triiq/privacy/).
 
 ### Optional training reference
 
@@ -72,12 +75,17 @@ flutter test --dart-define=INTERVALS_API_KEY=<key>   # also run the live API sui
 - `lib/client/intervalls/` is generated from `openapi.json`. See
   [CLAUDE.md](CLAUDE.md) for how to regenerate it.
 - `openspec/` holds the change proposals the features were built from.
+- The documentation site is built from `docs/` with MkDocs
+  (`pip install -r requirements-docs.txt && mkdocs serve`) and published to
+  GitHub Pages by [`.github/workflows/docs.yml`](.github/workflows/docs.yml).
 
 ### Releases
 
 [`.github/workflows/android-release.yml`](.github/workflows/android-release.yml)
-builds the release APK. Pushing a `v*` tag publishes it as a GitHub release.
-Set the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+builds the release APK. Every merge to `main` publishes a pre-release
+`v<version>-rc<commit>` (version from `pubspec.yaml`); pushing your own `v*`
+tag publishes a release with exactly that tag. Release candidates older than 3
+days are cleaned up daily (the newest stays). Set the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
 `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` secrets to sign it with your own
 key.
 
