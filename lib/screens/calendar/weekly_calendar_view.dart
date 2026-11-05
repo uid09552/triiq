@@ -4,7 +4,9 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../l10n/app_localizations.dart';
+import '../events/event_labels.dart';
 import 'calendar_day_marker.dart';
+import 'day_events.dart';
 
 /// Week list of planned (tertiary colour) vs. completed (primary colour)
 /// trainings, one row per day.
@@ -16,8 +18,12 @@ class WeeklyCalendarView extends StatelessWidget {
     required this.eventsByDate,
     required this.activitiesByDate,
     required this.onSelect,
+    this.dayEventsByDate = const {},
     this.onLongPress,
   });
+
+  /// Sick days, notes, holidays, races, … by every day they cover.
+  final Map<String, List<LocalEvent>> dayEventsByDate;
 
   /// Long-press on a day, e.g. to offer clearing it.
   final ValueChanged<DateTime>? onLongPress;
@@ -49,10 +55,12 @@ class WeeklyCalendarView extends StatelessWidget {
         final isSelected = _dateOnly(date) == _dateOnly(selectedDate);
         final key = _fmt(date);
         final events = (eventsByDate[key] ?? const [])
-            .where((e) => e.isTraining)
+            .where((e) => e.isTraining && !isRaceCategory(e.category))
             .toList();
+        final dayEvents = dayEventsByDate[key] ?? const <LocalEvent>[];
         final activities = activitiesByDate[key] ?? const [];
-        final hasAny = events.isNotEmpty || activities.isNotEmpty;
+        final hasAny =
+            events.isNotEmpty || activities.isNotEmpty || dayEvents.isNotEmpty;
 
         return Card(
           color: isSelected
@@ -101,6 +109,26 @@ class WeeklyCalendarView extends StatelessWidget {
                             runSpacing: 4,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
+                              for (final e in dayEvents)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      eventCategoryIcon(e.category),
+                                      size: 16,
+                                      color: eventCategoryColor(
+                                        e.category,
+                                        colorScheme,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      e.name ??
+                                          eventCategoryLabel(l10n, e.category),
+                                      style: theme.textTheme.labelSmall,
+                                    ),
+                                  ],
+                                ),
                               for (final event in events)
                                 CalendarDayMarker(
                                   type: event.type,

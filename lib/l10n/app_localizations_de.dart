@@ -3475,4 +3475,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get ollamaHttpWarning =>
       'Unverschlüsselt (http): Anfragen und Trainingsdaten gehen im Klartext. Nur für einen Server im eigenen Netz verwenden.';
+
+  @override
+  String get dayAddEvent => 'Ereignis hinzufügen';
+
+  @override
+  String get dayAddEventHelp =>
+      'Krankheit, Verletzung, Urlaub, Notiz, Rennen …';
 }

@@ -11,6 +11,9 @@ import '../activities/planned_workout_detail_screen.dart';
 import '../plan/plan_session_sheet.dart';
 import 'calendar_day_marker.dart';
 import 'day_actions.dart';
+import 'day_events.dart';
+import '../events/event_editor_screen.dart';
+import '../events/event_labels.dart';
 import 'performance_trend_icon.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
@@ -27,8 +30,12 @@ class CalendarDayDetail extends StatelessWidget {
     required this.date,
     required this.events,
     required this.activities,
+    this.dayEvents = const [],
     this.today,
   });
+
+  /// Sick days, notes, holidays, races, … covering this day.
+  final List<LocalEvent> dayEvents;
 
   final DateTime date;
   final List<LocalEvent> events;
@@ -61,7 +68,8 @@ class CalendarDayDetail extends StatelessWidget {
     } else if (doneTss > 0) {
       load = l10n.dayCardLoadDone(doneTss);
     }
-    final empty = plannedEvents.isEmpty && activities.isEmpty;
+    final empty =
+        plannedEvents.isEmpty && activities.isEmpty && dayEvents.isEmpty;
 
     String detail(int? seconds, int? tss) {
       final mins = seconds == null || seconds <= 0 ? null : (seconds / 60).round();
@@ -153,6 +161,8 @@ class CalendarDayDetail extends StatelessWidget {
                 )
               else ...[
                 const SizedBox(height: 2),
+                for (final e in dayEvents)
+                  _DayEventRow(key: ValueKey('day-event-row-${e.id}'), event: e),
                 for (final event in plannedEvents.where((e) => e.isPlanSession))
                   _Row(
                     key: ValueKey('plan-session-${event.planSessionId}'),
@@ -250,6 +260,72 @@ class CalendarDayDetail extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A sick day, note, holiday, race … on the day card: its icon and colour,
+/// name, kind and (for a multi-day entry) its span. Tap to edit it.
+class _DayEventRow extends StatelessWidget {
+  const _DayEventRow({super.key, required this.event});
+
+  final LocalEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final color = eventCategoryColor(event.category, theme.colorScheme);
+    final end = DateTime.tryParse(event.raw['end_date_local'] as String? ?? '');
+    final start = DateTime.tryParse(event.date);
+    final span = end != null && start != null && end.isAfter(start)
+        ? ' · ${DateFormat.MMMd(locale).format(start)}–${DateFormat.MMMd(locale).format(end)}'
+        : '';
+    return InkWell(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => EventEditorScreen(event: event)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(eventCategoryIcon(event.category), size: 14, color: color),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.name ?? eventCategoryLabel(l10n, event.category),
+                    style: const TextStyle(fontWeight: FontWeight.w600, height: 1.2),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '${eventCategoryLabel(l10n, event.category)}$span',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 20, color: theme.colorScheme.onSurfaceVariant),
+          ],
         ),
       ),
     );

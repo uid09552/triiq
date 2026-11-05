@@ -22,9 +22,11 @@ A short tour. Every screen is described in detail in the
 ## Calendar
 
 Month and week views of plan sessions, Intervals.icu events and completed
-activities. The day card shows done vs planned load and a ✓ on covered
+activities. **Sick and injured days, holidays, notes and races** are shown on
+every day they cover. The day card shows done vs planned load and a ✓ on covered
 sessions. Long-press a day to **propose training** for it (Train now for that
-day) or delete its sessions.
+day), **add an event** (pick sick, injured, holiday, note, race … and the
+editor opens with that day and kind preset) or delete its sessions.
 
 ## Training plans
 
