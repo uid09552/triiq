@@ -3444,4 +3444,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ollamaHttpWarning =>
       'Unencrypted (http): prompts and training data are sent in plain text. Use it only for a server on your own network.';
+
+  @override
+  String get dayAddEvent => 'Add event';
+
+  @override
+  String get dayAddEventHelp => 'Sick day, injury, holiday, note, race …';
 }

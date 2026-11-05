@@ -6,6 +6,7 @@ import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
+import '../../data/repositories/events_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/sync/sync_settings.dart';
@@ -14,6 +15,7 @@ import '../../plan/plan_changes.dart';
 import '../../widgets/main_navigation.dart';
 import 'calendar_day_detail.dart';
 import 'day_actions.dart';
+import 'day_events.dart';
 import 'monthly_calendar_view.dart';
 import 'weekly_calendar_view.dart';
 
@@ -57,6 +59,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final _activitiesRepository = ActivitiesRepository();
   final _eventsRepository = PlannedItemsRepository();
 
+  /// Every cached Intervals.icu event, whatever the "copy planned events"
+  /// setting: sick days, notes, races and holidays are always shown.
+  final _allEvents = EventsRepository();
+
   CalendarViewMode _mode = CalendarViewMode.month;
   late DateTime _focusedDate;
   late DateTime _selectedDate;
@@ -64,6 +70,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   bool _loading = true;
   String? _error;
   Map<String, List<LocalEvent>> _eventsByDate = const {};
+  Map<String, List<LocalEvent>> _dayEventsByDate = const {};
   Map<String, List<LocalActivity>> _activitiesByDate = const {};
 
   @override
@@ -165,6 +172,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _fmt(oldest),
         _fmt(newest),
       );
+      // A sick week that started before the visible range still covers it:
+      // look back far enough to catch the start of a multi-day entry.
+      final dayEvents = expandDayEvents(
+        await _allEvents.getRange(
+          _fmt(oldest.subtract(const Duration(days: 90))),
+          _fmt(newest),
+        ),
+        _fmt(oldest),
+        _fmt(newest),
+      );
 
       final eventsByDate = <String, List<LocalEvent>>{};
       for (final event in events) {
@@ -178,6 +195,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       if (!mounted) return;
       setState(() {
         _eventsByDate = eventsByDate;
+        _dayEventsByDate = dayEvents;
         _activitiesByDate = activitiesByDate;
         _error = syncError?.toString();
         _loading = false;
@@ -323,6 +341,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         month: _focusedDate,
                         selectedDate: _selectedDate,
                         eventsByDate: _eventsByDate,
+                        dayEventsByDate: _dayEventsByDate,
                         activitiesByDate: _activitiesByDate,
                         onSelect: _selectDate,
                         onLongPress: _clearDay,
@@ -331,6 +350,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         weekStart: _visibleRange.$1,
                         selectedDate: _selectedDate,
                         eventsByDate: _eventsByDate,
+                        dayEventsByDate: _dayEventsByDate,
                         activitiesByDate: _activitiesByDate,
                         onSelect: _selectDate,
                         onLongPress: _clearDay,
@@ -340,6 +360,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   child: CalendarDayDetail(
                     date: _selectedDate,
                     events: _eventsByDate[key] ?? const [],
+                    dayEvents: _dayEventsByDate[key] ?? const [],
                     activities: _activitiesByDate[key] ?? const [],
                   ),
                 ),

@@ -11,7 +11,18 @@ import 'event_labels.dart';
 /// Creates a calendar event, or edits [event], in Intervals.icu. Pops
 /// `true` once it was saved there.
 class EventEditorScreen extends StatefulWidget {
-  const EventEditorScreen({super.key, this.event, this.service});
+  const EventEditorScreen({
+    super.key,
+    this.event,
+    this.service,
+    this.initialDate,
+    this.initialCategory,
+  });
+
+  /// For a new event: the day it starts (e.g. the calendar day that was
+  /// long-pressed) and its kind (e.g. "SICK"). Ignored when editing.
+  final DateTime? initialDate;
+  final String? initialCategory;
 
   final LocalEvent? event;
 
@@ -32,13 +43,14 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   );
   late String _category = _initialCategory();
   late DateTime _date =
-      DateTime.tryParse(widget.event?.date ?? '') ?? dateOnly(DateTime.now());
+      DateTime.tryParse(widget.event?.date ?? '') ??
+      dateOnly(widget.initialDate ?? DateTime.now());
   DateTime? _endDate;
   String? _sport;
   bool _saving = false;
 
   String _initialCategory() {
-    final c = widget.event?.category;
+    final c = widget.event?.category ?? widget.initialCategory;
     return c != null && editableEventCategories.contains(c) ? c : 'RACE_A';
   }
 

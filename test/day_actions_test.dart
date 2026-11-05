@@ -68,10 +68,46 @@ void main() {
     expect(find.byKey(const ValueKey('day-delete')), findsOneWidget);
   });
 
-  testWidgets('a past day whose sessions cannot be deleted (offline) offers nothing',
+  testWidgets('a past day whose sessions cannot be deleted still offers an event',
       (t) async {
     await open(t, DateTime(2026, 11, 2), [ev()], []);
-    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byKey(const ValueKey('day-propose')), findsNothing);
+    expect(find.byKey(const ValueKey('day-delete')), findsNothing);
+    expect(find.byKey(const ValueKey('day-add-event')), findsOneWidget);
+  });
+
+  testWidgets('add event: pick the kind, the editor opens on that day and kind',
+      (t) async {
+    final opened = <(DateTime, String)>[];
+    await t.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onLongPress: () => showDayActions(
+                context, DateTime(2026, 11, 2), const [],
+                today: () => today,
+                openEventEditor: (_, day, kind) => opened.add((day, kind)),
+              ),
+              child: const SizedBox(width: 200, height: 200, key: ValueKey('cell')),
+            ),
+          ),
+        ),
+      ),
+    );
+    await t.longPress(find.byKey(const ValueKey('cell')));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('day-add-event')));
+    await t.pumpAndSettle();
+    expect(find.byKey(const ValueKey('event-kind-SICK')), findsOneWidget);
+    expect(find.byKey(const ValueKey('event-kind-RACE_A')), findsOneWidget);
+    await t.tap(find.byKey(const ValueKey('event-kind-SICK')));
+    await t.pumpAndSettle();
+    expect(opened, [(DateTime(2026, 11, 2), 'SICK')]);
   });
 
   test('the prompt names the day when it is not today', () {

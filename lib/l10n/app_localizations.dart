@@ -5623,6 +5623,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unencrypted (http): prompts and training data are sent in plain text. Use it only for a server on your own network.'**
   String get ollamaHttpWarning;
+
+  /// No description provided for @dayAddEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add event'**
+  String get dayAddEvent;
+
+  /// No description provided for @dayAddEventHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick day, injury, holiday, note, race …'**
+  String get dayAddEventHelp;
 }
 
 class _AppLocalizationsDelegate

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import 'calendar_day_marker.dart';
+import 'day_events.dart';
 
 const _maxMarkersPerCell = 3;
 
@@ -17,8 +18,12 @@ class MonthlyCalendarView extends StatelessWidget {
     required this.eventsByDate,
     required this.activitiesByDate,
     required this.onSelect,
+    this.dayEventsByDate = const {},
     this.onLongPress,
   });
+
+  /// Sick days, notes, holidays, races, … by every day they cover.
+  final Map<String, List<LocalEvent>> dayEventsByDate;
 
   /// Long-press on a day, e.g. to offer clearing it.
   final ValueChanged<DateTime>? onLongPress;
@@ -98,6 +103,7 @@ class MonthlyCalendarView extends StatelessWidget {
               isToday: isToday,
               isSelected: isSelected,
               markers: markers,
+              dayEvents: dayEventsByDate[key] ?? const [],
               onTap: () => onSelect(date),
               onLongPress: onLongPress == null
                   ? null
@@ -115,7 +121,9 @@ class MonthlyCalendarView extends StatelessWidget {
     List<LocalActivity>? activities,
   ) {
     final markers = <(String? type, Color color)>[
-      for (final event in (events ?? const []).where((e) => e.isTraining))
+      for (final event in (events ?? const []).where(
+        (e) => e.isTraining && !isRaceCategory(e.category),
+      ))
         (
           event.type,
           // TriIQ plan sessions vs Intervals.icu events.
@@ -144,9 +152,11 @@ class _DayCell extends StatelessWidget {
     required this.isSelected,
     required this.markers,
     required this.onTap,
+    this.dayEvents = const [],
     this.onLongPress,
   });
 
+  final List<LocalEvent> dayEvents;
   final VoidCallback? onLongPress;
   final int day;
   final bool inMonth;
@@ -171,6 +181,11 @@ class _DayCell extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? colorScheme.primary.withValues(alpha: 0.14)
+              : dayEvents.any((e) => tintsDay(e.category))
+              ? eventCategoryColor(
+                  dayEvents.firstWhere((e) => tintsDay(e.category)).category,
+                  colorScheme,
+                ).withValues(alpha: 0.10)
               : null,
           borderRadius: BorderRadius.circular(12),
           border: isToday
@@ -195,6 +210,13 @@ class _DayCell extends StatelessWidget {
               spacing: 2,
               runSpacing: 2,
               children: [
+                for (final e in dayEvents.take(2))
+                  Icon(
+                    eventCategoryIcon(e.category),
+                    key: ValueKey('day-event-${e.id}'),
+                    size: 12,
+                    color: eventCategoryColor(e.category, colorScheme),
+                  ),
                 for (final marker in shown)
                   CalendarDayMarker(type: marker.$1, color: marker.$2, size: 12),
                 if (overflow)
