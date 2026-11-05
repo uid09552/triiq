@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../data/intervals_steps.dart';
 import '../data/intervals_workout_service.dart';
 
 /// The instruction handed to the agent to turn the session it just proposed
@@ -39,21 +40,23 @@ Run: minutes and % of threshold pace, or % of FTP if it was a power session.
   - 4m 55%
 - 10m 55%
 
-Swim: distances in metres with a pace (e.g. "1:45/100m") or an explicit
-effort band, plus the stroke/drill and any equipment as trailing text on the
-same line — "- 4x50m Catch-up drill" or "- 200m w/ paddles, 1:35/100m", not
-just "- 200m Swim". If the session you proposed named specific gear
+Swim: write distances in metres with the unit "mtr" — NOT "m", which means
+minutes in Intervals.icu ("- 300m" is five hours; "- 300mtr" is 300 metres).
+Give a pace (e.g. "1:45/100m") or an explicit effort band, plus the
+stroke/drill and any equipment as trailing text on the same line —
+"- 4x50mtr Catch-up drill" or "- 200mtr w/ paddles, 1:35/100m", not just
+"- 200mtr Swim". Only a duration is written with "m" (e.g. "- 10m 70%"). If the session you proposed named specific gear
 (paddles, pull buoy, fins) or a drill, carry those words into the matching
 step rather than dropping them:
 
-- 300m Warm up, easy
+- 300mtr Warm up, easy
 4x
-  - 50m Catch-up drill
-  - 50m w/ paddles, moderate
+  - 50mtr Catch-up drill
+  - 50mtr w/ paddles, moderate
 2x
-  - 100m w/ pull buoy, steady
-  - 50m w/ fins, kick only
-- 200m Cool down, easy
+  - 100mtr w/ pull buoy, steady
+  - 50mtr w/ fins, kick only
+- 200mtr Cool down, easy
 
 Keep the prescription identical to what you proposed — this is a format
 change, not a new session, so don't invent equipment or drills that weren't
@@ -79,15 +82,20 @@ PlannedWorkoutDraft? parseWorkoutDraft(
   if (description == null || description.trim().isEmpty) return null;
 
   final minutes = _int(json['duration_minutes'] ?? json['duration']);
+  final sport = _string(json['sport'])?.trim().isNotEmpty == true
+      ? _string(json['sport'])!.trim()
+      : fallbackSport;
 
   return PlannedWorkoutDraft(
     name: _string(json['name'])?.trim().isNotEmpty == true
         ? _string(json['name'])!.trim()
         : fallbackName,
-    sport: _string(json['sport'])?.trim().isNotEmpty == true
-        ? _string(json['sport'])!.trim()
-        : fallbackSport,
-    description: description.trim(),
+    sport: sport,
+    // A swim step like "- 300m" is read by Intervals.icu as 300 minutes:
+    // turn distances the model wrote with "m" into "mtr".
+    description: sport.toLowerCase().contains('swim')
+        ? fixSwimDistanceUnits(description.trim(), durationMinutes: minutes)
+        : description.trim(),
     date: date,
     durationSeconds: minutes == null ? null : minutes * 60,
     load: _int(json['load'] ?? json['tss']),

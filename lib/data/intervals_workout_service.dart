@@ -1,6 +1,7 @@
 import '../client/intervalls/intervalls_client.dart';
 import '../util/dates.dart';
 import 'intervals_session.dart';
+import 'intervals_steps.dart';
 
 /// A planned session about to be written to the athlete's Intervals.icu
 /// calendar — the agent's proposal, reduced to the fields the API takes.
@@ -86,7 +87,16 @@ class IntervalsWorkoutService implements PlannedWorkoutWriter {
         startDateLocal: '${isoDate(draft.date)}T00:00:00',
         type: draft.sport,
         name: draft.name,
-        description: draft.description,
+        // Whatever wrote a swim's steps (the AI trainer, the plan's session
+        // content), "300m" would be read here as 300 minutes.
+        description: draft.sport.toLowerCase().contains('swim')
+            ? fixSwimDistanceUnits(
+                draft.description,
+                durationMinutes: draft.durationSeconds == null
+                    ? null
+                    : (draft.durationSeconds! / 60).round(),
+              )
+            : draft.description,
         indoor: draft.indoor,
         movingTime: draft.durationSeconds,
         icuTrainingLoad: draft.load,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/intervals_session.dart';
+import '../../data/pending_writes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
@@ -122,7 +123,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? Align(
                         alignment: Alignment.centerLeft,
                         child: FilledButton.tonal(
-                          onPressed: _session.disconnect,
+                          onPressed: () async {
+                            // Nothing made in this account may be sent to
+                            // the next one connected.
+                            await PendingWritesService.instance.clearAll();
+                            await _session.disconnect();
+                          },
                           child: Text(l10n.disconnectButton),
                         ),
                       )

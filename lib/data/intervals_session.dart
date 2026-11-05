@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../client/intervalls/intervalls_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'secure_key_store.dart';
 
 /// Why [IntervalsSession.restore] did not end up connected.
@@ -166,6 +168,7 @@ class IntervalsSession extends ChangeNotifier {
     _client = client;
     athleteId = athlete!.id;
     athleteName = athlete.name;
+    await _rememberAthlete(athleteId);
     notifyListeners();
 
     await refreshAthlete();
@@ -186,8 +189,38 @@ class IntervalsSession extends ChangeNotifier {
     }
   }
 
+  /// Key under which the last connected athlete's id is kept, so writes made
+  /// offline (also right after an offline start, before the session could
+  /// reconnect) are tied to the account they were made in.
+  static const lastAthleteKey = 'intervals.last_athlete_id';
+
+  /// The athlete connected now, else the one connected last on this device.
+  static Future<String?> lastKnownAthleteId() async {
+    final current = instance.athleteId;
+    if (current != null) return current;
+    try {
+      return (await SharedPreferences.getInstance()).getString(lastAthleteKey);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> _rememberAthlete(String? id) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (id == null) {
+        await prefs.remove(lastAthleteKey);
+      } else {
+        await prefs.setString(lastAthleteKey, id);
+      }
+    } catch (error) {
+      debugPrint('IntervalsSession: cannot remember the athlete: $error');
+    }
+  }
+
   Future<void> disconnect() async {
     await _apiKeyStore.delete();
+    await _rememberAthlete(null);
     _client = null;
     athleteId = null;
     athleteName = null;

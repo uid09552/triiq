@@ -5611,6 +5611,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 session} other{{count} sessions}}'**
   String heroSessions(int count);
+
+  /// No description provided for @ollamaKeyCloudOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'An Ollama API key is only used with Ollama Cloud (https://ollama.com). A self-hosted server needs no key here.'**
+  String get ollamaKeyCloudOnly;
+
+  /// No description provided for @ollamaHttpWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Unencrypted (http): prompts and training data are sent in plain text. Use it only for a server on your own network.'**
+  String get ollamaHttpWarning;
 }
 
 class _AppLocalizationsDelegate

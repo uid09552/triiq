@@ -1106,5 +1106,7 @@
   "routeTitle": "Strecke",
   "heroSyncNow": "Jetzt synchronisieren",
   "heroMoreTooltip": "Weitere Aktionen",
-  "heroSessions": "{count, plural, =1{1 Einheit} other{{count} Einheiten}}"
+  "heroSessions": "{count, plural, =1{1 Einheit} other{{count} Einheiten}}",
+  "ollamaKeyCloudOnly": "Ein Ollama-API-Schlüssel wird nur mit Ollama Cloud (https://ollama.com) verwendet. Ein eigener Server braucht hier keinen Schlüssel.",
+  "ollamaHttpWarning": "Unverschlüsselt (http): Anfragen und Trainingsdaten gehen im Klartext. Nur für einen Server im eigenen Netz verwenden."
 }

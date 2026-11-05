@@ -159,6 +159,16 @@ class _ChartInteractionState extends State<ChartInteraction> {
               ? (e) => _select(e.localPosition.dx, width)
               : null,
           child: Listener(
+            // Select on touch-down rather than as a tap: a tap has to wait
+            // out the double-tap (zoom) window first, which made every quick
+            // tap on a chart lag by ~300 ms.
+            onPointerDown: (e) {
+              if (e.kind == PointerDeviceKind.mouse &&
+                  e.buttons != kPrimaryMouseButton) {
+                return;
+              }
+              _select(e.localPosition.dx, width);
+            },
             onPointerSignal: (event) {
               if (!widget.zoomable ||
                   event is! PointerScrollEvent ||
@@ -177,7 +187,6 @@ class _ChartInteractionState extends State<ChartInteraction> {
             },
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTapDown: (d) => _select(d.localPosition.dx, width),
               onDoubleTapDown: (d) => _doubleTapAt = d.localPosition,
               onDoubleTap: widget.zoomable
                   ? () => vp.isZoomed

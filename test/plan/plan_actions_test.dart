@@ -78,6 +78,8 @@ void main() {
     events = EventsRepository(database: database);
     workouts = _FakeWorkouts();
     queue = PendingWritesService(
+      athleteId: () async => 'i1',
+      connectedAthleteId: () => 'i1',
       repository: PendingWritesRepository(database: database),
       writer: workouts,
       plans: plans,
@@ -333,6 +335,40 @@ void main() {
       expect(workouts.created.single.name, 'Easy run');
       expect(workouts.deleted, ['501']);
       expect(await events.getByDate(isoDate(day)), isEmpty);
+    });
+
+    test('offline with no known account: refused, nothing changes locally',
+        () async {
+      final session = await planSession(eventId: '300');
+      connected = false;
+      final noAccount = PlanActions(
+        workouts: workouts,
+        plans: plans,
+        events: events,
+        sendEnabled: () => send,
+        connected: () => connected,
+        queue: PendingWritesService(
+          athleteId: () async => null,
+          connectedAthleteId: () => null,
+          repository: PendingWritesRepository(database: database),
+          writer: workouts,
+          plans: plans,
+          events: events,
+        ),
+        resync: (_) async {},
+        goals: GoalStore(),
+        clock: () => DateTime(2026, 11, 2, 9),
+      );
+      await expectLater(
+        noAccount.replaceSession(
+          PlannedItemsRepository.toLocalEvent(session),
+          alternative(),
+        ),
+        throwsA(isA<ReplaceRefusedException>()),
+      );
+      final after = (await plans.getSession(session.id!))!;
+      expect(after.name, session.name);
+      expect(after.intervalsEventId, '300');
     });
 
     test('a sent plan session replaced offline shows the new content at once',

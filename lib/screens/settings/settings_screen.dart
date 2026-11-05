@@ -297,7 +297,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         controller: _ollamaUrlController,
         autocorrect: false,
         keyboardType: TextInputType.url,
-        decoration: InputDecoration(labelText: l10n.ollamaServerUrlLabel),
+        decoration: InputDecoration(
+          labelText: l10n.ollamaServerUrlLabel,
+          // Plain http is fine for a server on your own network, but the
+          // prompts and your training data travel unencrypted.
+          helperText: isPlainHttpUrl(_ollamaUrlController.text)
+              ? l10n.ollamaHttpWarning
+              : null,
+          helperMaxLines: 3,
+        ),
         onChanged: (value) {
           _settings.setOllamaBaseUrl(value);
           setState(() => _ollamaTestError = null);
@@ -477,6 +485,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _saveOllamaKey() async {
     final key = _ollamaKeyController.text.trim();
     if (key.isEmpty) return;
+    // The key is only ever sent to Ollama Cloud over https; saving it for
+    // any other server would look like it works while doing nothing.
+    if (!isOllamaCloudUrl(_ollamaUrlController.text)) {
+      setState(
+        () => _ollamaTestError =
+            AppLocalizations.of(context)!.ollamaKeyCloudOnly,
+      );
+      return;
+    }
     setState(() {
       _testingOllama = true;
       _ollamaTestError = null;

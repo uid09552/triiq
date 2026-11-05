@@ -1310,7 +1310,8 @@ and long/interval days in the goal for that).
 (`format: triiq-backup`, `version: 1`) with the tables wellness, activities,
 sync_state, events, plans, plan_sessions, knowledge_docs and knowledge_sections,
 plus the settings stored in shared preferences (goal, targets, theme, language,
-trainer memory, …); optionally the re-fetchable chart caches (activity
+trainer memory, …) — except the LLM connection settings (`llm.*`: provider, server URL,
+models), which are device setup and must never be redirected by a backup file; optionally the re-fetchable chart caches (activity
 streams, performance curves). Excluded always: the Intervals.icu key and the
 AI keys (OS vault) and device-runtime keys (background-sync status). On
 phones the file goes to the share sheet (Drive, Files, mail); on desktop to a
@@ -1406,6 +1407,41 @@ manual runs) only lists what it would delete.
 
 The APK's version name is the tag without the `v`; its version code is the
 workflow run number. Signing secrets: see the header of the workflow.
+
+### Swim steps: `m` is minutes, `mtr` is metres
+
+In Intervals.icu's step syntax a bare `m` after a number is **minutes**; metres are
+`mtr`. A swim written as `- 300m Warm up` is read as five hours (a 30-minute session
+came out as 19 h). The structuring prompt and the plan-content prompt now tell the model
+to write swim distances as `mtr`, and as a safety net `fixSwimDistanceUnits`
+(`lib/data/intervals_steps.dart`) rewrites `300m` → `300mtr` for swims — when the
+description is parsed (Train now / the trainer) and again right before any workout is
+created in Intervals.icu — but only when reading the `m` as minutes would make the steps
+add up to far more than the session's duration (or, without a duration, when a single step
+would be 100+ minutes). Minute-based swims (the plan engine's templates) and paces such as
+`1:45/100m` are never touched, and `mtr` is never converted twice.
+
+### Where data lives, and where keys go
+
+- **Database**: on Android/iOS in the app's documents folder; on Windows in the per-user
+  app-data folder (`getApplicationSupportDirectory`, e.g. `%APPDATA%\…\triiq\triiq.db`).
+  Earlier versions wrote `triiq.db` into the working directory, which depends on how the
+  app is started (a shortcut can make it the read-only install folder); on first start the
+  old file is moved over once, and an existing database is never overwritten.
+- **Keys**: Intervals.icu, Claude and Ollama keys are kept in the OS vault. The **Ollama
+  key is an Ollama Cloud key and is only ever sent to `https://ollama.com`** — never to a
+  self-hosted server and never over plain http (saving a key for another server URL is
+  refused with an explanation).
+- **Plain http**: on Android cleartext is allowed only so a self-hosted Ollama server on
+  your own network (`http://192.168.…:11434`) works
+  (`res/xml/network_security_config.xml`); Intervals.icu, Anthropic, Ollama Cloud and
+  OpenStreetMap stay https-only. Settings warns under the server URL when it is `http://`.
+- **Offline writes belong to an account**: each queued write is tagged with the
+  Intervals.icu athlete it was made for (the connected one, or the last one connected on
+  this device). Without a known account nothing is queued and the error shows; a write for
+  another account is dropped instead of sent; disconnecting in Profile clears the queue.
+- **Charts** select on touch-down, so a quick tap no longer waits ~300 ms for the
+  double-tap (zoom) window.
 
 ### Training plan
 

@@ -4,6 +4,7 @@ import 'package:langchain_core/tools.dart';
 import 'package:langchain_ollama/langchain_ollama.dart';
 
 import 'llm_settings.dart';
+import 'ollama_connection.dart';
 
 /// Thrown when the selected provider has no usable configuration yet.
 class LlmNotConfiguredException implements Exception {
@@ -69,9 +70,9 @@ BaseChatModel createChatModel(
       return ChatOllama(
         baseUrl: baseUrl,
         // Ollama Cloud authenticates like any other hosted API — a Bearer
-        // token — rather than through a client parameter of its own.
-        // Harmless to send to a local server too, which just ignores it.
-        headers: ollamaApiKey == null
+        // token. Sent only to Ollama Cloud over https: a self-hosted or
+        // plain-http server must never see the athlete's cloud key.
+        headers: ollamaApiKey == null || !isOllamaCloudUrl(baseUrl)
             ? null
             : {'Authorization': 'Bearer $ollamaApiKey'},
         defaultOptions: ChatOllamaOptions(

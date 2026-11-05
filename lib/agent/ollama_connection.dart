@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import 'llm_settings.dart';
+
 /// Thrown when an Ollama server/API can't be reached or rejects the request.
 class OllamaConnectionException implements Exception {
   const OllamaConnectionException(this.message);
@@ -18,6 +20,20 @@ class OllamaConnectionException implements Exception {
 /// An empty (but successful) list is a real result, not a failure: a
 /// reachable server with nothing pulled yet. Only an unreachable server or
 /// a rejected request throws.
+/// Whether [url] is Ollama Cloud over https — the only place the stored
+/// Ollama API key may be sent.
+bool isOllamaCloudUrl(String url) {
+  final uri = Uri.tryParse(url.trim());
+  return uri != null &&
+      uri.scheme == 'https' &&
+      uri.host.toLowerCase() == LlmSettings.ollamaCloudHost;
+}
+
+/// Whether [url] is unencrypted `http://` — fine for a server on the
+/// athlete's own network, worth a warning anywhere else.
+bool isPlainHttpUrl(String url) =>
+    Uri.tryParse(url.trim())?.scheme.toLowerCase() == 'http';
+
 Future<List<String>> fetchOllamaModels({
   required String baseUrl,
   String? apiKey,
@@ -33,7 +49,11 @@ Future<List<String>> fetchOllamaModels({
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {
-        if (apiKey != null && apiKey.trim().isNotEmpty)
+        // The key is an Ollama Cloud key: it never goes to any other host,
+        // and never over plain http.
+        if (apiKey != null &&
+            apiKey.trim().isNotEmpty &&
+            isOllamaCloudUrl(trimmedUrl))
           'Authorization': 'Bearer ${apiKey.trim()}',
       },
     ),
