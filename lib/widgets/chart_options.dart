@@ -57,6 +57,8 @@ Future<void> showChartOptions(
   )
   builder,
 }) {
+  // A choice that loads data may finish after the sheet was closed.
+  var open = true;
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
@@ -73,14 +75,14 @@ Future<void> showChartOptions(
               const SizedBox(height: 12),
               builder(sheet, (change) {
                 ownerSetState(change);
-                setSheetState(() {});
+                if (open) setSheetState(() {});
               }),
             ],
           ),
         ),
       ),
     ),
-  );
+  ).whenComplete(() => open = false);
 }
 
 /// A labelled group of controls inside the options sheet.

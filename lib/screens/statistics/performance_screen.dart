@@ -8,6 +8,7 @@ import '../../evaluation/performance_curves.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/charts/duration_curve_chart.dart';
 import '../../widgets/charts/line_chart.dart';
+import '../../widgets/chart_options.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_detail_screen.dart';
 import 'threshold_suggestion_card.dart';
@@ -126,7 +127,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
     }
   }
 
-  void _selectSport(CurveSport sport) {
+  Future<void> _selectSport(CurveSport sport) {
     setState(() {
       _sport = sport;
       _metric = _metricsBySport[sport]!.firstWhere(
@@ -134,12 +135,12 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         orElse: () => _metricsBySport[sport]!.first,
       );
     });
-    _load();
+    return _load();
   }
 
-  void _selectMetric(CurveMetric metric) {
+  Future<void> _selectMetric(CurveMetric metric) {
     setState(() => _metric = metric);
-    _load();
+    return _load();
   }
 
   String _periodLabel(AppLocalizations l10n, String id) => switch (id) {
@@ -208,6 +209,61 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
     );
   }
 
+  /// Sport and metric choices, out of the way until asked for. They load
+  /// data, so the sheet refreshes again once the load is done (a metric the
+  /// sport has no curve for drops out of the list).
+  void _openOptions(AppLocalizations l10n) {
+    showChartOptions(
+      context,
+      title: l10n.performanceTitle,
+      ownerSetState: setState,
+      builder: (sheet, apply) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OptionGroup(
+            label: l10n.chartOptionsSport,
+            child: SegmentedButton<CurveSport>(
+              showSelectedIcon: false,
+              segments: [
+                for (final sport in CurveSport.values)
+                  ButtonSegment(
+                    value: sport,
+                    label: Text(_sportLabel(l10n, sport)),
+                  ),
+              ],
+              selected: {_sport},
+              onSelectionChanged: (s) async {
+                final done = _selectSport(s.first);
+                apply(() {});
+                await done;
+                apply(() {});
+              },
+            ),
+          ),
+          OptionGroup(
+            label: l10n.chartOptionsView,
+            child: Wrap(
+              spacing: 8,
+              children: [
+                for (final metric in _metrics)
+                  ChoiceChip(
+                    label: Text(_metricLabel(l10n, metric)),
+                    selected: metric == _metric,
+                    onSelected: (_) async {
+                      final done = _selectMetric(metric);
+                      apply(() {});
+                      await done;
+                      apply(() {});
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -221,6 +277,11 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
       appBar: AppBar(
         title: Text(l10n.performanceTitle),
         actions: [
+          ChartOptionsButton(
+            summary:
+                '${_sportLabel(l10n, _sport)}, ${_metricLabel(l10n, _metric)}',
+            onPressed: () => _openOptions(l10n),
+          ),
           IconButton(
             tooltip: l10n.retryButton,
             onPressed: _loading || !connected ? null : () => _load(force: true),
@@ -236,29 +297,6 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               ThresholdSuggestionsSection(),
-              SegmentedButton<CurveSport>(
-                segments: [
-                  for (final sport in CurveSport.values)
-                    ButtonSegment(
-                      value: sport,
-                      label: Text(_sportLabel(l10n, sport)),
-                    ),
-                ],
-                selected: {_sport},
-                onSelectionChanged: (s) => _selectSport(s.first),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                children: [
-                  for (final metric in _metrics)
-                    ChoiceChip(
-                      label: Text(_metricLabel(l10n, metric)),
-                      selected: metric == _metric,
-                      onSelected: (_) => _selectMetric(metric),
-                    ),
-                ],
-              ),
               if (_loading) ...[
                 const SizedBox(height: 12),
                 const LinearProgressIndicator(),

@@ -147,7 +147,11 @@ void main() {
     expect(find.byKey(const ValueKey('analysis-selection')), findsOneWidget);
 
     // Switching a metric off removes its graph.
+    await tester.tap(find.byKey(const ValueKey('chart-options')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('analysis-metric-hrv')));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(5, 5));
     await tester.pumpAndSettle();
     expect(find.byType(MetricLineChart), findsNWidgets(3));
   });
