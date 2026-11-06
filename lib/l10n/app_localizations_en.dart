@@ -3789,4 +3789,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartOptionsBlock => 'Block length';
+
+  @override
+  String get readinessOptionsTitle => 'Readiness signals';
+
+  @override
+  String get readinessOptionsHint =>
+      'Choose which values count toward the score, the status and the trainer\'s advice. Switched-off values are ignored everywhere. At least one must stay on.';
+
+  @override
+  String get readinessOptionHrv =>
+      'Heart-rate variability against your own 60-day baseline';
+
+  @override
+  String get readinessOptionRestingHr =>
+      'Resting heart rate against your own baseline';
+
+  @override
+  String get readinessOptionSleep => 'Hours slept last night';
+
+  @override
+  String get readinessOptionForm => 'Form: fitness minus fatigue (CTL − ATL)';
+
+  @override
+  String get readinessOptionSubjective =>
+      'Fatigue and soreness you logged today';
+
+  @override
+  String get readinessRatingExcluded => 'Not used';
+
+  @override
+  String get readinessOptionsReset => 'Use all signals';
 }

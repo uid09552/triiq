@@ -1430,5 +1430,14 @@
   "chartOptionsRange": "Range",
   "chartOptionsView": "View",
   "chartOptionsSport": "Sport",
-  "chartOptionsBlock": "Block length"
+  "chartOptionsBlock": "Block length",
+  "readinessOptionsTitle": "Readiness signals",
+  "readinessOptionsHint": "Choose which values count toward the score, the status and the trainer's advice. Switched-off values are ignored everywhere. At least one must stay on.",
+  "readinessOptionHrv": "Heart-rate variability against your own 60-day baseline",
+  "readinessOptionRestingHr": "Resting heart rate against your own baseline",
+  "readinessOptionSleep": "Hours slept last night",
+  "readinessOptionForm": "Form: fitness minus fatigue (CTL − ATL)",
+  "readinessOptionSubjective": "Fatigue and soreness you logged today",
+  "readinessRatingExcluded": "Not used",
+  "readinessOptionsReset": "Use all signals"
 }

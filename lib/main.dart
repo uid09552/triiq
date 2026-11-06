@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'agent/llm_settings.dart';
+import 'evaluation/readiness_settings.dart';
 import 'app.dart';
 import 'data/feel_settings.dart';
 import 'data/home_widget_data.dart';
@@ -53,6 +54,8 @@ void main() {
   unawaited(WeeklyTargetsSettings.instance.load());
   unawaited(YearGoalsSettings.instance.load());
   unawaited(TodayLayoutSettings.instance.load());
+  // Which signals count toward readiness.
+  unawaited(ReadinessSettings.instance.load());
   // Whether a recent activity's detail screen auto-prompts for fatigue and
   // soreness — Settings and the activity detail screen listen and rebuild
   // once it resolves.

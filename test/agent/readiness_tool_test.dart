@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:triiq/evaluation/readiness_settings.dart';
 import 'package:path/path.dart' as p;
 import 'package:triiq/agent/system_prompt.dart';
 import 'package:triiq/agent/tools/training_data_tools.dart';
@@ -86,6 +88,30 @@ void main() {
     expect(hrv['rating'], 'caution');
     expect(hrv['value'], 52);
     expect(hrv['baseline_mean'], 62);
+  });
+
+  test('only the signals the athlete left on are reported', () async {
+    SharedPreferences.setMockInitialValues({});
+    await wellness.upsertAll([
+      for (var i = 1; i <= 40; i++)
+        day(i, hrv: 62 + (i.isEven ? 6 : -6), rhr: 48, sleep: 8 * 3600),
+      day(0, hrv: 52, rhr: 48, sleep: 8 * 3600),
+    ]);
+    await ReadinessSettings.instance.setEnabled(ReadinessSignalKind.hrv, false);
+    addTearDown(ReadinessSettings.instance.reset);
+
+    final result = await call();
+
+    expect(result['status'], 'ready');
+    expect(result['reasons'], anyOf(isNull, isEmpty));
+    expect(result['signals_switched_off'], ['hrv']);
+    expect(result['signals_used'], isNot(contains('hrv')));
+    final shown = [
+      for (final s in (result['signals'] as List).cast<Map<String, dynamic>>())
+        s['signal'],
+    ];
+    expect(shown, isNot(contains('hrv')));
+    expect(result['note'], contains('signals_used'));
   });
 
   test('reports the missing-data state', () async {

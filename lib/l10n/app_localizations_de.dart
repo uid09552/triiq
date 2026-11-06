@@ -3824,4 +3824,35 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get chartOptionsBlock => 'Blocklänge';
+
+  @override
+  String get readinessOptionsTitle => 'Bereitschaftswerte';
+
+  @override
+  String get readinessOptionsHint =>
+      'Wähle, welche Werte in Score, Status und die Empfehlungen des Trainers einfließen. Abgeschaltete Werte werden überall ignoriert. Mindestens einer muss aktiv bleiben.';
+
+  @override
+  String get readinessOptionHrv =>
+      'Herzfrequenzvariabilität gegenüber deiner eigenen 60-Tage-Basis';
+
+  @override
+  String get readinessOptionRestingHr =>
+      'Ruhepuls gegenüber deiner eigenen Basis';
+
+  @override
+  String get readinessOptionSleep => 'Schlafdauer der letzten Nacht';
+
+  @override
+  String get readinessOptionForm => 'Form: Fitness minus Ermüdung (CTL − ATL)';
+
+  @override
+  String get readinessOptionSubjective =>
+      'Heute eingetragene Müdigkeit und Muskelkater';
+
+  @override
+  String get readinessRatingExcluded => 'Nicht verwendet';
+
+  @override
+  String get readinessOptionsReset => 'Alle Werte verwenden';
 }

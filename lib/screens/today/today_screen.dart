@@ -26,6 +26,7 @@ import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
 import '../../evaluation/readiness_service.dart';
+import '../../evaluation/readiness_settings.dart';
 import '../../util/dates.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
@@ -143,6 +144,7 @@ class _TodayScreenState extends State<TodayScreen> {
     super.initState();
     _session.addListener(_load);
     _layout.addListener(_onLayoutChanged);
+    ReadinessSettings.instance.addListener(_onReadinessSelection);
     YearGoalsSettings.instance.addListener(_onLayoutChanged);
     AutoSyncService.instance.addListener(_onCacheChanged);
     PlanChanges.instance.addListener(_onCacheChanged);
@@ -154,6 +156,7 @@ class _TodayScreenState extends State<TodayScreen> {
   void dispose() {
     _session.removeListener(_load);
     _layout.removeListener(_onLayoutChanged);
+    ReadinessSettings.instance.removeListener(_onReadinessSelection);
     YearGoalsSettings.instance.removeListener(_onLayoutChanged);
     AutoSyncService.instance.removeListener(_onCacheChanged);
     PlanChanges.instance.removeListener(_onCacheChanged);
@@ -302,6 +305,12 @@ class _TodayScreenState extends State<TodayScreen> {
 
   /// Readiness after the rest of the screen, so a slow knowledge load or a
   /// bad wellness row only costs the readiness row, never the load tiles.
+  /// The athlete switched readiness signals on or off: rate again, and
+  /// refresh the suggestions that depend on it.
+  void _onReadinessSelection() {
+    _loadReadiness().then((_) => _loadAdjustments());
+  }
+
   Future<void> _loadReadiness() async {
     try {
       final readiness = await _readinessService.load();
