@@ -79,4 +79,30 @@ void main() {
     expect(find.text('Nothing planned or logged this day.'), findsOneWidget);
     expect(find.byKey(const ValueKey('day-load')), findsNothing);
   });
+
+  testWidgets('long-press on a completed run offers Compare with…; a swim does not',
+      (t) async {
+    await t.pumpWidget(wrap(CalendarDayDetail(
+      date: day, today: () => DateTime(2026, 11, 10),
+      events: const [], activities: [done('Run', load: 33), done('Swim', load: 20)],
+    )));
+
+    await t.longPress(find.text('Morning Swim'));
+    await t.pumpAndSettle();
+    expect(find.byKey(const ValueKey('calendar-compare-action')), findsNothing);
+    // The swim falls through to the day's own actions sheet; close it.
+    await t.tapAt(const Offset(5, 5));
+    await t.pumpAndSettle();
+
+    await t.longPress(find.text('Morning Run'));
+    await t.pumpAndSettle();
+    expect(find.text('Compare with…'), findsOneWidget);
+
+    await t.tap(find.byKey(const ValueKey('calendar-compare-action')));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 400));
+    // Opens the compare screen with the run already chosen as the first.
+    expect(find.text('Compare'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pick-first')), findsOneWidget);
+  });
 }

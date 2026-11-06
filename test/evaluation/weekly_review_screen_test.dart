@@ -155,7 +155,10 @@ void main() {
 
     expect(find.text('Next week'), findsOneWidget);
     expect(find.textContaining('an inference'), findsOneWidget);
-    expect(find.text('- Do the long run you missed.'), findsOneWidget);
+    // Rendered as markdown: a bullet, not the raw "- " source.
+    expect(find.byKey(const ValueKey('weekly-note')), findsOneWidget);
+    expect(find.text('Do the long run you missed.'), findsOneWidget);
+    expect(find.textContaining('- Do'), findsNothing);
     final system = model.prompts.single
         .whereType<SystemChatMessage>()
         .map((m) => m.content)
