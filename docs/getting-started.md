@@ -25,7 +25,7 @@
 ## 2. Connect Intervals.icu
 
 1. In Intervals.icu open **Settings → Developer** and copy your **API key**.
-2. In TriIQ open **More → Profile**, paste the key and connect.
+2. In TriIQ open the profile icon (top-right) → **Profile**, paste the key and connect.
 
 The key is tested against Intervals.icu first and only then stored in the
 OS vault. TriIQ syncs today on every app start, the current month in the
@@ -33,7 +33,7 @@ background while it is open, and (Android) every night.
 
 ## 3. Choose an LLM for the AI trainer
 
-Open **More → Settings → LLM provider**.
+Open the profile icon (top-right) → **Settings → LLM provider**.
 
 | Provider | What you need | Notes |
 |---|---|---|
