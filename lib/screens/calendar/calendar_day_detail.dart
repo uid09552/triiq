@@ -5,7 +5,9 @@ import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../evaluation/session_evaluator.dart' show sportFamily;
 import '../../l10n/app_localizations.dart';
+import '../../evaluation/compare.dart' show isComparable;
 import '../activities/activity_detail_screen.dart';
+import '../compare/compare_screen.dart';
 import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../plan/plan_session_sheet.dart';
@@ -256,6 +258,10 @@ class CalendarDayDetail extends StatelessWidget {
                             ActivityDetailScreen(activity: activity),
                       ),
                     ),
+                    // Same "Compare with…" as on the activity's own page.
+                    onLongPress: isComparable(activity)
+                        ? () => _showActivityActions(context, activity)
+                        : null,
                   ),
               ],
             ],
@@ -340,6 +346,7 @@ class _Row extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.onLongPress,
     this.onDelete,
     this.deleteTooltip,
     this.status,
@@ -353,6 +360,7 @@ class _Row extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   /// Shown as a trailing button when the entry can be removed upstream —
   /// planned sessions only; a completed activity is a record of something
@@ -366,6 +374,7 @@ class _Row extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Row(
@@ -416,4 +425,33 @@ class _Row extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The long-press menu of a completed run or ride on the day card.
+void _showActivityActions(BuildContext context, LocalActivity activity) {
+  final l10n = AppLocalizations.of(context)!;
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheet) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            key: const ValueKey('calendar-compare-action'),
+            leading: const Icon(Icons.compare_arrows),
+            title: Text(l10n.cmpCompareWith),
+            onTap: () {
+              Navigator.of(sheet).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => CompareScreen(initialActivity: activity),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    ),
+  );
 }

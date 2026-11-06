@@ -11,6 +11,7 @@ import '../../evaluation/weekly_review.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/main_navigation.dart';
+import '../../widgets/markdown_reply.dart';
 import '../../widgets/section_card.dart';
 import '../activities/session_analysis.dart';
 
@@ -327,7 +328,10 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
                     if (_noteBusy && _note.isEmpty)
                       const LinearProgressIndicator()
                     else
-                      Text(_note, key: const ValueKey('weekly-note')),
+                      MarkdownReply(
+                        key: const ValueKey('weekly-note'),
+                        text: _note,
+                      ),
                     TextButton.icon(
                       onPressed: () => _openInChat(r),
                       icon: const Icon(Icons.chat_bubble_outline),

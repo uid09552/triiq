@@ -10,8 +10,6 @@ import '../activities/activities_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
 import '../plan/plan_screen.dart';
 import '../statistics/weekly_review_screen.dart';
-import '../profile/profile_screen.dart';
-import '../settings/settings_screen.dart';
 import '../sync/sync_screen.dart';
 
 /// Submenu for functionality that doesn't need a permanent bottom-nav slot.
@@ -57,22 +55,6 @@ class MoreScreen extends StatelessWidget {
           subtitle: l10n.moreEventsSubtitle,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const EventsScreen()),
-          ),
-        ),
-        const SizedBox(height: 10),
-        _MoreTile(
-          icon: Icons.person_outline,
-          title: l10n.titleProfile,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ProfileScreen()),
-          ),
-        ),
-        const SizedBox(height: 10),
-        _MoreTile(
-          icon: Icons.settings_outlined,
-          title: l10n.titleSettings,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const SettingsScreen()),
           ),
         ),
         const SizedBox(height: 10),

@@ -816,7 +816,7 @@ is re-synced so the new session appears immediately.
 
 ### Connecting your Intervals.icu account
 
-1. Tap the profile icon (top-right) or **More → Profile**.
+1. Tap the profile icon (top-right).
 2. Find your API key on intervals.icu under Settings.
 3. Paste it into **Intervals.icu API key** and tap **Connect**. This
    validates the key live against Intervals.icu (an actual data fetch, not
