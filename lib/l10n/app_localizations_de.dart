@@ -3482,4 +3482,191 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get dayAddEventHelp =>
       'Krankheit, Verletzung, Urlaub, Notiz, Rennen …';
+
+  @override
+  String get anTitle => 'Trainingsanalyse';
+
+  @override
+  String get anSubtitle =>
+      'Fitness je Sportart, Intensitätsverteilung, Belastungssicherheit, aerobe Basis';
+
+  @override
+  String get anSportSwim => 'Schwimmen';
+
+  @override
+  String get anSportRide => 'Rad';
+
+  @override
+  String get anSportRun => 'Laufen';
+
+  @override
+  String get anSportOther => 'Sonstiges';
+
+  @override
+  String get anSportFitnessTitle => 'Fitness je Sportart';
+
+  @override
+  String get anSportFitnessHint =>
+      'Jede Linie ist CTL bzw. ATL der Sportart, aus ihrer Trainingslast mit demselben 42/7-Tage-Modell berechnet; zusammen ergeben sie deine Gesamtwerte.';
+
+  @override
+  String get anTotalLabel => 'Gesamt';
+
+  @override
+  String get anLoadSourceTitle => 'Woher deine Last kommt';
+
+  @override
+  String get anLoadSourceTap => 'Tippe auf eine Woche für die Aufteilung.';
+
+  @override
+  String anLoadWeekOf(String week, int total) {
+    return 'Woche ab $week: $total TSS';
+  }
+
+  @override
+  String anShareEntry(String sport, int percent) {
+    return '$sport $percent %';
+  }
+
+  @override
+  String get anIntensityTitle => 'Intensitätsverteilung';
+
+  @override
+  String get anWeekly => 'Wöchentlich';
+
+  @override
+  String get anMonthly => 'Monatlich';
+
+  @override
+  String get anZoneEasy => 'Locker';
+
+  @override
+  String get anZoneThreshold => 'Schwelle';
+
+  @override
+  String get anZoneHard => 'Hart';
+
+  @override
+  String get anIntensityHint =>
+      'Anteil der Zonenzeit. Locker liegt unter der ersten Schwelle, Schwelle sind die Zonen darum, hart darüber. Zuerst Leistungs-, dann Herzfrequenz-, dann Tempozonen.';
+
+  @override
+  String get anModelPolarized => 'Polarisiert';
+
+  @override
+  String get anModelPyramidal => 'Pyramidal';
+
+  @override
+  String get anModelThreshold => 'Schwellenlastig';
+
+  @override
+  String get anModelHigh => 'Hochintensiv';
+
+  @override
+  String get anModelUnknown => 'Zu wenig Zonenzeit';
+
+  @override
+  String anPolarizationIndex(String value) {
+    return 'Polarisationsindex $value';
+  }
+
+  @override
+  String anIntensityPeriod(String period, String model) {
+    return '$period: $model';
+  }
+
+  @override
+  String anIntensitySplit(int easy, int threshold, int hard) {
+    return '$easy % locker · $threshold % Schwelle · $hard % hart';
+  }
+
+  @override
+  String get anRangeOverall => 'Gesamter Zeitraum';
+
+  @override
+  String anSessionsNoZones(int count) {
+    return '$count Einheiten ohne Zonendaten werden nicht gezählt.';
+  }
+
+  @override
+  String get anSafetyTitle => 'Belastungssicherheit';
+
+  @override
+  String get anAcwr => 'Akut:chronisch';
+
+  @override
+  String get anRamp => 'Anstiegsrate';
+
+  @override
+  String get anMonotony => 'Monotonie';
+
+  @override
+  String get anStrain => 'Belastungsdruck';
+
+  @override
+  String get anRiskSafe => 'Sicher';
+
+  @override
+  String get anRiskRisky => 'Riskant';
+
+  @override
+  String get anRiskHigh => 'Zu schnell';
+
+  @override
+  String get anRiskHighMonotony => 'Zu eintönig';
+
+  @override
+  String get anAcwrBands =>
+      '7-Tage-Last im Verhältnis zur 28-Tage-Last. Sicher 0,8–1,3, riskant bis 1,5, darüber zu schnell. Das Band zeigt den sicheren Bereich.';
+
+  @override
+  String get anRampBands =>
+      'CTL-Änderung über 7 Tage. Sicher bis 5 pro Woche, riskant bis 8, darüber zu schnell.';
+
+  @override
+  String get anMonotonyBands =>
+      'Mittlere Tageslast im Verhältnis zur Streuung über 7 Tage. Sicher bis 1,5, riskant bis 2, darüber ist die Woche zu eintönig. Belastungsdruck ist Wochenlast mal Monotonie.';
+
+  @override
+  String get anSafetyNeedHistory =>
+      'Das Verhältnis braucht 28 Tage zwischengespeicherte Aktivitäten.';
+
+  @override
+  String get anAerobicTitle => 'Aerobe Basis';
+
+  @override
+  String get anAerobicHint =>
+      'Lange, gleichmäßige Einheiten: mindestens 60 Minuten, überwiegend unter der ersten Schwelle. Höherer Efficiency Factor und weniger Entkopplung bedeuten eine stärkere Basis.';
+
+  @override
+  String get anEfTitle => 'Efficiency Factor';
+
+  @override
+  String get anDecouplingTitle => 'Entkopplung (Pa:HR)';
+
+  @override
+  String anEfTrend(String percent) {
+    return 'EF-Trend $percent % pro Monat';
+  }
+
+  @override
+  String get anEfTrendFlat => 'EF-Trend: unverändert';
+
+  @override
+  String get anDecouplingBands =>
+      'Unter 5 % ist solide, 5–10 % in Entwicklung, über 10 % ist die Herzfrequenz zu stark gedriftet. Das Band zeigt den soliden Bereich.';
+
+  @override
+  String get anAerobicEmpty =>
+      'Keine langen, gleichmäßigen Einheiten mit Efficiency Factor oder Entkopplung in diesem Zeitraum.';
+
+  @override
+  String anAerobicSessions(int count) {
+    return '$count Einheiten';
+  }
+
+  @override
+  String anLatestDecoupling(String value) {
+    return 'Letzte Entkopplung $value %';
+  }
 }

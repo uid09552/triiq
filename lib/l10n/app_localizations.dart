@@ -5635,6 +5635,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sick day, injury, holiday, note, race …'**
   String get dayAddEventHelp;
+
+  /// No description provided for @anTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training analytics'**
+  String get anTitle;
+
+  /// No description provided for @anSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness by sport, intensity split, load safety, aerobic base'**
+  String get anSubtitle;
+
+  /// No description provided for @anSportSwim.
+  ///
+  /// In en, this message translates to:
+  /// **'Swim'**
+  String get anSportSwim;
+
+  /// No description provided for @anSportRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride'**
+  String get anSportRide;
+
+  /// No description provided for @anSportRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get anSportRun;
+
+  /// No description provided for @anSportOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get anSportOther;
+
+  /// No description provided for @anSportFitnessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness by sport'**
+  String get anSportFitnessTitle;
+
+  /// No description provided for @anSportFitnessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each line is that sport\'s own CTL or ATL, computed from its training load with the same 42/7-day model; together they add up to your total.'**
+  String get anSportFitnessHint;
+
+  /// No description provided for @anTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get anTotalLabel;
+
+  /// No description provided for @anLoadSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where your load comes from'**
+  String get anLoadSourceTitle;
+
+  /// No description provided for @anLoadSourceTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a week to see its split.'**
+  String get anLoadSourceTap;
+
+  /// No description provided for @anLoadWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {week}: {total} TSS'**
+  String anLoadWeekOf(String week, int total);
+
+  /// No description provided for @anShareEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} {percent}%'**
+  String anShareEntry(String sport, int percent);
+
+  /// No description provided for @anIntensityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity distribution'**
+  String get anIntensityTitle;
+
+  /// No description provided for @anWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get anWeekly;
+
+  /// No description provided for @anMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get anMonthly;
+
+  /// No description provided for @anZoneEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get anZoneEasy;
+
+  /// No description provided for @anZoneThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold'**
+  String get anZoneThreshold;
+
+  /// No description provided for @anZoneHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get anZoneHard;
+
+  /// No description provided for @anIntensityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share of zone time. Easy is below the first threshold, threshold is the zones around it, hard is above. Power zones first, then heart rate, then pace.'**
+  String get anIntensityHint;
+
+  /// No description provided for @anModelPolarized.
+  ///
+  /// In en, this message translates to:
+  /// **'Polarized'**
+  String get anModelPolarized;
+
+  /// No description provided for @anModelPyramidal.
+  ///
+  /// In en, this message translates to:
+  /// **'Pyramidal'**
+  String get anModelPyramidal;
+
+  /// No description provided for @anModelThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold-heavy'**
+  String get anModelThreshold;
+
+  /// No description provided for @anModelHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High-intensity'**
+  String get anModelHigh;
+
+  /// No description provided for @anModelUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough zone time'**
+  String get anModelUnknown;
+
+  /// No description provided for @anPolarizationIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'Polarization index {value}'**
+  String anPolarizationIndex(String value);
+
+  /// No description provided for @anIntensityPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'{period}: {model}'**
+  String anIntensityPeriod(String period, String model);
+
+  /// No description provided for @anIntensitySplit.
+  ///
+  /// In en, this message translates to:
+  /// **'{easy}% easy · {threshold}% threshold · {hard}% hard'**
+  String anIntensitySplit(int easy, int threshold, int hard);
+
+  /// No description provided for @anRangeOverall.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole range'**
+  String get anRangeOverall;
+
+  /// No description provided for @anSessionsNoZones.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions without zone data are not counted.'**
+  String anSessionsNoZones(int count);
+
+  /// No description provided for @anSafetyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load safety'**
+  String get anSafetyTitle;
+
+  /// No description provided for @anAcwr.
+  ///
+  /// In en, this message translates to:
+  /// **'Acute:chronic'**
+  String get anAcwr;
+
+  /// No description provided for @anRamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramp rate'**
+  String get anRamp;
+
+  /// No description provided for @anMonotony.
+  ///
+  /// In en, this message translates to:
+  /// **'Monotony'**
+  String get anMonotony;
+
+  /// No description provided for @anStrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Strain'**
+  String get anStrain;
+
+  /// No description provided for @anRiskSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe'**
+  String get anRiskSafe;
+
+  /// No description provided for @anRiskRisky.
+  ///
+  /// In en, this message translates to:
+  /// **'Risky'**
+  String get anRiskRisky;
+
+  /// No description provided for @anRiskHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Too fast'**
+  String get anRiskHigh;
+
+  /// No description provided for @anRiskHighMonotony.
+  ///
+  /// In en, this message translates to:
+  /// **'Too uniform'**
+  String get anRiskHighMonotony;
+
+  /// No description provided for @anAcwrBands.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day load over 28-day load. Safe 0.8–1.3, risky up to 1.5, too fast above. The shaded band is the safe range.'**
+  String get anAcwrBands;
+
+  /// No description provided for @anRampBands.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL change over 7 days. Safe up to 5 a week, risky up to 8, too fast above.'**
+  String get anRampBands;
+
+  /// No description provided for @anMonotonyBands.
+  ///
+  /// In en, this message translates to:
+  /// **'Mean daily load over its spread across 7 days. Safe up to 1.5, risky up to 2, above that the week is too uniform. Strain is the week\'s load times monotony.'**
+  String get anMonotonyBands;
+
+  /// No description provided for @anSafetyNeedHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'The ratio needs 28 days of cached activities.'**
+  String get anSafetyNeedHistory;
+
+  /// No description provided for @anAerobicTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Aerobic base'**
+  String get anAerobicTitle;
+
+  /// No description provided for @anAerobicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long steady sessions: at least 60 minutes, mostly below the first threshold. Higher efficiency factor and lower decoupling mean a stronger base.'**
+  String get anAerobicHint;
+
+  /// No description provided for @anEfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Efficiency factor'**
+  String get anEfTitle;
+
+  /// No description provided for @anDecouplingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Decoupling (Pa:HR)'**
+  String get anDecouplingTitle;
+
+  /// No description provided for @anEfTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'EF trend {percent}% per month'**
+  String anEfTrend(String percent);
+
+  /// No description provided for @anEfTrendFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'EF trend: flat'**
+  String get anEfTrendFlat;
+
+  /// No description provided for @anDecouplingBands.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 5% is solid, 5–10% developing, above 10% the heart rate drifted too far. The shaded band is the solid range.'**
+  String get anDecouplingBands;
+
+  /// No description provided for @anAerobicEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No long steady sessions with an efficiency factor or decoupling in this range.'**
+  String get anAerobicEmpty;
+
+  /// No description provided for @anAerobicSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions'**
+  String anAerobicSessions(int count);
+
+  /// No description provided for @anLatestDecoupling.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest decoupling {value}%'**
+  String anLatestDecoupling(String value);
 }
 
 class _AppLocalizationsDelegate

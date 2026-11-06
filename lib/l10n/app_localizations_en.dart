@@ -3450,4 +3450,191 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dayAddEventHelp => 'Sick day, injury, holiday, note, race …';
+
+  @override
+  String get anTitle => 'Training analytics';
+
+  @override
+  String get anSubtitle =>
+      'Fitness by sport, intensity split, load safety, aerobic base';
+
+  @override
+  String get anSportSwim => 'Swim';
+
+  @override
+  String get anSportRide => 'Ride';
+
+  @override
+  String get anSportRun => 'Run';
+
+  @override
+  String get anSportOther => 'Other';
+
+  @override
+  String get anSportFitnessTitle => 'Fitness by sport';
+
+  @override
+  String get anSportFitnessHint =>
+      'Each line is that sport\'s own CTL or ATL, computed from its training load with the same 42/7-day model; together they add up to your total.';
+
+  @override
+  String get anTotalLabel => 'Total';
+
+  @override
+  String get anLoadSourceTitle => 'Where your load comes from';
+
+  @override
+  String get anLoadSourceTap => 'Tap a week to see its split.';
+
+  @override
+  String anLoadWeekOf(String week, int total) {
+    return 'Week of $week: $total TSS';
+  }
+
+  @override
+  String anShareEntry(String sport, int percent) {
+    return '$sport $percent%';
+  }
+
+  @override
+  String get anIntensityTitle => 'Intensity distribution';
+
+  @override
+  String get anWeekly => 'Weekly';
+
+  @override
+  String get anMonthly => 'Monthly';
+
+  @override
+  String get anZoneEasy => 'Easy';
+
+  @override
+  String get anZoneThreshold => 'Threshold';
+
+  @override
+  String get anZoneHard => 'Hard';
+
+  @override
+  String get anIntensityHint =>
+      'Share of zone time. Easy is below the first threshold, threshold is the zones around it, hard is above. Power zones first, then heart rate, then pace.';
+
+  @override
+  String get anModelPolarized => 'Polarized';
+
+  @override
+  String get anModelPyramidal => 'Pyramidal';
+
+  @override
+  String get anModelThreshold => 'Threshold-heavy';
+
+  @override
+  String get anModelHigh => 'High-intensity';
+
+  @override
+  String get anModelUnknown => 'Not enough zone time';
+
+  @override
+  String anPolarizationIndex(String value) {
+    return 'Polarization index $value';
+  }
+
+  @override
+  String anIntensityPeriod(String period, String model) {
+    return '$period: $model';
+  }
+
+  @override
+  String anIntensitySplit(int easy, int threshold, int hard) {
+    return '$easy% easy · $threshold% threshold · $hard% hard';
+  }
+
+  @override
+  String get anRangeOverall => 'Whole range';
+
+  @override
+  String anSessionsNoZones(int count) {
+    return '$count sessions without zone data are not counted.';
+  }
+
+  @override
+  String get anSafetyTitle => 'Load safety';
+
+  @override
+  String get anAcwr => 'Acute:chronic';
+
+  @override
+  String get anRamp => 'Ramp rate';
+
+  @override
+  String get anMonotony => 'Monotony';
+
+  @override
+  String get anStrain => 'Strain';
+
+  @override
+  String get anRiskSafe => 'Safe';
+
+  @override
+  String get anRiskRisky => 'Risky';
+
+  @override
+  String get anRiskHigh => 'Too fast';
+
+  @override
+  String get anRiskHighMonotony => 'Too uniform';
+
+  @override
+  String get anAcwrBands =>
+      '7-day load over 28-day load. Safe 0.8–1.3, risky up to 1.5, too fast above. The shaded band is the safe range.';
+
+  @override
+  String get anRampBands =>
+      'CTL change over 7 days. Safe up to 5 a week, risky up to 8, too fast above.';
+
+  @override
+  String get anMonotonyBands =>
+      'Mean daily load over its spread across 7 days. Safe up to 1.5, risky up to 2, above that the week is too uniform. Strain is the week\'s load times monotony.';
+
+  @override
+  String get anSafetyNeedHistory =>
+      'The ratio needs 28 days of cached activities.';
+
+  @override
+  String get anAerobicTitle => 'Aerobic base';
+
+  @override
+  String get anAerobicHint =>
+      'Long steady sessions: at least 60 minutes, mostly below the first threshold. Higher efficiency factor and lower decoupling mean a stronger base.';
+
+  @override
+  String get anEfTitle => 'Efficiency factor';
+
+  @override
+  String get anDecouplingTitle => 'Decoupling (Pa:HR)';
+
+  @override
+  String anEfTrend(String percent) {
+    return 'EF trend $percent% per month';
+  }
+
+  @override
+  String get anEfTrendFlat => 'EF trend: flat';
+
+  @override
+  String get anDecouplingBands =>
+      'Under 5% is solid, 5–10% developing, above 10% the heart rate drifted too far. The shaded band is the solid range.';
+
+  @override
+  String get anAerobicEmpty =>
+      'No long steady sessions with an efficiency factor or decoupling in this range.';
+
+  @override
+  String anAerobicSessions(int count) {
+    return '$count sessions';
+  }
+
+  @override
+  String anLatestDecoupling(String value) {
+    return 'Latest decoupling $value%';
+  }
 }

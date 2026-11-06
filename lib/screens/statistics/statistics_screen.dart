@@ -19,6 +19,7 @@ import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
+import 'analytics_screen.dart';
 import 'performance_screen.dart';
 
 /// Training-load trends and volume, all of it read from the local cache:
@@ -247,6 +248,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (_) => const PerformanceScreen(),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.insights_outlined),
+              title: Text(l10n.anTitle),
+              subtitle: Text(l10n.anSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const AnalyticsScreen(),
                 ),
               ),
             ),
