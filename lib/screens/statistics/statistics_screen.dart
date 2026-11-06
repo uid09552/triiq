@@ -15,6 +15,7 @@ import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/charts/line_chart.dart';
+import '../../widgets/chart_options.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
@@ -221,23 +222,40 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SegmentedButton<int>(
-            segments: [
-              for (final days in _rangeOptions)
-                ButtonSegment(
-                  value: days,
-                  label: Text(
-                    days == 365 ? l10n.rangeOneYear : l10n.rangeDaysShort(days),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ChartOptionsButton(
+              summary: _days == 365
+                  ? l10n.rangeOneYear
+                  : l10n.rangeDaysShort(_days),
+              onPressed: () => showChartOptions(
+                context,
+                title: l10n.navStatistics,
+                ownerSetState: setState,
+                builder: (sheet, apply) => OptionGroup(
+                  label: l10n.chartOptionsRange,
+                  child: SegmentedButton<int>(
+                    showSelectedIcon: false,
+                    segments: [
+                      for (final days in _rangeOptions)
+                        ButtonSegment(
+                          value: days,
+                          label: Text(
+                            days == 365
+                                ? l10n.rangeOneYear
+                                : l10n.rangeDaysShort(days),
+                          ),
+                        ),
+                    ],
+                    selected: {_days},
+                    onSelectionChanged: (selection) {
+                      apply(() => _days = selection.first);
+                      _load();
+                    },
                   ),
                 ),
-            ],
-            selected: {_days},
-            onSelectionChanged: _loading
-                ? null
-                : (selection) {
-                    setState(() => _days = selection.first);
-                    _load();
-                  },
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           Card(

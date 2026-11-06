@@ -195,6 +195,9 @@ void main() {
   ) async {
     final repo = _FakeCurves({(CurveSport.run, CurveMetric.pace): _runPace()});
     await pump(tester, repo);
+    // Sport and metric live behind the options icon.
+    await tester.tap(find.byKey(const ValueKey('chart-options')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Run'));
     await tester.pumpAndSettle();
 
@@ -207,6 +210,8 @@ void main() {
     await tester.tap(find.widgetWithText(ChoiceChip, 'Power'));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(ChoiceChip, 'Power'), findsNothing);
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
     expect(find.text('Run · Pace'), findsOneWidget);
   });
 

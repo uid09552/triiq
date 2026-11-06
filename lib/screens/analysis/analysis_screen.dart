@@ -12,7 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/chart_viewport.dart';
 import '../../widgets/charts/line_chart.dart';
-import '../../widgets/section_card.dart';
+import '../../widgets/chart_options.dart';
 import '../chat/ask_trainer.dart';
 import 'analysis_data.dart';
 
@@ -197,12 +197,26 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  void _change(VoidCallback update) {
-    setState(update);
-    _load();
+  /// The period, sport and resolution in a few words, for the app bar.
+  String _filterSummary(AppLocalizations l10n) {
+    final range = switch (_range) {
+      _Range.d30 => l10n.analysisRange30d,
+      _Range.d90 => l10n.analysisRange90d,
+      _Range.m6 => l10n.analysisRange6m,
+      _Range.y1 => l10n.analysisRange1y,
+      _Range.ytd => l10n.analysisRangeYtd,
+      _Range.custom => l10n.analysisRangeCustom,
+    };
+    final sport = switch (_sport) {
+      'swim' => l10n.sportSwim,
+      'cycle' => l10n.sportRide,
+      'run' => l10n.sportRun,
+      _ => l10n.analysisSportAll,
+    };
+    return '$range · $sport';
   }
 
-  Future<void> _pickCustom() async {
+  Future<void> _pickCustom([void Function(VoidCallback)? apply]) async {
     final (from, to) = _period;
     final picked = await showDateRangePicker(
       context: context,
@@ -211,10 +225,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       initialDateRange: DateTimeRange(start: from, end: to),
     );
     if (picked == null) return;
-    _change(() {
+    (apply ?? setState)(() {
       _custom = picked;
       _range = _Range.custom;
     });
+    _load();
   }
 
   @override
@@ -231,6 +246,15 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       appBar: AppBar(
         title: Text(l10n.analysisTitle),
         actions: [
+          ChartOptionsButton(
+            summary: _filterSummary(l10n),
+            onPressed: () => showChartOptions(
+              context,
+              title: l10n.analysisFilters,
+              ownerSetState: setState,
+              builder: (sheet, apply) => _filters(l10n, apply),
+            ),
+          ),
           IconButton(
             tooltip: l10n.askTrainer,
             icon: const Icon(Icons.chat_bubble_outline),
@@ -241,12 +265,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SectionCard(
-            icon: Icons.tune,
-            title: l10n.analysisFilters,
-            child: _filters(l10n),
-          ),
-          const SizedBox(height: 12),
           if (_loading)
             const Padding(
               padding: EdgeInsets.all(32),
@@ -295,7 +313,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  Widget _filters(AppLocalizations l10n) {
+  Widget _filters(AppLocalizations l10n, void Function(VoidCallback) apply) {
     final theme = Theme.of(context);
     Widget label(String text) => Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 6),
@@ -324,7 +342,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               ChoiceChip(
                 label: Text(e.value),
                 selected: _range == e.key,
-                onSelected: (_) => _change(() => _range = e.key),
+                onSelected: (_) {
+                  apply(() => _range = e.key);
+                  _load();
+                },
               ),
             ChoiceChip(
               key: const ValueKey('analysis-custom-range'),
@@ -334,7 +355,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     : l10n.analysisRangeCustom,
               ),
               selected: _range == _Range.custom,
-              onSelected: (_) => _pickCustom(),
+              onSelected: (_) => _pickCustom(apply),
             ),
           ],
         ),
@@ -352,7 +373,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               ChoiceChip(
                 label: Text(text),
                 selected: _sport == sport,
-                onSelected: (_) => _change(() => _sport = sport),
+                onSelected: (_) {
+                  apply(() => _sport = sport);
+                  _load();
+                },
               ),
           ],
         ),
@@ -364,7 +388,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             ButtonSegment(value: true, label: Text(l10n.analysisWeek)),
           ],
           selected: {_weekly},
-          onSelectionChanged: (v) => _change(() => _weekly = v.first),
+          onSelectionChanged: (v) {
+            apply(() => _weekly = v.first);
+            _load();
+          },
         ),
         label(l10n.analysisRolling),
         SegmentedButton<int>(
@@ -376,20 +403,20 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             const ButtonSegment(value: 28, label: Text('28')),
           ],
           selected: {_rolling},
-          onSelectionChanged: (v) => setState(() => _rolling = v.first),
+          onSelectionChanged: (v) => apply(() => _rolling = v.first),
         ),
         const SizedBox(height: 4),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(l10n.analysisShowExtremes),
           value: _extremes,
-          onChanged: (v) => setState(() => _extremes = v),
+          onChanged: (v) => apply(() => _extremes = v),
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(l10n.analysisShowBand),
           value: _band,
-          onChanged: (v) => setState(() => _band = v),
+          onChanged: (v) => apply(() => _band = v),
         ),
         label(l10n.analysisMetrics),
         Wrap(
@@ -405,9 +432,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 ),
                 label: Text(analysisMetricLabel(l10n, m)),
                 selected: _metrics.contains(m),
-                onSelected: (on) => setState(
-                  () => on ? _metrics.add(m) : _metrics.remove(m),
-                ),
+                onSelected: (on) =>
+                    apply(() => on ? _metrics.add(m) : _metrics.remove(m)),
               ),
           ],
         ),
@@ -419,7 +445,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     final locale = Localizations.localeOf(context).toString();
     final date = series.dates[i];
     final text = DateFormat.yMMMEd(locale).format(date);
-    return _weekly ? l10n.analysisWeekOf(DateFormat.yMMMd(locale).format(date)) : text;
+    return _weekly
+        ? l10n.analysisWeekOf(DateFormat.yMMMd(locale).format(date))
+        : text;
   }
 
   /// The values of every shown metric at the selected point.
@@ -561,12 +589,13 @@ class _MetricPanel extends StatelessWidget {
                 Container(
                   width: 10,
                   height: 10,
-                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Text(label, style: theme.textTheme.titleSmall),
-                ),
+                Expanded(child: Text(label, style: theme.textTheme.titleSmall)),
                 if (selected != null &&
                     selected! < raw.length &&
                     raw[selected!] != null)
@@ -611,7 +640,8 @@ class _MetricPanel extends StatelessWidget {
                 selectedIndex: selected,
                 onSelect: onSelect,
                 zeroLine: metric.hasZeroLine,
-                formatValue: (v) => _format(metric, v).replaceAll(RegExp(r' [a-z]+$'), ''),
+                formatValue: (v) =>
+                    _format(metric, v).replaceAll(RegExp(r' [a-z]+$'), ''),
                 band: band && stats != null && stats.stdDev > 0
                     ? ChartBand(
                         low: stats.mean - stats.stdDev,
