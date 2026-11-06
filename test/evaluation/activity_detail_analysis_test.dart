@@ -133,7 +133,17 @@ void main() {
     await pump(tester, fetch: (_) async => streams());
 
     expect(find.text('Over time'), findsOneWidget);
+    // The selectors are tucked away until the options are opened.
+    expect(find.byKey(const ValueKey('stream-watts')), findsNothing);
+    expect(find.byKey(const ValueKey('chart-options')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('chart-options')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('stream-watts')), findsOneWidget);
+    // Toggling a stream in the sheet updates the summary behind it.
+    await tester.tap(find.byKey(const ValueKey('stream-watts')));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
     // The intervals sit behind a collapsed header until it is tapped.
     expect(find.byKey(const ValueKey('intervals-toggle')), findsOneWidget);
     expect(find.text('Intervals (1)'), findsOneWidget);
@@ -186,7 +196,7 @@ void main() {
       );
       await tester.pump();
     }
-    expect(find.byKey(const ValueKey('stream-watts')), findsOneWidget);
+    expect(find.byKey(const ValueKey('chart-options')), findsOneWidget);
   });
 
   testWidgets('Ask the trainer hands the session to Chat', (tester) async {

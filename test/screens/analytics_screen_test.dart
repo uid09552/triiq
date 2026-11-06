@@ -63,6 +63,10 @@ void main() {
     expect(find.textContaining('Decoupling'), findsWidgets);
     expect(tester.takeException(), isNull);
 
+    // The weekly/monthly switch sits behind the intensity card's options.
+    expect(find.text('Monthly'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('chart-options')).at(1));
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(find.text('Monthly'));
     await tester.pump();
     for (var i = 0; i < 10; i++) {
