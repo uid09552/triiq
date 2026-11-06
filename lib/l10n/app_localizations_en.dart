@@ -3637,4 +3637,135 @@ class AppLocalizationsEn extends AppLocalizations {
   String anLatestDecoupling(String value) {
     return 'Latest decoupling $value%';
   }
+
+  @override
+  String get cmpTitle => 'Compare';
+
+  @override
+  String get cmpSubtitle =>
+      'Two runs or rides overlaid on their streams and course, or two blocks of training';
+
+  @override
+  String get cmpCompareWith => 'Compare with…';
+
+  @override
+  String get cmpTabActivities => 'Activities';
+
+  @override
+  String get cmpTabPeriods => 'Periods';
+
+  @override
+  String get cmpPickFirst => 'Pick the first activity';
+
+  @override
+  String get cmpPickSecond => 'Pick the second activity';
+
+  @override
+  String get cmpPickTitle => 'Choose an activity';
+
+  @override
+  String get cmpPickEmpty => 'No cached runs or rides to compare yet.';
+
+  @override
+  String get cmpChooseTwo =>
+      'Pick two activities of the same sport to overlay them.';
+
+  @override
+  String get cmpAxisDistance => 'Distance';
+
+  @override
+  String get cmpAxisTime => 'Time';
+
+  @override
+  String get cmpNoDistance =>
+      'One of these has no distance stream, so only the time axis is available.';
+
+  @override
+  String get cmpNoStreams =>
+      'No stream data for these activities. Connect to Intervals.icu and try again.';
+
+  @override
+  String get cmpNoMetric => 'Neither activity recorded this stream.';
+
+  @override
+  String get cmpTrackerHint =>
+      'Touch the chart or tap the map to move the tracker.';
+
+  @override
+  String get cmpCourseTitle => 'Course';
+
+  @override
+  String get cmpCourseOpen => 'Open the map full screen';
+
+  @override
+  String get cmpStatsTitle => 'Side by side';
+
+  @override
+  String get cmpDistance => 'Distance';
+
+  @override
+  String get cmpTime => 'Moving time';
+
+  @override
+  String get cmpElevation => 'Elevation';
+
+  @override
+  String get cmpLoad => 'Load (TSS)';
+
+  @override
+  String get cmpAvgHr => 'Avg heart rate';
+
+  @override
+  String get cmpAvgPower => 'Avg power';
+
+  @override
+  String get cmpAvgSpeed => 'Avg pace / speed';
+
+  @override
+  String get cmpEf => 'Efficiency factor';
+
+  @override
+  String get cmpDecoupling => 'Decoupling';
+
+  @override
+  String get cmpEasyShare => 'Easy share';
+
+  @override
+  String get cmpSessions => 'Sessions';
+
+  @override
+  String cmpBlockDays(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get cmpThisBlock => 'This block';
+
+  @override
+  String get cmpPreviousBlock => 'Previous block';
+
+  @override
+  String get cmpBlockLength => 'Block length';
+
+  @override
+  String cmpBlockRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get cmpCumulative => 'Cumulative by day';
+
+  @override
+  String cmpDayOfBlock(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get cmpNoBlockActivities => 'No runs or rides in these two blocks.';
+
+  @override
+  String get cmpFirst => 'A';
+
+  @override
+  String get cmpSecond => 'B';
 }

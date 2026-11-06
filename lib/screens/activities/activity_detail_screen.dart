@@ -28,6 +28,8 @@ import '../insights/insights_card.dart';
 import '../today/train_now_screen.dart';
 import '../../evaluation/activity_route.dart';
 import 'brick_card.dart';
+import '../../evaluation/compare.dart' show isComparable;
+import '../compare/compare_screen.dart';
 import 'route_card.dart';
 import 'session_analysis.dart';
 
@@ -283,6 +285,17 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 icon: const Icon(Icons.open_in_new),
                 label: Text(l10n.openInIntervals),
               ),
+              if (isComparable(activity))
+                OutlinedButton.icon(
+                  key: const ValueKey('compare-action'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => CompareScreen(initialActivity: activity),
+                    ),
+                  ),
+                  icon: const Icon(Icons.compare_arrows),
+                  label: Text(l10n.cmpCompareWith),
+                ),
               Tooltip(
                 message: IntervalsSession.instance.isConnected
                     ? ''

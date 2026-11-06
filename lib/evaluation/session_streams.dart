@@ -77,7 +77,12 @@ class SessionStreams {
 
   /// Streams worth drawing: those with at least one value, besides `time`.
   Iterable<String> get drawable => series.entries
-      .where((e) => e.key != 'time' && e.value.any((v) => v != null))
+      .where(
+        (e) =>
+            e.key != 'time' &&
+            e.key != 'distance' &&
+            e.value.any((v) => v != null),
+      )
       .map((e) => e.key);
 
   bool get isEmpty => drawable.isEmpty;
@@ -89,7 +94,8 @@ class SessionStreams {
 
   factory SessionStreams.fromJson(Map<String, dynamic> j) => SessionStreams(
     series: {
-      for (final e in (j['series'] as Map<String, dynamic>? ?? const {}).entries)
+      for (final e
+          in (j['series'] as Map<String, dynamic>? ?? const {}).entries)
         e.key: [
           for (final v in e.value as List) v is num ? v.toDouble() : null,
         ],
@@ -133,17 +139,16 @@ const diagramStreamTypes = [
   'velocity_smooth',
   'cadence',
   'altitude',
+  'distance',
 ];
 
 /// Streams by activity, fetched the first time the diagram is opened and
 /// read from SQLite afterwards — never part of sync, so long rides cost
 /// nothing until someone looks at them.
 class ActivityStreamsRepository {
-  ActivityStreamsRepository({
-    AppDatabase? database,
-    StreamsFetcher? fetch,
-  }) : _database = database ?? AppDatabase.instance,
-       _fetch = fetch ?? _fetchFromApi;
+  ActivityStreamsRepository({AppDatabase? database, StreamsFetcher? fetch})
+    : _database = database ?? AppDatabase.instance,
+      _fetch = fetch ?? _fetchFromApi;
 
   final AppDatabase _database;
   final StreamsFetcher _fetch;
@@ -166,13 +171,42 @@ class ActivityStreamsRepository {
     final hit = await cached(activityId);
     if (hit != null) return hit;
     final streams = await _fetch(activityId);
+    await _store(activityId, streams);
+    return streams;
+  }
+
+  final _withoutDistance = <String>{};
+
+  /// Like [load], but guarantees the `distance` stream when the activity has
+  /// one: streams cached before it was fetched are fetched once more. An
+  /// activity that has none (indoor, no GPS) is remembered for this run so it
+  /// isn't asked for again; offline, the old copy is used as it is.
+  Future<SessionStreams> loadForCompare(String activityId) async {
+    final hit = await cached(activityId);
+    if (hit != null &&
+        (hit.series.containsKey('distance') ||
+            _withoutDistance.contains(activityId))) {
+      return hit;
+    }
+    final SessionStreams fresh;
+    try {
+      fresh = await _fetch(activityId);
+    } catch (_) {
+      if (hit != null) return hit;
+      rethrow;
+    }
+    if (!fresh.series.containsKey('distance')) _withoutDistance.add(activityId);
+    await _store(activityId, fresh);
+    return fresh;
+  }
+
+  Future<void> _store(String activityId, SessionStreams streams) async {
     final db = await _database.database;
     await db.insert('activity_streams', {
       'activity_id': activityId,
       'data': jsonEncode(streams.toJson()),
       'fetched_at': DateTime.now().millisecondsSinceEpoch,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
-    return streams;
   }
 
   static Future<SessionStreams> _fetchFromApi(String activityId) async {

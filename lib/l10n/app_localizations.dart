@@ -5953,6 +5953,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Latest decoupling {value}%'**
   String anLatestDecoupling(String value);
+
+  /// No description provided for @cmpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get cmpTitle;
+
+  /// No description provided for @cmpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two runs or rides overlaid on their streams and course, or two blocks of training'**
+  String get cmpSubtitle;
+
+  /// No description provided for @cmpCompareWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with…'**
+  String get cmpCompareWith;
+
+  /// No description provided for @cmpTabActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get cmpTabActivities;
+
+  /// No description provided for @cmpTabPeriods.
+  ///
+  /// In en, this message translates to:
+  /// **'Periods'**
+  String get cmpTabPeriods;
+
+  /// No description provided for @cmpPickFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the first activity'**
+  String get cmpPickFirst;
+
+  /// No description provided for @cmpPickSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the second activity'**
+  String get cmpPickSecond;
+
+  /// No description provided for @cmpPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an activity'**
+  String get cmpPickTitle;
+
+  /// No description provided for @cmpPickEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cached runs or rides to compare yet.'**
+  String get cmpPickEmpty;
+
+  /// No description provided for @cmpChooseTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick two activities of the same sport to overlay them.'**
+  String get cmpChooseTwo;
+
+  /// No description provided for @cmpAxisDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get cmpAxisDistance;
+
+  /// No description provided for @cmpAxisTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get cmpAxisTime;
+
+  /// No description provided for @cmpNoDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'One of these has no distance stream, so only the time axis is available.'**
+  String get cmpNoDistance;
+
+  /// No description provided for @cmpNoStreams.
+  ///
+  /// In en, this message translates to:
+  /// **'No stream data for these activities. Connect to Intervals.icu and try again.'**
+  String get cmpNoStreams;
+
+  /// No description provided for @cmpNoMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Neither activity recorded this stream.'**
+  String get cmpNoMetric;
+
+  /// No description provided for @cmpTrackerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch the chart or tap the map to move the tracker.'**
+  String get cmpTrackerHint;
+
+  /// No description provided for @cmpCourseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Course'**
+  String get cmpCourseTitle;
+
+  /// No description provided for @cmpCourseOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the map full screen'**
+  String get cmpCourseOpen;
+
+  /// No description provided for @cmpStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Side by side'**
+  String get cmpStatsTitle;
+
+  /// No description provided for @cmpDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get cmpDistance;
+
+  /// No description provided for @cmpTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving time'**
+  String get cmpTime;
+
+  /// No description provided for @cmpElevation.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation'**
+  String get cmpElevation;
+
+  /// No description provided for @cmpLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load (TSS)'**
+  String get cmpLoad;
+
+  /// No description provided for @cmpAvgHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg heart rate'**
+  String get cmpAvgHr;
+
+  /// No description provided for @cmpAvgPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg power'**
+  String get cmpAvgPower;
+
+  /// No description provided for @cmpAvgSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg pace / speed'**
+  String get cmpAvgSpeed;
+
+  /// No description provided for @cmpEf.
+  ///
+  /// In en, this message translates to:
+  /// **'Efficiency factor'**
+  String get cmpEf;
+
+  /// No description provided for @cmpDecoupling.
+  ///
+  /// In en, this message translates to:
+  /// **'Decoupling'**
+  String get cmpDecoupling;
+
+  /// No description provided for @cmpEasyShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy share'**
+  String get cmpEasyShare;
+
+  /// No description provided for @cmpSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get cmpSessions;
+
+  /// No description provided for @cmpBlockDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String cmpBlockDays(int days);
+
+  /// No description provided for @cmpThisBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'This block'**
+  String get cmpThisBlock;
+
+  /// No description provided for @cmpPreviousBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous block'**
+  String get cmpPreviousBlock;
+
+  /// No description provided for @cmpBlockLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Block length'**
+  String get cmpBlockLength;
+
+  /// No description provided for @cmpBlockRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String cmpBlockRange(String start, String end);
+
+  /// No description provided for @cmpCumulative.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative by day'**
+  String get cmpCumulative;
+
+  /// No description provided for @cmpDayOfBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String cmpDayOfBlock(int day);
+
+  /// No description provided for @cmpNoBlockActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs or rides in these two blocks.'**
+  String get cmpNoBlockActivities;
+
+  /// No description provided for @cmpFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'A'**
+  String get cmpFirst;
+
+  /// No description provided for @cmpSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'B'**
+  String get cmpSecond;
 }
 
 class _AppLocalizationsDelegate

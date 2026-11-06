@@ -3669,4 +3669,138 @@ class AppLocalizationsDe extends AppLocalizations {
   String anLatestDecoupling(String value) {
     return 'Letzte Entkopplung $value %';
   }
+
+  @override
+  String get cmpTitle => 'Vergleichen';
+
+  @override
+  String get cmpSubtitle =>
+      'Zwei Läufe oder Fahrten über Verlauf und Strecke gelegt, oder zwei Trainingsblöcke';
+
+  @override
+  String get cmpCompareWith => 'Vergleichen mit …';
+
+  @override
+  String get cmpTabActivities => 'Aktivitäten';
+
+  @override
+  String get cmpTabPeriods => 'Zeiträume';
+
+  @override
+  String get cmpPickFirst => 'Erste Aktivität wählen';
+
+  @override
+  String get cmpPickSecond => 'Zweite Aktivität wählen';
+
+  @override
+  String get cmpPickTitle => 'Aktivität wählen';
+
+  @override
+  String get cmpPickEmpty =>
+      'Noch keine gespeicherten Läufe oder Fahrten zum Vergleichen.';
+
+  @override
+  String get cmpChooseTwo =>
+      'Wähle zwei Aktivitäten derselben Sportart, um sie zu überlagern.';
+
+  @override
+  String get cmpAxisDistance => 'Distanz';
+
+  @override
+  String get cmpAxisTime => 'Zeit';
+
+  @override
+  String get cmpNoDistance =>
+      'Eine der Aktivitäten hat keinen Distanzverlauf, daher gibt es nur die Zeitachse.';
+
+  @override
+  String get cmpNoStreams =>
+      'Keine Verlaufsdaten für diese Aktivitäten. Verbinde dich mit Intervals.icu und versuche es erneut.';
+
+  @override
+  String get cmpNoMetric =>
+      'Keine der Aktivitäten hat diesen Verlauf aufgezeichnet.';
+
+  @override
+  String get cmpTrackerHint =>
+      'Berühre das Diagramm oder tippe auf die Karte, um den Marker zu bewegen.';
+
+  @override
+  String get cmpCourseTitle => 'Strecke';
+
+  @override
+  String get cmpCourseOpen => 'Karte im Vollbild öffnen';
+
+  @override
+  String get cmpStatsTitle => 'Gegenüberstellung';
+
+  @override
+  String get cmpDistance => 'Distanz';
+
+  @override
+  String get cmpTime => 'Bewegungszeit';
+
+  @override
+  String get cmpElevation => 'Höhenmeter';
+
+  @override
+  String get cmpLoad => 'Last (TSS)';
+
+  @override
+  String get cmpAvgHr => 'Ø Herzfrequenz';
+
+  @override
+  String get cmpAvgPower => 'Ø Leistung';
+
+  @override
+  String get cmpAvgSpeed => 'Ø Pace / Tempo';
+
+  @override
+  String get cmpEf => 'Efficiency Factor';
+
+  @override
+  String get cmpDecoupling => 'Entkopplung';
+
+  @override
+  String get cmpEasyShare => 'Anteil locker';
+
+  @override
+  String get cmpSessions => 'Einheiten';
+
+  @override
+  String cmpBlockDays(int days) {
+    return '$days Tage';
+  }
+
+  @override
+  String get cmpThisBlock => 'Dieser Block';
+
+  @override
+  String get cmpPreviousBlock => 'Vorheriger Block';
+
+  @override
+  String get cmpBlockLength => 'Blocklänge';
+
+  @override
+  String cmpBlockRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get cmpCumulative => 'Kumuliert nach Tag';
+
+  @override
+  String cmpDayOfBlock(int day) {
+    return 'Tag $day';
+  }
+
+  @override
+  String get cmpNoBlockActivities =>
+      'Keine Läufe oder Fahrten in diesen beiden Blöcken.';
+
+  @override
+  String get cmpFirst => 'A';
+
+  @override
+  String get cmpSecond => 'B';
 }
