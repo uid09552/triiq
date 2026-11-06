@@ -73,9 +73,9 @@ const subjectiveWorst = 4;
 
 enum ReadinessLevel { ready, caution, backOff }
 
-/// How one signal is rated. [noBaseline] and [missing] never affect the
-/// status.
-enum SignalRating { ok, caution, backOff, noBaseline, missing }
+/// How one signal is rated. [noBaseline], [missing] and [excluded] (switched
+/// off by the athlete) never affect the status or the score.
+enum SignalRating { ok, caution, backOff, noBaseline, missing, excluded }
 
 enum ReadinessSignalKind { hrv, restingHr, sleep, form, subjective }
 
@@ -124,6 +124,18 @@ class ReadinessSignal {
 
   bool get counts =>
       rating == SignalRating.caution || rating == SignalRating.backOff;
+
+  /// The same reading, left out of the rating.
+  ReadinessSignal excluded() => ReadinessSignal(
+    kind: kind,
+    rating: SignalRating.excluded,
+    value: value,
+    mean: mean,
+    sd: sd,
+    okBound: okBound,
+    fatigue: fatigue,
+    soreness: soreness,
+  );
 }
 
 class Readiness {
@@ -153,6 +165,12 @@ class Readiness {
     ...signals.where((s) => s.rating == SignalRating.caution),
   ];
 
+  /// The signals that count, i.e. not switched off.
+  List<ReadinessSignal> get active => [
+    for (final s in signals)
+      if (s.rating != SignalRating.excluded) s,
+  ];
+
   ReadinessSignal signal(ReadinessSignalKind kind) =>
       signals.firstWhere((s) => s.kind == kind);
 }
@@ -177,12 +195,17 @@ int? readinessScore(Readiness r) {
 }
 
 /// Rates [today] from [records] (any order; only the [today] row and the
-/// [ReadinessRules.baselineDays] before it are read).
+/// [ReadinessRules.baselineDays] before it are read). Only the signals in
+/// [enabled] (all by default) count: the others are kept for display but
+/// rated [SignalRating.excluded], so they move neither the status nor the
+/// score.
 Readiness evaluateReadiness(
   List<LocalWellness> records,
   DateTime today, {
   ReadinessRules rules = const ReadinessRules(),
+  Set<ReadinessSignalKind>? enabled,
 }) {
+  final on = enabled ?? ReadinessSignalKind.values.toSet();
   final todayIso = isoDate(today);
   final firstBaselineDay = isoDate(
     DateTime(today.year, today.month, today.day - rules.baselineDays),
@@ -204,13 +227,25 @@ Readiness evaluateReadiness(
     return secs == null ? null : secs / 3600;
   }
 
+  // Whether the wearable has reported — judged on the wearable signals that
+  // count; with none of them on there is nothing to wait for.
+  final wearableOn = [
+    ReadinessSignalKind.hrv,
+    ReadinessSignalKind.restingHr,
+    ReadinessSignalKind.sleep,
+  ].where(on.contains).toSet();
   bool hasWearable(LocalWellness r) =>
-      hrvOf(r) != null || rhrOf(r) != null || sleepOf(r) != null;
+      (wearableOn.contains(ReadinessSignalKind.hrv) && hrvOf(r) != null) ||
+      (wearableOn.contains(ReadinessSignalKind.restingHr) &&
+          rhrOf(r) != null) ||
+      (wearableOn.contains(ReadinessSignalKind.sleep) && sleepOf(r) != null);
 
   final window = [...baseline, ?todayRecord];
   final recorded = window.where(hasWearable).map((r) => r.date).toList()
     ..sort();
-  final dataState = recorded.isEmpty
+  final dataState = wearableOn.isEmpty
+      ? ReadinessDataState.complete
+      : recorded.isEmpty
       ? ReadinessDataState.noData
       : todayRecord != null && hasWearable(todayRecord)
       ? ReadinessDataState.complete
@@ -328,7 +363,10 @@ Readiness evaluateReadiness(
     soreness: soreness,
   );
 
-  final signals = [hrv, restingHr, sleep, form, subjective];
+  final signals = [
+    for (final s in [hrv, restingHr, sleep, form, subjective])
+      on.contains(s.kind) ? s : s.excluded(),
+  ];
   final backOffs = signals.where((s) => s.rating == SignalRating.backOff);
   final cautions = signals.where((s) => s.rating == SignalRating.caution);
   final level = backOffs.isNotEmpty || cautions.length >= 2

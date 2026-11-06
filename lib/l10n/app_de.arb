@@ -1210,5 +1210,14 @@
   "chartOptionsRange": "Zeitraum",
   "chartOptionsView": "Ansicht",
   "chartOptionsSport": "Sportart",
-  "chartOptionsBlock": "Blocklänge"
+  "chartOptionsBlock": "Blocklänge",
+  "readinessOptionsTitle": "Bereitschaftswerte",
+  "readinessOptionsHint": "Wähle, welche Werte in Score, Status und die Empfehlungen des Trainers einfließen. Abgeschaltete Werte werden überall ignoriert. Mindestens einer muss aktiv bleiben.",
+  "readinessOptionHrv": "Herzfrequenzvariabilität gegenüber deiner eigenen 60-Tage-Basis",
+  "readinessOptionRestingHr": "Ruhepuls gegenüber deiner eigenen Basis",
+  "readinessOptionSleep": "Schlafdauer der letzten Nacht",
+  "readinessOptionForm": "Form: Fitness minus Ermüdung (CTL − ATL)",
+  "readinessOptionSubjective": "Heute eingetragene Müdigkeit und Muskelkater",
+  "readinessRatingExcluded": "Nicht verwendet",
+  "readinessOptionsReset": "Alle Werte verwenden"
 }

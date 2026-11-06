@@ -6235,6 +6235,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Block length'**
   String get chartOptionsBlock;
+
+  /// No description provided for @readinessOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness signals'**
+  String get readinessOptionsTitle;
+
+  /// No description provided for @readinessOptionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which values count toward the score, the status and the trainer\'s advice. Switched-off values are ignored everywhere. At least one must stay on.'**
+  String get readinessOptionsHint;
+
+  /// No description provided for @readinessOptionHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart-rate variability against your own 60-day baseline'**
+  String get readinessOptionHrv;
+
+  /// No description provided for @readinessOptionRestingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting heart rate against your own baseline'**
+  String get readinessOptionRestingHr;
+
+  /// No description provided for @readinessOptionSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours slept last night'**
+  String get readinessOptionSleep;
+
+  /// No description provided for @readinessOptionForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form: fitness minus fatigue (CTL − ATL)'**
+  String get readinessOptionForm;
+
+  /// No description provided for @readinessOptionSubjective.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue and soreness you logged today'**
+  String get readinessOptionSubjective;
+
+  /// No description provided for @readinessRatingExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not used'**
+  String get readinessRatingExcluded;
+
+  /// No description provided for @readinessOptionsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Use all signals'**
+  String get readinessOptionsReset;
 }
 
 class _AppLocalizationsDelegate

@@ -10,6 +10,7 @@ import '../../evaluation/readiness_service.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/main_navigation.dart';
+import 'readiness_options.dart';
 import 'readiness_screen.dart';
 
 String readinessLevelLabel(AppLocalizations l10n, ReadinessLevel level) =>
@@ -90,6 +91,8 @@ class ReadinessCard extends StatelessWidget {
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => ReadinessScreen(report: report)),
         ),
+        // Which values count toward readiness.
+        onLongPress: () => showReadinessOptions(context),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
           child: Column(
@@ -133,7 +136,7 @@ class ReadinessCard extends StatelessWidget {
                 ],
               ),
               if (hasData) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: _SignalPills(report: report),
@@ -261,7 +264,7 @@ class _SignalPills extends StatelessWidget {
     };
 
     final pills = <Widget>[
-      for (final s in r.signals)
+      for (final s in r.active)
         _Pill(
           key: ValueKey('pill-${s.kind.name}'),
           label: readinessSignalLabel(l10n, s.kind),
@@ -299,7 +302,7 @@ class _SignalPills extends StatelessWidget {
       );
     }
 
-    return Wrap(spacing: 6, runSpacing: 6, children: pills);
+    return Wrap(spacing: 6, runSpacing: 4, children: pills);
   }
 }
 

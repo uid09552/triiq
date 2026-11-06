@@ -356,7 +356,8 @@ class TrainingDataTools {
           "Today's readiness status (ready / caution / back_off), computed "
           "on the device from today's HRV, resting HR, sleep, form and the "
           "logged fatigue/soreness against the athlete's own 60-day "
-          'baselines — the same result as the readiness tile on Today. Each '
+          'baselines — the same result as the readiness tile on Today, over '
+          'only the signals the athlete has left switched on. Each '
           'signal comes with its value, baseline and rating, plus whether '
           "today's wearable data has arrived. Check it before advising on a "
           'hard session today. Read-only.',
@@ -1474,8 +1475,15 @@ class TrainingDataTools {
       'data_state': snake(r.dataState.name),
       'last_recorded_date': r.lastRecordedDate,
       'device_readiness': _round(r.deviceReadiness),
-      'signals': [
+      // Only the signals the athlete left on: the others are not shown, so
+      // they can't colour the advice.
+      'signals_used': [for (final s in r.active) snake(s.kind.name)],
+      'signals_switched_off': [
         for (final s in r.signals)
+          if (s.rating == SignalRating.excluded) snake(s.kind.name),
+      ],
+      'signals': [
+        for (final s in r.active)
           _compact({
             'signal': snake(s.kind.name),
             'rating': snake(s.rating.name),
@@ -1495,6 +1503,9 @@ class TrainingDataTools {
           }),
       ],
       'note':
+          'The athlete chose which signals count toward readiness '
+          '(signals_used); do not base readiness advice on the ones switched '
+          'off, even if get_daily_metrics shows them. '
           'Thresholds are defaults from the training knowledge, not medical '
           'advice. One day means little on its own; look at the trend with '
           'get_daily_metrics before a strong recommendation.',
