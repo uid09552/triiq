@@ -1203,5 +1203,12 @@
   "cmpDayOfBlock": "Tag {day}",
   "cmpNoBlockActivities": "Keine Läufe oder Fahrten in diesen beiden Blöcken.",
   "cmpFirst": "A",
-  "cmpSecond": "B"
+  "cmpSecond": "B",
+  "chartOptions": "Diagrammoptionen",
+  "chartOptionsStreams": "Verläufe",
+  "chartOptionsAxis": "X-Achse",
+  "chartOptionsRange": "Zeitraum",
+  "chartOptionsView": "Ansicht",
+  "chartOptionsSport": "Sportart",
+  "chartOptionsBlock": "Blocklänge"
 }

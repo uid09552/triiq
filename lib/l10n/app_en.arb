@@ -1423,5 +1423,12 @@
   "@cmpDayOfBlock": {"placeholders": {"day": {"type": "int"}}},
   "cmpNoBlockActivities": "No runs or rides in these two blocks.",
   "cmpFirst": "A",
-  "cmpSecond": "B"
+  "cmpSecond": "B",
+  "chartOptions": "Chart options",
+  "chartOptionsStreams": "Streams",
+  "chartOptionsAxis": "X axis",
+  "chartOptionsRange": "Range",
+  "chartOptionsView": "View",
+  "chartOptionsSport": "Sport",
+  "chartOptionsBlock": "Block length"
 }

@@ -6,6 +6,7 @@ import '../../data/repositories/activities_repository.dart';
 import '../../evaluation/compare.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
+import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import 'compare_route_map.dart' show compareColorA, compareColorB;
@@ -61,6 +62,68 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
     });
   }
 
+  void _openOptions(BuildContext context, AppLocalizations l10n) {
+    showChartOptions(
+      context,
+      title: l10n.cmpTabPeriods,
+      ownerSetState: setState,
+      builder: (sheet, apply) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OptionGroup(
+            label: l10n.chartOptionsSport,
+            child: SegmentedButton<String>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: 'ride', label: Text(l10n.anSportRide)),
+                ButtonSegment(value: 'run', label: Text(l10n.anSportRun)),
+              ],
+              selected: {_sport},
+              onSelectionChanged: (s) => apply(() => _sport = s.first),
+            ),
+          ),
+          OptionGroup(
+            label: l10n.chartOptionsBlock,
+            child: SegmentedButton<int>(
+              showSelectedIcon: false,
+              segments: [
+                for (final d in _lengths)
+                  ButtonSegment(value: d, label: Text(l10n.rangeDaysShort(d))),
+              ],
+              selected: {_days},
+              onSelectionChanged: (s) {
+                apply(() => _days = s.first);
+                _load();
+              },
+            ),
+          ),
+          OptionGroup(
+            label: l10n.cmpCumulative,
+            child: SegmentedButton<_Cumulative>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                  value: _Cumulative.distance,
+                  label: Text(l10n.cmpDistance),
+                ),
+                ButtonSegment(
+                  value: _Cumulative.time,
+                  label: Text(l10n.cmpTime),
+                ),
+                ButtonSegment(
+                  value: _Cumulative.load,
+                  label: Text(l10n.cmpLoad),
+                ),
+              ],
+              selected: {_metric},
+              onSelectionChanged: (s) => apply(() => _metric = s.first),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -109,34 +172,16 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            SegmentedButton<String>(
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(value: 'ride', label: Text(l10n.anSportRide)),
-                ButtonSegment(value: 'run', label: Text(l10n.anSportRun)),
-              ],
-              selected: {_sport},
-              onSelectionChanged: (s) => setState(() => _sport = s.first),
-            ),
-            SegmentedButton<int>(
-              showSelectedIcon: false,
-              segments: [
-                for (final d in _lengths)
-                  ButtonSegment(value: d, label: Text(l10n.rangeDaysShort(d))),
-              ],
-              selected: {_days},
-              onSelectionChanged: (s) {
-                setState(() => _days = s.first);
-                _load();
-              },
-            ),
-          ],
+        Align(
+          alignment: Alignment.centerRight,
+          child: ChartOptionsButton(
+            summary:
+                '${_sport == 'run' ? l10n.anSportRun : l10n.anSportRide} · '
+                '${l10n.rangeDaysShort(_days)}',
+            onPressed: () => _openOptions(context, l10n),
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         if (_loading)
           const Padding(
             padding: EdgeInsets.all(48),
@@ -183,26 +228,6 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SegmentedButton<_Cumulative>(
-                  showSelectedIcon: false,
-                  segments: [
-                    ButtonSegment(
-                      value: _Cumulative.distance,
-                      label: Text(l10n.cmpDistance),
-                    ),
-                    ButtonSegment(
-                      value: _Cumulative.time,
-                      label: Text(l10n.cmpTime),
-                    ),
-                    ButtonSegment(
-                      value: _Cumulative.load,
-                      label: Text(l10n.cmpLoad),
-                    ),
-                  ],
-                  selected: {_metric},
-                  onSelectionChanged: (s) => setState(() => _metric = s.first),
-                ),
-                const SizedBox(height: 12),
                 SizedBox(
                   height: 200,
                   child: MetricLineChart(

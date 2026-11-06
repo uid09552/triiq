@@ -9,6 +9,7 @@ import '../../evaluation/session_evaluator.dart';
 import '../../evaluation/session_streams.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/charts/chart_viewport.dart';
+import '../../widgets/chart_options.dart';
 import '../../widgets/charts/stream_chart.dart';
 import '../../widgets/section_card.dart';
 
@@ -59,7 +60,8 @@ class SessionDiagramCard extends StatefulWidget {
 }
 
 class _SessionDiagramCardState extends State<SessionDiagramCard> {
-  late Future<SessionStreams> _future = widget.streams.load(widget.activity.id);
+  late Future<SessionStreams> _future = _loadStreams();
+  SessionStreams? _streams;
   Set<String>? _visible;
   final _viewport = ChartViewport();
 
@@ -72,10 +74,103 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
     super.dispose();
   }
 
+  Future<SessionStreams> _loadStreams() =>
+      widget.streams.load(widget.activity.id).then((s) {
+        if (mounted) setState(() => _streams = s);
+        return s;
+      });
+
   void _retry() {
     setState(() {
-      _future = widget.streams.load(widget.activity.id);
+      _future = _loadStreams();
     });
+  }
+
+  /// The streams drawn: Power and heart rate to begin with (or everything
+  /// when the activity has at most two).
+  Set<String> _visibleOf(List<String> drawable) {
+    final visible = _visible ??= {
+      for (final t in drawable)
+        if (t == 'watts' || t == 'heartrate' || drawable.length <= 2) t,
+    };
+    if (visible.isEmpty && drawable.isNotEmpty) visible.add(drawable.first);
+    return visible;
+  }
+
+  String _summary(AppLocalizations l10n, List<String> drawable) {
+    final visible = _visibleOf(drawable);
+    final names = [
+      for (final t in drawable)
+        if (visible.contains(t)) streamLabel(l10n, t),
+    ];
+    return [
+      names.join(', '),
+      if (_smooth > 0 && visible.any(StreamChart.smoothable.contains))
+        '$_smooth s',
+    ].join(' · ');
+  }
+
+  /// The stream chips and smoothing live in a sheet — the chart gets the
+  /// space, and the choices are one tap (or a long press on the title) away.
+  void _openOptions(BuildContext context, List<String> drawable) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    showChartOptions(
+      context,
+      title: l10n.sessionDiagramTitle,
+      ownerSetState: setState,
+      builder: (sheet, apply) {
+        final visible = _visibleOf(drawable);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OptionGroup(
+              label: l10n.chartOptionsStreams,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final t in drawable)
+                    FilterChip(
+                      key: ValueKey('stream-$t'),
+                      label: Text(streamLabel(l10n, t)),
+                      avatar: CircleAvatar(
+                        radius: 5,
+                        backgroundColor: streamColor(t, theme.colorScheme),
+                      ),
+                      selected: visible.contains(t),
+                      onSelected: (on) =>
+                          apply(() => on ? visible.add(t) : visible.remove(t)),
+                    ),
+                ],
+              ),
+            ),
+            if (drawable.any(StreamChart.smoothable.contains))
+              OptionGroup(
+                label: l10n.streamSmoothing,
+                child: SegmentedButton<int>(
+                  key: const ValueKey('stream-smoothing'),
+                  showSelectedIcon: false,
+                  style: const ButtonStyle(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  segments: [
+                    ButtonSegment(value: 0, label: Text(l10n.smoothOff)),
+                    const ButtonSegment(value: 10, label: Text('10 s')),
+                    const ButtonSegment(value: 30, label: Text('30 s')),
+                  ],
+                  selected: {_smooth},
+                  onSelectionChanged: (v) => apply(() => _smooth = v.first),
+                ),
+              ),
+            if (drawable.isEmpty) Text(l10n.sessionDiagramNoData, style: muted),
+          ],
+        );
+      },
+    );
   }
 
   String _format(String type, double v) => switch (type) {
@@ -94,9 +189,22 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final loaded = _streams;
+    final drawable = loaded == null || loaded.isEmpty
+        ? null
+        : loaded.drawable.toList();
     return SectionCard(
       icon: Icons.show_chart,
       title: l10n.sessionDiagramTitle,
+      onLongPress: drawable == null
+          ? null
+          : () => _openOptions(context, drawable),
+      trailing: drawable == null
+          ? null
+          : ChartOptionsButton(
+              summary: _summary(l10n, drawable),
+              onPressed: () => _openOptions(context, drawable),
+            ),
       child: FutureBuilder<SessionStreams>(
         future: _future,
         builder: (context, snap) {
@@ -124,58 +232,10 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
             return Text(l10n.sessionDiagramNoData, style: muted);
           }
           final drawable = streams.drawable.toList();
-          final visible = _visible ??= {
-            for (final t in drawable)
-              if (t == 'watts' || t == 'heartrate' || drawable.length <= 2) t,
-          };
-          if (visible.isEmpty && drawable.isNotEmpty) visible.add(drawable.first);
+          final visible = _visibleOf(drawable);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final t in drawable)
-                    FilterChip(
-                      key: ValueKey('stream-$t'),
-                      label: Text(streamLabel(l10n, t)),
-                      avatar: CircleAvatar(
-                        radius: 5,
-                        backgroundColor: streamColor(t, theme.colorScheme),
-                      ),
-                      selected: visible.contains(t),
-                      onSelected: (on) => setState(
-                        () => on ? visible.add(t) : visible.remove(t),
-                      ),
-                    ),
-                ],
-              ),
-              if (drawable.any(StreamChart.smoothable.contains)) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(l10n.streamSmoothing, style: muted),
-                    const SizedBox(width: 12),
-                    SegmentedButton<int>(
-                      key: const ValueKey('stream-smoothing'),
-                      showSelectedIcon: false,
-                      style: const ButtonStyle(
-                        visualDensity: VisualDensity.compact,
-                      ),
-                      segments: [
-                        ButtonSegment(value: 0, label: Text(l10n.smoothOff)),
-                        const ButtonSegment(value: 10, label: Text('10 s')),
-                        const ButtonSegment(value: 30, label: Text('30 s')),
-                      ],
-                      selected: {_smooth},
-                      onSelectionChanged: (v) =>
-                          setState(() => _smooth = v.first),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-              ],
               StreamChart(
                 streams: streams,
                 visible: visible,
@@ -200,9 +260,8 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                       style: theme.textTheme.titleSmall,
                     ),
                     children: [
-                      for (final (n, i) in streams.intervals
-                          .where((i) => i.isWork)
-                          .indexed)
+                      for (final (n, i)
+                          in streams.intervals.where((i) => i.isWork).indexed)
                         ListTile(
                           key: ValueKey('interval-$n'),
                           dense: true,
@@ -215,14 +274,11 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                             final pad = (i.end - i.start) * 0.15 + 5;
                             _viewport.setRange(i.start - pad, i.end + pad);
                           },
-                          title: Text(
-                            i.label ?? l10n.sessionIntervalN(n + 1),
-                          ),
+                          title: Text(i.label ?? l10n.sessionIntervalN(n + 1)),
                           subtitle: Text(
                             [
                               if (i.movingTime != null) _clock(i.movingTime!),
-                              if (i.averageWatts != null)
-                                '${i.averageWatts} W',
+                              if (i.averageWatts != null) '${i.averageWatts} W',
                               if (i.averageHeartrate != null)
                                 '${i.averageHeartrate} bpm',
                               if (i.averageSpeed != null)
@@ -285,8 +341,10 @@ class _SessionEvaluationCardState extends State<SessionEvaluationCard> {
       l10n.evalReasonTooIntense(_pct(hardShare), _pct(limit)),
     NotIntenseReason(:final hardShare, :final minimum) =>
       l10n.evalReasonNotIntense(_pct(hardShare), _pct(minimum)),
-    LoadReason(:final actual, :final planned) =>
-      l10n.evalReasonLoad(actual, planned),
+    LoadReason(:final actual, :final planned) => l10n.evalReasonLoad(
+      actual,
+      planned,
+    ),
   };
 
   @override

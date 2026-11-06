@@ -6193,6 +6193,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'B'**
   String get cmpSecond;
+
+  /// No description provided for @chartOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart options'**
+  String get chartOptions;
+
+  /// No description provided for @chartOptionsStreams.
+  ///
+  /// In en, this message translates to:
+  /// **'Streams'**
+  String get chartOptionsStreams;
+
+  /// No description provided for @chartOptionsAxis.
+  ///
+  /// In en, this message translates to:
+  /// **'X axis'**
+  String get chartOptionsAxis;
+
+  /// No description provided for @chartOptionsRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get chartOptionsRange;
+
+  /// No description provided for @chartOptionsView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get chartOptionsView;
+
+  /// No description provided for @chartOptionsSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get chartOptionsSport;
+
+  /// No description provided for @chartOptionsBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block length'**
+  String get chartOptionsBlock;
 }
 
 class _AppLocalizationsDelegate

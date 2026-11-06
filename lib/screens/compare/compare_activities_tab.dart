@@ -7,6 +7,7 @@ import '../../evaluation/compare.dart';
 import '../../evaluation/session_evaluator.dart' show sportFamily;
 import '../../evaluation/session_streams.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import '../activities/route_card.dart' show hasRouteMap;
@@ -172,7 +173,7 @@ class _CompareActivitiesTabState extends State<CompareActivitiesTab> {
       final t = timeAtX(sa, _axis, x);
       moved = t == null ? null : xAtTime(sa, axis, t);
     }
-    setState(() => _axis = axis);
+    _axis = axis;
     _cursor.value = moved;
   }
 
@@ -310,47 +311,16 @@ class _CompareActivitiesTabState extends State<CompareActivitiesTab> {
     return SectionCard(
       icon: Icons.show_chart,
       title: l10n.sessionDiagramTitle,
+      onLongPress: () => _openChartOptions(context, l10n, metrics),
+      trailing: ChartOptionsButton(
+        summary:
+            '${streamLabel(l10n, _metric)} · '
+            '${_axis == CompareAxis.distance ? l10n.cmpAxisDistance : l10n.cmpAxisTime}',
+        onPressed: () => _openChartOptions(context, l10n, metrics),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final m in metrics)
-                ChoiceChip(
-                  key: ValueKey('cmp-metric-$m'),
-                  label: Text(streamLabel(l10n, m)),
-                  selected: _metric == m,
-                  onSelected: (_) => setState(() => _metric = m),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          SegmentedButton<CompareAxis>(
-            showSelectedIcon: false,
-            style: const ButtonStyle(visualDensity: VisualDensity.compact),
-            segments: [
-              ButtonSegment(
-                value: CompareAxis.distance,
-                label: Text(l10n.cmpAxisDistance),
-                enabled: _canDistance,
-              ),
-              ButtonSegment(
-                value: CompareAxis.time,
-                label: Text(l10n.cmpAxisTime),
-              ),
-            ],
-            selected: {_axis},
-            onSelectionChanged: (s) => _setAxis(s.first),
-          ),
-          if (!_canDistance) ...[
-            const SizedBox(height: 4),
-            Text(
-              l10n.cmpNoDistance,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
           const SizedBox(height: 12),
           if (a.every((v) => v == null) && b.every((v) => v == null))
             Text(l10n.cmpNoMetric)
@@ -407,6 +377,74 @@ class _CompareActivitiesTabState extends State<CompareActivitiesTab> {
                 );
               },
             ),
+        ],
+      ),
+    );
+  }
+
+  /// Stream and axis choices, out of the way until asked for.
+  void _openChartOptions(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<String> metrics,
+  ) {
+    showChartOptions(
+      context,
+      title: l10n.sessionDiagramTitle,
+      ownerSetState: setState,
+      builder: (sheet, apply) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OptionGroup(
+            label: l10n.chartOptionsStreams,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final m in metrics)
+                  ChoiceChip(
+                    key: ValueKey('cmp-metric-$m'),
+                    label: Text(streamLabel(l10n, m)),
+                    selected: _metric == m,
+                    onSelected: (_) => apply(() => _metric = m),
+                  ),
+              ],
+            ),
+          ),
+          OptionGroup(
+            label: l10n.chartOptionsAxis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SegmentedButton<CompareAxis>(
+                  showSelectedIcon: false,
+                  style: const ButtonStyle(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  segments: [
+                    ButtonSegment(
+                      value: CompareAxis.distance,
+                      label: Text(l10n.cmpAxisDistance),
+                      enabled: _canDistance,
+                    ),
+                    ButtonSegment(
+                      value: CompareAxis.time,
+                      label: Text(l10n.cmpAxisTime),
+                    ),
+                  ],
+                  selected: {_axis},
+                  onSelectionChanged: (s) => apply(() => _setAxis(s.first)),
+                ),
+                if (!_canDistance) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.cmpNoDistance,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );

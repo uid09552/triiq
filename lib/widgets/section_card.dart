@@ -9,12 +9,16 @@ class SectionCard extends StatelessWidget {
     required this.child,
     this.icon,
     this.trailing,
+    this.onLongPress,
   });
 
   final String title;
   final Widget child;
   final IconData? icon;
   final Widget? trailing;
+
+  /// Long-press on the header, e.g. to open the card's chart options.
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -26,29 +30,33 @@ class SectionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                if (icon != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onLongPress: onLongPress,
+              child: Row(
+                children: [
+                  if (icon != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, size: 18, color: colorScheme.primary),
                     ),
-                    child: Icon(icon, size: 18, color: colorScheme.primary),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 10),
+                  ?trailing,
                 ],
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                ?trailing,
-              ],
+              ),
             ),
             const SizedBox(height: 12),
             child,

@@ -6,6 +6,7 @@ import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/training_analytics.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
+import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/charts/stacked_bar_chart.dart';
 import '../../widgets/section_card.dart';
@@ -120,33 +121,60 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     });
   }
 
+  /// One group of options in a sheet — used by every card here so its
+  /// selector stays out of the chart's way until asked for.
+  void _openOptions(
+    String title,
+    String label,
+    Widget Function(void Function(VoidCallback) apply) control,
+  ) {
+    showChartOptions(
+      context,
+      title: title,
+      ownerSetState: setState,
+      builder: (sheet, apply) =>
+          OptionGroup(label: label, child: control(apply)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.anTitle)),
+      appBar: AppBar(
+        title: Text(l10n.anTitle),
+        actions: [
+          ChartOptionsButton(
+            summary: _days == 365
+                ? l10n.rangeOneYear
+                : l10n.rangeDaysShort(_days),
+            onPressed: () => _openOptions(
+              l10n.anTitle,
+              l10n.chartOptionsRange,
+              (apply) => SegmentedButton<int>(
+                showSelectedIcon: false,
+                segments: [
+                  for (final d in _rangeOptions)
+                    ButtonSegment(
+                      value: d,
+                      label: Text(
+                        d == 365 ? l10n.rangeOneYear : l10n.rangeDaysShort(d),
+                      ),
+                    ),
+                ],
+                selected: {_days},
+                onSelectionChanged: (sel) {
+                  apply(() => _days = sel.first);
+                  _load();
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SegmentedButton<int>(
-            segments: [
-              for (final d in _rangeOptions)
-                ButtonSegment(
-                  value: d,
-                  label: Text(
-                    d == 365 ? l10n.rangeOneYear : l10n.rangeDaysShort(d),
-                  ),
-                ),
-            ],
-            selected: {_days},
-            onSelectionChanged: _loading
-                ? null
-                : (s) {
-                    setState(() => _days = s.first);
-                    _load();
-                  },
-          ),
-          const SizedBox(height: 16),
           if (_loading)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 64),
@@ -229,6 +257,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   // --- 1. fitness by sport -------------------------------------------------
 
+  void _openFitnessOptions(AppLocalizations l10n) => _openOptions(
+    l10n.anSportFitnessTitle,
+    l10n.chartOptionsView,
+    (apply) => SegmentedButton<bool>(
+      showSelectedIcon: false,
+      segments: [
+        ButtonSegment(value: false, label: Text(l10n.ctlLabel)),
+        ButtonSegment(value: true, label: Text(l10n.atlLabel)),
+      ],
+      selected: {_atl},
+      onSelectionChanged: (sel) => apply(() => _atl = sel.first),
+    ),
+  );
+
   Widget _fitnessCard(BuildContext context, AppLocalizations l10n) {
     final locale = Localizations.localeOf(context).toString();
     final sports = [
@@ -254,14 +296,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return SectionCard(
       icon: Icons.stacked_line_chart,
       title: l10n.anSportFitnessTitle,
-      trailing: SegmentedButton<bool>(
-        showSelectedIcon: false,
-        segments: [
-          ButtonSegment(value: false, label: Text(l10n.ctlLabel)),
-          ButtonSegment(value: true, label: Text(l10n.atlLabel)),
-        ],
-        selected: {_atl},
-        onSelectionChanged: (s) => setState(() => _atl = s.first),
+      onLongPress: () => _openFitnessOptions(l10n),
+      trailing: ChartOptionsButton(
+        summary: _atl ? l10n.atlLabel : l10n.ctlLabel,
+        onPressed: () => _openFitnessOptions(l10n),
       ),
       child: sports.isEmpty
           ? _empty(l10n.noDataCachedForRange)
@@ -379,6 +417,23 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     null => l10n.anModelUnknown,
   };
 
+  void _openIntensityOptions(AppLocalizations l10n) => _openOptions(
+    l10n.anIntensityTitle,
+    l10n.chartOptionsView,
+    (apply) => SegmentedButton<bool>(
+      showSelectedIcon: false,
+      segments: [
+        ButtonSegment(value: false, label: Text(l10n.anWeekly)),
+        ButtonSegment(value: true, label: Text(l10n.anMonthly)),
+      ],
+      selected: {_monthly},
+      onSelectionChanged: (sel) {
+        apply(() => _monthly = sel.first);
+        _load();
+      },
+    ),
+  );
+
   Widget _intensityCard(BuildContext context, AppLocalizations l10n) {
     final locale = Localizations.localeOf(context).toString();
     final scheme = Theme.of(context).colorScheme;
@@ -404,17 +459,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return SectionCard(
       icon: Icons.stacked_bar_chart,
       title: l10n.anIntensityTitle,
-      trailing: SegmentedButton<bool>(
-        showSelectedIcon: false,
-        segments: [
-          ButtonSegment(value: false, label: Text(l10n.anWeekly)),
-          ButtonSegment(value: true, label: Text(l10n.anMonthly)),
-        ],
-        selected: {_monthly},
-        onSelectionChanged: (s) {
-          setState(() => _monthly = s.first);
-          _load();
-        },
+      onLongPress: () => _openIntensityOptions(l10n),
+      trailing: ChartOptionsButton(
+        summary: _monthly ? l10n.anMonthly : l10n.anWeekly,
+        onPressed: () => _openIntensityOptions(l10n),
       ),
       child: _intensityTotal.isEmpty
           ? _empty(l10n.noDataCachedForRange)
@@ -661,6 +709,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   // --- 5. aerobic base -----------------------------------------------------
 
+  void _openAerobicOptions(AppLocalizations l10n, List<LoadSport> present) =>
+      _openOptions(
+        l10n.anAerobicTitle,
+        l10n.chartOptionsSport,
+        (apply) => SegmentedButton<LoadSport>(
+          showSelectedIcon: false,
+          segments: [
+            for (final sp in present)
+              ButtonSegment(value: sp, label: Text(_sportName(l10n, sp))),
+          ],
+          selected: {_aerobicSport},
+          onSelectionChanged: (sel) => apply(() => _aerobicSport = sel.first),
+        ),
+      );
+
   Widget _aerobicCard(BuildContext context, AppLocalizations l10n) {
     final locale = Localizations.localeOf(context).toString();
     final scheme = Theme.of(context).colorScheme;
@@ -695,17 +758,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return SectionCard(
       icon: Icons.favorite_border,
       title: l10n.anAerobicTitle,
+      onLongPress: present.length < 2
+          ? null
+          : () => _openAerobicOptions(l10n, present),
       trailing: present.length < 2
           ? null
-          : SegmentedButton<LoadSport>(
-              showSelectedIcon: false,
-              segments: [
-                for (final s in present)
-                  ButtonSegment(value: s, label: Text(_sportName(l10n, s))),
-              ],
-              selected: {_aerobicSport},
-              onSelectionChanged: (s) =>
-                  setState(() => _aerobicSport = s.first),
+          : ChartOptionsButton(
+              summary: _sportName(l10n, _aerobicSport),
+              onPressed: () => _openAerobicOptions(l10n, present),
             ),
       child: _aerobic.isEmpty
           ? _empty(l10n.anAerobicEmpty)

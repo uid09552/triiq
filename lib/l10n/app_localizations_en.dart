@@ -3768,4 +3768,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cmpSecond => 'B';
+
+  @override
+  String get chartOptions => 'Chart options';
+
+  @override
+  String get chartOptionsStreams => 'Streams';
+
+  @override
+  String get chartOptionsAxis => 'X axis';
+
+  @override
+  String get chartOptionsRange => 'Range';
+
+  @override
+  String get chartOptionsView => 'View';
+
+  @override
+  String get chartOptionsSport => 'Sport';
+
+  @override
+  String get chartOptionsBlock => 'Block length';
 }

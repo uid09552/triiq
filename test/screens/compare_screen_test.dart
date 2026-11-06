@@ -109,8 +109,12 @@ void main() {
     expect(find.byKey(const ValueKey('compare-tracker-b')), findsOneWidget);
 
     // Switching to the time axis keeps the tracker.
+    await tester.tap(find.byKey(const ValueKey('chart-options')));
+    await _settle(tester);
     await tester.tap(find.text('Time'));
-    await tester.pump();
+    await _settle(tester);
+    await tester.tapAt(const Offset(5, 5));
+    await _settle(tester);
     expect(find.byKey(const ValueKey('compare-tracker-a')), findsOneWidget);
     await tester.pump(const Duration(seconds: 2));
     expect(tester.takeException(), isNull);
@@ -132,9 +136,13 @@ void main() {
 
     await tester.tap(find.text('Periods'));
     await _settle(tester);
+    await tester.tap(find.byKey(const ValueKey('chart-options')));
+    await _settle(tester);
     await tester.tap(find.text('Run').first);
-    await tester.pump();
+    await _settle(tester);
     await tester.tap(find.text('7d'));
+    await _settle(tester);
+    await tester.tapAt(const Offset(5, 5));
     await _settle(tester);
 
     expect(find.text('This block'), findsWidgets);
