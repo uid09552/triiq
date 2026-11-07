@@ -17,6 +17,8 @@ import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
+import '../../widgets/sync_status_chip.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
@@ -224,40 +226,43 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: ChartOptionsButton(
-              summary: _days == 365
-                  ? l10n.rangeOneYear
-                  : l10n.rangeDaysShort(_days),
-              onPressed: () => showChartOptions(
-                context,
-                title: l10n.navStatistics,
-                ownerSetState: setState,
-                builder: (sheet, apply) => OptionGroup(
-                  label: l10n.chartOptionsRange,
-                  child: SegmentedButton<int>(
-                    showSelectedIcon: false,
-                    segments: [
-                      for (final days in _rangeOptions)
-                        ButtonSegment(
-                          value: days,
-                          label: Text(
-                            days == 365
-                                ? l10n.rangeOneYear
-                                : l10n.rangeDaysShort(days),
+          Row(
+            children: [
+              SyncStatusChip(),
+              const Spacer(),
+              ChartOptionsButton(
+                summary: _days == 365
+                    ? l10n.rangeOneYear
+                    : l10n.rangeDaysShort(_days),
+                onPressed: () => showChartOptions(
+                  context,
+                  title: l10n.navStatistics,
+                  ownerSetState: setState,
+                  builder: (sheet, apply) => OptionGroup(
+                    label: l10n.chartOptionsRange,
+                    child: SegmentedButton<int>(
+                      showSelectedIcon: false,
+                      segments: [
+                        for (final days in _rangeOptions)
+                          ButtonSegment(
+                            value: days,
+                            label: Text(
+                              days == 365
+                                  ? l10n.rangeOneYear
+                                  : l10n.rangeDaysShort(days),
+                            ),
                           ),
-                        ),
-                    ],
-                    selected: {_days},
-                    onSelectionChanged: (selection) {
-                      apply(() => _days = selection.first);
-                      _load();
-                    },
+                      ],
+                      selected: {_days},
+                      onSelectionChanged: (selection) {
+                        apply(() => _days = selection.first);
+                        _load();
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
           const SizedBox(height: 16),
           Card(
@@ -307,9 +312,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               subtitle: Text(l10n.wtSubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => WellnessTrendsScreen(),
-                ),
+                MaterialPageRoute<void>(builder: (_) => WellnessTrendsScreen()),
               ),
             ),
           ),
@@ -659,10 +662,7 @@ class _ChartPlaceholder extends StatelessWidget {
   const _ChartPlaceholder();
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
-    height: 190,
-    child: Center(child: CircularProgressIndicator()),
-  );
+  Widget build(BuildContext context) => const Skeleton(height: 190, radius: 14);
 }
 
 class _EmptyChart extends StatelessWidget {

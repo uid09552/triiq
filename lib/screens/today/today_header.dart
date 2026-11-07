@@ -21,6 +21,7 @@ class TodayHeader extends StatelessWidget {
     required this.onCustomize,
     this.onOpenIntervals,
     this.titleColor,
+    this.statusChip,
     this.doneTss = 0,
     this.plannedTss = 0,
     this.doneSeconds = 0,
@@ -33,6 +34,9 @@ class TodayHeader extends StatelessWidget {
   /// Tints the title, e.g. in the readiness colour when readiness advises
   /// caution.
   final Color? titleColor;
+
+  /// A small sync-status line under the figures (see `SyncStatusChip`).
+  final Widget? statusChip;
   final String subtitle;
   final bool loading;
 
@@ -277,6 +281,14 @@ class TodayHeader extends StatelessWidget {
                     ),
                   ),
               ],
+              if (statusChip != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: statusChip,
+                  ),
+                ),
             ],
           ),
         ),

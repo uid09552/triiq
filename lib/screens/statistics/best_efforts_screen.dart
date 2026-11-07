@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 
 /// The best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 /
 /// 10 km (runs) month by month, so a season's progress is one line, with the
@@ -182,7 +183,7 @@ class _BestEffortsScreenState extends State<BestEffortsScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonScreen(cards: 3)
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [

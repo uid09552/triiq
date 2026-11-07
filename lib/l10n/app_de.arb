@@ -1340,5 +1340,21 @@
   "pvConsentCardBody": "Wähle, ob deine Trainings- und Gesundheitsdaten an {provider} gesendet werden dürfen.",
   "pvProviderClaude": "Claude (Anthropic)",
   "pvProviderOllamaCloud": "Ollama Cloud",
-  "pvProviderOllamaServer": "deinem Ollama-Server"
+  "pvProviderOllamaServer": "deinem Ollama-Server",
+  "syncStatusNow": "Gerade synchronisiert",
+  "syncStatusMinutes": "Vor {minutes} Min synchronisiert",
+  "syncStatusHours": "Vor {hours} Std synchronisiert",
+  "syncStatusDays": "Vor {days} T synchronisiert",
+  "syncStatusNever": "Noch nicht synchronisiert",
+  "syncStatusNotConnected": "Nicht verbunden",
+  "syncStatusWaiting": "{count} warten auf Versand",
+  "syncStatusFailed": "{count} nicht gesendet",
+  "syncStatusTooltip": "Synchronisierung öffnen",
+  "undoButton": "Rückgängig",
+  "workoutRestored": "„{name}“ wiederhergestellt",
+  "replaceUndone": "Zurück zu „{name}“",
+  "couldNotUndo": "Rückgängig nicht möglich: {error}",
+  "workoutReplacedUndoable": "{name} ersetzt die Einheit",
+  "undoNotFound": "die neue Einheit steht nicht mehr im Kalender",
+  "workoutDeletedUndoable": "„{name}“ gelöscht"
 }

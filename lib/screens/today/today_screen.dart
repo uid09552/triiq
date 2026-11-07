@@ -31,6 +31,7 @@ import '../../evaluation/readiness_settings.dart';
 import '../../util/dates.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/sync_status_chip.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activity_detail_screen.dart';
 import '../activities/activity_icons.dart';
@@ -541,6 +542,7 @@ class _TodayScreenState extends State<TodayScreen> {
             date: DateTime.now(),
             title: _heroTitle(l10n),
             titleColor: _heroTitleColor(context),
+            statusChip: SyncStatusChip(),
             subtitle: _describeStatus(context, connected),
             loading: _loading,
             onRefresh: _refreshFromGesture,

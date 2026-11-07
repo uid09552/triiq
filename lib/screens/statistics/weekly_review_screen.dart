@@ -13,6 +13,7 @@ import '../../util/dates.dart';
 import '../../widgets/main_navigation.dart';
 import '../../widgets/markdown_reply.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 import '../activities/session_analysis.dart';
 
 /// A week against its plan: per-day planned and done, compliance, the 80/20
@@ -204,9 +205,12 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
           if (_error != null)
             Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
           if (r == null && _error == null)
-            const Padding(
-              padding: EdgeInsets.all(32),
-              child: Center(child: CircularProgressIndicator()),
+            const Column(
+              children: [
+                SkeletonCard(height: 90, lines: 2),
+                SizedBox(height: 16),
+                SkeletonCard(height: 90, lines: 2),
+              ],
             ),
           if (r != null) ...[
             SectionCard(

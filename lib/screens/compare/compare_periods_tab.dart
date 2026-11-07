@@ -9,6 +9,7 @@ import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 import 'compare_route_map.dart' show compareColorA, compareColorB;
 import 'compare_table.dart';
 
@@ -183,9 +184,12 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
         ),
         const SizedBox(height: 8),
         if (_loading)
-          const Padding(
-            padding: EdgeInsets.all(48),
-            child: Center(child: CircularProgressIndicator()),
+          const Column(
+            children: [
+              SkeletonCard(height: 160, lines: 4),
+              SizedBox(height: 16),
+              SkeletonCard(height: 180),
+            ],
           )
         else if (previous.isEmpty && current.isEmpty)
           Padding(

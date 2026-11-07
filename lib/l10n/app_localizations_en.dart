@@ -4242,4 +4242,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pvProviderOllamaServer => 'your Ollama server';
+
+  @override
+  String get syncStatusNow => 'Synced just now';
+
+  @override
+  String syncStatusMinutes(int minutes) {
+    return 'Synced $minutes min ago';
+  }
+
+  @override
+  String syncStatusHours(int hours) {
+    return 'Synced $hours h ago';
+  }
+
+  @override
+  String syncStatusDays(int days) {
+    return 'Synced $days d ago';
+  }
+
+  @override
+  String get syncStatusNever => 'Not synced yet';
+
+  @override
+  String get syncStatusNotConnected => 'Not connected';
+
+  @override
+  String syncStatusWaiting(int count) {
+    return '$count waiting to send';
+  }
+
+  @override
+  String syncStatusFailed(int count) {
+    return '$count failed to send';
+  }
+
+  @override
+  String get syncStatusTooltip => 'Open sync';
+
+  @override
+  String get undoButton => 'Undo';
+
+  @override
+  String workoutRestored(String name) {
+    return 'Restored “$name”';
+  }
+
+  @override
+  String replaceUndone(String name) {
+    return 'Back to “$name”';
+  }
+
+  @override
+  String couldNotUndo(String error) {
+    return 'Could not undo: $error';
+  }
+
+  @override
+  String workoutReplacedUndoable(String name) {
+    return '$name replaces the session';
+  }
+
+  @override
+  String get undoNotFound => 'the new session is no longer on the calendar';
+
+  @override
+  String workoutDeletedUndoable(String name) {
+    return '“$name” deleted';
+  }
 }

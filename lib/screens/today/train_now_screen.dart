@@ -70,6 +70,7 @@ class TrainNowScreen extends StatefulWidget {
   /// Test seams; the app uses the defaults.
   final PlannedItemsRepository? plannedItems;
   final PlanActions? planActions;
+
   /// The day to plan for (default today): its planned sessions are shown
   /// and a created workout lands on it.
   final DateTime Function()? today;
@@ -131,19 +132,19 @@ class TrainNowScreen extends StatefulWidget {
         'the estimated total TSS and a one-line rationale citing the data '
         'you found.'
         '${loadContext.isEmpty ? '' : ' $loadContext Size the session so '
-              "today's total TSS (done + this session + other planned) and "
-              "tomorrow's planned TSS together stay a sensible progression: "
-              'back off when tomorrow is already hard or today is already '
-              'loaded, and mention it in the rationale.'}'
+                  "today's total TSS (done + this session + other planned) and "
+                  "tomorrow's planned TSS together stay a sensible progression: "
+                  'back off when tomorrow is already hard or today is already '
+                  'loaded, and mention it in the rationale.'}'
         '${sport == 'Swim' ? ' Vary the session: about one swim session in '
-              'three or four, build the main set around technique instead of '
-              'straight swimming — name a specific drill and/or piece of '
-              'equipment (paddles, pull buoy, fins) rather than just '
-              '"swim". Only do this when it fits the requested intensity and '
-              "duration, and don't force it into a hard interval session." : ''}'
+                  'three or four, build the main set around technique instead of '
+                  'straight swimming — name a specific drill and/or piece of '
+                  'equipment (paddles, pull buoy, fins) rather than just '
+                  '"swim". Only do this when it fits the requested intensity and '
+                  "duration, and don't force it into a hard interval session." : ''}'
         '${customPrompt.isEmpty ? '' : ' Additional instructions from me, '
-              'which take priority over the defaults above where they '
-              'conflict: "$customPrompt".'}';
+                  'which take priority over the defaults above where they '
+                  'conflict: "$customPrompt".'}';
   }
 
   @override
@@ -271,9 +272,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     final now = (widget.today ?? DateTime.now)();
     List<LocalEvent> items;
     try {
-      items = (await _plannedItems.getByDate(isoDate(now)))
-          .where((e) => e.isTraining)
-          .toList();
+      items = (await _plannedItems.getByDate(
+        isoDate(now),
+      )).where((e) => e.isTraining).toList();
     } catch (error) {
       debugPrint('TrainNow: cannot read today\'s plan: $error');
       items = const [];
@@ -301,11 +302,13 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       final done = await (widget.activities ?? ActivitiesRepository())
           .getByDate(isoDate(day));
       final doneTss = done.fold<int>(0, (s, a) => s + (a.trainingLoad ?? 0));
-      final tomorrow = (await _plannedItems.getByDate(isoDate(next)))
-          .where((e) => e.isTraining)
-          .toList();
-      final tomorrowTss =
-          tomorrow.fold<int>(0, (s, e) => s + (e.plannedLoad ?? 0));
+      final tomorrow = (await _plannedItems.getByDate(
+        isoDate(next),
+      )).where((e) => e.isTraining).toList();
+      final tomorrowTss = tomorrow.fold<int>(
+        0,
+        (s, e) => s + (e.plannedLoad ?? 0),
+      );
       final ref = _reference;
       final otherToday = _todays
           .where((e) => e != ref)
@@ -314,7 +317,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
           '${otherToday > 0 ? ', other planned $otherToday TSS' : ''}; '
           '${isoDate(next)} planned: '
           '${tomorrow.isEmpty ? 'nothing' : '$tomorrowTss TSS '
-                '(${tomorrow.map((e) => e.name ?? e.type ?? 'session').join(', ')})'}.';
+                    '(${tomorrow.map((e) => e.name ?? e.type ?? 'session').join(', ')})'}.';
     } catch (error) {
       debugPrint('TrainNow: cannot read load context: $error');
       return '';
@@ -475,19 +478,41 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   }
 
   /// Puts [draft] in [reference]'s place via [PlanActions], and says how
-  /// that went.
+  /// that went — with **Undo** whenever the old session is gone, which puts
+  /// it back.
   Future<void> _replace(LocalEvent reference, PlannedWorkoutDraft draft) async {
     final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
     setState(() => _publishing = true);
     try {
       final outcome = await _planActions.replaceSession(reference, draft);
       if (!mounted) return;
-      _showMessage(switch (outcome) {
-        ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
-        ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
-        ReplaceOutcome.bothExist => l10n.replaceBothExist,
-        ReplaceOutcome.queued => l10n.replaceQueuedOffline,
-      });
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(switch (outcome) {
+            ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
+            ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
+            ReplaceOutcome.bothExist => l10n.replaceBothExist,
+            ReplaceOutcome.queued => l10n.replaceQueuedOffline,
+          }),
+          // Both sessions exist: there is nothing to restore.
+          duration: Duration(
+            seconds: outcome == ReplaceOutcome.bothExist ? 10 : 8,
+          ),
+          persist: false,
+          action: outcome == ReplaceOutcome.bothExist
+              ? null
+              : SnackBarAction(
+                  label: l10n.undoButton,
+                  onPressed: () => _undoReplace(
+                    reference,
+                    draft,
+                    messenger: messenger,
+                    l10n: l10n,
+                  ),
+                ),
+        ),
+      );
       await _loadTodays();
     } on ReplaceRefusedException catch (error) {
       if (!mounted) return;
@@ -496,6 +521,49 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       if (mounted) _showMessage(l10n.couldNotReplace('$error'));
     } finally {
       if (mounted) setState(() => _publishing = false);
+    }
+  }
+
+  /// Swaps the replacement back for the session it replaced: finds the new
+  /// session on its day and replaces it with the old one's content. Goes
+  /// through the same [PlanActions.replaceSession], so Intervals.icu gets the
+  /// old workout back and loses the new one (or the swap is queued offline).
+  Future<void> _undoReplace(
+    LocalEvent old,
+    PlannedWorkoutDraft replaced, {
+    required ScaffoldMessengerState messenger,
+    required AppLocalizations l10n,
+  }) async {
+    try {
+      final today = await _plannedItems.getByDate(isoDate(replaced.date));
+      final current = today
+          .where((e) => e.isTraining && e.name == replaced.name)
+          .firstOrNull;
+      if (current == null) {
+        throw StateError(l10n.undoNotFound);
+      }
+      final back = PlannedWorkoutDraft(
+        name: old.name ?? old.type ?? replaced.sport,
+        sport: old.type ?? replaced.sport,
+        description: old.description ?? '',
+        date: replaced.date,
+        durationSeconds: old.plannedTime,
+        load: old.plannedLoad,
+        indoor: old.indoor,
+      );
+      await _planActions.replaceSession(current, back);
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.replaceUndone(back.name))),
+      );
+      if (mounted) await _loadTodays();
+    } on ReplaceRefusedException catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.couldNotUndo(refusalLabel(l10n, error)))),
+      );
+    } catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.couldNotUndo('$error'))),
+      );
     }
   }
 
@@ -535,9 +603,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       duration: Duration(minutes: _durationMinutes.round()),
     );
     if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.couldNotOpenGoogleCalendar)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.couldNotOpenGoogleCalendar)));
     }
   }
 
@@ -687,9 +755,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
             ),
             const SizedBox(height: 8),
             OutlinedButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              ),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
               child: Text(l10n.openSettingsButton),
             ),
           ] else
@@ -740,10 +808,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                     if (_isBusy && _reply.isNotEmpty)
                       const SizedBox(height: 12),
                     if (_error != null)
-                      Text(
-                        _error!,
-                        style: TextStyle(color: colorScheme.error),
-                      )
+                      Text(_error!, style: TextStyle(color: colorScheme.error))
                     else if (_reply.isNotEmpty) ...[
                       MarkdownReply(text: _reply),
                       if (!_isBusy) ...[

@@ -4279,4 +4279,72 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pvProviderOllamaServer => 'deinem Ollama-Server';
+
+  @override
+  String get syncStatusNow => 'Gerade synchronisiert';
+
+  @override
+  String syncStatusMinutes(int minutes) {
+    return 'Vor $minutes Min synchronisiert';
+  }
+
+  @override
+  String syncStatusHours(int hours) {
+    return 'Vor $hours Std synchronisiert';
+  }
+
+  @override
+  String syncStatusDays(int days) {
+    return 'Vor $days T synchronisiert';
+  }
+
+  @override
+  String get syncStatusNever => 'Noch nicht synchronisiert';
+
+  @override
+  String get syncStatusNotConnected => 'Nicht verbunden';
+
+  @override
+  String syncStatusWaiting(int count) {
+    return '$count warten auf Versand';
+  }
+
+  @override
+  String syncStatusFailed(int count) {
+    return '$count nicht gesendet';
+  }
+
+  @override
+  String get syncStatusTooltip => 'Synchronisierung öffnen';
+
+  @override
+  String get undoButton => 'Rückgängig';
+
+  @override
+  String workoutRestored(String name) {
+    return '„$name“ wiederhergestellt';
+  }
+
+  @override
+  String replaceUndone(String name) {
+    return 'Zurück zu „$name“';
+  }
+
+  @override
+  String couldNotUndo(String error) {
+    return 'Rückgängig nicht möglich: $error';
+  }
+
+  @override
+  String workoutReplacedUndoable(String name) {
+    return '$name ersetzt die Einheit';
+  }
+
+  @override
+  String get undoNotFound => 'die neue Einheit steht nicht mehr im Kalender';
+
+  @override
+  String workoutDeletedUndoable(String name) {
+    return '„$name“ gelöscht';
+  }
 }

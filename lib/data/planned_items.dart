@@ -1,3 +1,4 @@
+import 'pending_deletes.dart';
 import '../plan/plan_models.dart';
 import '../util/dates.dart';
 import 'models/local_event.dart';
@@ -41,7 +42,18 @@ class PlannedItemsRepository {
     final events = copy
         ? await _events.getRange(oldest, newest)
         : const <LocalEvent>[];
-    return [...events, ...await _planSessions(oldest, newest, events, copy)];
+    final all = [
+      ...events,
+      ...await _planSessions(oldest, newest, events, copy),
+    ];
+    // Entries just deleted and still inside their undo window.
+    final pending = PendingDeletes.instance;
+    return pending.isEmpty
+        ? all
+        : [
+            for (final e in all)
+              if (!pending.isHidden(e.id)) e,
+          ];
   }
 
   Future<List<LocalEvent>> getByDate(String date) => getRange(date, date);
@@ -57,9 +69,7 @@ class PlannedItemsRepository {
     // Sent sessions whose event is cached anywhere — not just in this
     // range: a session moved in Intervals.icu to another week must not
     // also show on its old plan date.
-    final cachedIds = copy
-        ? await _cachedEventIds(plan)
-        : const <String>{};
+    final cachedIds = copy ? await _cachedEventIds(plan) : const <String>{};
     final result = <LocalEvent>[];
     for (final s in plan.sessions) {
       final day = isoDate(s.date);

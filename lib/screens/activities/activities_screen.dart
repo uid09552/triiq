@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/skeleton.dart';
+
 import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/repositories/activities_repository.dart';
@@ -99,7 +101,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _error != null
             ? _EmptyState(connected: _session.isConnected, error: _error)
             : activities.isEmpty

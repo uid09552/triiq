@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 
 enum _Period { last12Months, thisYear, lastYear }
 
@@ -158,7 +159,7 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonScreen(cards: 3)
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [

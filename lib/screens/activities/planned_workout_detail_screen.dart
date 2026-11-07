@@ -41,7 +41,7 @@ class _PlannedWorkoutDetailScreenState
 
   Future<void> _delete() async {
     setState(() => _deleting = true);
-    final deleted = await confirmAndDeletePlannedWorkout(
+    final deleted = await deletePlannedWorkoutWithUndo(
       context,
       widget.event,
     );

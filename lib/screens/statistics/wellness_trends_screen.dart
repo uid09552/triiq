@@ -9,6 +9,7 @@ import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 
 /// HRV, resting HR, sleep and weight over 30 days to a year: the daily
 /// values, their 7-day average and the shaded band the athlete normally sits
@@ -159,7 +160,7 @@ class _WellnessTrendsScreenState extends State<WellnessTrendsScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonScreen(cards: 3)
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [

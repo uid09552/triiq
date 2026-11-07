@@ -176,7 +176,7 @@ class CalendarDayDetail extends StatelessWidget {
                         '${l10n.planSessionMinutes((event.plannedTime ?? 0) ~/ 60, event.plannedLoad ?? 0)}',
                     onTap: () => showPlanSessionSheetForEvent(context, event),
                     onDelete: canDeletePlannedWorkout(event)
-                        ? () => confirmAndDeletePlannedWorkout(context, event)
+                        ? () => deletePlannedWorkoutWithUndo(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
                     status: Row(
@@ -234,7 +234,7 @@ class CalendarDayDetail extends StatelessWidget {
                     // the session first: the calendar is where reshuffling a
                     // week actually happens.
                     onDelete: canDeletePlannedWorkout(event)
-                        ? () => confirmAndDeletePlannedWorkout(context, event)
+                        ? () => deletePlannedWorkoutWithUndo(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
                   ),

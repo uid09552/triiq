@@ -325,6 +325,59 @@ void main() {
     expect(find.text("Today's plan session changed in TriIQ"), findsOneWidget);
   });
 
+  testWidgets('Undo puts the replaced plan session back', (tester) async {
+    await tester.runAsync(
+      () => plans.save(
+        _plan([
+          _session(
+            id: 1,
+            name: 'Long endurance',
+            sport: 'Ride',
+            slot: SessionSlot.long,
+            minutes: 150,
+            load: 145,
+          ),
+        ]),
+      ),
+    );
+    await open(
+      tester,
+      agentTurns: [
+        AIChatMessage.text(
+          '| Duration | Session |\n|---|---|\n| Run — 45m | Easy |\n\n'
+          'About 40 TSS.',
+        ),
+        AIChatMessage.text(
+          '{"name": "Easy run", "sport": "Run", "duration_minutes": 45, '
+          '"load": 40, "description": "- 45m 75% Pace"}',
+        ),
+      ],
+    );
+
+    await tester.tap(mainButton());
+    await realWait(tester);
+    await tester.tap(find.text('Create in Intervals.icu'));
+    await realWait(tester);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create'));
+    await realWait(tester);
+    await tester.pumpAndSettle();
+    expect((await tester.runAsync(plans.getCurrent))!.sessions.single.name,
+        'Easy run');
+
+    // The snackbar that says it was replaced offers to take it back.
+    expect(find.text('Undo'), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await realWait(tester);
+    await tester.pumpAndSettle();
+
+    final session = (await tester.runAsync(plans.getCurrent))!.sessions.single;
+    expect(session.name, 'Long endurance');
+    expect(session.sport, 'Ride');
+    expect(session.minutes, 150);
+    expect(find.text('Back to “Long endurance”'), findsOneWidget);
+  });
+
   final runTurns = [
     AIChatMessage.text('| Duration | Session |\n|---|---|\n| Run — 45m | Easy |'),
     AIChatMessage.text(

@@ -7015,6 +7015,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'your Ollama server'**
   String get pvProviderOllamaServer;
+
+  /// No description provided for @syncStatusNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced just now'**
+  String get syncStatusNow;
+
+  /// No description provided for @syncStatusMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {minutes} min ago'**
+  String syncStatusMinutes(int minutes);
+
+  /// No description provided for @syncStatusHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {hours} h ago'**
+  String syncStatusHours(int hours);
+
+  /// No description provided for @syncStatusDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {days} d ago'**
+  String syncStatusDays(int days);
+
+  /// No description provided for @syncStatusNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get syncStatusNever;
+
+  /// No description provided for @syncStatusNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get syncStatusNotConnected;
+
+  /// No description provided for @syncStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting to send'**
+  String syncStatusWaiting(int count);
+
+  /// No description provided for @syncStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} failed to send'**
+  String syncStatusFailed(int count);
+
+  /// No description provided for @syncStatusTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open sync'**
+  String get syncStatusTooltip;
+
+  /// No description provided for @undoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undoButton;
+
+  /// No description provided for @workoutRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored “{name}”'**
+  String workoutRestored(String name);
+
+  /// No description provided for @replaceUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to “{name}”'**
+  String replaceUndone(String name);
+
+  /// No description provided for @couldNotUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not undo: {error}'**
+  String couldNotUndo(String error);
+
+  /// No description provided for @workoutReplacedUndoable.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} replaces the session'**
+  String workoutReplacedUndoable(String name);
+
+  /// No description provided for @undoNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'the new session is no longer on the calendar'**
+  String get undoNotFound;
+
+  /// No description provided for @workoutDeletedUndoable.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” deleted'**
+  String workoutDeletedUndoable(String name);
 }
 
 class _AppLocalizationsDelegate
