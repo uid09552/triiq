@@ -1401,8 +1401,8 @@ point `_tileUrl` in `route_card.dart` at a tile provider with an API key.
 publishes it as a GitHub release.
 
 - **Merge to `main`** → automatic **pre-release**, tagged
-  `v<version>-rc<short commit hash>` (e.g. `v0.9.0-rc1a2b3c4`). `<version>` is the
-  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.0+1`); bump it there to start
+  `v<version>-rc<short commit hash>` (e.g. `v0.9.1-rc1a2b3c4`). `<version>` is the
+  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.1+1`); bump it there to start
   a new line. Put `[skip release]` in the merge commit message to skip it.
 - **Your own tag** (`git tag v1.0.0 && git push origin v1.0.0`) → a release for
   exactly that tag, built with that version; a tag containing `-` is a

@@ -8,7 +8,7 @@
     [Releases page](https://github.com/uid09552/triiq/releases) and open it
     on your phone (allow installing from your browser or file manager when
     Android asks). Every merge to `main` publishes a release candidate
-    (`v0.9.0-rc<hash>`); tagged versions are the stable ones.
+    (`v0.9.1-rc<hash>`); tagged versions are the stable ones.
     → [Releases](releases.md)
 
 === "Windows"
