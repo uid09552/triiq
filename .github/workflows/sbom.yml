@@ -1,0 +1,107 @@
+# Software Bill of Materials: every package TriIQ is built from, as an
+# artifact of the run.
+#
+#   triiq-sbom (Actions -> the run -> Artifacts)
+#     triiq.cdx.json    CycloneDX 1.x  - for vulnerability and licence tooling
+#     triiq.spdx.json   SPDX 2.x       - for compliance / procurement
+#     dependencies.csv  flat list of every Dart/Flutter package in
+#                       pubspec.lock: version, direct / dev / transitive,
+#                       source and content hash
+#
+# Generated with Syft (anchore/sbom-action) from the repository: pubspec.lock
+# (all direct, dev and transitive Dart/Flutter packages at the exact locked
+# versions) and the GitHub Actions the workflows use. The scan is checked
+# against the lockfile, so an empty or truncated SBOM fails the run instead of
+# being published as complete.
+#
+# Not covered: native Android libraries (Gradle) - the project keeps no Gradle
+# lockfile, so there is nothing exact to scan - and the Flutter engine itself.
+#
+# Runs when the dependencies change on main, on pull requests that touch them
+# (so a new dependency shows up in review), weekly (the lockfile does not
+# change when a package is found vulnerable, but the SBOM is then fresh for the
+# scanner), and on demand.
+name: SBOM
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'tool/pubspec_lock_to_csv.py'
+      - 'tool/check_sbom.py'
+      - '.github/workflows/sbom.yml'
+  pull_request:
+    paths:
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'tool/pubspec_lock_to_csv.py'
+      - 'tool/check_sbom.py'
+      - '.github/workflows/sbom.yml'
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency inventory (pubspec.lock)
+        run: |
+          mkdir -p sbom
+          python3 tool/pubspec_lock_to_csv.py pubspec.lock > sbom/dependencies.csv
+
+      - name: SBOM (CycloneDX)
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom/triiq.cdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: SBOM (SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: sbom/triiq.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Check the SBOM against the lockfile
+        run: python3 tool/check_sbom.py pubspec.lock sbom/triiq.cdx.json sbom/triiq.spdx.json
+
+      - name: Summary
+        run: |
+          {
+            echo "### SBOM"
+            echo
+            echo "| File | Size |"
+            echo "|---|---|"
+            for f in sbom/*; do
+              echo "| \`$(basename "$f")\` | $(wc -c < "$f") bytes |"
+            done
+            echo
+            echo "Dart/Flutter packages in \`pubspec.lock\`: $(($(wc -l < sbom/dependencies.csv) - 1))"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: triiq-sbom
+          path: sbom/
+          if-no-files-found: error
+          retention-days: 90

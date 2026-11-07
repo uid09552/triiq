@@ -55,3 +55,26 @@ pip install -r requirements-docs.txt
 mkdocs serve        # http://127.0.0.1:8000
 mkdocs build --strict
 ```
+
+## Software Bill of Materials (SBOM)
+
+The **SBOM** workflow (`.github/workflows/sbom.yml`) lists every package the app
+is built from, as the **`triiq-sbom`** artifact of the run (Actions → SBOM → the
+run → Artifacts):
+
+| File | What |
+|---|---|
+| `triiq.cdx.json` | CycloneDX, for vulnerability and licence tooling |
+| `triiq.spdx.json` | SPDX, for compliance and procurement |
+| `dependencies.csv` | every Dart/Flutter package in `pubspec.lock` with version, direct / dev / transitive, source and content hash |
+
+It runs when `pubspec.yaml`, `pubspec.lock` or `android/` change on `main`, on
+pull requests that touch them, weekly, and on demand (Actions → SBOM → Run
+workflow). The SBOM is generated with Syft from the repository and **checked
+against `pubspec.lock`**: a scan that is empty or missing more than 10 % of the
+lockfile fails the run (`tool/check_sbom.py`). `tool/pubspec_lock_to_csv.py`
+writes the CSV and needs only Python 3.
+
+Not covered: native Android libraries (the project keeps no Gradle lockfile, so
+there is nothing exact to scan) and the Flutter engine.
+
