@@ -3959,4 +3959,169 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wtShow => 'Anzeigen';
+
+  @override
+  String get exTitle => 'Belastungsprofil';
+
+  @override
+  String get exVi => 'Variabilitätsindex';
+
+  @override
+  String get exViSteady => 'Gleichmäßig';
+
+  @override
+  String get exViModerate => 'Leichte Schwankungen';
+
+  @override
+  String get exViVariable => 'Stark schwankend';
+
+  @override
+  String get exViHint =>
+      'Normalisiert im Verhältnis zum Durchschnitt: 1,00 ist völlig gleichmäßig, über etwa 1,05 gab es Schwankungen oder Stopps.';
+
+  @override
+  String get exHistPower => 'Zeit nach Leistung';
+
+  @override
+  String get exHistPace => 'Zeit nach Tempo';
+
+  @override
+  String get exHistTap => 'Tippe auf einen Balken für Details.';
+
+  @override
+  String exHistBand(String band, String minutes, int percent) {
+    return '$band: $minutes Min ($percent %)';
+  }
+
+  @override
+  String exHistZero(String minutes) {
+    return 'Nicht getreten oder gestoppt: $minutes Min';
+  }
+
+  @override
+  String get exIntervalsTitle => 'Intervalle';
+
+  @override
+  String get exColInterval => 'Nr.';
+
+  @override
+  String get exColTime => 'Zeit';
+
+  @override
+  String get exColOutput => 'Leistung';
+
+  @override
+  String get exColHr => 'HF';
+
+  @override
+  String get exColDrift => 'Drift';
+
+  @override
+  String get exColFade => 'zum 1.';
+
+  @override
+  String get exRecovery => 'Pause';
+
+  @override
+  String get exIntervalsHint =>
+      'Drift: wie viel weniger Leistung pro Herzschlag die zweite Intervallhälfte gegenüber der ersten brachte (Entkopplung). zum 1.: Leistung im Vergleich zum ersten Arbeitsintervall. Intervalle unter 2 Minuten zeigen keinen Drift.';
+
+  @override
+  String get hmTitle => 'Last-Heatmap';
+
+  @override
+  String get hmSubtitle => 'Ein Jahr Trainingslast, Tag für Tag';
+
+  @override
+  String get hmPeriod12m => 'Letzte 12 Monate';
+
+  @override
+  String get hmPeriodYear => 'Dieses Jahr';
+
+  @override
+  String get hmPeriodLastYear => 'Letztes Jahr';
+
+  @override
+  String get hmLess => 'Weniger';
+
+  @override
+  String get hmMore => 'Mehr';
+
+  @override
+  String get hmTap => 'Tippe auf einen Tag, um seine Last zu sehen.';
+
+  @override
+  String hmDay(String date, int tss, int sessions) {
+    return '$date: $tss TSS · $sessions Einheiten';
+  }
+
+  @override
+  String hmRest(String date) {
+    return '$date: kein Training';
+  }
+
+  @override
+  String get hmTotal => 'Gesamtlast';
+
+  @override
+  String get hmActiveDays => 'Trainingstage';
+
+  @override
+  String get hmLongestStreak => 'Längste Serie';
+
+  @override
+  String get hmBusiestWeek => 'Intensivste Woche';
+
+  @override
+  String hmDays(int count) {
+    return '$count Tage';
+  }
+
+  @override
+  String hmWeekOf(int tss, String date) {
+    return '$tss TSS, Woche ab $date';
+  }
+
+  @override
+  String get hmNoData => 'Kein Training in diesem Zeitraum.';
+
+  @override
+  String get beTitle => 'Bestleistungen';
+
+  @override
+  String get beSubtitle =>
+      'Beste 5 s bis 20 Min Leistung oder 1 bis 10 km Tempo im Zeitverlauf, gegenüber deinen letzten 90 Tagen';
+
+  @override
+  String get beWindowBest => '30-Tage-Bestwert';
+
+  @override
+  String get beRollingBest => 'Bestwert 90 Tage';
+
+  @override
+  String get beTableTitle => 'Letzte 30 Tage gegenüber den 90 Tagen davor';
+
+  @override
+  String get beColEffort => 'Leistung';
+
+  @override
+  String get beColNow => 'Letzte 30 T';
+
+  @override
+  String get beColBefore => 'Davor';
+
+  @override
+  String get beColChange => 'Änderung';
+
+  @override
+  String get beHint =>
+      'Jeder Punkt ist deine beste Leistung in einem 30-Tage-Fenster; die zweite Linie ist der Bestwert der 90 Tage bis dahin. Die Änderung vergleicht deine letzten 30 Tage mit dem Bestwert der 90 Tage davor: grün ist besser, rot schlechter.';
+
+  @override
+  String get beNoData => 'Keine Leistungen im letzten Jahr aufgezeichnet.';
+
+  @override
+  String beError(String error) {
+    return 'Leistungen konnten nicht geladen werden: $error';
+  }
 }

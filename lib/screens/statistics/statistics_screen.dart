@@ -22,6 +22,7 @@ import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
 import 'analytics_screen.dart';
 import '../compare/compare_screen.dart';
+import 'load_heatmap_screen.dart';
 import 'performance_screen.dart';
 import 'wellness_trends_screen.dart';
 
@@ -283,6 +284,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 MaterialPageRoute<void>(
                   builder: (_) => const AnalyticsScreen(),
                 ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.grid_view_rounded),
+              title: Text(l10n.hmTitle),
+              subtitle: Text(l10n.hmSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => LoadHeatmapScreen()),
               ),
             ),
           ),

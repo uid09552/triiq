@@ -6457,6 +6457,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show'**
   String get wtShow;
+
+  /// No description provided for @exTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Effort profile'**
+  String get exTitle;
+
+  /// No description provided for @exVi.
+  ///
+  /// In en, this message translates to:
+  /// **'Variability index'**
+  String get exVi;
+
+  /// No description provided for @exViSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady'**
+  String get exViSteady;
+
+  /// No description provided for @exViModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Some surges'**
+  String get exViModerate;
+
+  /// No description provided for @exViVariable.
+  ///
+  /// In en, this message translates to:
+  /// **'Very variable'**
+  String get exViVariable;
+
+  /// No description provided for @exViHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Normalized over average: 1.00 is perfectly even, above about 1.05 the effort surged or stopped and started.'**
+  String get exViHint;
+
+  /// No description provided for @exHistPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Time at power'**
+  String get exHistPower;
+
+  /// No description provided for @exHistPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Time at pace'**
+  String get exHistPace;
+
+  /// No description provided for @exHistTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bar for the details.'**
+  String get exHistTap;
+
+  /// No description provided for @exHistBand.
+  ///
+  /// In en, this message translates to:
+  /// **'{band}: {minutes} min ({percent}%)'**
+  String exHistBand(String band, String minutes, int percent);
+
+  /// No description provided for @exHistZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Not pedalling or stopped: {minutes} min'**
+  String exHistZero(String minutes);
+
+  /// No description provided for @exIntervalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals'**
+  String get exIntervalsTitle;
+
+  /// No description provided for @exColInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'#'**
+  String get exColInterval;
+
+  /// No description provided for @exColTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get exColTime;
+
+  /// No description provided for @exColOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get exColOutput;
+
+  /// No description provided for @exColHr.
+  ///
+  /// In en, this message translates to:
+  /// **'HR'**
+  String get exColHr;
+
+  /// No description provided for @exColDrift.
+  ///
+  /// In en, this message translates to:
+  /// **'Drift'**
+  String get exColDrift;
+
+  /// No description provided for @exColFade.
+  ///
+  /// In en, this message translates to:
+  /// **'vs 1st'**
+  String get exColFade;
+
+  /// No description provided for @exRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'rec'**
+  String get exRecovery;
+
+  /// No description provided for @exIntervalsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drift: how much less output per heartbeat the second half of the interval gave than the first (heart-rate decoupling). vs 1st: output against the first work interval. Intervals under 2 minutes show no drift.'**
+  String get exIntervalsHint;
+
+  /// No description provided for @hmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load heatmap'**
+  String get hmTitle;
+
+  /// No description provided for @hmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A year of training load, day by day'**
+  String get hmSubtitle;
+
+  /// No description provided for @hmPeriod12m.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get hmPeriod12m;
+
+  /// No description provided for @hmPeriodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get hmPeriodYear;
+
+  /// No description provided for @hmPeriodLastYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Last year'**
+  String get hmPeriodLastYear;
+
+  /// No description provided for @hmLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get hmLess;
+
+  /// No description provided for @hmMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get hmMore;
+
+  /// No description provided for @hmTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day to see its load.'**
+  String get hmTap;
+
+  /// No description provided for @hmDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {tss} TSS · {sessions} sessions'**
+  String hmDay(String date, int tss, int sessions);
+
+  /// No description provided for @hmRest.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: no training'**
+  String hmRest(String date);
+
+  /// No description provided for @hmTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total load'**
+  String get hmTotal;
+
+  /// No description provided for @hmActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Training days'**
+  String get hmActiveDays;
+
+  /// No description provided for @hmLongestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest streak'**
+  String get hmLongestStreak;
+
+  /// No description provided for @hmBusiestWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Busiest week'**
+  String get hmBusiestWeek;
+
+  /// No description provided for @hmDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String hmDays(int count);
+
+  /// No description provided for @hmWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{tss} TSS, week of {date}'**
+  String hmWeekOf(int tss, String date);
+
+  /// No description provided for @hmNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No training in this period.'**
+  String get hmNoData;
+
+  /// No description provided for @beTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Best efforts'**
+  String get beTitle;
+
+  /// No description provided for @beSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Best 5 s to 20 min power or 1 to 10 km pace over time, against your last 90 days'**
+  String get beSubtitle;
+
+  /// No description provided for @beWindowBest.
+  ///
+  /// In en, this message translates to:
+  /// **'30-day best'**
+  String get beWindowBest;
+
+  /// No description provided for @beRollingBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best of 90 days'**
+  String get beRollingBest;
+
+  /// No description provided for @beTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days against the 90 days before'**
+  String get beTableTitle;
+
+  /// No description provided for @beColEffort.
+  ///
+  /// In en, this message translates to:
+  /// **'Effort'**
+  String get beColEffort;
+
+  /// No description provided for @beColNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 d'**
+  String get beColNow;
+
+  /// No description provided for @beColBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get beColBefore;
+
+  /// No description provided for @beColChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get beColChange;
+
+  /// No description provided for @beHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each point is your best effort in a 30-day window; the second line is the best of the 90 days up to it. Change compares your last 30 days with the best of the 90 days before them: green is a better effort, red a worse one.'**
+  String get beHint;
+
+  /// No description provided for @beNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No efforts recorded in the last year.'**
+  String get beNoData;
+
+  /// No description provided for @beError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your efforts: {error}'**
+  String beError(String error);
 }
 
 class _AppLocalizationsDelegate
