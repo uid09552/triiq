@@ -1,6 +1,6 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+
+import 'gauge_ring.dart';
 
 /// A circular progress ring for a single weekly sport target: a background
 /// track, a progress arc visually capped at 100% so an over-achieved sport
@@ -15,9 +15,14 @@ class ProgressRing extends StatelessWidget {
     required this.progress,
     required this.color,
     required this.doneColor,
-    this.size = 84,
-    this.strokeWidth = 8,
+    this.size = 92,
+    this.strokeWidth = 7,
+    this.icon,
   });
+
+  /// The sport's icon, shown inside the ring above the percentage — swapped
+  /// for a check once the target is met.
+  final IconData? icon;
 
   /// The sport name, shown below the ring.
   final String label;
@@ -61,21 +66,30 @@ class ProgressRing extends StatelessWidget {
         SizedBox(
           width: size,
           height: size,
-          child: CustomPaint(
-            painter: _RingPainter(
-              progress: cappedProgress,
-              color: ringColor,
-              trackColor: theme.colorScheme.surfaceContainerHighest,
-              strokeWidth: strokeWidth,
-            ),
-            child: Center(
-              child: Text(
-                percentLabel,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: ringColor,
+          child: GaugeRing(
+            progress: cappedProgress,
+            color: ringColor,
+            size: size,
+            strokeWidth: strokeWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null || isDone)
+                  Icon(
+                    isDone ? Icons.check_rounded : icon,
+                    key: ValueKey(isDone ? 'ring-done' : 'ring-icon'),
+                    size: 15,
+                    color: ringColor,
+                  ),
+                Text(
+                  percentLabel,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: ringColor,
+                    height: 1.1,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -95,52 +109,4 @@ class ProgressRing extends StatelessWidget {
       ],
     );
   }
-}
-
-class _RingPainter extends CustomPainter {
-  _RingPainter({
-    required this.progress,
-    required this.color,
-    required this.trackColor,
-    required this.strokeWidth,
-  });
-
-  final double progress;
-  final Color color;
-  final Color trackColor;
-  final double strokeWidth;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = (math.min(size.width, size.height) - strokeWidth) / 2;
-    final track = Paint()
-      ..color = trackColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-    canvas.drawCircle(center, radius, track);
-
-    if (progress <= 0) return;
-    final arc = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-    const start = -math.pi / 2;
-    final sweep = 2 * math.pi * progress;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      start,
-      sweep,
-      false,
-      arc,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_RingPainter oldDelegate) =>
-      oldDelegate.progress != progress ||
-      oldDelegate.color != color ||
-      oldDelegate.trackColor != trackColor ||
-      oldDelegate.strokeWidth != strokeWidth;
 }

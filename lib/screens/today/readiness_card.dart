@@ -9,6 +9,7 @@ import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/gauge_ring.dart';
 import '../../widgets/main_navigation.dart';
 import 'readiness_options.dart';
 import 'readiness_screen.dart';
@@ -100,7 +101,12 @@ class ReadinessCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  _ScoreRing(score: score, color: color, dim: !hasData),
+                  _ScoreRing(
+                    score: score,
+                    level: r.level,
+                    color: color,
+                    dim: !hasData,
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -150,82 +156,62 @@ class ReadinessCard extends StatelessWidget {
   }
 }
 
-/// A circular gauge with the score in the middle; an empty track and "–"
-/// when there is no score yet.
+/// The readiness gauge: the 0–100 score in the middle with a small icon for
+/// the status beneath it (ready, caution, rest), the arc in the status colour.
+/// An empty ring, "–" and a dash when there is no score yet.
 class _ScoreRing extends StatelessWidget {
-  const _ScoreRing({required this.score, required this.color, this.dim = false});
+  const _ScoreRing({
+    required this.score,
+    required this.level,
+    required this.color,
+    this.dim = false,
+  });
 
   final int? score;
+  final ReadinessLevel level;
   final Color color;
   final bool dim;
 
+  static IconData _icon(ReadinessLevel level) => switch (level) {
+    ReadinessLevel.ready => Icons.bolt_rounded,
+    ReadinessLevel.caution => Icons.warning_amber_rounded,
+    ReadinessLevel.backOff => Icons.bedtime_rounded,
+  };
+
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 64,
-      height: 64,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: (score ?? 0) / 100),
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeOutCubic,
-        builder: (context, value, _) => CustomPaint(
-          painter: _RingPainter(
-            progress: value,
-            color: dim ? scheme.outline : color,
-            track: scheme.surfaceContainerHighest,
-          ),
-          child: Center(
-            child: Text(
-              score == null ? '–' : '$score',
-              key: const ValueKey('readiness-score'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: dim ? scheme.onSurfaceVariant : null,
-              ),
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final tone = dim ? scheme.onSurfaceVariant : color;
+    return GaugeRing(
+      progress: (score ?? 0) / 100,
+      color: color,
+      size: 76,
+      strokeWidth: 6,
+      dim: dim,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            score == null ? '–' : '$score',
+            key: const ValueKey('readiness-score'),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: dim ? scheme.onSurfaceVariant : null,
+              height: 1.0,
             ),
           ),
-        ),
+          const SizedBox(height: 2),
+          Icon(
+            dim ? Icons.remove_rounded : _icon(level),
+            key: ValueKey('readiness-ring-${dim ? 'none' : level.name}'),
+            size: 14,
+            color: tone,
+          ),
+        ],
       ),
     );
   }
-}
-
-class _RingPainter extends CustomPainter {
-  _RingPainter({required this.progress, required this.color, required this.track});
-
-  final double progress;
-  final Color color;
-  final Color track;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const stroke = 6.0;
-    final rect = Rect.fromLTWH(
-      stroke / 2,
-      stroke / 2,
-      size.width - stroke,
-      size.height - stroke,
-    );
-    final base = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.round;
-    canvas.drawArc(rect, 0, 6.2831853, false, base..color = track);
-    if (progress > 0) {
-      canvas.drawArc(
-        rect,
-        -1.5707963,
-        6.2831853 * progress.clamp(0.0, 1.0),
-        false,
-        base..color = color,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_RingPainter old) =>
-      old.progress != progress || old.color != color || old.track != track;
 }
 
 /// HRV, resting HR, sleep, form and feel with today's value, tinted by
@@ -296,7 +282,13 @@ class _SignalPills extends StatelessWidget {
           label: l10n.readinessFitness,
           value:
               '${_num(last.ctl!)}'
-              '${delta == null ? '' : delta > 0.5 ? ' ↗' : delta < -0.5 ? ' ↘' : ' →'}',
+              '${delta == null
+                  ? ''
+                  : delta > 0.5
+                  ? ' ↗'
+                  : delta < -0.5
+                  ? ' ↘'
+                  : ' →'}',
           color: scheme.primary,
         ),
       );
