@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:triiq/evaluation/best_efforts.dart';
 import 'package:triiq/evaluation/performance_curves.dart';
@@ -132,6 +133,35 @@ void main() {
         fetch: (sport, days) async => throw StateError('offline'),
       );
       expect(() => repo.load(CurveSport.run, 222), throwsStateError);
+    });
+  });
+
+  group('failure text', () {
+    DioException failure(int? code, [Object? body]) {
+      final req = RequestOptions(path: '/x');
+      return DioException(
+        requestOptions: req,
+        message: 'boom',
+        response: code == null
+            ? null
+            : Response<Object>(requestOptions: req, statusCode: code, data: body),
+      );
+    }
+
+    test('status and the server\'s own words, on one line', () {
+      expect(
+        describeDioFailure(failure(403, {'status': 403, 'error': 'Forbidden'})),
+        'Intervals.icu answered HTTP 403: Forbidden',
+      );
+      expect(describeDioFailure(failure(500)), 'Intervals.icu answered HTTP 500');
+      expect(
+        describeDioFailure(failure(404, 'nope')),
+        'Intervals.icu answered HTTP 404: nope',
+      );
+    });
+
+    test('no response: the transport message', () {
+      expect(describeDioFailure(failure(null)), 'boom');
     });
   });
 }

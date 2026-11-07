@@ -89,7 +89,14 @@ List<EffortSession> parsePaceEfforts(
     final date = _day(c['start_date_local']);
     if (date == null) continue;
     List? figures;
-    for (final key in ['times', 'secs', 'seconds', 'values', 'pace', 'speeds']) {
+    for (final key in [
+      'times',
+      'secs',
+      'seconds',
+      'values',
+      'pace',
+      'speeds',
+    ]) {
       final v = c[key];
       if (v is List && v.length == distances.length) {
         figures = v;
@@ -98,7 +105,11 @@ List<EffortSession> parsePaceEfforts(
     }
     figures ??= c.values
         .whereType<List>()
-        .where((l) => l.length == distances.length && l.every((e) => e == null || e is num))
+        .where(
+          (l) =>
+              l.length == distances.length &&
+              l.every((e) => e == null || e is num),
+        )
         .firstOrNull;
     if (figures == null) continue;
     out.add(
@@ -154,7 +165,8 @@ class BestEffortsRepository {
     List<EffortSession>? cached;
     var fresh = false;
     if (rows.isNotEmpty) {
-      final data = jsonDecode(rows.first['data'] as String) as Map<String, dynamic>;
+      final data =
+          jsonDecode(rows.first['data'] as String) as Map<String, dynamic>;
       cached = [
         for (final s in data['sessions'] as List? ?? const [])
           ?EffortSession.fromJson(s as Map<String, dynamic>),
@@ -181,44 +193,81 @@ class BestEffortsRepository {
     }
   }
 
+  /// The per-activity curves are not served under the `athlete/0` shortcut
+  /// the season curves accept: it answers 403. The connected athlete's own id
+  /// is tried first, `0` only if that is refused too.
   static Future<List<EffortSession>> _fetchFromApi(
     CurveSport sport,
     int days,
   ) async {
-    final client = IntervalsSession.instance.client;
+    final session = IntervalsSession.instance;
+    final client = session.client;
     if (client == null) throw StateError('Not connected to Intervals.icu.');
     final today = dateOnly(DateTime.now());
     final isRide = sport == CurveSport.ride;
-    final response = await client.dio.get<Object>(
-      '/api/v1/athlete/0/${isRide ? 'activity-power-curves' : 'activity-pace-curves'}.json',
-      queryParameters: {
-        'oldest': isoDate(today.subtract(Duration(days: days))),
-        'newest': isoDate(today),
-        'type': sport.apiType,
-        if (isRide)
-          'secs': effortSeconds.join(',')
-        else
-          'distances': effortDistances.map((d) => d.round()).join(','),
-      },
-      options: Options(
-        extra: {
-          'secure': <Map<String, String>>[
-            {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
-          ],
-        },
-        receiveTimeout: const Duration(seconds: 60),
-      ),
-    );
-    final data = response.data;
-    final json = data is Map<String, dynamic>
-        ? data
-        : data is String
-        ? jsonDecode(data) as Map<String, dynamic>
-        : throw StateError('Unexpected best-efforts response.');
-    return isRide
-        ? parsePowerEfforts(json, effortSeconds)
-        : parsePaceEfforts(json, effortDistances);
+    final ids = [
+      if (session.athleteId != null && session.athleteId != '0')
+        session.athleteId!,
+      '0',
+    ];
+
+    DioException? last;
+    for (final id in ids) {
+      try {
+        final response = await client.dio.get<Object>(
+          '/api/v1/athlete/$id/${isRide ? 'activity-power-curves' : 'activity-pace-curves'}.json',
+          queryParameters: {
+            'oldest': isoDate(today.subtract(Duration(days: days))),
+            'newest': isoDate(today),
+            'type': sport.apiType,
+            if (isRide)
+              'secs': effortSeconds.join(',')
+            else
+              'distances': effortDistances.map((d) => d.round()).join(','),
+          },
+          options: Options(
+            extra: {
+              'secure': <Map<String, String>>[
+                {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+              ],
+            },
+            receiveTimeout: const Duration(seconds: 60),
+          ),
+        );
+        final data = response.data;
+        final json = data is Map<String, dynamic>
+            ? data
+            : data is String
+            ? jsonDecode(data) as Map<String, dynamic>
+            : throw StateError('Unexpected best-efforts response.');
+        return isRide
+            ? parsePowerEfforts(json, effortSeconds)
+            : parsePaceEfforts(json, effortDistances);
+      } on DioException catch (error) {
+        last = error;
+        final code = error.response?.statusCode;
+        // Only an access refusal is worth another id; a network error or a
+        // server fault would fail the same way.
+        if (code != 401 && code != 403 && code != 404) break;
+      }
+    }
+    throw StateError(describeDioFailure(last!));
   }
+}
+
+/// A one-line reason for a failed request: the status and whatever the
+/// server said, instead of Dio's multi-line explanation.
+String describeDioFailure(DioException error) {
+  final code = error.response?.statusCode;
+  if (code == null) return error.message ?? 'no connection to Intervals.icu';
+  final body = error.response?.data;
+  var detail = '';
+  if (body is Map && body['error'] != null) {
+    detail = ': ${body['error']}';
+  } else if (body is String && body.isNotEmpty) {
+    detail = ': ${body.length > 120 ? body.substring(0, 120) : body}';
+  }
+  return 'Intervals.icu answered HTTP $code$detail';
 }
 
 // ---------------------------------------------------------------------------
