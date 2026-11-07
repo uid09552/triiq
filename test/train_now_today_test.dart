@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/agent/llm_settings.dart';
+import 'package:triiq/data/privacy_settings.dart';
 import 'package:triiq/agent/tools/training_data_tools.dart';
 import 'package:triiq/agent/training_agent.dart';
 import 'package:triiq/client/intervalls/intervalls_client.dart';
@@ -106,6 +107,9 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await LlmSettings.instance.load();
+    // The trainer is only available with the athlete's consent.
+    await PrivacySettings.instance.setAiConsent(true);
+    addTearDown(() => PrivacySettings.instance.setAiConsent(false));
     await LlmSettings.instance.setProvider(LlmProvider.ollama);
     await LlmSettings.instance.setOllamaBaseUrl('http://localhost:11434');
     sqfliteFfiInit();

@@ -4130,4 +4130,153 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get heroTitleBackOff => 'Heute etwas kürzertreten';
+
+  @override
+  String get pvTitle => 'Datenschutz & Daten';
+
+  @override
+  String get pvSubtitle =>
+      'Was TriIQ speichert, wer es sieht und deine Optionen';
+
+  @override
+  String get pvIntro =>
+      'TriIQ hat kein Konto, keinen Server und kein Tracking. Deine Daten bleiben auf diesem Gerät und gehen nur an Dienste, die du selbst verbindest.';
+
+  @override
+  String get pvDataTitle => 'Was verarbeitet wird';
+
+  @override
+  String get pvDataBody =>
+      '• Aktivitäten und Strecken (GPS-Tracks) von Intervals.icu\n• Gesundheits- und Wellnessdaten: Herzfrequenz, HRV, Ruhepuls, Schlaf, Gewicht und dein Befinden. Das sind Gesundheitsdaten, eine besondere Kategorie nach der DSGVO.\n• Dein Profil: Name, Bild, Schwellenwerte, Ziele und Pläne\n• API-Schlüssel der Dienste, die du verbindest';
+
+  @override
+  String get pvStoredTitle => 'Wo es gespeichert wird';
+
+  @override
+  String get pvStoredBody =>
+      'Nur auf diesem Gerät: einer lokalen Datenbank und den App-Einstellungen. API-Schlüssel liegen im sicheren Speicher des Betriebssystems. Das Android-Cloud-Backup ist für die App abgeschaltet. TriIQ hat keinen Server und erhält keine deiner Daten.';
+
+  @override
+  String get pvRecipientsTitle => 'Wer Daten erhält';
+
+  @override
+  String get pvRecipientsBody =>
+      '• Intervals.icu: Deine Trainingsdaten werden mit deinem Konto synchronisiert, mit deinem API-Schlüssel.\n• Dein KI-Anbieter (Claude von Anthropic, Ollama Cloud oder dein eigener Ollama-Server): nur wenn du es unten erlaubt hast und den KI-Trainer, „Jetzt trainieren“, die Wochennotiz oder KI-geschriebene Planinhalte nutzt. Gesendet werden das Gespräch und die dafür nötigen Trainings- und Gesundheitsdaten.\n• OpenStreetMap-Kartenserver: nur wenn eine Streckenkarte angezeigt wird. Sie sehen deine IP-Adresse und den Kartenausschnitt.\nSonst nichts: keine Analyse, keine Absturzberichte, keine Werbung.';
+
+  @override
+  String get pvTransferTitle => 'Übermittlung außerhalb der EU/des EWR';
+
+  @override
+  String get pvTransferBody =>
+      'Einige dieser Dienste verarbeiten Daten möglicherweise außerhalb der EU/des EWR (zum Beispiel ein KI-Anbieter in den USA). Für das, was sie erhalten, gelten ihre eigenen Datenschutzbestimmungen. Ein selbst betriebener Ollama-Server im eigenen Netz hält die Daten bei dir.';
+
+  @override
+  String get pvBasisTitle => 'Rechtsgrundlage';
+
+  @override
+  String get pvBasisBody =>
+      'Die Synchronisierung mit Intervals.icu erfolgt, weil du dein Konto verbunden hast. Gesundheits- und Trainingsdaten gehen nur mit deiner ausdrücklichen Einwilligung (DSGVO Art. 6 Abs. 1 lit. a und Art. 9 Abs. 2 lit. a) an einen KI-Anbieter; du kannst sie jederzeit unten widerrufen. Kartenkacheln werden nur geladen, um die geöffnete Karte zu zeigen; das kannst du abschalten.';
+
+  @override
+  String get pvRetentionTitle => 'Wie lange';
+
+  @override
+  String get pvRetentionBody =>
+      'Bis du es löschst: Die Daten bleiben auf deinem Gerät, bis du sie hier löschst, ein Backup darüber einspielst oder die App deinstallierst. Daten, die bereits an Intervals.icu oder einen KI-Anbieter gingen, werden dort nach deren Regeln aufbewahrt.';
+
+  @override
+  String get pvRightsTitle => 'Deine Rechte';
+
+  @override
+  String get pvRightsBody =>
+      '• Auskunft und Übertragbarkeit: Einstellungen → Backup exportiert alles hier Gespeicherte als eine Datei.\n• Berichtigung: Korrigiere deine Daten in Intervals.icu; die nächste Synchronisierung aktualisiert dieses Gerät.\n• Löschung: Nutze unten „Alle Daten löschen“. Um deine Daten bei Intervals.icu oder einem KI-Anbieter zu entfernen, nutze deren Kontofunktionen.\n• Einwilligung widerrufen oder widersprechen: Schalte die KI unten aus oder trenne Intervals.icu im Profil.\n• Beschwerde: Du kannst dich bei deiner Datenschutzbehörde beschweren.';
+
+  @override
+  String get pvControlsTitle => 'Deine Optionen';
+
+  @override
+  String get pvAiConsentTitle => 'Meine Daten an den KI-Anbieter senden';
+
+  @override
+  String get pvAiConsentHelp =>
+      'Erlaubt, Trainings- und Gesundheitsdaten an deinen KI-Anbieter zu senden, wenn du den KI-Trainer nutzt. Aus: Die KI-Funktionen bleiben nicht verfügbar.';
+
+  @override
+  String pvAiConsentSince(String date) {
+    return 'Erlaubt am $date';
+  }
+
+  @override
+  String get pvMapTilesTitle => 'Kartenkacheln von OpenStreetMap laden';
+
+  @override
+  String get pvMapTilesHelp =>
+      'Streckenkarten brauchen Kacheln von OpenStreetMap, das deine IP-Adresse und den Ausschnitt sieht. Aus: Strecken werden ohne Karte gezeichnet.';
+
+  @override
+  String get pvEraseTitle => 'Alle Daten auf diesem Gerät löschen';
+
+  @override
+  String get pvEraseHelp =>
+      'Entfernt Aktivitäten, Wellness, Pläne, Einstellungen, gespeicherte Schlüssel und die Offline-Warteschlange von diesem Gerät und trennt Intervals.icu. Bei Intervals.icu oder deinem KI-Anbieter wird nichts gelöscht.';
+
+  @override
+  String get pvEraseButton => 'Alle Daten löschen …';
+
+  @override
+  String get pvEraseConfirmTitle => 'Alle Daten löschen?';
+
+  @override
+  String get pvEraseConfirmBody =>
+      'Alles, was TriIQ auf diesem Gerät speichert, wird entfernt und die App getrennt. Exportiere vorher ein Backup, wenn du es behalten möchtest. Das lässt sich nicht rückgängig machen.';
+
+  @override
+  String get pvEraseConfirm => 'Alles löschen';
+
+  @override
+  String get pvEraseDone =>
+      'Alle Daten auf diesem Gerät wurden gelöscht. Schließe TriIQ und öffne es neu.';
+
+  @override
+  String pvEraseFailed(String error) {
+    return 'Es konnte nicht alles gelöscht werden: $error';
+  }
+
+  @override
+  String get pvOpenWeb => 'Vollständige Datenschutzerklärung lesen';
+
+  @override
+  String get pvContact =>
+      'Fragen oder Anliegen: Eröffne ein Issue auf github.com/uid09552/triiq.';
+
+  @override
+  String get pvConsentDialogTitle => 'KI-Verarbeitung erlauben?';
+
+  @override
+  String pvConsentDialogBody(String provider) {
+    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. $provider verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Datenschutz & Daten widerrufen.';
+  }
+
+  @override
+  String get pvConsentAllow => 'Erlauben';
+
+  @override
+  String get pvConsentNotNow => 'Nicht jetzt';
+
+  @override
+  String get pvConsentCardTitle => 'Der KI-Trainer braucht deine Einwilligung';
+
+  @override
+  String pvConsentCardBody(String provider) {
+    return 'Wähle, ob deine Trainings- und Gesundheitsdaten an $provider gesendet werden dürfen.';
+  }
+
+  @override
+  String get pvProviderClaude => 'Claude (Anthropic)';
+
+  @override
+  String get pvProviderOllamaCloud => 'Ollama Cloud';
+
+  @override
+  String get pvProviderOllamaServer => 'deinem Ollama-Server';
 }

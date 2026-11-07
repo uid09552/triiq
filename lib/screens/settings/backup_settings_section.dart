@@ -52,8 +52,9 @@ class _BackupSettingsSectionState extends State<BackupSettingsSection> {
       final s = _service.inspect(json);
       final date = s.createdAt == null
           ? l10n.backupUnknownDate
-          : DateFormat.yMMMd(Localizations.localeOf(context).toString())
-                .format(s.createdAt!);
+          : DateFormat.yMMMd(
+              Localizations.localeOf(context).toString(),
+            ).format(s.createdAt!);
       final ok = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(

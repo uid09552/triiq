@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../data/models/local_activity.dart';
+import '../../data/privacy_settings.dart';
 import '../../evaluation/activity_route.dart';
 import '../../evaluation/session_evaluator.dart' show sportFamily;
 import '../../l10n/app_localizations.dart';
@@ -52,6 +53,9 @@ class RouteMap extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final points = [for (final p in route.points) LatLng(p.lat, p.lng)];
+    // OpenStreetMap sees the IP address and the area: only with the athlete's
+    // say-so (Settings → Privacy & data).
+    final tiles = showTiles && PrivacySettings.instance.mapTiles;
     return FlutterMap(
       options: MapOptions(
         initialCameraFit: CameraFit.coordinates(
@@ -63,7 +67,7 @@ class RouteMap extends StatelessWidget {
         ),
       ),
       children: [
-        if (showTiles)
+        if (tiles)
           TileLayer(
             urlTemplate: _tileUrl,
             userAgentPackageName: 'com.triiq.triiq',
@@ -113,7 +117,7 @@ class RouteMap extends StatelessWidget {
               );
             },
           ),
-        if (showTiles)
+        if (tiles)
           const SimpleAttributionWidget(
             source: Text('© OpenStreetMap contributors'),
           ),

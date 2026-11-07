@@ -6763,6 +6763,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take it easy today'**
   String get heroTitleBackOff;
+
+  /// No description provided for @pvTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & data'**
+  String get pvTitle;
+
+  /// No description provided for @pvSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What TriIQ stores, who sees it, and your choices'**
+  String get pvSubtitle;
+
+  /// No description provided for @pvIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ has no account, no server and no tracking. Your data stays on this device and goes only to the services you connect yourself.'**
+  String get pvIntro;
+
+  /// No description provided for @pvDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is processed'**
+  String get pvDataTitle;
+
+  /// No description provided for @pvDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Activities and routes (GPS tracks) from Intervals.icu\n• Health and wellness data: heart rate, HRV, resting heart rate, sleep, weight and how you feel. This is health data, a special category under the GDPR.\n• Your profile: name, picture, thresholds, goals and plans\n• API keys for the services you connect'**
+  String get pvDataBody;
+
+  /// No description provided for @pvStoredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it is stored'**
+  String get pvStoredTitle;
+
+  /// No description provided for @pvStoredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on this device: a local database and app preferences. API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.'**
+  String get pvStoredBody;
+
+  /// No description provided for @pvRecipientsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who receives data'**
+  String get pvRecipientsTitle;
+
+  /// No description provided for @pvRecipientsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, or your own Ollama server): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.'**
+  String get pvRecipientsBody;
+
+  /// No description provided for @pvTransferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers outside the EU/EEA'**
+  String get pvTransferTitle;
+
+  /// No description provided for @pvTransferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A self-hosted Ollama server on your own network keeps the data with you.'**
+  String get pvTransferBody;
+
+  /// No description provided for @pvBasisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal basis'**
+  String get pvBasisTitle;
+
+  /// No description provided for @pvBasisBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing with Intervals.icu happens because you connected your account. Sending health and training data to an AI provider happens only with your explicit consent (GDPR Art. 6(1)(a) and 9(2)(a)), which you can withdraw at any time below. Map tiles are fetched only to show the map you opened; you can switch that off.'**
+  String get pvBasisBody;
+
+  /// No description provided for @pvRetentionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How long'**
+  String get pvRetentionTitle;
+
+  /// No description provided for @pvRetentionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Until you delete it: data stays on your device until you erase it here, restore a backup over it or uninstall the app. Data already sent to Intervals.icu or an AI provider is kept by them under their own rules.'**
+  String get pvRetentionBody;
+
+  /// No description provided for @pvRightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rights'**
+  String get pvRightsTitle;
+
+  /// No description provided for @pvRightsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Access and portability: Settings → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.'**
+  String get pvRightsBody;
+
+  /// No description provided for @pvControlsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choices'**
+  String get pvControlsTitle;
+
+  /// No description provided for @pvAiConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send my data to the AI provider'**
+  String get pvAiConsentTitle;
+
+  /// No description provided for @pvAiConsentHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Allows training and health data to be sent to your AI provider when you use the AI trainer. Off: the AI features stay unavailable.'**
+  String get pvAiConsentHelp;
+
+  /// No description provided for @pvAiConsentSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed on {date}'**
+  String pvAiConsentSince(String date);
+
+  /// No description provided for @pvMapTilesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load map tiles from OpenStreetMap'**
+  String get pvMapTilesTitle;
+
+  /// No description provided for @pvMapTilesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Route maps need tiles from OpenStreetMap, which sees your IP address and the area shown. Off: routes are drawn without a map.'**
+  String get pvMapTilesHelp;
+
+  /// No description provided for @pvEraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data on this device'**
+  String get pvEraseTitle;
+
+  /// No description provided for @pvEraseHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes activities, wellness, plans, settings, saved keys and the offline queue from this device and disconnects Intervals.icu. It does not delete anything at Intervals.icu or your AI provider.'**
+  String get pvEraseHelp;
+
+  /// No description provided for @pvEraseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data…'**
+  String get pvEraseButton;
+
+  /// No description provided for @pvEraseConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data?'**
+  String get pvEraseConfirmTitle;
+
+  /// No description provided for @pvEraseConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything TriIQ stores on this device will be removed and the app disconnected. Export a backup first if you want to keep it. This cannot be undone.'**
+  String get pvEraseConfirmBody;
+
+  /// No description provided for @pvEraseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything'**
+  String get pvEraseConfirm;
+
+  /// No description provided for @pvEraseDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All data on this device was deleted. Close and reopen TriIQ.'**
+  String get pvEraseDone;
+
+  /// No description provided for @pvEraseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete everything: {error}'**
+  String pvEraseFailed(String error);
+
+  /// No description provided for @pvOpenWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the full privacy notice'**
+  String get pvOpenWeb;
+
+  /// No description provided for @pvContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions or requests: open an issue at github.com/uid09552/triiq.'**
+  String get pvContact;
+
+  /// No description provided for @pvConsentDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow AI processing?'**
+  String get pvConsentDialogTitle;
+
+  /// No description provided for @pvConsentDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Privacy & data.'**
+  String pvConsentDialogBody(String provider);
+
+  /// No description provided for @pvConsentAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get pvConsentAllow;
+
+  /// No description provided for @pvConsentNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pvConsentNotNow;
+
+  /// No description provided for @pvConsentCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI trainer needs your consent'**
+  String get pvConsentCardTitle;
+
+  /// No description provided for @pvConsentCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose whether your training and health data may be sent to {provider}.'**
+  String pvConsentCardBody(String provider);
+
+  /// No description provided for @pvProviderClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude (Anthropic)'**
+  String get pvProviderClaude;
+
+  /// No description provided for @pvProviderOllamaCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama Cloud'**
+  String get pvProviderOllamaCloud;
+
+  /// No description provided for @pvProviderOllamaServer.
+  ///
+  /// In en, this message translates to:
+  /// **'your Ollama server'**
+  String get pvProviderOllamaServer;
 }
 
 class _AppLocalizationsDelegate

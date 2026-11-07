@@ -4094,4 +4094,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get heroTitleBackOff => 'Take it easy today';
+
+  @override
+  String get pvTitle => 'Privacy & data';
+
+  @override
+  String get pvSubtitle => 'What TriIQ stores, who sees it, and your choices';
+
+  @override
+  String get pvIntro =>
+      'TriIQ has no account, no server and no tracking. Your data stays on this device and goes only to the services you connect yourself.';
+
+  @override
+  String get pvDataTitle => 'What is processed';
+
+  @override
+  String get pvDataBody =>
+      '• Activities and routes (GPS tracks) from Intervals.icu\n• Health and wellness data: heart rate, HRV, resting heart rate, sleep, weight and how you feel. This is health data, a special category under the GDPR.\n• Your profile: name, picture, thresholds, goals and plans\n• API keys for the services you connect';
+
+  @override
+  String get pvStoredTitle => 'Where it is stored';
+
+  @override
+  String get pvStoredBody =>
+      'Only on this device: a local database and app preferences. API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.';
+
+  @override
+  String get pvRecipientsTitle => 'Who receives data';
+
+  @override
+  String get pvRecipientsBody =>
+      '• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, or your own Ollama server): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.';
+
+  @override
+  String get pvTransferTitle => 'Transfers outside the EU/EEA';
+
+  @override
+  String get pvTransferBody =>
+      'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A self-hosted Ollama server on your own network keeps the data with you.';
+
+  @override
+  String get pvBasisTitle => 'Legal basis';
+
+  @override
+  String get pvBasisBody =>
+      'Syncing with Intervals.icu happens because you connected your account. Sending health and training data to an AI provider happens only with your explicit consent (GDPR Art. 6(1)(a) and 9(2)(a)), which you can withdraw at any time below. Map tiles are fetched only to show the map you opened; you can switch that off.';
+
+  @override
+  String get pvRetentionTitle => 'How long';
+
+  @override
+  String get pvRetentionBody =>
+      'Until you delete it: data stays on your device until you erase it here, restore a backup over it or uninstall the app. Data already sent to Intervals.icu or an AI provider is kept by them under their own rules.';
+
+  @override
+  String get pvRightsTitle => 'Your rights';
+
+  @override
+  String get pvRightsBody =>
+      '• Access and portability: Settings → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.';
+
+  @override
+  String get pvControlsTitle => 'Your choices';
+
+  @override
+  String get pvAiConsentTitle => 'Send my data to the AI provider';
+
+  @override
+  String get pvAiConsentHelp =>
+      'Allows training and health data to be sent to your AI provider when you use the AI trainer. Off: the AI features stay unavailable.';
+
+  @override
+  String pvAiConsentSince(String date) {
+    return 'Allowed on $date';
+  }
+
+  @override
+  String get pvMapTilesTitle => 'Load map tiles from OpenStreetMap';
+
+  @override
+  String get pvMapTilesHelp =>
+      'Route maps need tiles from OpenStreetMap, which sees your IP address and the area shown. Off: routes are drawn without a map.';
+
+  @override
+  String get pvEraseTitle => 'Delete all data on this device';
+
+  @override
+  String get pvEraseHelp =>
+      'Removes activities, wellness, plans, settings, saved keys and the offline queue from this device and disconnects Intervals.icu. It does not delete anything at Intervals.icu or your AI provider.';
+
+  @override
+  String get pvEraseButton => 'Delete all data…';
+
+  @override
+  String get pvEraseConfirmTitle => 'Delete all data?';
+
+  @override
+  String get pvEraseConfirmBody =>
+      'Everything TriIQ stores on this device will be removed and the app disconnected. Export a backup first if you want to keep it. This cannot be undone.';
+
+  @override
+  String get pvEraseConfirm => 'Delete everything';
+
+  @override
+  String get pvEraseDone =>
+      'All data on this device was deleted. Close and reopen TriIQ.';
+
+  @override
+  String pvEraseFailed(String error) {
+    return 'Could not delete everything: $error';
+  }
+
+  @override
+  String get pvOpenWeb => 'Read the full privacy notice';
+
+  @override
+  String get pvContact =>
+      'Questions or requests: open an issue at github.com/uid09552/triiq.';
+
+  @override
+  String get pvConsentDialogTitle => 'Allow AI processing?';
+
+  @override
+  String pvConsentDialogBody(String provider) {
+    return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. $provider may process it outside the EU/EEA. You can withdraw this at any time in Settings → Privacy & data.';
+  }
+
+  @override
+  String get pvConsentAllow => 'Allow';
+
+  @override
+  String get pvConsentNotNow => 'Not now';
+
+  @override
+  String get pvConsentCardTitle => 'The AI trainer needs your consent';
+
+  @override
+  String pvConsentCardBody(String provider) {
+    return 'Choose whether your training and health data may be sent to $provider.';
+  }
+
+  @override
+  String get pvProviderClaude => 'Claude (Anthropic)';
+
+  @override
+  String get pvProviderOllamaCloud => 'Ollama Cloud';
+
+  @override
+  String get pvProviderOllamaServer => 'your Ollama server';
 }
