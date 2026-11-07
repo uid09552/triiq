@@ -123,23 +123,48 @@ class PlanActions {
     LocalEvent planned,
     PlannedWorkoutDraft draft,
   ) async {
+    // A plan session that was sent to Intervals.icu shows up as the event
+    // itself, not as the plan session. Swapping only the event would leave
+    // the session pointing at a deleted id — and it would reappear on the
+    // calendar as an unsent plan item beside the new workout — so replace the
+    // session it belongs to.
+    final linked = planned.isPlanSession
+        ? null
+        : await _sessionOfEvent(planned.id);
     final outcome = planned.isPlanSession
         ? await _replacePlanSession(planned.planSessionId!, draft)
+        : linked?.id != null
+        ? await _replacePlanSession(linked!.id!, draft, event: planned)
         : await _replaceEvent(planned, draft);
     PlanChanges.instance.notify();
     AutoSyncService.instance.notifyCacheChanged();
     return outcome;
   }
 
+  /// The current plan's session that was created as Intervals.icu event
+  /// [eventId], if any.
+  Future<PlanSession?> _sessionOfEvent(String eventId) async {
+    final plan = await _plans.getCurrent();
+    for (final session in plan?.sessions ?? const <PlanSession>[]) {
+      if (session.intervalsEventId == eventId) return session;
+    }
+    return null;
+  }
+
+  /// Replaces plan session [sessionId]. With [event] — the Intervals.icu
+  /// event the session was sent as, which the athlete picked on the calendar
+  /// — the upstream swap is done whatever the "send plan" setting says: they
+  /// chose to replace something that is already there.
   Future<ReplaceOutcome> _replacePlanSession(
     int sessionId,
-    PlannedWorkoutDraft draft,
-  ) async {
+    PlannedWorkoutDraft draft, {
+    LocalEvent? event,
+  }) async {
     final session = await _plans.getSession(sessionId);
     if (session == null) {
       throw const ReplaceRefusedException(ReplaceRefusal.missing);
     }
-    final oldEventId = session.intervalsEventId;
+    final oldEventId = session.intervalsEventId ?? _numericId(event?.id);
     final minutes = draft.durationSeconds == null
         ? session.minutes
         : (draft.durationSeconds! / 60).round();
@@ -166,7 +191,7 @@ class PlanActions {
       await store(null, PlanSessionStatus.planned);
       return ReplaceOutcome.replacedLocally;
     }
-    if (!_sendEnabled()) {
+    if (event == null && !_sendEnabled()) {
       throw const ReplaceRefusedException(ReplaceRefusal.sentButCannotSend);
     }
 
@@ -178,7 +203,9 @@ class PlanActions {
       name: draft.name,
       sport: draft.sport,
       description: description,
-      date: session.date,
+      // Where the event is on the calendar now (it may have been moved in
+      // Intervals.icu since the plan was made).
+      date: DateTime.tryParse(event?.date ?? '') ?? session.date,
       durationSeconds: minutes * 60,
       load: load,
       indoor: draft.indoor,
@@ -192,7 +219,10 @@ class PlanActions {
         // does.
         await store(created.id?.toString(), PlanSessionStatus.created);
         final deleted = await _deleteUpstream(oldEventId);
-        await _safeResync(session.date);
+        // Gone upstream: drop it from the cache too, so it can't show up
+        // beside the new one before the next sync.
+        if (deleted) await _events.deleteById(oldEventId);
+        await _safeResync(sendDraft.date);
         return deleted ? ReplaceOutcome.replaced : ReplaceOutcome.bothExist;
       } catch (error) {
         if (!isOfflineError(error)) rethrow;
@@ -432,6 +462,11 @@ class PlanActions {
   }
 
   /// Deletes an Intervals.icu event; already gone counts as deleted.
+  /// [id] if it is an Intervals.icu event id (numeric) rather than a plan
+  /// session's `plan:` or a queued placeholder's `pending:` id.
+  static String? _numericId(String? id) =>
+      id != null && int.tryParse(id) != null ? id : null;
+
   Future<bool> _deleteUpstream(String eventId) async {
     try {
       await _workouts.deletePlannedWorkout(eventId);
