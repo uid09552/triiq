@@ -11,6 +11,7 @@ import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import 'readiness_card.dart';
+import '../statistics/wellness_trends_screen.dart';
 import 'readiness_options.dart';
 
 /// Every signal behind today's readiness: its value, the athlete's normal
@@ -275,6 +276,19 @@ class _Trend extends StatelessWidget {
             chart(l10n.readinessSignalRestingHr, scheme.tertiary, rhr),
           if (hrv.every((v) => v == null) && rhr.every((v) => v == null))
             Text(l10n.readinessNoData),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              key: const ValueKey('longer-trends'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => WellnessTrendsScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.timeline),
+              label: Text(l10n.wtLongerTrends),
+            ),
+          ),
         ],
       ),
     );

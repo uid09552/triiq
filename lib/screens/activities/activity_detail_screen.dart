@@ -30,6 +30,7 @@ import '../../evaluation/activity_route.dart';
 import 'brick_card.dart';
 import '../../evaluation/compare.dart' show isComparable;
 import '../compare/compare_screen.dart';
+import 'activity_extras_card.dart';
 import 'route_card.dart';
 import 'session_analysis.dart';
 
@@ -253,6 +254,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             onCursorSeconds: (s) => _cursor.value = s,
           ),
           const SizedBox(height: 16),
+          ActivityExtrasCard(activity: activity, streams: widget.streams),
           ActivityRouteCard(
             activity: activity,
             routes: widget.routes,

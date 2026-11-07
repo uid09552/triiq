@@ -166,8 +166,19 @@ class ActivityStreamsRepository {
     );
   }
 
-  /// The cached streams, or fetched and cached now.
-  Future<SessionStreams> load(String activityId) async {
+  final _inFlight = <String, Future<SessionStreams>>{};
+
+  /// The cached streams, or fetched and cached now. Two cards asking for the
+  /// same activity at once share one download.
+  Future<SessionStreams> load(String activityId) {
+    return _inFlight[activityId] ??= _loadOnce(activityId).whenComplete(() {
+      // A block, not `=> remove(...)`: that would return the very future
+      // being completed, and whenComplete would wait on it forever.
+      _inFlight.remove(activityId);
+    });
+  }
+
+  Future<SessionStreams> _loadOnce(String activityId) async {
     final hit = await cached(activityId);
     if (hit != null) return hit;
     final streams = await _fetch(activityId);

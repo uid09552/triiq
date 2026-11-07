@@ -6289,6 +6289,468 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use all signals'**
   String get readinessOptionsReset;
+
+  /// No description provided for @durTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Durability'**
+  String get durTitle;
+
+  /// No description provided for @durSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Power or pace after hours of work, against your fresh best'**
+  String get durSubtitle;
+
+  /// No description provided for @durFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Season best'**
+  String get durFresh;
+
+  /// No description provided for @durAfterKj.
+  ///
+  /// In en, this message translates to:
+  /// **'After {kj} kJ'**
+  String durAfterKj(int kj);
+
+  /// No description provided for @durAfterKm.
+  ///
+  /// In en, this message translates to:
+  /// **'After {km} km'**
+  String durAfterKm(int km);
+
+  /// No description provided for @durRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept'**
+  String get durRetained;
+
+  /// No description provided for @durHintRide.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of your fresh power is left once you have already done the work shown. An effort only counts when it starts after that much work, taken from your recent long rides.'**
+  String get durHintRide;
+
+  /// No description provided for @durHintRun.
+  ///
+  /// In en, this message translates to:
+  /// **'How fast you can still run once you have already covered the distance shown. An effort only counts when it starts after that distance, taken from your recent long runs.'**
+  String get durHintRun;
+
+  /// No description provided for @durBasedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {analysed} of {candidates} long sessions in the last {days} days.'**
+  String durBasedOn(int analysed, int candidates, int days);
+
+  /// No description provided for @durFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions had no usable stream.'**
+  String durFailed(int count);
+
+  /// No description provided for @durReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading sessions {done}/{total}…'**
+  String durReading(int done, int total);
+
+  /// No description provided for @durNoneRide.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides with at least 1,000 kJ of work in this range.'**
+  String get durNoneRide;
+
+  /// No description provided for @durNoneRun.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs of at least 10 km in this range.'**
+  String get durNoneRun;
+
+  /// No description provided for @durNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough work in the sessions found to reach these levels.'**
+  String get durNoData;
+
+  /// No description provided for @durError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the sessions: {error}'**
+  String durError(String error);
+
+  /// No description provided for @wtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wellness trends'**
+  String get wtTitle;
+
+  /// No description provided for @wtSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV, resting HR, sleep and weight over time, with a 7-day average and your usual range'**
+  String get wtSubtitle;
+
+  /// No description provided for @wtMetricWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get wtMetricWeight;
+
+  /// No description provided for @wtLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get wtLatest;
+
+  /// No description provided for @wtAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day avg'**
+  String get wtAverage;
+
+  /// No description provided for @wtWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'vs a week ago'**
+  String get wtWeek;
+
+  /// No description provided for @wtBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Below your usual range'**
+  String get wtBelow;
+
+  /// No description provided for @wtWithin.
+  ///
+  /// In en, this message translates to:
+  /// **'In your usual range'**
+  String get wtWithin;
+
+  /// No description provided for @wtAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Above your usual range'**
+  String get wtAbove;
+
+  /// No description provided for @wtBandNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaded band: your usual range, the mean ± 1 SD over this period.'**
+  String get wtBandNote;
+
+  /// No description provided for @wtNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data in this range.'**
+  String get wtNoData;
+
+  /// No description provided for @wtLongerTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Longer trends'**
+  String get wtLongerTrends;
+
+  /// No description provided for @wtShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get wtShow;
+
+  /// No description provided for @exTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Effort profile'**
+  String get exTitle;
+
+  /// No description provided for @exVi.
+  ///
+  /// In en, this message translates to:
+  /// **'Variability index'**
+  String get exVi;
+
+  /// No description provided for @exViSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady'**
+  String get exViSteady;
+
+  /// No description provided for @exViModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Some surges'**
+  String get exViModerate;
+
+  /// No description provided for @exViVariable.
+  ///
+  /// In en, this message translates to:
+  /// **'Very variable'**
+  String get exViVariable;
+
+  /// No description provided for @exViHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Normalized over average: 1.00 is perfectly even, above about 1.05 the effort surged or stopped and started.'**
+  String get exViHint;
+
+  /// No description provided for @exHistPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Time at power'**
+  String get exHistPower;
+
+  /// No description provided for @exHistPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Time at pace'**
+  String get exHistPace;
+
+  /// No description provided for @exHistTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bar for the details.'**
+  String get exHistTap;
+
+  /// No description provided for @exHistBand.
+  ///
+  /// In en, this message translates to:
+  /// **'{band}: {minutes} min ({percent}%)'**
+  String exHistBand(String band, String minutes, int percent);
+
+  /// No description provided for @exHistZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Not pedalling or stopped: {minutes} min'**
+  String exHistZero(String minutes);
+
+  /// No description provided for @exIntervalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals'**
+  String get exIntervalsTitle;
+
+  /// No description provided for @exColInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'#'**
+  String get exColInterval;
+
+  /// No description provided for @exColTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get exColTime;
+
+  /// No description provided for @exColOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get exColOutput;
+
+  /// No description provided for @exColHr.
+  ///
+  /// In en, this message translates to:
+  /// **'HR'**
+  String get exColHr;
+
+  /// No description provided for @exColDrift.
+  ///
+  /// In en, this message translates to:
+  /// **'Drift'**
+  String get exColDrift;
+
+  /// No description provided for @exColFade.
+  ///
+  /// In en, this message translates to:
+  /// **'vs 1st'**
+  String get exColFade;
+
+  /// No description provided for @exRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'rec'**
+  String get exRecovery;
+
+  /// No description provided for @exIntervalsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drift: how much less output per heartbeat the second half of the interval gave than the first (heart-rate decoupling). vs 1st: output against the first work interval. Intervals under 2 minutes show no drift.'**
+  String get exIntervalsHint;
+
+  /// No description provided for @hmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load heatmap'**
+  String get hmTitle;
+
+  /// No description provided for @hmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A year of training load, day by day'**
+  String get hmSubtitle;
+
+  /// No description provided for @hmPeriod12m.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get hmPeriod12m;
+
+  /// No description provided for @hmPeriodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get hmPeriodYear;
+
+  /// No description provided for @hmPeriodLastYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Last year'**
+  String get hmPeriodLastYear;
+
+  /// No description provided for @hmLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get hmLess;
+
+  /// No description provided for @hmMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get hmMore;
+
+  /// No description provided for @hmTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day to see its load.'**
+  String get hmTap;
+
+  /// No description provided for @hmDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {tss} TSS · {sessions} sessions'**
+  String hmDay(String date, int tss, int sessions);
+
+  /// No description provided for @hmRest.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: no training'**
+  String hmRest(String date);
+
+  /// No description provided for @hmTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total load'**
+  String get hmTotal;
+
+  /// No description provided for @hmActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Training days'**
+  String get hmActiveDays;
+
+  /// No description provided for @hmLongestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest streak'**
+  String get hmLongestStreak;
+
+  /// No description provided for @hmBusiestWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Busiest week'**
+  String get hmBusiestWeek;
+
+  /// No description provided for @hmDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String hmDays(int count);
+
+  /// No description provided for @hmWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{tss} TSS, week of {date}'**
+  String hmWeekOf(int tss, String date);
+
+  /// No description provided for @hmNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No training in this period.'**
+  String get hmNoData;
+
+  /// No description provided for @beTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Best efforts'**
+  String get beTitle;
+
+  /// No description provided for @beSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Best 5 s to 20 min power or 1 to 10 km pace over time, against your last 90 days'**
+  String get beSubtitle;
+
+  /// No description provided for @beWindowBest.
+  ///
+  /// In en, this message translates to:
+  /// **'30-day best'**
+  String get beWindowBest;
+
+  /// No description provided for @beRollingBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best of 90 days'**
+  String get beRollingBest;
+
+  /// No description provided for @beTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days against the 90 days before'**
+  String get beTableTitle;
+
+  /// No description provided for @beColEffort.
+  ///
+  /// In en, this message translates to:
+  /// **'Effort'**
+  String get beColEffort;
+
+  /// No description provided for @beColNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 d'**
+  String get beColNow;
+
+  /// No description provided for @beColBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get beColBefore;
+
+  /// No description provided for @beColChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get beColChange;
+
+  /// No description provided for @beHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each point is your best effort in a 30-day window; the second line is the best of the 90 days up to it. Change compares your last 30 days with the best of the 90 days before them: green is a better effort, red a worse one.'**
+  String get beHint;
+
+  /// No description provided for @beNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No efforts recorded in the last year.'**
+  String get beNoData;
+
+  /// No description provided for @beError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your efforts: {error}'**
+  String beError(String error);
 }
 
 class _AppLocalizationsDelegate

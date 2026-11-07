@@ -3820,4 +3820,272 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessOptionsReset => 'Use all signals';
+
+  @override
+  String get durTitle => 'Durability';
+
+  @override
+  String get durSubtitle =>
+      'Power or pace after hours of work, against your fresh best';
+
+  @override
+  String get durFresh => 'Season best';
+
+  @override
+  String durAfterKj(int kj) {
+    return 'After $kj kJ';
+  }
+
+  @override
+  String durAfterKm(int km) {
+    return 'After $km km';
+  }
+
+  @override
+  String get durRetained => 'Kept';
+
+  @override
+  String get durHintRide =>
+      'How much of your fresh power is left once you have already done the work shown. An effort only counts when it starts after that much work, taken from your recent long rides.';
+
+  @override
+  String get durHintRun =>
+      'How fast you can still run once you have already covered the distance shown. An effort only counts when it starts after that distance, taken from your recent long runs.';
+
+  @override
+  String durBasedOn(int analysed, int candidates, int days) {
+    return 'Based on $analysed of $candidates long sessions in the last $days days.';
+  }
+
+  @override
+  String durFailed(int count) {
+    return '$count sessions had no usable stream.';
+  }
+
+  @override
+  String durReading(int done, int total) {
+    return 'Reading sessions $done/$total…';
+  }
+
+  @override
+  String get durNoneRide =>
+      'No rides with at least 1,000 kJ of work in this range.';
+
+  @override
+  String get durNoneRun => 'No runs of at least 10 km in this range.';
+
+  @override
+  String get durNoData =>
+      'Not enough work in the sessions found to reach these levels.';
+
+  @override
+  String durError(String error) {
+    return 'Could not read the sessions: $error';
+  }
+
+  @override
+  String get wtTitle => 'Wellness trends';
+
+  @override
+  String get wtSubtitle =>
+      'HRV, resting HR, sleep and weight over time, with a 7-day average and your usual range';
+
+  @override
+  String get wtMetricWeight => 'Weight';
+
+  @override
+  String get wtLatest => 'Latest';
+
+  @override
+  String get wtAverage => '7-day avg';
+
+  @override
+  String get wtWeek => 'vs a week ago';
+
+  @override
+  String get wtBelow => 'Below your usual range';
+
+  @override
+  String get wtWithin => 'In your usual range';
+
+  @override
+  String get wtAbove => 'Above your usual range';
+
+  @override
+  String get wtBandNote =>
+      'Shaded band: your usual range, the mean ± 1 SD over this period.';
+
+  @override
+  String get wtNoData => 'No data in this range.';
+
+  @override
+  String get wtLongerTrends => 'Longer trends';
+
+  @override
+  String get wtShow => 'Show';
+
+  @override
+  String get exTitle => 'Effort profile';
+
+  @override
+  String get exVi => 'Variability index';
+
+  @override
+  String get exViSteady => 'Steady';
+
+  @override
+  String get exViModerate => 'Some surges';
+
+  @override
+  String get exViVariable => 'Very variable';
+
+  @override
+  String get exViHint =>
+      'Normalized over average: 1.00 is perfectly even, above about 1.05 the effort surged or stopped and started.';
+
+  @override
+  String get exHistPower => 'Time at power';
+
+  @override
+  String get exHistPace => 'Time at pace';
+
+  @override
+  String get exHistTap => 'Tap a bar for the details.';
+
+  @override
+  String exHistBand(String band, String minutes, int percent) {
+    return '$band: $minutes min ($percent%)';
+  }
+
+  @override
+  String exHistZero(String minutes) {
+    return 'Not pedalling or stopped: $minutes min';
+  }
+
+  @override
+  String get exIntervalsTitle => 'Intervals';
+
+  @override
+  String get exColInterval => '#';
+
+  @override
+  String get exColTime => 'Time';
+
+  @override
+  String get exColOutput => 'Output';
+
+  @override
+  String get exColHr => 'HR';
+
+  @override
+  String get exColDrift => 'Drift';
+
+  @override
+  String get exColFade => 'vs 1st';
+
+  @override
+  String get exRecovery => 'rec';
+
+  @override
+  String get exIntervalsHint =>
+      'Drift: how much less output per heartbeat the second half of the interval gave than the first (heart-rate decoupling). vs 1st: output against the first work interval. Intervals under 2 minutes show no drift.';
+
+  @override
+  String get hmTitle => 'Load heatmap';
+
+  @override
+  String get hmSubtitle => 'A year of training load, day by day';
+
+  @override
+  String get hmPeriod12m => 'Last 12 months';
+
+  @override
+  String get hmPeriodYear => 'This year';
+
+  @override
+  String get hmPeriodLastYear => 'Last year';
+
+  @override
+  String get hmLess => 'Less';
+
+  @override
+  String get hmMore => 'More';
+
+  @override
+  String get hmTap => 'Tap a day to see its load.';
+
+  @override
+  String hmDay(String date, int tss, int sessions) {
+    return '$date: $tss TSS · $sessions sessions';
+  }
+
+  @override
+  String hmRest(String date) {
+    return '$date: no training';
+  }
+
+  @override
+  String get hmTotal => 'Total load';
+
+  @override
+  String get hmActiveDays => 'Training days';
+
+  @override
+  String get hmLongestStreak => 'Longest streak';
+
+  @override
+  String get hmBusiestWeek => 'Busiest week';
+
+  @override
+  String hmDays(int count) {
+    return '$count days';
+  }
+
+  @override
+  String hmWeekOf(int tss, String date) {
+    return '$tss TSS, week of $date';
+  }
+
+  @override
+  String get hmNoData => 'No training in this period.';
+
+  @override
+  String get beTitle => 'Best efforts';
+
+  @override
+  String get beSubtitle =>
+      'Best 5 s to 20 min power or 1 to 10 km pace over time, against your last 90 days';
+
+  @override
+  String get beWindowBest => '30-day best';
+
+  @override
+  String get beRollingBest => 'Best of 90 days';
+
+  @override
+  String get beTableTitle => 'Last 30 days against the 90 days before';
+
+  @override
+  String get beColEffort => 'Effort';
+
+  @override
+  String get beColNow => 'Last 30 d';
+
+  @override
+  String get beColBefore => 'Before';
+
+  @override
+  String get beColChange => 'Change';
+
+  @override
+  String get beHint =>
+      'Each point is your best effort in a 30-day window; the second line is the best of the 90 days up to it. Change compares your last 30 days with the best of the 90 days before them: green is a better effort, red a worse one.';
+
+  @override
+  String get beNoData => 'No efforts recorded in the last year.';
+
+  @override
+  String beError(String error) {
+    return 'Could not load your efforts: $error';
+  }
 }
