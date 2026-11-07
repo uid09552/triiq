@@ -4088,4 +4088,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String beError(String error) {
     return 'Could not load your efforts: $error';
   }
+
+  @override
+  String get heroTitleCaution => 'Train with care';
+
+  @override
+  String get heroTitleBackOff => 'Take it easy today';
 }

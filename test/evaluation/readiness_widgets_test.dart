@@ -17,6 +17,7 @@ import 'package:triiq/data/repositories/wellness_repository.dart';
 import 'package:triiq/evaluation/readiness.dart';
 import 'package:triiq/evaluation/readiness_service.dart';
 import 'package:triiq/l10n/app_localizations.dart';
+import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/screens/today/readiness_card.dart';
 import 'package:triiq/screens/today/readiness_screen.dart';
 import 'package:triiq/screens/today/today_screen.dart';
@@ -345,6 +346,81 @@ void main() {
 
       expect(find.byType(ReadinessCard), findsOneWidget);
       expect(find.text('Due to Resting HR'), findsOneWidget);
+      // One verdict: the header above no longer says "Ready to train".
+      expect(find.text('Take it easy today'), findsOneWidget);
+      expect(find.text('Ready to train'), findsNothing);
+    });
+
+    Future<void> pumpToday(
+      WidgetTester tester,
+      WellnessRepository wellness,
+    ) async {
+      tester.view.physicalSize = const Size(800, 3000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _app(
+          TodayScreen(
+            wellnessRepository: wellness,
+            readinessService: ReadinessService(
+              wellness: wellness,
+              knowledge: KnowledgeRepository(
+                loadAsset: () async => File('docs/okf.md').readAsStringSync(),
+              ),
+            ),
+            activitiesRepository: ActivitiesRepository(database: database),
+            plannedItems: PlannedItemsRepository(
+              events: EventsRepository(database: database),
+              plans: PlansRepository(database: database),
+              copyEvents: () async => true,
+            ),
+          ),
+        ),
+      );
+      for (var i = 0; i < 20; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await tester.pump();
+      }
+    }
+
+    testWidgets('back off: the header says so instead of "Ready to train"', (
+      tester,
+    ) async {
+      final wellness = WellnessRepository(database: database);
+      await tester.runAsync(
+        () => wellness.upsertAll([
+          ..._baseline(),
+          _day(0, hrv: 52, rhr: 48, sleepSecs: 5 * 3600),
+        ]),
+      );
+      await pumpToday(tester, wellness);
+
+      expect(find.text('Take it easy today'), findsOneWidget);
+      expect(find.text('Ready to train'), findsNothing);
+      expect(find.textContaining('Back off'), findsWidgets); // the card
+    });
+
+    testWidgets('a ready day still opens with "Ready to train"', (tester) async {
+      final wellness = WellnessRepository(database: database);
+      await tester.runAsync(
+        () => wellness.upsertAll([
+          ..._baseline(),
+          _day(0, hrv: 63, rhr: 47, sleepSecs: 8 * 3600),
+        ]),
+      );
+      await pumpToday(tester, wellness);
+
+      expect(find.text('Ready to train'), findsOneWidget);
+      expect(find.text('Take it easy today'), findsNothing);
+    });
+
+    testWidgets('no wellness data: nothing contradicts the header', (
+      tester,
+    ) async {
+      await pumpToday(tester, WellnessRepository(database: database));
+      expect(find.text('Ready to train'), findsOneWidget);
     });
   });
 }
