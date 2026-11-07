@@ -303,13 +303,15 @@ void main() {
     });
 
     testWidgets('no efforts at all says so', (tester) async {
+      // Never serve an earlier test's cached efforts for this one.
       final repo = BestEffortsRepository(
+        maxAge: Duration.zero,
         fetch: (sport, days) async => const [],
       );
       await tester.pumpWidget(
         _page(BestEffortsScreen(repository: repo, today: now)),
       );
-      await _settle(tester, rounds: 5);
+      await _settle(tester, rounds: 15);
       expect(
         find.text('No efforts recorded in the last year.'),
         findsOneWidget,

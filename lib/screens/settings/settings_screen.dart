@@ -14,7 +14,9 @@ import '../../theme_controller.dart';
 import '../../widgets/section_card.dart';
 import 'backup_settings_section.dart';
 import 'calendar_settings_section.dart';
+import 'ai_consent.dart';
 import 'feel_settings_section.dart';
+import 'privacy_screen.dart';
 import 'weekly_targets_section.dart';
 import 'year_goals_section.dart';
 
@@ -55,12 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _claudeKeyController = TextEditingController();
-    _claudeModelController = TextEditingController(
-      text: _settings.claudeModel,
-    );
-    _ollamaUrlController = TextEditingController(
-      text: _settings.ollamaBaseUrl,
-    );
+    _claudeModelController = TextEditingController(text: _settings.claudeModel);
+    _ollamaUrlController = TextEditingController(text: _settings.ollamaBaseUrl);
     _ollamaModelController = TextEditingController(text: _settings.ollamaModel);
     _ollamaKeyController = TextEditingController();
     // The screen can open before the initial load resolves, so pick the
@@ -194,6 +192,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: YearGoalsSection(),
             ),
             const SizedBox(height: 16),
+            Card(
+              child: ListTile(
+                key: const ValueKey('settings-privacy'),
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: Text(l10n.pvTitle),
+                subtitle: Text(l10n.pvSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const PrivacyScreen(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Goes away the moment the athlete agrees.
+            ListenableBuilder(
+              listenable: _settings,
+              builder: (context, _) => _settings.needsConsent
+                  ? const Padding(
+                      padding: EdgeInsets.only(bottom: 16),
+                      child: AiConsentCard(),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             SectionCard(
               icon: Icons.auto_awesome_outlined,
               title: l10n.llmProviderTitle,
@@ -455,7 +478,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _claudeKeyController.clear();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.claudeKeySavedMessage)),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.claudeKeySavedMessage),
+      ),
     );
   }
 
@@ -489,8 +514,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // any other server would look like it works while doing nothing.
     if (!isOllamaCloudUrl(_ollamaUrlController.text)) {
       setState(
-        () => _ollamaTestError =
-            AppLocalizations.of(context)!.ollamaKeyCloudOnly,
+        () =>
+            _ollamaTestError = AppLocalizations.of(context)!.ollamaKeyCloudOnly,
       );
       return;
     }
@@ -801,8 +826,7 @@ class BackgroundSyncControls extends StatefulWidget {
   final SyncSettings settings;
 
   @override
-  State<BackgroundSyncControls> createState() =>
-      BackgroundSyncControlsState();
+  State<BackgroundSyncControls> createState() => BackgroundSyncControlsState();
 }
 
 class BackgroundSyncControlsState extends State<BackgroundSyncControls> {
@@ -887,14 +911,8 @@ class _LanguageSection extends StatelessWidget {
       builder: (context, _) => SegmentedButton<Locale?>(
         segments: [
           ButtonSegment(value: null, label: Text(l10n.languageSystem)),
-          const ButtonSegment(
-            value: Locale('en'),
-            label: Text('English'),
-          ),
-          const ButtonSegment(
-            value: Locale('de'),
-            label: Text('Deutsch'),
-          ),
+          const ButtonSegment(value: Locale('en'), label: Text('English')),
+          const ButtonSegment(value: Locale('de'), label: Text('Deutsch')),
         ],
         selected: {_controller.locale},
         onSelectionChanged: (selection) =>

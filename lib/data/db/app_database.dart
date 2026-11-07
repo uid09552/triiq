@@ -45,6 +45,22 @@ class AppDatabase {
     _overridePath = null;
   }
 
+  /// Removes every row of every table, keeping the schema — the "delete all
+  /// my data" action. Returns the number of tables emptied.
+  Future<int> eraseAll() async {
+    final db = await database;
+    final tables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' "
+      "AND name NOT LIKE 'sqlite_%' AND name != 'android_metadata'",
+    );
+    await db.transaction((txn) async {
+      for (final t in tables) {
+        await txn.delete('"${t['name']}"');
+      }
+    });
+    return tables.length;
+  }
+
   /// Releases the underlying handle. Mainly for tests, so a temp database
   /// file can be deleted afterwards.
   Future<void> close() async {

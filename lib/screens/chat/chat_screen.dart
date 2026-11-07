@@ -12,6 +12,7 @@ import '../../notifications/app_lifecycle_tracker.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../widgets/markdown_reply.dart';
+import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
 import 'proposal_card.dart';
 
@@ -263,6 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: _messages.isEmpty
               ? _EmptyState(
                   configured: _settings.isConfigured,
+                  needsConsent: _settings.needsConsent,
                   onSuggestion: _sendText,
                 )
               : ListView.builder(
@@ -324,9 +326,16 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.configured, required this.onSuggestion});
+  const _EmptyState({
+    required this.configured,
+    required this.onSuggestion,
+    this.needsConsent = false,
+  });
 
   final bool configured;
+
+  /// A provider is set up but the athlete hasn't agreed to data being sent.
+  final bool needsConsent;
 
   /// Tapping a starter question sends it, so a blank screen isn't the first
   /// thing an athlete has to think of a question for.
@@ -369,7 +378,10 @@ class _EmptyState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            if (!configured) ...[
+            if (needsConsent) ...[
+              const SizedBox(height: 16),
+              const AiConsentCard(),
+            ] else if (!configured) ...[
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(

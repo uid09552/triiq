@@ -88,7 +88,9 @@ class CalendarSettingsSection extends StatelessWidget {
     try {
       await (_syncRange ?? _defaultSync)(first, last);
     } catch (error) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.syncFailedMessage('$error'))));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.syncFailedMessage('$error'))),
+      );
     }
   }
 

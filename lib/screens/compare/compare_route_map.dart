@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../data/privacy_settings.dart';
 import '../../evaluation/activity_route.dart';
 
 const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -55,6 +56,7 @@ class CompareRouteMap extends StatelessWidget {
     final b = _line(routeB);
     final all = [...a, ...b];
     if (all.isEmpty) return const SizedBox.shrink();
+    final tiles = showTiles && PrivacySettings.instance.mapTiles;
     return FlutterMap(
       options: MapOptions(
         initialCameraFit: CameraFit.coordinates(
@@ -71,7 +73,7 @@ class CompareRouteMap extends StatelessWidget {
             : (_, point) => onTap!(point.latitude, point.longitude),
       ),
       children: [
-        if (showTiles)
+        if (tiles)
           TileLayer(
             urlTemplate: _tileUrl,
             userAgentPackageName: 'com.triiq.triiq',
@@ -116,7 +118,7 @@ class CompareRouteMap extends StatelessWidget {
             );
           },
         ),
-        if (showTiles)
+        if (tiles)
           const SimpleAttributionWidget(
             source: Text('© OpenStreetMap contributors'),
           ),

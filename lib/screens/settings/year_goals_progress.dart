@@ -220,7 +220,10 @@ class _Bar extends StatelessWidget {
                 left: (width * pace.clamp(0.0, 1.0)) - 1,
                 top: -2,
                 bottom: -2,
-                child: Container(width: 2, color: marker.withValues(alpha: 0.7)),
+                child: Container(
+                  width: 2,
+                  color: marker.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ),
