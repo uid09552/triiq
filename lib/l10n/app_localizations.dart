@@ -6289,6 +6289,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use all signals'**
   String get readinessOptionsReset;
+
+  /// No description provided for @durTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Durability'**
+  String get durTitle;
+
+  /// No description provided for @durSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Power or pace after hours of work, against your fresh best'**
+  String get durSubtitle;
+
+  /// No description provided for @durFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Season best'**
+  String get durFresh;
+
+  /// No description provided for @durAfterKj.
+  ///
+  /// In en, this message translates to:
+  /// **'After {kj} kJ'**
+  String durAfterKj(int kj);
+
+  /// No description provided for @durAfterKm.
+  ///
+  /// In en, this message translates to:
+  /// **'After {km} km'**
+  String durAfterKm(int km);
+
+  /// No description provided for @durRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept'**
+  String get durRetained;
+
+  /// No description provided for @durHintRide.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of your fresh power is left once you have already done the work shown. An effort only counts when it starts after that much work, taken from your recent long rides.'**
+  String get durHintRide;
+
+  /// No description provided for @durHintRun.
+  ///
+  /// In en, this message translates to:
+  /// **'How fast you can still run once you have already covered the distance shown. An effort only counts when it starts after that distance, taken from your recent long runs.'**
+  String get durHintRun;
+
+  /// No description provided for @durBasedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {analysed} of {candidates} long sessions in the last {days} days.'**
+  String durBasedOn(int analysed, int candidates, int days);
+
+  /// No description provided for @durFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sessions had no usable stream.'**
+  String durFailed(int count);
+
+  /// No description provided for @durReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading sessions {done}/{total}…'**
+  String durReading(int done, int total);
+
+  /// No description provided for @durNoneRide.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides with at least 1,000 kJ of work in this range.'**
+  String get durNoneRide;
+
+  /// No description provided for @durNoneRun.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs of at least 10 km in this range.'**
+  String get durNoneRun;
+
+  /// No description provided for @durNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough work in the sessions found to reach these levels.'**
+  String get durNoData;
+
+  /// No description provided for @durError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the sessions: {error}'**
+  String durError(String error);
+
+  /// No description provided for @wtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wellness trends'**
+  String get wtTitle;
+
+  /// No description provided for @wtSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV, resting HR, sleep and weight over time, with a 7-day average and your usual range'**
+  String get wtSubtitle;
+
+  /// No description provided for @wtMetricWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get wtMetricWeight;
+
+  /// No description provided for @wtLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get wtLatest;
+
+  /// No description provided for @wtAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day avg'**
+  String get wtAverage;
+
+  /// No description provided for @wtWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'vs a week ago'**
+  String get wtWeek;
+
+  /// No description provided for @wtBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Below your usual range'**
+  String get wtBelow;
+
+  /// No description provided for @wtWithin.
+  ///
+  /// In en, this message translates to:
+  /// **'In your usual range'**
+  String get wtWithin;
+
+  /// No description provided for @wtAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Above your usual range'**
+  String get wtAbove;
+
+  /// No description provided for @wtBandNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaded band: your usual range, the mean ± 1 SD over this period.'**
+  String get wtBandNote;
+
+  /// No description provided for @wtNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data in this range.'**
+  String get wtNoData;
+
+  /// No description provided for @wtLongerTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Longer trends'**
+  String get wtLongerTrends;
+
+  /// No description provided for @wtShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get wtShow;
 }
 
 class _AppLocalizationsDelegate

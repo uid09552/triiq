@@ -3855,4 +3855,108 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readinessOptionsReset => 'Alle Werte verwenden';
+
+  @override
+  String get durTitle => 'Ermüdungsresistenz';
+
+  @override
+  String get durSubtitle =>
+      'Leistung oder Tempo nach vielen Stunden Arbeit, im Vergleich zur frischen Bestleistung';
+
+  @override
+  String get durFresh => 'Saisonbestwert';
+
+  @override
+  String durAfterKj(int kj) {
+    return 'Nach $kj kJ';
+  }
+
+  @override
+  String durAfterKm(int km) {
+    return 'Nach $km km';
+  }
+
+  @override
+  String get durRetained => 'Behalten';
+
+  @override
+  String get durHintRide =>
+      'Wie viel deiner frischen Leistung nach der gezeigten Arbeit übrig ist. Eine Leistung zählt nur, wenn sie nach dieser Arbeit beginnt, aus deinen letzten langen Fahrten.';
+
+  @override
+  String get durHintRun =>
+      'Wie schnell du nach der gezeigten Distanz noch laufen kannst. Eine Leistung zählt nur, wenn sie nach dieser Distanz beginnt, aus deinen letzten langen Läufen.';
+
+  @override
+  String durBasedOn(int analysed, int candidates, int days) {
+    return 'Basiert auf $analysed von $candidates langen Einheiten der letzten $days Tage.';
+  }
+
+  @override
+  String durFailed(int count) {
+    return '$count Einheiten hatten keinen verwertbaren Verlauf.';
+  }
+
+  @override
+  String durReading(int done, int total) {
+    return 'Lese Einheiten $done/$total …';
+  }
+
+  @override
+  String get durNoneRide =>
+      'Keine Fahrten mit mindestens 1.000 kJ Arbeit in diesem Zeitraum.';
+
+  @override
+  String get durNoneRun =>
+      'Keine Läufe von mindestens 10 km in diesem Zeitraum.';
+
+  @override
+  String get durNoData =>
+      'In den gefundenen Einheiten wird keines dieser Niveaus erreicht.';
+
+  @override
+  String durError(String error) {
+    return 'Einheiten konnten nicht gelesen werden: $error';
+  }
+
+  @override
+  String get wtTitle => 'Wellness-Trends';
+
+  @override
+  String get wtSubtitle =>
+      'HRV, Ruhepuls, Schlaf und Gewicht im Zeitverlauf, mit 7-Tage-Mittel und deinem üblichen Bereich';
+
+  @override
+  String get wtMetricWeight => 'Gewicht';
+
+  @override
+  String get wtLatest => 'Zuletzt';
+
+  @override
+  String get wtAverage => '7-Tage-Mittel';
+
+  @override
+  String get wtWeek => 'zur Vorwoche';
+
+  @override
+  String get wtBelow => 'Unter deinem üblichen Bereich';
+
+  @override
+  String get wtWithin => 'Im üblichen Bereich';
+
+  @override
+  String get wtAbove => 'Über deinem üblichen Bereich';
+
+  @override
+  String get wtBandNote =>
+      'Schattiertes Band: dein üblicher Bereich, Mittelwert ± 1 Standardabweichung in diesem Zeitraum.';
+
+  @override
+  String get wtNoData => 'Keine Daten in diesem Zeitraum.';
+
+  @override
+  String get wtLongerTrends => 'Längere Trends';
+
+  @override
+  String get wtShow => 'Anzeigen';
 }

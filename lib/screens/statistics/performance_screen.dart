@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/charts/duration_curve_chart.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/chart_options.dart';
+import 'durability_screen.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_detail_screen.dart';
 import 'threshold_suggestion_card.dart';
@@ -297,6 +298,23 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               ThresholdSuggestionsSection(),
+              if (_sport == CurveSport.ride || _sport == CurveSport.run) ...[
+                Card(
+                  child: ListTile(
+                    key: const ValueKey('durability-link'),
+                    leading: const Icon(Icons.battery_charging_full),
+                    title: Text(l10n.durTitle),
+                    subtitle: Text(l10n.durSubtitle),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => DurabilityScreen(sport: _sport),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               if (_loading) ...[
                 const SizedBox(height: 12),
                 const LinearProgressIndicator(),

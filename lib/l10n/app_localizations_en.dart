@@ -3820,4 +3820,107 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessOptionsReset => 'Use all signals';
+
+  @override
+  String get durTitle => 'Durability';
+
+  @override
+  String get durSubtitle =>
+      'Power or pace after hours of work, against your fresh best';
+
+  @override
+  String get durFresh => 'Season best';
+
+  @override
+  String durAfterKj(int kj) {
+    return 'After $kj kJ';
+  }
+
+  @override
+  String durAfterKm(int km) {
+    return 'After $km km';
+  }
+
+  @override
+  String get durRetained => 'Kept';
+
+  @override
+  String get durHintRide =>
+      'How much of your fresh power is left once you have already done the work shown. An effort only counts when it starts after that much work, taken from your recent long rides.';
+
+  @override
+  String get durHintRun =>
+      'How fast you can still run once you have already covered the distance shown. An effort only counts when it starts after that distance, taken from your recent long runs.';
+
+  @override
+  String durBasedOn(int analysed, int candidates, int days) {
+    return 'Based on $analysed of $candidates long sessions in the last $days days.';
+  }
+
+  @override
+  String durFailed(int count) {
+    return '$count sessions had no usable stream.';
+  }
+
+  @override
+  String durReading(int done, int total) {
+    return 'Reading sessions $done/$total…';
+  }
+
+  @override
+  String get durNoneRide =>
+      'No rides with at least 1,000 kJ of work in this range.';
+
+  @override
+  String get durNoneRun => 'No runs of at least 10 km in this range.';
+
+  @override
+  String get durNoData =>
+      'Not enough work in the sessions found to reach these levels.';
+
+  @override
+  String durError(String error) {
+    return 'Could not read the sessions: $error';
+  }
+
+  @override
+  String get wtTitle => 'Wellness trends';
+
+  @override
+  String get wtSubtitle =>
+      'HRV, resting HR, sleep and weight over time, with a 7-day average and your usual range';
+
+  @override
+  String get wtMetricWeight => 'Weight';
+
+  @override
+  String get wtLatest => 'Latest';
+
+  @override
+  String get wtAverage => '7-day avg';
+
+  @override
+  String get wtWeek => 'vs a week ago';
+
+  @override
+  String get wtBelow => 'Below your usual range';
+
+  @override
+  String get wtWithin => 'In your usual range';
+
+  @override
+  String get wtAbove => 'Above your usual range';
+
+  @override
+  String get wtBandNote =>
+      'Shaded band: your usual range, the mean ± 1 SD over this period.';
+
+  @override
+  String get wtNoData => 'No data in this range.';
+
+  @override
+  String get wtLongerTrends => 'Longer trends';
+
+  @override
+  String get wtShow => 'Show';
 }

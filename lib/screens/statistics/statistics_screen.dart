@@ -23,6 +23,7 @@ import '../activities/activity_icons.dart';
 import 'analytics_screen.dart';
 import '../compare/compare_screen.dart';
 import 'performance_screen.dart';
+import 'wellness_trends_screen.dart';
 
 /// Training-load trends and volume, all of it read from the local cache:
 /// the CTL/ATL curve over the chosen window, completed-vs-planned load per
@@ -281,6 +282,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (_) => const AnalyticsScreen(),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.monitor_heart_outlined),
+              title: Text(l10n.wtTitle),
+              subtitle: Text(l10n.wtSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => WellnessTrendsScreen(),
                 ),
               ),
             ),
