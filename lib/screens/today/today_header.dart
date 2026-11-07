@@ -20,6 +20,7 @@ class TodayHeader extends StatelessWidget {
     required this.onFeel,
     required this.onCustomize,
     this.onOpenIntervals,
+    this.titleColor,
     this.doneTss = 0,
     this.plannedTss = 0,
     this.doneSeconds = 0,
@@ -28,6 +29,10 @@ class TodayHeader extends StatelessWidget {
 
   final DateTime date;
   final String title;
+
+  /// Tints the title, e.g. in the readiness colour when readiness advises
+  /// caution.
+  final Color? titleColor;
   final String subtitle;
   final bool loading;
 
@@ -190,6 +195,7 @@ class TodayHeader extends StatelessWidget {
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             height: 1.2,
+                            color: titleColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -210,7 +216,10 @@ class TodayHeader extends StatelessWidget {
                     onPressed: () => _showActions(context),
                     tooltip: l10n.heroMoreTooltip,
                     visualDensity: VisualDensity.compact,
-                    icon: Icon(Icons.more_horiz, color: scheme.onSurfaceVariant),
+                    icon: Icon(
+                      Icons.more_horiz,
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                   // Doubles as the refresh affordance: pull-to-refresh is
                   // fine on a phone but awkward with a mouse on Windows.
@@ -250,10 +259,7 @@ class TodayHeader extends StatelessWidget {
                       if (doneSeconds > 0)
                         chip(Icons.timer_outlined, _duration(doneSeconds)),
                       if (sessions > 0)
-                        chip(
-                          Icons.directions_run,
-                          l10n.heroSessions(sessions),
-                        ),
+                        chip(Icons.directions_run, l10n.heroSessions(sessions)),
                     ],
                   ),
                 ),

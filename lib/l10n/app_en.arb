@@ -1529,5 +1529,7 @@
   "beHint": "Each point is your best effort in a 30-day window; the second line is the best of the 90 days up to it. Change compares your last 30 days with the best of the 90 days before them: green is a better effort, red a worse one.",
   "beNoData": "No efforts recorded in the last year.",
   "beError": "Could not load your efforts: {error}",
-  "@beError": {"placeholders": {"error": {"type": "String"}}}
+  "@beError": {"placeholders": {"error": {"type": "String"}}},
+  "heroTitleCaution": "Train with care",
+  "heroTitleBackOff": "Take it easy today"
 }

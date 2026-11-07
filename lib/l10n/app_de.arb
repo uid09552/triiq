@@ -1296,5 +1296,7 @@
   "beColChange": "Änderung",
   "beHint": "Jeder Punkt ist deine beste Leistung in einem 30-Tage-Fenster; die zweite Linie ist der Bestwert der 90 Tage bis dahin. Die Änderung vergleicht deine letzten 30 Tage mit dem Bestwert der 90 Tage davor: grün ist besser, rot schlechter.",
   "beNoData": "Keine Leistungen im letzten Jahr aufgezeichnet.",
-  "beError": "Leistungen konnten nicht geladen werden: {error}"
+  "beError": "Leistungen konnten nicht geladen werden: {error}",
+  "heroTitleCaution": "Mit Bedacht trainieren",
+  "heroTitleBackOff": "Heute etwas kürzertreten"
 }

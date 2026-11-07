@@ -4124,4 +4124,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String beError(String error) {
     return 'Leistungen konnten nicht geladen werden: $error';
   }
+
+  @override
+  String get heroTitleCaution => 'Mit Bedacht trainieren';
+
+  @override
+  String get heroTitleBackOff => 'Heute etwas kürzertreten';
 }

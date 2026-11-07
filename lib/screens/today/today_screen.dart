@@ -25,6 +25,7 @@ import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
+import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
 import '../../evaluation/readiness_settings.dart';
 import '../../util/dates.dart';
@@ -538,7 +539,8 @@ class _TodayScreenState extends State<TodayScreen> {
         children: [
           TodayHeader(
             date: DateTime.now(),
-            title: l10n.heroActivitiesStatus(_activities.length),
+            title: _heroTitle(l10n),
+            titleColor: _heroTitleColor(context),
             subtitle: _describeStatus(context, connected),
             loading: _loading,
             onRefresh: _refreshFromGesture,
@@ -623,6 +625,39 @@ class _TodayScreenState extends State<TodayScreen> {
       if (ftp != null && ftp > 0) parts.add('$sport ${l10n.ftpValue(ftp)}');
     }
     return parts.isEmpty ? l10n.syncedWithIntervals : parts.join(' · ');
+  }
+
+  /// Today's readiness once the wearable data says something: a day marked
+  /// Caution or Back off no longer opens with "Ready to train" above a
+  /// readiness card that says the opposite. Null while it loads, with no
+  /// wellness data at all, or on a Ready day.
+  ReadinessLevel? get _heroReadiness {
+    final r = _readiness?.readiness;
+    if (r == null || r.dataState == ReadinessDataState.noData) return null;
+    return r.level == ReadinessLevel.ready ? null : r.level;
+  }
+
+  /// "Ready to train" until something is logged — unless readiness advises
+  /// otherwise. Once an activity is logged the title is just the count.
+  String _heroTitle(AppLocalizations l10n) {
+    if (_activities.isEmpty) {
+      switch (_heroReadiness) {
+        case ReadinessLevel.caution:
+          return l10n.heroTitleCaution;
+        case ReadinessLevel.backOff:
+          return l10n.heroTitleBackOff;
+        case ReadinessLevel.ready || null:
+          break;
+      }
+    }
+    return l10n.heroActivitiesStatus(_activities.length);
+  }
+
+  Color? _heroTitleColor(BuildContext context) {
+    final level = _heroReadiness;
+    return _activities.isEmpty && level != null
+        ? readinessColor(Theme.of(context).colorScheme, level)
+        : null;
   }
 
   String _describeStatus(BuildContext context, bool connected) {

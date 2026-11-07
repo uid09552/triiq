@@ -299,6 +299,83 @@ void main() {
       },
     );
 
+    test(
+      'a sent plan session, picked as its event, is replaced as the session',
+      () async {
+        final session = await planSession(eventId: '501');
+        await events.replaceRange(isoDate(day), isoDate(day), [
+          intervalsEvent(),
+        ]);
+
+        final outcome = await actions().replaceSession(
+          intervalsEvent(),
+          alternative(),
+        );
+
+        expect(outcome, ReplaceOutcome.replaced);
+        // The new workout is on the calendar and the old one is gone.
+        expect(workouts.created.single.name, 'Easy run');
+        expect(workouts.deleted, ['501']);
+        expect(await events.getByDate(isoDate(day)), isEmpty);
+        // The plan session is the new workout from here on. Before, it kept
+        // pointing at the deleted event, so the old session came back as a
+        // plan item next to the new one.
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.name, 'Easy run');
+        expect(after.intervalsEventId, '901');
+        expect(after.status, PlanSessionStatus.created);
+        // Tagged like every session TriIQ sent, so a later sync recognises it.
+        expect(workouts.created.single.tags, isNotNull);
+        expect(workouts.created.single.externalId, isNotNull);
+        // Only the replacement is left to show for the day.
+        final shown = await PlannedItemsRepository(
+          plans: plans,
+          events: events,
+          copyEvents: () async => true,
+        ).getByDate(isoDate(day));
+        expect(shown.map((e) => e.name), isNot(contains('Coach ride')));
+      },
+    );
+
+    test(
+      'replacing a sent session works with "send plan" switched off',
+      () async {
+        await planSession(eventId: '501');
+        await events.replaceRange(isoDate(day), isoDate(day), [
+          intervalsEvent(),
+        ]);
+        send = false;
+
+        final outcome = await actions().replaceSession(
+          intervalsEvent(),
+          alternative(),
+        );
+
+        expect(outcome, ReplaceOutcome.replaced);
+        expect(workouts.deleted, ['501']);
+      },
+    );
+
+    test('the old event stays hidden even if the resync fails', () async {
+      await planSession(eventId: '501');
+      await events.replaceRange(isoDate(day), isoDate(day), [intervalsEvent()]);
+      final failing = PlanActions(
+        workouts: workouts,
+        plans: plans,
+        events: events,
+        sendEnabled: () => send,
+        connected: () => connected,
+        queue: queue,
+        resync: (d) async => throw StateError('offline'),
+        goals: GoalStore(),
+        clock: () => DateTime(2026, 11, 2, 9),
+      );
+
+      await failing.replaceSession(intervalsEvent(), alternative());
+
+      expect(await events.getByDate(isoDate(day)), isEmpty);
+    });
+
     test('delete fails: both exist, cached event kept', () async {
       await events.replaceRange(isoDate(day), isoDate(day), [intervalsEvent()]);
       workouts.deleteError = StateError('offline');

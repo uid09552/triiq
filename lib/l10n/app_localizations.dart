@@ -6751,6 +6751,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load your efforts: {error}'**
   String beError(String error);
+
+  /// No description provided for @heroTitleCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Train with care'**
+  String get heroTitleCaution;
+
+  /// No description provided for @heroTitleBackOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it easy today'**
+  String get heroTitleBackOff;
 }
 
 class _AppLocalizationsDelegate
