@@ -187,7 +187,13 @@ class _BestEffortsScreenState extends State<BestEffortsScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 if (_error != null)
-                  Text(l10n.beError('$_error'))
+                  Text(
+                    l10n.beError(
+                      _error is StateError
+                          ? (_error as StateError).message
+                          : '$_error',
+                    ),
+                  )
                 else if (!hasData)
                   Padding(
                     padding: const EdgeInsets.all(24),

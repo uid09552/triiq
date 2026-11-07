@@ -73,6 +73,7 @@ class WeeklyTargetsRow extends StatelessWidget {
             progress: progress,
             color: sportColor(representativeType, colorScheme),
             doneColor: colorScheme.tertiary,
+            icon: activityTypeIcon(representativeType),
           );
           // Long-press lists the week's activities behind the ring, with
           // the same press feedback as the Today tiles.
