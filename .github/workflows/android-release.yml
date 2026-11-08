@@ -94,6 +94,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # The prebuilt libsqlite3.so files the sqlite3 build hook downloads from
+      # GitHub releases (one per ABI). Kept between runs so a release does not
+      # depend on that download working every time; the hook checks each
+      # cached file against its known SHA-256 before reusing it.
+      - name: Cache sqlite3 native libraries
+        uses: actions/cache@v4
+        with:
+          path: .dart_tool/hooks_runner/shared/sqlite3/build
+          key: sqlite3-native-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: sqlite3-native-${{ runner.os }}-
+
       - name: Analyze
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
@@ -116,11 +127,12 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
 
-      # The sqlite3 package downloads its prebuilt libsqlite3.so per ABI from
-      # GitHub releases during the build and checks the hash. When GitHub
-      # answers with a 504 page the hash fails and so does the build; one
-      # flaky download should not cost the release, so the build is retried
-      # with a growing pause. A real build error fails every attempt alike.
+      # Without a cache hit the sqlite3 package downloads its prebuilt
+      # libsqlite3.so per ABI from GitHub releases during the build and checks
+      # the hash. When GitHub answers with a 504 page the hash fails and so
+      # does the build; a short outage should not cost the release, so the
+      # build is retried with a growing pause. A real build error fails every
+      # attempt alike.
       - name: Build APK
         run: |
           for attempt in 1 2 3 4; do
