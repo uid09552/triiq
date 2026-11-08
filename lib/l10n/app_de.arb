@@ -1428,5 +1428,17 @@
   "smOpenSync": "Synchronisierung öffnen",
   "smNeedHistory": "Dafür braucht es synchronisierte Aktivitäten aus Intervals.icu. Synchronisiere mehr Verlauf, um das zu füllen.",
   "wtNoDataReason": "Wellness-Daten kommen von deiner Uhr oder App über Intervals.icu (HRV, Ruhepuls, Schlaf, Gewicht). Synchronisiere oder wähle einen längeren Zeitraum.",
-  "sessionDiagramNoDataTitle": "Keine Zeitreihe"
+  "sessionDiagramNoDataTitle": "Keine Zeitreihe",
+  "a11yChartSeries": "{series}: zuletzt {value}, {change} im Zeitraum",
+  "a11yChartSelected": "Ausgewählt {label}: {values}",
+  "a11yChartNoData": "Diagramm, keine Daten",
+  "a11yBarChart": "Balkendiagramm, {count} Balken. Zuletzt {label}: {value}. Höchster {maxLabel}: {max}.",
+  "a11yReadinessScore": "Bereitschaft {score} von 100",
+  "a11yReadinessNoScore": "Bereitschaft, noch kein Wert",
+  "a11ySignalOk": "in Ordnung",
+  "a11ySignalCaution": "Vorsicht",
+  "a11ySignalBackOff": "zurückfahren",
+  "a11ySignalNone": "ohne Bewertung",
+  "a11yHeatmap": "Belastungs-Heatmap: {days} Tage mit Training, insgesamt {tss} TSS, längste Serie {streak} Tage.",
+  "a11yStreamChart": "Zeitreihen-Diagramm: {series}"
 }

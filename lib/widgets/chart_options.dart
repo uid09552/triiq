@@ -35,7 +35,6 @@ class ChartOptionsButton extends StatelessWidget {
         IconButton(
           key: const ValueKey('chart-options'),
           tooltip: AppLocalizations.of(context)!.chartOptions,
-          visualDensity: VisualDensity.compact,
           icon: const Icon(Icons.tune),
           onPressed: onPressed,
         ),

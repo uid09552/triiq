@@ -436,7 +436,6 @@ class _Row extends StatelessWidget {
               IconButton(
                 onPressed: onDelete,
                 tooltip: deleteTooltip,
-                visualDensity: VisualDensity.compact,
                 iconSize: 20,
                 icon: Icon(
                   Icons.delete_outline,

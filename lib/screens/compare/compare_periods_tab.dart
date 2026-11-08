@@ -263,6 +263,7 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
                       ChartSeries(
                         label: l10n.cmpThisBlock,
                         color: compareColorB,
+                        dashed: true,
                         values: cumCur,
                         average: false,
                       ),
@@ -288,6 +289,7 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
                     ChartSeries(
                       label: l10n.cmpThisBlock,
                       color: compareColorB,
+                      dashed: true,
                       values: const [],
                     ),
                   ],

@@ -143,7 +143,11 @@ class StreamChart extends StatefulWidget {
     this.smoothSeconds = 0,
     this.viewport,
     this.onCursorSeconds,
+    this.semanticsLabel,
   });
+
+  /// What a screen reader says about the chart (the streams drawn).
+  final String? semanticsLabel;
 
   final SessionStreams streams;
 
@@ -335,64 +339,74 @@ class _StreamChartState extends State<StreamChart> {
               if (t != null) cb(t);
             }
           },
-          child: SizedBox(
-            height: widget.height,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ListenableBuilder(
-                  listenable: vp,
-                  builder: (context, _) {
-                    final start = vp.lo.floor();
-                    final end = math.min(_length - 1, vp.hi.ceil());
-                    return CustomPaint(
-                      key: const ValueKey('stream-chart-paint'),
-                      painter: StreamChartPainter(
-                        series: {
-                          for (final t in types)
-                            t: _window(_drawn[t]!, start, end),
-                        },
-                        averages: {
-                          for (final t in types)
-                            if (_average(widget.streams.series[t]!, start, end)
-                                case final avg?)
-                              t: avg,
-                        },
-                        readoutValues: {
-                          if (readout != null)
+          child: Semantics(
+            container: true,
+            label: widget.semanticsLabel,
+            child: SizedBox(
+              height: widget.height,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ListenableBuilder(
+                    listenable: vp,
+                    builder: (context, _) {
+                      final start = vp.lo.floor();
+                      final end = math.min(_length - 1, vp.hi.ceil());
+                      return CustomPaint(
+                        key: const ValueKey('stream-chart-paint'),
+                        painter: StreamChartPainter(
+                          series: {
                             for (final t in types)
-                              if (readout < widget.streams.series[t]!.length)
-                                t: widget.streams.series[t]![readout],
-                        },
-                        readoutLabel: readout == null ? null : _clock(readout),
-                        length: _length,
-                        lo: vp.lo,
-                        hi: vp.hi,
-                        time: widget.streams.time,
-                        intervals: widget.streams.intervals,
-                        readout: readout,
-                        colorOf: (t) => streamColor(t, scheme),
-                        format: widget.format,
-                        leftAxis: leftW,
-                        rightAxis: rightW,
-                        band: scheme.primary.withValues(alpha: 0.09),
-                        grid: scheme.outlineVariant,
-                        cursor: scheme.onSurface,
-                        surface: scheme.surface,
-                        labelStyle: TextStyle(
-                          fontSize: 10,
-                          color: scheme.onSurfaceVariant,
+                              t: _window(_drawn[t]!, start, end),
+                          },
+                          averages: {
+                            for (final t in types)
+                              if (_average(
+                                    widget.streams.series[t]!,
+                                    start,
+                                    end,
+                                  )
+                                  case final avg?)
+                                t: avg,
+                          },
+                          readoutValues: {
+                            if (readout != null)
+                              for (final t in types)
+                                if (readout < widget.streams.series[t]!.length)
+                                  t: widget.streams.series[t]![readout],
+                          },
+                          readoutLabel: readout == null
+                              ? null
+                              : _clock(readout),
+                          length: _length,
+                          lo: vp.lo,
+                          hi: vp.hi,
+                          time: widget.streams.time,
+                          intervals: widget.streams.intervals,
+                          readout: readout,
+                          colorOf: (t) => streamColor(t, scheme),
+                          format: widget.format,
+                          leftAxis: leftW,
+                          rightAxis: rightW,
+                          band: scheme.primary.withValues(alpha: 0.09),
+                          grid: scheme.outlineVariant,
+                          cursor: scheme.onSurface,
+                          surface: scheme.surface,
+                          labelStyle: TextStyle(
+                            fontSize: 10,
+                            color: scheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                Positioned(
-                  top: 2,
-                  left: leftW + 4,
-                  child: ZoomControls(viewport: vp),
-                ),
-              ],
+                      );
+                    },
+                  ),
+                  Positioned(
+                    top: 2,
+                    left: leftW + 4,
+                    child: ZoomControls(viewport: vp),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -4602,4 +4602,58 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sessionDiagramNoDataTitle => 'Keine Zeitreihe';
+
+  @override
+  String a11yChartSeries(String series, String value, String change) {
+    return '$series: zuletzt $value, $change im Zeitraum';
+  }
+
+  @override
+  String a11yChartSelected(String label, String values) {
+    return 'Ausgewählt $label: $values';
+  }
+
+  @override
+  String get a11yChartNoData => 'Diagramm, keine Daten';
+
+  @override
+  String a11yBarChart(
+    int count,
+    String label,
+    String value,
+    String maxLabel,
+    String max,
+  ) {
+    return 'Balkendiagramm, $count Balken. Zuletzt $label: $value. Höchster $maxLabel: $max.';
+  }
+
+  @override
+  String a11yReadinessScore(int score) {
+    return 'Bereitschaft $score von 100';
+  }
+
+  @override
+  String get a11yReadinessNoScore => 'Bereitschaft, noch kein Wert';
+
+  @override
+  String get a11ySignalOk => 'in Ordnung';
+
+  @override
+  String get a11ySignalCaution => 'Vorsicht';
+
+  @override
+  String get a11ySignalBackOff => 'zurückfahren';
+
+  @override
+  String get a11ySignalNone => 'ohne Bewertung';
+
+  @override
+  String a11yHeatmap(int days, int tss, int streak) {
+    return 'Belastungs-Heatmap: $days Tage mit Training, insgesamt $tss TSS, längste Serie $streak Tage.';
+  }
+
+  @override
+  String a11yStreamChart(String series) {
+    return 'Zeitreihen-Diagramm: $series';
+  }
 }

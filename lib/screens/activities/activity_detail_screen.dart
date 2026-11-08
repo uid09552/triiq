@@ -577,13 +577,15 @@ class _StatGrid extends StatelessWidget {
 
     if (tiles.isEmpty) return const SizedBox.shrink();
 
+    // Taller tiles as the text grows, so a 200 % font still fits.
+    final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 0.95,
+      childAspectRatio: 0.95 / (textScale < 1 ? 1 : textScale),
       children: tiles,
     );
   }

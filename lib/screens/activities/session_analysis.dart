@@ -245,6 +245,9 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               StreamChart(
+                semanticsLabel: l10n.a11yStreamChart(
+                  [for (final t in visible) streamLabel(l10n, t)].join(', '),
+                ),
                 streams: streams,
                 visible: visible,
                 format: _format,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'chart_viewport.dart';
+import 'line_chart.dart' show chartL10n;
 
 /// One bar: a value, an optional target drawn behind it, and the label that
 /// goes under the axis.
@@ -42,7 +43,11 @@ class SimpleBarChart extends StatelessWidget {
     this.targetColor,
     this.showAverage = true,
     this.formatValue,
+    this.semanticsLabel,
   });
+
+  /// What a screen reader says; latest and highest bar by default.
+  final String? semanticsLabel;
 
   /// Dashed line at the mean bar height.
   final bool showAverage;
@@ -62,41 +67,66 @@ class SimpleBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final format = formatValue ?? (v) => v.toStringAsFixed(0);
+    final l10n = chartL10n(context);
+    String? summary = semanticsLabel;
+    if (summary == null && bars.isNotEmpty) {
+      final top = bars.reduce((a, b) => b.value > a.value ? b : a);
+      summary = l10n.a11yBarChart(
+        bars.length,
+        bars.last.label,
+        format(bars.last.value),
+        top.label,
+        format(top.value),
+      );
+    }
+    final sel = selectedIndex;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        void handleTap(Offset position) {
-          if (bars.isEmpty || onSelect == null) return;
-          final barWidth = constraints.maxWidth / bars.length;
-          onSelect!((position.dx / barWidth).floor().clamp(0, bars.length - 1));
-        }
+    return Semantics(
+      container: true,
+      label: summary ?? l10n.a11yChartNoData,
+      value: sel == null || sel >= bars.length
+          ? null
+          : l10n.a11yChartSelected(bars[sel].label, format(bars[sel].value)),
+      liveRegion: sel != null,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          void handleTap(Offset position) {
+            if (bars.isEmpty || onSelect == null) return;
+            final barWidth = constraints.maxWidth / bars.length;
+            onSelect!(
+              (position.dx / barWidth).floor().clamp(0, bars.length - 1),
+            );
+          }
 
-        return GestureDetector(
-          onTapDown: (details) => handleTap(details.localPosition),
-          onHorizontalDragUpdate: (details) => handleTap(details.localPosition),
-          child: CustomPaint(
-            size: Size(constraints.maxWidth, constraints.maxHeight),
-            painter: _BarChartPainter(
-              bars: bars,
-              selected: selectedIndex,
-              barColor: barColor ?? colorScheme.primary,
-              selectedBarColor: colorScheme.tertiary,
-              targetColor: (targetColor ?? colorScheme.tertiary).withValues(
-                alpha: 0.3,
-              ),
-              tickColor: colorScheme.onSurface,
-              labelEvery: labelEvery,
-              showAverage: showAverage,
-              format: formatValue ?? (v) => v.toStringAsFixed(0),
-              surface: colorScheme.surface,
-              labelStyle: TextStyle(
-                fontSize: 10,
-                color: colorScheme.onSurfaceVariant,
+          return GestureDetector(
+            onTapDown: (details) => handleTap(details.localPosition),
+            onHorizontalDragUpdate: (details) =>
+                handleTap(details.localPosition),
+            child: CustomPaint(
+              size: Size(constraints.maxWidth, constraints.maxHeight),
+              painter: _BarChartPainter(
+                bars: bars,
+                selected: selectedIndex,
+                barColor: barColor ?? colorScheme.primary,
+                selectedBarColor: colorScheme.tertiary,
+                targetColor: (targetColor ?? colorScheme.tertiary).withValues(
+                  alpha: 0.3,
+                ),
+                tickColor: colorScheme.onSurface,
+                labelEvery: labelEvery,
+                showAverage: showAverage,
+                format: formatValue ?? (v) => v.toStringAsFixed(0),
+                surface: colorScheme.surface,
+                labelStyle: TextStyle(
+                  fontSize: 10,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

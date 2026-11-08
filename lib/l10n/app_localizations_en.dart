@@ -4562,4 +4562,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionDiagramNoDataTitle => 'No time series';
+
+  @override
+  String a11yChartSeries(String series, String value, String change) {
+    return '$series: latest $value, $change over the range';
+  }
+
+  @override
+  String a11yChartSelected(String label, String values) {
+    return 'Selected $label: $values';
+  }
+
+  @override
+  String get a11yChartNoData => 'Chart, no data';
+
+  @override
+  String a11yBarChart(
+    int count,
+    String label,
+    String value,
+    String maxLabel,
+    String max,
+  ) {
+    return 'Bar chart, $count bars. Latest $label: $value. Highest $maxLabel: $max.';
+  }
+
+  @override
+  String a11yReadinessScore(int score) {
+    return 'Readiness $score of 100';
+  }
+
+  @override
+  String get a11yReadinessNoScore => 'Readiness, no score yet';
+
+  @override
+  String get a11ySignalOk => 'fine';
+
+  @override
+  String get a11ySignalCaution => 'caution';
+
+  @override
+  String get a11ySignalBackOff => 'back off';
+
+  @override
+  String get a11ySignalNone => 'no rating';
+
+  @override
+  String a11yHeatmap(int days, int tss, int streak) {
+    return 'Load heatmap: $days days with training, $tss TSS in total, longest streak $streak days.';
+  }
+
+  @override
+  String a11yStreamChart(String series) {
+    return 'Time-series chart: $series';
+  }
 }

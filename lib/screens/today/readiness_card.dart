@@ -183,7 +183,11 @@ class _ScoreRing extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final tone = dim ? scheme.onSurfaceVariant : color;
+    final l10n = AppLocalizations.of(context)!;
     return GaugeRing(
+      semanticsLabel: score == null
+          ? l10n.a11yReadinessNoScore
+          : l10n.a11yReadinessScore(score!),
       progress: (score ?? 0) / 100,
       color: color,
       size: 76,
@@ -256,6 +260,18 @@ class _SignalPills extends StatelessWidget {
           label: readinessSignalLabel(l10n, s.kind),
           value: valueOf(s) ?? '–',
           color: tint(s.rating),
+          icon: switch (s.rating) {
+            SignalRating.ok => Icons.check_circle,
+            SignalRating.caution => Icons.warning_amber_rounded,
+            SignalRating.backOff => Icons.error,
+            _ => Icons.remove_circle_outline,
+          },
+          rating: switch (s.rating) {
+            SignalRating.ok => l10n.a11ySignalOk,
+            SignalRating.caution => l10n.a11ySignalCaution,
+            SignalRating.backOff => l10n.a11ySignalBackOff,
+            _ => l10n.a11ySignalNone,
+          },
         ),
     ];
 
@@ -304,51 +320,70 @@ class _Pill extends StatelessWidget {
     required this.label,
     required this.value,
     required this.color,
+    this.icon,
+    this.rating,
   });
 
   final String label;
   final String value;
   final Color color;
 
+  /// The rating as a shape, not only a colour.
+  final IconData? icon;
+
+  /// The rating in words, for a screen reader.
+  final String? rating;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              fontSize: 10,
-              color: theme.colorScheme.onSurfaceVariant,
+    return Semantics(
+      container: true,
+      label: rating == null ? '$label $value' : '$label $value, $rating',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.35)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontSize: 10,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                value,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null)
+                  Icon(icon, size: 12, color: color)
+                else
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                const SizedBox(width: 4),
+                Text(
+                  value,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

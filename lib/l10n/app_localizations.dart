@@ -7585,6 +7585,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No time series'**
   String get sessionDiagramNoDataTitle;
+
+  /// No description provided for @a11yChartSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'{series}: latest {value}, {change} over the range'**
+  String a11yChartSeries(String series, String value, String change);
+
+  /// No description provided for @a11yChartSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected {label}: {values}'**
+  String a11yChartSelected(String label, String values);
+
+  /// No description provided for @a11yChartNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart, no data'**
+  String get a11yChartNoData;
+
+  /// No description provided for @a11yBarChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar chart, {count} bars. Latest {label}: {value}. Highest {maxLabel}: {max}.'**
+  String a11yBarChart(
+    int count,
+    String label,
+    String value,
+    String maxLabel,
+    String max,
+  );
+
+  /// No description provided for @a11yReadinessScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness {score} of 100'**
+  String a11yReadinessScore(int score);
+
+  /// No description provided for @a11yReadinessNoScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness, no score yet'**
+  String get a11yReadinessNoScore;
+
+  /// No description provided for @a11ySignalOk.
+  ///
+  /// In en, this message translates to:
+  /// **'fine'**
+  String get a11ySignalOk;
+
+  /// No description provided for @a11ySignalCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'caution'**
+  String get a11ySignalCaution;
+
+  /// No description provided for @a11ySignalBackOff.
+  ///
+  /// In en, this message translates to:
+  /// **'back off'**
+  String get a11ySignalBackOff;
+
+  /// No description provided for @a11ySignalNone.
+  ///
+  /// In en, this message translates to:
+  /// **'no rating'**
+  String get a11ySignalNone;
+
+  /// No description provided for @a11yHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Load heatmap: {days} days with training, {tss} TSS in total, longest streak {streak} days.'**
+  String a11yHeatmap(int days, int tss, int streak);
+
+  /// No description provided for @a11yStreamChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Time-series chart: {series}'**
+  String a11yStreamChart(String series);
 }
 
 class _AppLocalizationsDelegate

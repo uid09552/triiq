@@ -359,6 +359,7 @@ class _CompareActivitiesTabState extends State<CompareActivitiesTab> {
                           ChartSeries(
                             label: l10n.cmpSecond,
                             color: compareColorB,
+                            dashed: true,
                             values: b,
                             strokeWidth: 2.4,
                             average: false,

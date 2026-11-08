@@ -194,11 +194,19 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
                             children: [
                               _readout(context, l10n, heatmap),
                               const SizedBox(height: 10),
-                              _Grid(
-                                heatmap: heatmap,
-                                selected: _selected,
-                                onSelect: (d) => setState(
-                                  () => _selected = _selected == d ? null : d,
+                              Semantics(
+                                container: true,
+                                label: l10n.a11yHeatmap(
+                                  heatmap.activeDays,
+                                  heatmap.totalTss,
+                                  heatmap.longestStreak,
+                                ),
+                                child: _Grid(
+                                  heatmap: heatmap,
+                                  selected: _selected,
+                                  onSelect: (d) => setState(
+                                    () => _selected = _selected == d ? null : d,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 10),

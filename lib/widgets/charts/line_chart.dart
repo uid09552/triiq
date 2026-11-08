@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import 'chart_viewport.dart';
 
 /// One line on a [MetricLineChart]. `null` entries are gaps — a day with no
@@ -17,7 +19,11 @@ class ChartSeries {
     this.opacity = 1,
     this.markExtremes = false,
     this.average = true,
+    this.dashed = false,
   });
+
+  /// Draw the line dashed — a second cue besides colour, e.g. Compare's B.
+  final bool dashed;
 
   final String label;
   final Color color;
@@ -75,7 +81,11 @@ class MetricLineChart extends StatefulWidget {
     this.formatValue,
     this.viewport,
     this.band,
+    this.semanticsLabel,
   });
+
+  /// What a screen reader says; a summary of each series by default.
+  final String? semanticsLabel;
 
   /// Share the zoom window with other charts so they pan and zoom together;
   /// the chart keeps its own when null.
@@ -142,57 +152,123 @@ class _MetricLineChartState extends State<MetricLineChart> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = chartL10n(context);
+    final format = widget.formatValue ?? _LineChartPainter.formatAxis;
+    final selected = widget.selectedIndex ?? _selected;
 
-    return ChartInteraction(
-      viewport: _viewport,
-      plotLeft: _LineChartPainter.axisWidth,
-      zoomable: widget.zoomable,
-      onSelectAt: (index) {
-        setState(() => _selected = index);
-        widget.onSelect?.call(index);
-      },
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ListenableBuilder(
-            listenable: _viewport,
-            builder: (context, _) => CustomPaint(
-              painter: _LineChartPainter(
-                series: widget.series,
-                labels: widget.labels,
-                selected: widget.selectedIndex ?? _selected,
-                labelEvery: widget.labelEvery,
-                zeroLine: widget.zeroLine,
-                showAverage: widget.showAverage,
-                smooth: widget.smooth,
-                lo: _viewport.lo,
-                hi: _viewport.hi,
-                zoomed: _viewport.isZoomed,
-                band: widget.band,
-                format: widget.formatValue ?? _LineChartPainter.formatAxis,
-                gridColor: colorScheme.outlineVariant,
-                selectionColor: colorScheme.onSurfaceVariant,
-                bubbleColor: colorScheme.surfaceContainerHighest,
-                bubbleBorder: colorScheme.outlineVariant,
-                textColor: colorScheme.onSurface,
-                surface: colorScheme.surface,
-                labelStyle: TextStyle(
-                  fontSize: 10,
-                  color: colorScheme.onSurfaceVariant,
+    return Semantics(
+      container: true,
+      label:
+          widget.semanticsLabel ??
+          lineChartSummary(l10n, widget.series, format),
+      value: selected == null || selected >= widget.labels.length
+          ? null
+          : l10n.a11yChartSelected(
+              widget.labels[selected],
+              [
+                for (final s in widget.series)
+                  if (selected < s.values.length && s.values[selected] != null)
+                    '${s.label} ${format(s.values[selected]!)}',
+              ].join(', '),
+            ),
+      liveRegion: selected != null,
+      child: ChartInteraction(
+        viewport: _viewport,
+        plotLeft: _LineChartPainter.axisWidth,
+        zoomable: widget.zoomable,
+        onSelectAt: (index) {
+          setState(() => _selected = index);
+          widget.onSelect?.call(index);
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ListenableBuilder(
+              listenable: _viewport,
+              builder: (context, _) => CustomPaint(
+                painter: _LineChartPainter(
+                  series: widget.series,
+                  labels: widget.labels,
+                  selected: widget.selectedIndex ?? _selected,
+                  labelEvery: widget.labelEvery,
+                  zeroLine: widget.zeroLine,
+                  showAverage: widget.showAverage,
+                  smooth: widget.smooth,
+                  lo: _viewport.lo,
+                  hi: _viewport.hi,
+                  zoomed: _viewport.isZoomed,
+                  band: widget.band,
+                  format: widget.formatValue ?? _LineChartPainter.formatAxis,
+                  gridColor: colorScheme.outlineVariant,
+                  selectionColor: colorScheme.onSurfaceVariant,
+                  bubbleColor: colorScheme.surfaceContainerHighest,
+                  bubbleBorder: colorScheme.outlineVariant,
+                  textColor: colorScheme.onSurface,
+                  surface: colorScheme.surface,
+                  labelStyle: TextStyle(
+                    fontSize: 10,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
-          ),
-          if (widget.zoomable)
-            Positioned(
-              top: 0,
-              right: 0,
-              child: ZoomResetButton(viewport: _viewport),
-            ),
-        ],
+            if (widget.zoomable)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: ZoomResetButton(viewport: _viewport),
+              ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// The app's strings for a chart, English when a bare test app has none.
+AppLocalizations chartL10n(BuildContext context) =>
+    AppLocalizations.of(context) ?? lookupAppLocalizations(const Locale('en'));
+
+/// "CTL: latest 64, +3 over the range. ATL: …" — what the lines say.
+String lineChartSummary(
+  AppLocalizations l10n,
+  List<ChartSeries> series,
+  String Function(double) format,
+) {
+  final parts = <String>[];
+  for (final s in series) {
+    final known = [
+      for (final v in s.values)
+        if (v != null) v,
+    ];
+    if (known.isEmpty) continue;
+    final change = known.last - known.first;
+    final sign = change > 0 ? '+' : (change < 0 ? '−' : '±');
+    parts.add(
+      l10n.a11yChartSeries(
+        s.label,
+        format(known.last),
+        '$sign${format(change.abs())}',
+      ),
+    );
+  }
+  return parts.isEmpty ? l10n.a11yChartNoData : parts.join('. ');
+}
+
+/// [source] as dashes of [dash] with [gap] between, for a dashed series.
+Path dashPath(Path source, {double dash = 7, double gap = 5}) {
+  final out = Path();
+  for (final metric in source.computeMetrics()) {
+    var d = 0.0;
+    while (d < metric.length) {
+      out.addPath(
+        metric.extractPath(d, math.min(d + dash, metric.length)),
+        Offset.zero,
+      );
+      d += dash + gap;
+    }
+  }
+  return out;
 }
 
 class _LineChartPainter extends CustomPainter {
@@ -346,10 +422,11 @@ class _LineChartPainter extends CustomPainter {
       }
       if (current.isNotEmpty) runs.add(current);
 
-      final line = Path();
+      var line = Path();
       for (final run in runs) {
         _addRun(line, run);
       }
+      if (s.dashed) line = dashPath(line);
 
       if (s.fill) {
         final fill = Path();
@@ -682,14 +759,30 @@ class ChartLegend extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: s.color,
-                  shape: BoxShape.circle,
+              if (s.dashed)
+                // Dashes in the legend too, so it matches the line.
+                Row(
+                  key: const ValueKey('legend-dashed'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < 2; i++)
+                      Container(
+                        width: 6,
+                        height: 3,
+                        margin: const EdgeInsets.only(right: 2),
+                        color: s.color,
+                      ),
+                  ],
+                )
+              else
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: s.color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
               const SizedBox(width: 6),
               Text(s.label, style: theme.textTheme.bodySmall),
             ],

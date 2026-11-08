@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'line_chart.dart' show chartL10n;
+
 /// One column of a [StackedBarChart]: segment values, bottom to top, in the
 /// order of the chart's colours.
 class StackedBar {
@@ -27,7 +29,13 @@ class StackedBarChart extends StatelessWidget {
     this.onSelect,
     this.labelEvery = 1,
     this.height = 180,
+    this.semanticsLabel,
+    this.formatValue,
   });
+
+  /// What a screen reader says; latest and highest column by default.
+  final String? semanticsLabel;
+  final String Function(double value)? formatValue;
 
   final List<StackedBar> bars;
   final List<Color> colors;
@@ -44,58 +52,77 @@ class StackedBarChart extends StatelessWidget {
     final theme = Theme.of(context);
     final maxTotal = bars.fold<double>(0, (m, b) => b.total > m ? b.total : m);
     final plotHeight = height - _labelHeight;
+    final l10n = chartL10n(context);
+    String fmt(double v) =>
+        formatValue?.call(v) ??
+        (normalize ? '${(v * 100).round()} %' : v.toStringAsFixed(0));
+    String? summary = semanticsLabel;
+    if (summary == null && bars.isNotEmpty) {
+      final top = bars.reduce((a, b) => b.total > a.total ? b : a);
+      summary = l10n.a11yBarChart(
+        bars.length,
+        bars.last.label,
+        normalize ? '' : fmt(bars.last.total),
+        top.label,
+        normalize ? '' : fmt(top.total),
+      );
+    }
 
-    return SizedBox(
-      height: height,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < bars.length; i++)
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onSelect == null ? null : () => onSelect!(i),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: bars.length > 40 ? 0.5 : 1.5,
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: plotHeight,
-                        child: _Column(
-                          bar: bars[i],
-                          colors: colors,
-                          scale: normalize
-                              ? (bars[i].total == 0
-                                    ? 0
-                                    : plotHeight / bars[i].total)
-                              : (maxTotal == 0 ? 0 : plotHeight / maxTotal),
-                          selected: selectedIndex == i,
-                          dimmed: selectedIndex != null && selectedIndex != i,
+    return Semantics(
+      container: true,
+      label: summary ?? l10n.a11yChartNoData,
+      child: SizedBox(
+        height: height,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < bars.length; i++)
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onSelect == null ? null : () => onSelect!(i),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: bars.length > 40 ? 0.5 : 1.5,
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: plotHeight,
+                          child: _Column(
+                            bar: bars[i],
+                            colors: colors,
+                            scale: normalize
+                                ? (bars[i].total == 0
+                                      ? 0
+                                      : plotHeight / bars[i].total)
+                                : (maxTotal == 0 ? 0 : plotHeight / maxTotal),
+                            selected: selectedIndex == i,
+                            dimmed: selectedIndex != null && selectedIndex != i,
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        height: _labelHeight,
-                        child: i % labelEvery == 0
-                            ? OverflowBox(
-                                maxWidth: 60,
-                                child: Text(
-                                  bars[i].label,
-                                  maxLines: 1,
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                        SizedBox(
+                          height: _labelHeight,
+                          child: i % labelEvery == 0
+                              ? OverflowBox(
+                                  maxWidth: 60,
+                                  child: Text(
+                                    bars[i].label,
+                                    maxLines: 1,
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : null,
-                      ),
-                    ],
+                                )
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
