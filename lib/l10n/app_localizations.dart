@@ -1832,24 +1832,6 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get deleteTooltip;
 
-  /// No description provided for @deletePlannedWorkoutTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete this session?'**
-  String get deletePlannedWorkoutTitle;
-
-  /// No description provided for @deletePlannedWorkoutConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'“{name}” is removed from your Intervals.icu calendar. This can\'t be undone.'**
-  String deletePlannedWorkoutConfirm(String name);
-
-  /// No description provided for @workoutDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'“{name}” deleted from your Intervals.icu calendar.'**
-  String workoutDeleted(String name);
-
   /// No description provided for @couldNotDeleteWorkout.
   ///
   /// In en, this message translates to:

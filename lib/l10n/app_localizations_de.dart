@@ -1054,19 +1054,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deleteTooltip => 'Löschen';
 
   @override
-  String get deletePlannedWorkoutTitle => 'Diese Einheit löschen?';
-
-  @override
-  String deletePlannedWorkoutConfirm(String name) {
-    return '„$name“ wird aus deinem Intervals.icu-Kalender entfernt. Das lässt sich nicht rückgängig machen.';
-  }
-
-  @override
-  String workoutDeleted(String name) {
-    return '„$name“ wurde aus deinem Intervals.icu-Kalender gelöscht.';
-  }
-
-  @override
   String couldNotDeleteWorkout(String error) {
     return 'Workout konnte nicht gelöscht werden: $error';
   }

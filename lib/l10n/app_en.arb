@@ -439,15 +439,6 @@
   },
   "deleteButton": "Delete",
   "deleteTooltip": "Delete",
-  "deletePlannedWorkoutTitle": "Delete this session?",
-  "deletePlannedWorkoutConfirm": "“{name}” is removed from your Intervals.icu calendar. This can't be undone.",
-  "@deletePlannedWorkoutConfirm": {
-    "placeholders": { "name": { "type": "String" } }
-  },
-  "workoutDeleted": "“{name}” deleted from your Intervals.icu calendar.",
-  "@workoutDeleted": {
-    "placeholders": { "name": { "type": "String" } }
-  },
   "couldNotDeleteWorkout": "Could not delete the workout: {error}",
   "@couldNotDeleteWorkout": {
     "placeholders": { "error": { "type": "String" } }

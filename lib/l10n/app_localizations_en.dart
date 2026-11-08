@@ -1042,19 +1042,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteTooltip => 'Delete';
 
   @override
-  String get deletePlannedWorkoutTitle => 'Delete this session?';
-
-  @override
-  String deletePlannedWorkoutConfirm(String name) {
-    return '“$name” is removed from your Intervals.icu calendar. This can\'t be undone.';
-  }
-
-  @override
-  String workoutDeleted(String name) {
-    return '“$name” deleted from your Intervals.icu calendar.';
-  }
-
-  @override
   String couldNotDeleteWorkout(String error) {
     return 'Could not delete the workout: $error';
   }

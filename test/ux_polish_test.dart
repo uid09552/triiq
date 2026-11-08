@@ -186,6 +186,20 @@ void main() {
       expect(find.byType(SkeletonCard), findsNWidgets(2));
     });
 
+    testWidgets('a whole list shares one pulse, a lone block brings its own', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(const SizedBox(height: 900, child: SkeletonList(rows: 8))),
+      );
+      // 8 rows x 3 blocks, one animation.
+      expect(find.byKey(const ValueKey('skeleton')), findsNWidgets(24));
+      expect(find.byType(SkeletonPulse), findsOneWidget);
+
+      await tester.pumpWidget(_app(const Skeleton(width: 40)));
+      expect(find.byType(SkeletonPulse), findsOneWidget);
+    });
+
     testWidgets('it does not animate when reduced motion is on', (
       tester,
     ) async {

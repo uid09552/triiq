@@ -439,15 +439,6 @@
   },
   "deleteButton": "Löschen",
   "deleteTooltip": "Löschen",
-  "deletePlannedWorkoutTitle": "Diese Einheit löschen?",
-  "deletePlannedWorkoutConfirm": "„{name}“ wird aus deinem Intervals.icu-Kalender entfernt. Das lässt sich nicht rückgängig machen.",
-  "@deletePlannedWorkoutConfirm": {
-    "placeholders": { "name": { "type": "String" } }
-  },
-  "workoutDeleted": "„{name}“ wurde aus deinem Intervals.icu-Kalender gelöscht.",
-  "@workoutDeleted": {
-    "placeholders": { "name": { "type": "String" } }
-  },
   "couldNotDeleteWorkout": "Workout konnte nicht gelöscht werden: {error}",
   "@couldNotDeleteWorkout": {
     "placeholders": { "error": { "type": "String" } }
