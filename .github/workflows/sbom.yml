@@ -8,7 +8,7 @@
 #                       pubspec.lock: version, direct / dev / transitive,
 #                       source and content hash
 #
-# Generated with Syft (anchore/sbom-action) from the repository: pubspec.lock
+# Generated with Syft (one scan, both formats) from the repository: pubspec.lock
 # (all direct, dev and transitive Dart/Flutter packages at the exact locked
 # versions) and the GitHub Actions the workflows use. The scan is checked
 # against the lockfile, so an empty or truncated SBOM fails the run instead of
@@ -64,23 +64,34 @@ jobs:
           mkdir -p sbom
           python3 tool/pubspec_lock_to_csv.py pubspec.lock > sbom/dependencies.csv
 
-      - name: SBOM (CycloneDX)
-        uses: anchore/sbom-action@v0
-        with:
-          path: .
-          format: cyclonedx-json
-          output-file: sbom/triiq.cdx.json
-          upload-artifact: false
-          upload-release-assets: false
+      # Syft is installed once, with retries: its download comes from GitHub
+      # release assets, which return 504s now and then - one timeout should
+      # not fail the run. The install script checks the release checksum.
+      - name: Install Syft
+        env:
+          SYFT_VERSION: v1.42.3
+        run: |
+          mkdir -p "$RUNNER_TEMP/syft"
+          for attempt in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 "https://get.anchore.io/syft/$SYFT_VERSION/install.sh" \
+                | sh -s -- -b "$RUNNER_TEMP/syft" "$SYFT_VERSION"; then
+              echo "$RUNNER_TEMP/syft" >> "$GITHUB_PATH"
+              exit 0
+            fi
+            delay=$((attempt * 20))
+            echo "::warning::Syft download failed (attempt $attempt), retrying in ${delay}s"
+            sleep "$delay"
+          done
+          echo "::error::Could not download Syft $SYFT_VERSION after 5 attempts"
+          exit 1
 
-      - name: SBOM (SPDX)
-        uses: anchore/sbom-action@v0
-        with:
-          path: .
-          format: spdx-json
-          output-file: sbom/triiq.spdx.json
-          upload-artifact: false
-          upload-release-assets: false
+      # One scan, both formats.
+      - name: SBOM (CycloneDX and SPDX)
+        run: |
+          syft version
+          syft scan dir:. \
+            -o cyclonedx-json=sbom/triiq.cdx.json \
+            -o spdx-json=sbom/triiq.spdx.json
 
       - name: Check the SBOM against the lockfile
         run: python3 tool/check_sbom.py pubspec.lock sbom/triiq.cdx.json sbom/triiq.spdx.json
