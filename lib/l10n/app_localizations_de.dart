@@ -4729,4 +4729,105 @@ class AppLocalizationsDe extends AppLocalizations {
   String readinessRangeDevice(String value) {
     return 'Normal ab $value';
   }
+
+  @override
+  String get insPeekAnalytics =>
+      'Fitness, Ermüdung und Form im Zeitverlauf, mit Belastungs-Checks.';
+
+  @override
+  String get insPeekExplorer =>
+      'Jede Kennzahl über jeden Zeitraum, wochen- oder tageweise.';
+
+  @override
+  String get insPeekHeatmap =>
+      'Deine Trainingsbelastung, Tag für Tag, in einem Raster.';
+
+  @override
+  String get insPeekCurves =>
+      'Deine beste Leistung, Pace und Herzfrequenz für jede Dauer.';
+
+  @override
+  String get insPeekBestEfforts =>
+      'Deine besten Leistungen zuletzt, im Vergleich zur Saison.';
+
+  @override
+  String get insPeekDurability =>
+      'Wie viel Leistung du behältst, wenn du schon ermüdet bist.';
+
+  @override
+  String get insPeekWellness =>
+      'Verläufe von HRV, Ruhepuls, Schlaf und Gewicht.';
+
+  @override
+  String get insPeekCompare =>
+      'Zwei Aktivitäten oder zwei Trainingsblöcke nebeneinander.';
+
+  @override
+  String get insPeekWeeklyReview =>
+      'Wie die letzte Woche lief, im Vergleich zur Woche davor.';
+
+  @override
+  String get insPeekActivities =>
+      'Jede synchronisierte Einheit: suchen, filtern, sortieren.';
+
+  @override
+  String get insPeekNoData =>
+      'Noch keine Daten. Synchronisiere, um das zu füllen.';
+
+  @override
+  String get insPeekOpenToLoad => 'Öffne es einmal, um deine Kurven zu laden.';
+
+  @override
+  String get insPeekTapHint => 'Loslassen zum Schließen · Tippen zum Öffnen';
+
+  @override
+  String get insPeekThisWeek => 'Diese Woche';
+
+  @override
+  String get insPeekAverage => 'Durchschnitt';
+
+  @override
+  String get insPeekActiveDays => 'Aktive Tage';
+
+  @override
+  String get insPeekStreak => 'Längste Serie';
+
+  @override
+  String get insPeekTss => 'TSS';
+
+  @override
+  String get insPeekSeason => 'Saison';
+
+  @override
+  String get insPeekSixWeeks => 'Letzte 6 Wochen';
+
+  @override
+  String get insPeekRides => 'Fahrten über 1.000 kJ (12 Wochen)';
+
+  @override
+  String get insPeekHrv => 'HRV';
+
+  @override
+  String get insPeekRestingHr => 'Ruhepuls';
+
+  @override
+  String get insPeekSleep => 'Schlaf';
+
+  @override
+  String get insPeekBefore => 'Davor';
+
+  @override
+  String get insPeekLast4 => 'Letzte 4 Wochen';
+
+  @override
+  String get insPeekLastWeek => 'Letzte Woche';
+
+  @override
+  String get insPeekHours => 'Zeit';
+
+  @override
+  String get insPeekSessions => 'Einheiten';
+
+  @override
+  String get insPeekWeekBefore => 'Woche davor';
 }

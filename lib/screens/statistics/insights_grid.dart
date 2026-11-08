@@ -5,9 +5,11 @@ import '../../l10n/app_localizations.dart';
 import '../activities/activities_screen.dart';
 import '../analysis/analysis_screen.dart';
 import '../compare/compare_screen.dart';
+import '../../widgets/hold_preview.dart';
 import 'analytics_screen.dart';
 import 'best_efforts_screen.dart';
 import 'durability_screen.dart';
+import 'insight_previews.dart';
 import 'load_heatmap_screen.dart';
 import 'performance_screen.dart';
 import 'weekly_review_screen.dart';
@@ -112,7 +114,10 @@ final List<InsightsDestination> insightsDestinations = [
 /// a two-line name — four to a row on a phone, so the hub's own charts start
 /// right below instead of under a stack of full-width cards.
 class InsightsGrid extends StatelessWidget {
-  const InsightsGrid({super.key, this.destinations});
+  const InsightsGrid({super.key, this.destinations, this.previewSource});
+
+  /// Where a held tile's peek reads from (default: the local cache).
+  final InsightPreviewSource? previewSource;
 
   /// Defaults to [insightsDestinations].
   final List<InsightsDestination>? destinations;
@@ -131,6 +136,7 @@ class InsightsGrid extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final items = destinations ?? insightsDestinations;
+    final source = previewSource ?? InsightPreviewSource();
     return LayoutBuilder(
       builder: (context, constraints) {
         const gap = 8.0;
@@ -148,48 +154,58 @@ class InsightsGrid extends StatelessWidget {
             for (final d in items)
               SizedBox(
                 width: width,
-                child: Material(
-                  color: theme.colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  child: InkWell(
-                    key: ValueKey('insights-${d.id}'),
+                // Hold a tile to peek at what is behind it; a tap opens it.
+                child: HoldPreview(
+                  preview: (context) => InsightPreview(
+                    id: d.id,
+                    icon: d.icon,
+                    title: d.label(l10n),
+                    accent: accent(theme.colorScheme, d.group),
+                    source: source,
+                  ),
+                  child: Material(
+                    color: theme.colorScheme.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(14),
-                    onTap: () => Navigator.of(
-                      context,
-                    ).push(MaterialPageRoute<void>(builder: d.builder)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 4,
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: accent(
-                                theme.colorScheme,
-                                d.group,
-                              ).withValues(alpha: 0.14),
-                              shape: BoxShape.circle,
+                    child: InkWell(
+                      key: ValueKey('insights-${d.id}'),
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute<void>(builder: d.builder)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 4,
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: accent(
+                                  theme.colorScheme,
+                                  d.group,
+                                ).withValues(alpha: 0.14),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                d.icon,
+                                size: 20,
+                                color: accent(theme.colorScheme, d.group),
+                              ),
                             ),
-                            child: Icon(
-                              d.icon,
-                              size: 20,
-                              color: accent(theme.colorScheme, d.group),
+                            const SizedBox(height: 6),
+                            Text(
+                              d.label(l10n),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                height: 1.2,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            d.label(l10n),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
