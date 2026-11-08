@@ -14,6 +14,7 @@ import 'durability_screen.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_detail_screen.dart';
 import 'threshold_suggestion_card.dart';
+import '../../widgets/status_message.dart';
 
 /// Best efforts over every duration (power, heart rate) or distance (pace)
 /// for one sport, this season against last season and the last 42 days,
@@ -337,24 +338,16 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
               if (_error != null) ...[
                 const SizedBox(height: 12),
                 Card(
-                  color: colorScheme.errorContainer,
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.error_outline,
-                      color: colorScheme.onErrorContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: StatusMessage.error(
+                      // Offline with nothing cached reads as "not connected".
+                      error: connected
+                          ? _error!
+                          : StateError('Not connected to Intervals.icu.'),
+                      onRetry: () => _load(force: true),
+                      compact: true,
                     ),
-                    title: Text(
-                      connected
-                          ? l10n.curvesLoadFailed('$_error')
-                          : l10n.statsNotConnected,
-                      style: TextStyle(color: colorScheme.onErrorContainer),
-                    ),
-                    trailing: connected
-                        ? TextButton(
-                            onPressed: () => _load(force: true),
-                            child: Text(l10n.retryButton),
-                          )
-                        : null,
                   ),
                 ),
               ],

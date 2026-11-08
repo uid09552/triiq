@@ -193,6 +193,7 @@ void main() {
 
     expect(find.text('No planned session to compare with.'), findsOneWidget);
     await openTab(tester, 'charts');
+    expect(find.text('No time series'), findsOneWidget);
     expect(find.textContaining('no time-series data'), findsOneWidget);
   });
 
@@ -208,10 +209,9 @@ void main() {
     );
 
     await openTab(tester, 'charts');
-    expect(
-      find.textContaining('Could not load the time series'),
-      findsOneWidget,
-    );
+    // A plain-language message, the technical text behind Details.
+    expect(find.text('Something went wrong'), findsOneWidget);
+    expect(find.byKey(const ValueKey('status-details')), findsOneWidget);
     await tester.tap(find.text('Retry'));
     for (var i = 0; i < 20; i++) {
       await tester.runAsync(

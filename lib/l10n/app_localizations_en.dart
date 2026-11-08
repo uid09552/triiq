@@ -742,16 +742,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncScopeAll => 'Everything (initial sync)';
 
   @override
-  String get noActivitiesCachedConnected =>
-      'No activities cached yet — try Sync from More.';
-
-  @override
-  String get noActivitiesCachedDisconnected =>
-      'Connect your Intervals.icu account to see your activities.';
+  String get noActivitiesCachedConnected => 'No activities cached yet.';
 
   @override
   String noActivitiesOfType(String sport) {
-    return 'No $sport activities cached — try Sync from More.';
+    return 'No $sport activities cached.';
   }
 
   @override
@@ -1582,11 +1577,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'This activity has no time-series data (for example a manual entry).';
 
   @override
-  String sessionDiagramError(String error) {
-    return 'Could not load the time series: $error';
-  }
-
-  @override
   String get sessionIntervalsTitle => 'Intervals';
 
   @override
@@ -1996,11 +1986,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get curvesEmpty => 'No efforts for this sport and metric yet.';
-
-  @override
-  String curvesLoadFailed(String error) {
-    return 'Couldn\'t load the curves: $error';
-  }
 
   @override
   String get keyEffortsTitle => 'Key efforts';
@@ -3850,11 +3835,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not enough work in the sessions found to reach these levels.';
 
   @override
-  String durError(String error) {
-    return 'Could not read the sessions: $error';
-  }
-
-  @override
   String get wtTitle => 'Wellness trends';
 
   @override
@@ -4054,11 +4034,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get beNoData => 'No efforts recorded in the last year.';
-
-  @override
-  String beError(String error) {
-    return 'Could not load your efforts: $error';
-  }
 
   @override
   String get heroTitleCaution => 'Train with care';
@@ -4521,4 +4496,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String obStep(int n, int total) {
     return 'Step $n of $total';
   }
+
+  @override
+  String get smOfflineTitle => 'You\'re offline';
+
+  @override
+  String get smOfflineReason =>
+      'Showing what\'s saved on this device. Try again once you\'re online.';
+
+  @override
+  String get smRefusedTitle => 'Intervals.icu refused the request';
+
+  @override
+  String get smRefusedReason => 'Check your API key in Profile.';
+
+  @override
+  String get smNotConnectedTitle => 'Not connected';
+
+  @override
+  String get smNotConnectedReason =>
+      'Connect Intervals.icu in Profile to load this.';
+
+  @override
+  String get smServerTitle => 'Intervals.icu is having trouble';
+
+  @override
+  String get smServerReason => 'Try again in a few minutes.';
+
+  @override
+  String get smRateTitle => 'Too many requests';
+
+  @override
+  String get smRateReason =>
+      'Intervals.icu asks to slow down. Wait a minute, then try again.';
+
+  @override
+  String get smLocalTitle => 'Couldn\'t read the data on this device';
+
+  @override
+  String get smLocalReason =>
+      'Try again. If it keeps failing, a sync rebuilds it.';
+
+  @override
+  String get smGenericTitle => 'Something went wrong';
+
+  @override
+  String get smGenericReason => 'Try again.';
+
+  @override
+  String get smDetails => 'Details';
+
+  @override
+  String get smOpenProfile => 'Open Profile';
+
+  @override
+  String get smOpenSync => 'Open Sync';
+
+  @override
+  String get smNeedHistory =>
+      'This needs synced activities from Intervals.icu. Sync more history to fill it in.';
+
+  @override
+  String get wtNoDataReason =>
+      'Wellness comes from your watch or app through Intervals.icu (HRV, resting heart rate, sleep, weight). Sync, or pick a longer range.';
+
+  @override
+  String get sessionDiagramNoDataTitle => 'No time series';
 }

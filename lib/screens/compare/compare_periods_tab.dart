@@ -12,6 +12,7 @@ import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import 'compare_route_map.dart' show compareColorA, compareColorB;
 import 'compare_table.dart';
+import '../../widgets/status_message.dart';
 
 enum _Cumulative { distance, load, time }
 
@@ -49,18 +50,31 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
     _load();
   }
 
+  Object? _error;
+
   Future<void> _load() async {
-    setState(() => _loading = true);
-    final pair = BlockPair(end: _end, days: _days);
-    final rows = await widget.activities.getRange(
-      isoDate(pair.previousStart),
-      isoDate(pair.currentEnd),
-    );
-    if (!mounted) return;
     setState(() {
-      _activities = rows;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    final pair = BlockPair(end: _end, days: _days);
+    try {
+      final rows = await widget.activities.getRange(
+        isoDate(pair.previousStart),
+        isoDate(pair.currentEnd),
+      );
+      if (!mounted) return;
+      setState(() {
+        _activities = rows;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   void _openOptions(BuildContext context, AppLocalizations l10n) {
@@ -191,10 +205,13 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
               SkeletonCard(height: 180),
             ],
           )
+        else if (_error != null)
+          StatusMessage.error(error: _error!, onRetry: _load)
         else if (previous.isEmpty && current.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(l10n.cmpNoBlockActivities, textAlign: TextAlign.center),
+          StatusMessage.needsSync(
+            context,
+            title: l10n.cmpNoBlockActivities,
+            icon: Icons.compare_arrows,
           )
         else ...[
           SectionCard(

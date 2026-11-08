@@ -8,6 +8,7 @@ import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/status_message.dart';
 
 /// The best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 /
 /// 10 km (runs) month by month, so a season's progress is one line, with the
@@ -188,17 +189,15 @@ class _BestEffortsScreenState extends State<BestEffortsScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 if (_error != null)
-                  Text(
-                    l10n.beError(
-                      _error is StateError
-                          ? (_error as StateError).message
-                          : '$_error',
-                    ),
+                  StatusMessage.error(
+                    error: _error!,
+                    onRetry: () => _load(force: true),
                   )
                 else if (!hasData)
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(l10n.beNoData, textAlign: TextAlign.center),
+                  StatusMessage.needsSync(
+                    context,
+                    title: l10n.beNoData,
+                    icon: Icons.emoji_events_outlined,
                   )
                 else ...[
                   SectionCard(

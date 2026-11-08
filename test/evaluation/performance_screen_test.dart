@@ -239,7 +239,8 @@ void main() {
     )..fail = true;
     await pump(tester, repo);
 
-    expect(find.textContaining("Couldn't load the curves"), findsOneWidget);
+    expect(find.byKey(const ValueKey('status-message')), findsOneWidget);
+    expect(find.text('Something went wrong'), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'Retry'), findsOneWidget);
     expect(find.text('312 W'), findsOneWidget, reason: 'cached copy stays');
   });

@@ -19,6 +19,7 @@ import '../../widgets/charts/line_chart.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/responsive.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/status_message.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/sync_status_chip.dart';
 import '../../widgets/stat_tile.dart';
@@ -284,11 +285,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: _loading
                     ? const _ChartPlaceholder()
                     : !hasFitness
-                    ? _EmptyChart(
-                        message: _session.isConnected
-                            ? l10n.noDataCachedForRange
-                            : l10n.statsNotConnected,
-                      )
+                    ? _EmptyChart(connected: _session.isConnected)
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -314,11 +311,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: _loading
                     ? const _ChartPlaceholder()
                     : !hasWeeks
-                    ? _EmptyChart(
-                        message: _session.isConnected
-                            ? l10n.noDataCachedForRange
-                            : l10n.statsNotConnected,
-                      )
+                    ? _EmptyChart(connected: _session.isConnected)
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -619,39 +612,23 @@ class _ChartPlaceholder extends StatelessWidget {
 }
 
 class _EmptyChart extends StatelessWidget {
-  const _EmptyChart({required this.message});
+  const _EmptyChart({required this.connected});
 
-  final String message;
+  final bool connected;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      height: 160,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            colorScheme.primary.withValues(alpha: 0.12),
-            colorScheme.primary.withValues(alpha: 0.02),
-          ],
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.insights_outlined,
-            size: 32,
-            color: colorScheme.primary.withValues(alpha: 0.6),
-          ),
-          const SizedBox(height: 8),
-          Text(message, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
-    );
+    final l10n = AppLocalizations.of(context)!;
+    return connected
+        ? StatusMessage.needsSync(
+            context,
+            title: l10n.noDataCachedForRange,
+            icon: Icons.insights_outlined,
+            compact: true,
+          )
+        : StatusMessage.error(
+            error: StateError('Not connected to Intervals.icu.'),
+            compact: true,
+          );
   }
 }

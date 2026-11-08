@@ -6,7 +6,8 @@ import 'package:triiq/widgets/main_navigation.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    // Past the first-run flow (covered in onboarding_test.dart).
+    SharedPreferences.setMockInitialValues({'onboarding.done': true});
     MainNavigation.instance.debugReset();
   });
 

@@ -12,6 +12,7 @@ import '../../data/repositories/activities_repository.dart';
 import '../../l10n/app_localizations.dart';
 import 'activity_detail_screen.dart';
 import 'activity_filter.dart';
+import '../../widgets/status_message.dart';
 import 'activity_icons.dart';
 
 /// Every cached activity, most recent first, with search by name, filters
@@ -39,7 +40,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   Timer? _debounce;
 
   bool _loading = true;
-  String? _error;
+  Object? _error;
   List<LocalActivity> _activities = const [];
   bool _searching = false;
 
@@ -78,7 +79,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.toString();
+        _error = e;
         _loading = false;
       });
     }
@@ -201,7 +202,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         child: _loading
             ? const SkeletonList()
             : _error != null
-            ? _EmptyState(connected: _session.isConnected, error: _error)
+            ? _Centered(
+                child: StatusMessage.error(error: _error!, onRetry: _load),
+              )
             : activities.isEmpty
             ? _EmptyState(
                 connected: _session.isConnected,
@@ -605,65 +608,59 @@ class _ActivityRow extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   const _EmptyState({
     required this.connected,
-    this.error,
     this.type,
     this.filtered = false,
   });
 
-  /// Activities are cached, the filters just leave none.
-  final bool filtered;
-
   final bool connected;
-  final String? error;
 
   /// Set when the list is empty only because a sport filter is on — "no
   /// rides cached" is a different problem from "nothing cached at all".
   final String? type;
 
+  /// Activities are cached, the filters just leave none.
+  final bool filtered;
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-
-    return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: constraints.maxHeight),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    error != null
-                        ? Icons.error_outline
-                        : Icons.event_busy_outlined,
-                    size: 40,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    error ??
-                        (filtered
-                            ? l10n.actNoMatch
-                            : type != null
-                            ? l10n.noActivitiesOfType(type!)
-                            : connected
-                            ? l10n.noActivitiesCachedConnected
-                            : l10n.noActivitiesCachedDisconnected),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    final Widget message;
+    if (filtered) {
+      message = StatusMessage(
+        title: l10n.actNoMatch,
+        icon: Icons.filter_alt_off_outlined,
+      );
+    } else if (!connected) {
+      message = StatusMessage.error(
+        error: StateError('Not connected to Intervals.icu.'),
+      );
+    } else {
+      message = StatusMessage.needsSync(
+        context,
+        title: type != null
+            ? l10n.noActivitiesOfType(type!)
+            : l10n.noActivitiesCachedConnected,
+        icon: Icons.event_busy_outlined,
+      );
+    }
+    return _Centered(child: message);
   }
+}
+
+/// Centres a message and keeps the pull-to-refresh gesture working.
+class _Centered extends StatelessWidget {
+  const _Centered({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        child: Center(child: child),
+      ),
+    ),
+  );
 }

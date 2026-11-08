@@ -12,6 +12,7 @@ import '../../widgets/charts/chart_viewport.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/stream_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/status_message.dart';
 
 String _clock(int seconds) {
   final h = seconds ~/ 3600;
@@ -197,9 +198,6 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final muted = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
     final loaded = _streams;
     final drawable = loaded == null || loaded.isEmpty
         ? null
@@ -226,21 +224,20 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
             );
           }
           if (snap.hasError) {
-            return Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.sessionDiagramError('${snap.error}'),
-                    style: muted,
-                  ),
-                ),
-                TextButton(onPressed: _retry, child: Text(l10n.retryButton)),
-              ],
+            return StatusMessage.error(
+              error: snap.error!,
+              onRetry: _retry,
+              compact: true,
             );
           }
           final streams = snap.data!;
           if (streams.isEmpty) {
-            return Text(l10n.sessionDiagramNoData, style: muted);
+            return StatusMessage(
+              title: l10n.sessionDiagramNoDataTitle,
+              reason: l10n.sessionDiagramNoData,
+              icon: Icons.show_chart,
+              compact: true,
+            );
           }
           final drawable = streams.drawable.toList();
           final visible = _visibleOf(drawable);

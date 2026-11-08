@@ -10,6 +10,7 @@ import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/status_message.dart';
 
 enum _Period { last12Months, thisYear, lastYear }
 
@@ -58,16 +59,29 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
     _load();
   }
 
+  Object? _error;
+
   Future<void> _load() async {
-    setState(() => _loading = true);
-    final (from, to) = _range;
-    final rows = await widget.repository.getRange(isoDate(from), isoDate(to));
-    if (!mounted) return;
     setState(() {
-      _activities = rows;
-      _selected = null;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    final (from, to) = _range;
+    try {
+      final rows = await widget.repository.getRange(isoDate(from), isoDate(to));
+      if (!mounted) return;
+      setState(() {
+        _activities = rows;
+        _selected = null;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   String _periodLabel(AppLocalizations l10n, _Period p) => switch (p) {
@@ -163,31 +177,35 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                SectionCard(
-                  icon: Icons.grid_view_rounded,
-                  title: l10n.hmTitle,
-                  child: heatmap.totalTss == 0
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: Center(child: Text(l10n.hmNoData)),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _readout(context, l10n, heatmap),
-                            const SizedBox(height: 10),
-                            _Grid(
-                              heatmap: heatmap,
-                              selected: _selected,
-                              onSelect: (d) => setState(
-                                () => _selected = _selected == d ? null : d,
+                if (_error != null)
+                  StatusMessage.error(error: _error!, onRetry: _load)
+                else
+                  SectionCard(
+                    icon: Icons.grid_view_rounded,
+                    title: l10n.hmTitle,
+                    child: heatmap.totalTss == 0
+                        ? StatusMessage.needsSync(
+                            context,
+                            title: l10n.hmNoData,
+                            icon: Icons.grid_view_rounded,
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _readout(context, l10n, heatmap),
+                              const SizedBox(height: 10),
+                              _Grid(
+                                heatmap: heatmap,
+                                selected: _selected,
+                                onSelect: (d) => setState(
+                                  () => _selected = _selected == d ? null : d,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            _legend(context, l10n),
-                          ],
-                        ),
-                ),
+                              const SizedBox(height: 10),
+                              _legend(context, l10n),
+                            ],
+                          ),
+                  ),
                 if (heatmap.totalTss > 0) ...[
                   const SizedBox(height: 16),
                   _stats(context, l10n, heatmap),

@@ -1337,19 +1337,13 @@ abstract class AppLocalizations {
   /// No description provided for @noActivitiesCachedConnected.
   ///
   /// In en, this message translates to:
-  /// **'No activities cached yet — try Sync from More.'**
+  /// **'No activities cached yet.'**
   String get noActivitiesCachedConnected;
-
-  /// No description provided for @noActivitiesCachedDisconnected.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect your Intervals.icu account to see your activities.'**
-  String get noActivitiesCachedDisconnected;
 
   /// No description provided for @noActivitiesOfType.
   ///
   /// In en, this message translates to:
-  /// **'No {sport} activities cached — try Sync from More.'**
+  /// **'No {sport} activities cached.'**
   String noActivitiesOfType(String sport);
 
   /// No description provided for @showAllActivities.
@@ -2684,12 +2678,6 @@ abstract class AppLocalizations {
   /// **'This activity has no time-series data (for example a manual entry).'**
   String get sessionDiagramNoData;
 
-  /// No description provided for @sessionDiagramError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load the time series: {error}'**
-  String sessionDiagramError(String error);
-
   /// No description provided for @sessionIntervalsTitle.
   ///
   /// In en, this message translates to:
@@ -3313,12 +3301,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No efforts for this sport and metric yet.'**
   String get curvesEmpty;
-
-  /// No description provided for @curvesLoadFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t load the curves: {error}'**
-  String curvesLoadFailed(String error);
 
   /// No description provided for @keyEffortsTitle.
   ///
@@ -6326,12 +6308,6 @@ abstract class AppLocalizations {
   /// **'Not enough work in the sessions found to reach these levels.'**
   String get durNoData;
 
-  /// No description provided for @durError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not read the sessions: {error}'**
-  String durError(String error);
-
   /// No description provided for @wtTitle.
   ///
   /// In en, this message translates to:
@@ -6697,12 +6673,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No efforts recorded in the last year.'**
   String get beNoData;
-
-  /// No description provided for @beError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load your efforts: {error}'**
-  String beError(String error);
 
   /// No description provided for @heroTitleCaution.
   ///
@@ -7495,6 +7465,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step {n} of {total}'**
   String obStep(int n, int total);
+
+  /// No description provided for @smOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get smOfflineTitle;
+
+  /// No description provided for @smOfflineReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing what\'s saved on this device. Try again once you\'re online.'**
+  String get smOfflineReason;
+
+  /// No description provided for @smRefusedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu refused the request'**
+  String get smRefusedTitle;
+
+  /// No description provided for @smRefusedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your API key in Profile.'**
+  String get smRefusedReason;
+
+  /// No description provided for @smNotConnectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get smNotConnectedTitle;
+
+  /// No description provided for @smNotConnectedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu in Profile to load this.'**
+  String get smNotConnectedReason;
+
+  /// No description provided for @smServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu is having trouble'**
+  String get smServerTitle;
+
+  /// No description provided for @smServerReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in a few minutes.'**
+  String get smServerReason;
+
+  /// No description provided for @smRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests'**
+  String get smRateTitle;
+
+  /// No description provided for @smRateReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu asks to slow down. Wait a minute, then try again.'**
+  String get smRateReason;
+
+  /// No description provided for @smLocalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read the data on this device'**
+  String get smLocalTitle;
+
+  /// No description provided for @smLocalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again. If it keeps failing, a sync rebuilds it.'**
+  String get smLocalReason;
+
+  /// No description provided for @smGenericTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get smGenericTitle;
+
+  /// No description provided for @smGenericReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again.'**
+  String get smGenericReason;
+
+  /// No description provided for @smDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get smDetails;
+
+  /// No description provided for @smOpenProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Profile'**
+  String get smOpenProfile;
+
+  /// No description provided for @smOpenSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Sync'**
+  String get smOpenSync;
+
+  /// No description provided for @smNeedHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'This needs synced activities from Intervals.icu. Sync more history to fill it in.'**
+  String get smNeedHistory;
+
+  /// No description provided for @wtNoDataReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Wellness comes from your watch or app through Intervals.icu (HRV, resting heart rate, sleep, weight). Sync, or pick a longer range.'**
+  String get wtNoDataReason;
+
+  /// No description provided for @sessionDiagramNoDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No time series'**
+  String get sessionDiagramNoDataTitle;
 }
 
 class _AppLocalizationsDelegate

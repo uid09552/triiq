@@ -753,15 +753,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noActivitiesCachedConnected =>
-      'Noch keine Aktivitäten zwischengespeichert — versuche Synchronisierung unter Mehr.';
-
-  @override
-  String get noActivitiesCachedDisconnected =>
-      'Verbinde dein Intervals.icu-Konto, um deine Aktivitäten zu sehen.';
+      'Noch keine Aktivitäten gespeichert.';
 
   @override
   String noActivitiesOfType(String sport) {
-    return 'Keine $sport-Aktivitäten gespeichert — synchronisiere unter Mehr.';
+    return 'Keine $sport-Aktivitäten gespeichert.';
   }
 
   @override
@@ -1600,11 +1596,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Diese Aktivität hat keine Zeitreihen (zum Beispiel ein manueller Eintrag).';
 
   @override
-  String sessionDiagramError(String error) {
-    return 'Zeitreihen konnten nicht geladen werden: $error';
-  }
-
-  @override
   String get sessionIntervalsTitle => 'Intervalle';
 
   @override
@@ -2019,11 +2010,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get curvesEmpty =>
       'Noch keine Bestleistungen für diese Sportart und Messgröße.';
-
-  @override
-  String curvesLoadFailed(String error) {
-    return 'Kurven konnten nicht geladen werden: $error';
-  }
 
   @override
   String get keyEffortsTitle => 'Wichtige Bestwerte';
@@ -3886,11 +3872,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'In den gefundenen Einheiten wird keines dieser Niveaus erreicht.';
 
   @override
-  String durError(String error) {
-    return 'Einheiten konnten nicht gelesen werden: $error';
-  }
-
-  @override
   String get wtTitle => 'Wellness-Trends';
 
   @override
@@ -4090,11 +4071,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get beNoData => 'Keine Leistungen im letzten Jahr aufgezeichnet.';
-
-  @override
-  String beError(String error) {
-    return 'Leistungen konnten nicht geladen werden: $error';
-  }
 
   @override
   String get heroTitleCaution => 'Mit Bedacht trainieren';
@@ -4559,4 +4535,71 @@ class AppLocalizationsDe extends AppLocalizations {
   String obStep(int n, int total) {
     return 'Schritt $n von $total';
   }
+
+  @override
+  String get smOfflineTitle => 'Du bist offline';
+
+  @override
+  String get smOfflineReason =>
+      'Angezeigt wird, was auf diesem Gerät gespeichert ist. Versuch es erneut, sobald du online bist.';
+
+  @override
+  String get smRefusedTitle => 'Intervals.icu hat die Anfrage abgelehnt';
+
+  @override
+  String get smRefusedReason => 'Prüfe deinen API-Schlüssel im Profil.';
+
+  @override
+  String get smNotConnectedTitle => 'Nicht verbunden';
+
+  @override
+  String get smNotConnectedReason =>
+      'Verbinde Intervals.icu im Profil, um das zu laden.';
+
+  @override
+  String get smServerTitle => 'Intervals.icu hat gerade Probleme';
+
+  @override
+  String get smServerReason => 'Versuch es in ein paar Minuten erneut.';
+
+  @override
+  String get smRateTitle => 'Zu viele Anfragen';
+
+  @override
+  String get smRateReason =>
+      'Intervals.icu bittet um eine Pause. Warte eine Minute und versuch es dann erneut.';
+
+  @override
+  String get smLocalTitle =>
+      'Die Daten auf diesem Gerät konnten nicht gelesen werden';
+
+  @override
+  String get smLocalReason =>
+      'Versuch es erneut. Wenn es weiter fehlschlägt, baut eine Synchronisierung sie neu auf.';
+
+  @override
+  String get smGenericTitle => 'Etwas ist schiefgelaufen';
+
+  @override
+  String get smGenericReason => 'Versuch es erneut.';
+
+  @override
+  String get smDetails => 'Details';
+
+  @override
+  String get smOpenProfile => 'Profil öffnen';
+
+  @override
+  String get smOpenSync => 'Synchronisierung öffnen';
+
+  @override
+  String get smNeedHistory =>
+      'Dafür braucht es synchronisierte Aktivitäten aus Intervals.icu. Synchronisiere mehr Verlauf, um das zu füllen.';
+
+  @override
+  String get wtNoDataReason =>
+      'Wellness-Daten kommen von deiner Uhr oder App über Intervals.icu (HRV, Ruhepuls, Schlaf, Gewicht). Synchronisiere oder wähle einen längeren Zeitraum.';
+
+  @override
+  String get sessionDiagramNoDataTitle => 'Keine Zeitreihe';
 }
