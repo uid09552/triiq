@@ -151,7 +151,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('pill-sleep')), findsOneWidget);
 
-      await tester.longPress(find.byKey(const ValueKey('readiness-card')));
+      // On the score ring: a long press on a pill peeks instead.
+      await tester.longPress(find.byKey(const ValueKey('readiness-score')));
       await tester.pumpAndSettle();
       expect(find.text('Readiness signals'), findsOneWidget);
 

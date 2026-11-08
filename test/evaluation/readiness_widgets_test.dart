@@ -19,6 +19,7 @@ import 'package:triiq/evaluation/readiness_service.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/screens/today/readiness_card.dart';
+import 'package:triiq/screens/today/readiness_peek.dart';
 import 'package:triiq/screens/today/readiness_screen.dart';
 import 'package:triiq/screens/today/today_screen.dart';
 import 'package:triiq/util/dates.dart';
@@ -90,6 +91,152 @@ Widget _app(Widget child) => MaterialApp(
 );
 
 void main() {
+  group('hold a pill to peek', () {
+    List<LocalWellness> records() => [
+      for (var i = 40; i >= 1; i--)
+        _day(
+          i,
+          hrv: 62 + (i.isEven ? 6 : -6),
+          rhr: 48,
+          sleepSecs: 8 * 3600,
+          atlLoad: 55,
+        ),
+      _day(
+        0,
+        hrv: 62,
+        rhr: 48,
+        sleepSecs: 7.5 * 3600,
+        atl: 66,
+        atlLoad: 100,
+        readiness: 72,
+        fatigue: 2,
+      ),
+    ];
+
+    Future<TestGesture> hold(WidgetTester tester, String key) async {
+      final g = await tester.startGesture(
+        tester.getCenter(find.byKey(ValueKey(key))),
+      );
+      await tester.pump(const Duration(milliseconds: 650));
+      await tester.pump(const Duration(milliseconds: 300));
+      return g;
+    }
+
+    Future<void> pumpCard(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(420, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(ReadinessCard(report: _report(records()))));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('holding the HRV pill shows its peek; letting go hides it, '
+        'and the card\'s own long press does not fire', (tester) async {
+      await pumpCard(tester);
+      expect(find.byKey(const ValueKey('hold-preview')), findsNothing);
+
+      final g = await hold(tester, 'pill-hrv');
+      expect(find.byKey(const ValueKey('hold-preview')), findsOneWidget);
+      expect(find.byKey(const ValueKey('readiness-peek-hrv')), findsOneWidget);
+      expect(find.textContaining('Normal from'), findsOneWidget);
+      expect(find.text('OK'), findsOneWidget);
+      expect(find.text('Readiness signals'), findsNothing);
+
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('hold-preview')), findsNothing);
+      expect(find.text('Readiness signals'), findsNothing);
+    });
+
+    testWidgets('a long press elsewhere on the card still opens the options', (
+      tester,
+    ) async {
+      await pumpCard(tester);
+      await tester.longPress(find.byKey(const ValueKey('readiness-score')));
+      await tester.pumpAndSettle();
+      expect(find.text('Readiness signals'), findsOneWidget);
+      expect(find.byKey(const ValueKey('hold-preview')), findsNothing);
+    });
+
+    testWidgets('a quick tap on a pill still opens the detail screen', (
+      tester,
+    ) async {
+      await pumpCard(tester);
+      await tester.tap(find.byKey(const ValueKey('pill-sleep')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('hold-preview')), findsNothing);
+      expect(find.text('Readiness'), findsWidgets);
+    });
+
+    testWidgets('every pill has a peek that builds', (tester) async {
+      await pumpCard(tester);
+      for (final key in [
+        'hrv',
+        'restingHr',
+        'sleep',
+        'form',
+        'subjective',
+        'load',
+        'device',
+        'fitness',
+      ]) {
+        expect(find.byKey(ValueKey('pill-$key')), findsOneWidget, reason: key);
+        final g = await hold(tester, 'pill-$key');
+        expect(
+          find.byKey(ValueKey('readiness-peek-$key')),
+          findsOneWidget,
+          reason: key,
+        );
+        await g.up();
+        await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('hold-preview')), findsNothing);
+      }
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the peeks say what the signal is and today\'s figure', (
+      tester,
+    ) async {
+      await pumpCard(tester);
+      var g = await hold(tester, 'pill-sleep');
+      expect(find.text('Hours slept last night'), findsOneWidget);
+      expect(find.text('7 h 30 min'), findsOneWidget);
+      await g.up();
+      await tester.pumpAndSettle();
+
+      g = await hold(tester, 'pill-load');
+      expect(find.textContaining('100 TSS today'), findsOneWidget);
+      expect(find.text('Caution'), findsWidgets);
+      await g.up();
+      await tester.pumpAndSettle();
+
+      g = await hold(tester, 'pill-device');
+      expect(find.text('72'), findsWidgets);
+      await g.up();
+      await tester.pumpAndSettle();
+
+      g = await hold(tester, 'pill-fitness');
+      expect(find.text('CTL'), findsWidgets);
+      expect(find.text('vs a week ago'), findsOneWidget);
+      await g.up();
+    });
+
+    test('valueOn reads each signal from a wellness record', () {
+      final w = records().last;
+      double? v(ReadinessSignalKind k) => ReadinessPeek.valueOn(k, w);
+      expect(v(ReadinessSignalKind.hrv), 62);
+      expect(v(ReadinessSignalKind.restingHr), 48);
+      expect(v(ReadinessSignalKind.sleep), 7.5);
+      expect(v(ReadinessSignalKind.form), -6);
+      expect(v(ReadinessSignalKind.subjective), 2);
+      expect(v(ReadinessSignalKind.load), 100);
+      expect(v(ReadinessSignalKind.device), 72);
+      final empty = _day(0);
+      expect(ReadinessPeek.valueOn(ReadinessSignalKind.hrv, empty), isNull);
+      expect(ReadinessPeek.valueOn(ReadinessSignalKind.device, empty), isNull);
+    });
+  });
+
   group('load and device signals', () {
     List<LocalWellness> records({double? atlLoad, num? readiness}) => [
       ..._baseline(),

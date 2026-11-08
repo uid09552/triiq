@@ -13,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/charts/line_chart.dart';
+import '../../widgets/peek_parts.dart';
 import '../../widgets/skeleton.dart';
 import '../activities/activity_icons.dart';
 import 'load_heatmap_screen.dart' show heatColor;
@@ -154,7 +155,7 @@ class _InsightPreviewState extends State<InsightPreview> {
             final data = snapshot.data;
             if (data == null) {
               return snapshot.hasError
-                  ? _Hint(l10n.insPeekNoData)
+                  ? PeekHint(l10n.insPeekNoData)
                   : const Skeleton(height: 110, radius: 12);
             }
             return _content(context, l10n, data);
@@ -223,7 +224,7 @@ class _InsightPreviewState extends State<InsightPreview> {
         if (w.ctl != null && w.atl != null) w,
     ];
     final recent = days.length > 42 ? days.sublist(days.length - 42) : days;
-    if (recent.length < 2) return _Hint(l10n.insPeekNoData);
+    if (recent.length < 2) return PeekHint(l10n.insPeekNoData);
     final last = recent.last;
     final series = [
       ChartSeries(
@@ -257,10 +258,10 @@ class _InsightPreviewState extends State<InsightPreview> {
           ),
         ),
         const SizedBox(height: 8),
-        _Figures([
-          _Figure(l10n.ctlLabel, last.ctl!.round().toString()),
-          _Figure(l10n.atlLabel, last.atl!.round().toString()),
-          _Figure(
+        PeekFigures([
+          PeekFigure(l10n.ctlLabel, last.ctl!.round().toString()),
+          PeekFigure(l10n.atlLabel, last.atl!.round().toString()),
+          PeekFigure(
             l10n.readinessSignalForm,
             _signed((last.ctl! - last.atl!).round()),
           ),
@@ -290,7 +291,7 @@ class _InsightPreviewState extends State<InsightPreview> {
   ) {
     final locale = Localizations.localeOf(context).toString();
     final weeks = _weeks(d, 10);
-    if (weeks.every((w) => w.tss == 0)) return _Hint(l10n.insPeekNoData);
+    if (weeks.every((w) => w.tss == 0)) return PeekHint(l10n.insPeekNoData);
     final done = weeks.sublist(0, weeks.length - 1);
     final average = done.isEmpty
         ? 0
@@ -314,9 +315,12 @@ class _InsightPreviewState extends State<InsightPreview> {
           ),
         ),
         const SizedBox(height: 8),
-        _Figures([
-          _Figure(l10n.insPeekThisWeek, '${weeks.last.tss} ${l10n.tssSuffix}'),
-          _Figure(l10n.insPeekAverage, '$average ${l10n.tssSuffix}'),
+        PeekFigures([
+          PeekFigure(
+            l10n.insPeekThisWeek,
+            '${weeks.last.tss} ${l10n.tssSuffix}',
+          ),
+          PeekFigure(l10n.insPeekAverage, '$average ${l10n.tssSuffix}'),
         ]),
       ],
     );
@@ -335,7 +339,7 @@ class _InsightPreviewState extends State<InsightPreview> {
       from: d.today.subtract(const Duration(days: 83)),
       to: d.today,
     );
-    if (map.totalTss == 0) return _Hint(l10n.insPeekNoData);
+    if (map.totalTss == 0) return PeekHint(l10n.insPeekNoData);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -362,10 +366,10 @@ class _InsightPreviewState extends State<InsightPreview> {
           ],
         ),
         const SizedBox(height: 8),
-        _Figures([
-          _Figure(l10n.insPeekActiveDays, '${map.activeDays}'),
-          _Figure(l10n.insPeekStreak, '${map.longestStreak}'),
-          _Figure(l10n.insPeekTss, '${map.totalTss}'),
+        PeekFigures([
+          PeekFigure(l10n.insPeekActiveDays, '${map.activeDays}'),
+          PeekFigure(l10n.insPeekStreak, '${map.longestStreak}'),
+          PeekFigure(l10n.insPeekTss, '${map.totalTss}'),
         ]),
       ],
     );
@@ -381,7 +385,8 @@ class _InsightPreviewState extends State<InsightPreview> {
     required String label,
   }) {
     final period = d.powerCurves?.period(id);
-    if (period == null || period.isEmpty) return _Hint(l10n.insPeekOpenToLoad);
+    if (period == null || period.isEmpty)
+      return PeekHint(l10n.insPeekOpenToLoad);
     String at(double seconds) {
       final v = period.at(seconds)?.value;
       return v == null ? '–' : '${v.round()} W';
@@ -397,11 +402,11 @@ class _InsightPreviewState extends State<InsightPreview> {
           ),
         ),
         const SizedBox(height: 8),
-        _Figures([
-          _Figure('5 s', at(5)),
-          _Figure('1 min', at(60)),
-          _Figure('5 min', at(300)),
-          _Figure('20 min', at(1200)),
+        PeekFigures([
+          PeekFigure('5 s', at(5)),
+          PeekFigure('1 min', at(60)),
+          PeekFigure('5 min', at(300)),
+          PeekFigure('20 min', at(1200)),
         ]),
       ],
     );
@@ -417,7 +422,7 @@ class _InsightPreviewState extends State<InsightPreview> {
     final rides = d.activities
         .where((a) => isDurabilityCandidate(a, LoadSport.ride))
         .length;
-    return _Figures([_Figure(l10n.insPeekRides, '$rides')]);
+    return PeekFigures([PeekFigure(l10n.insPeekRides, '$rides')]);
   }
 
   // ------------------------------------------------------------- wellness
@@ -451,7 +456,7 @@ class _InsightPreviewState extends State<InsightPreview> {
         .nonNulls
         .firstOrNull;
     if (latest == null || (recent.length < 2 && rhr == null && sleep == null)) {
-      return _Hint(l10n.insPeekNoData);
+      return PeekHint(l10n.insPeekNoData);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,12 +485,13 @@ class _InsightPreviewState extends State<InsightPreview> {
           ),
           const SizedBox(height: 8),
         ],
-        _Figures([
+        PeekFigures([
           if (recent.isNotEmpty)
-            _Figure(l10n.insPeekHrv, '${v(recent.last, 'hrv')!.round()} ms'),
-          if (rhr != null) _Figure(l10n.insPeekRestingHr, '${rhr.round()} bpm'),
+            PeekFigure(l10n.insPeekHrv, '${v(recent.last, 'hrv')!.round()} ms'),
+          if (rhr != null)
+            PeekFigure(l10n.insPeekRestingHr, '${rhr.round()} bpm'),
           if (sleep != null)
-            _Figure(
+            PeekFigure(
               l10n.insPeekSleep,
               '${(sleep / 3600).toStringAsFixed(1)} h',
             ),
@@ -512,7 +518,7 @@ class _InsightPreviewState extends State<InsightPreview> {
       end.subtract(const Duration(days: 55)),
       end.subtract(const Duration(days: 28)),
     );
-    if (cur.tss == 0 && prev.tss == 0) return _Hint(l10n.insPeekNoData);
+    if (cur.tss == 0 && prev.tss == 0) return PeekHint(l10n.insPeekNoData);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -531,11 +537,11 @@ class _InsightPreviewState extends State<InsightPreview> {
           ),
         ),
         const SizedBox(height: 8),
-        _Figures([
-          _Figure(l10n.insPeekLast4, '${cur.tss} ${l10n.tssSuffix}'),
-          _Figure(l10n.insPeekBefore, '${prev.tss} ${l10n.tssSuffix}'),
+        PeekFigures([
+          PeekFigure(l10n.insPeekLast4, '${cur.tss} ${l10n.tssSuffix}'),
+          PeekFigure(l10n.insPeekBefore, '${prev.tss} ${l10n.tssSuffix}'),
           if (prev.tss > 0)
-            _Figure(
+            PeekFigure(
               'Δ',
               '${_signed(((cur.tss - prev.tss) * 100 / prev.tss).round())} %',
             ),
@@ -554,12 +560,12 @@ class _InsightPreviewState extends State<InsightPreview> {
     final weeks = _weeks(d, 3); // two weeks ago, last week, this week
     final last = weeks[1];
     final before = weeks[0];
-    if (last.tss == 0 && before.tss == 0) return _Hint(l10n.insPeekNoData);
-    return _Figures([
-      _Figure(l10n.insPeekLastWeek, '${last.tss} ${l10n.tssSuffix}'),
-      _Figure(l10n.insPeekHours, formatDurationSecs(last.seconds)),
-      _Figure(l10n.insPeekSessions, '${last.sessions}'),
-      _Figure(l10n.insPeekWeekBefore, '${before.tss} ${l10n.tssSuffix}'),
+    if (last.tss == 0 && before.tss == 0) return PeekHint(l10n.insPeekNoData);
+    return PeekFigures([
+      PeekFigure(l10n.insPeekLastWeek, '${last.tss} ${l10n.tssSuffix}'),
+      PeekFigure(l10n.insPeekHours, formatDurationSecs(last.seconds)),
+      PeekFigure(l10n.insPeekSessions, '${last.sessions}'),
+      PeekFigure(l10n.insPeekWeekBefore, '${before.tss} ${l10n.tssSuffix}'),
     ]);
   }
 
@@ -572,7 +578,7 @@ class _InsightPreviewState extends State<InsightPreview> {
   ) {
     final theme = Theme.of(context);
     final latest = d.activities.take(3).toList();
-    if (latest.isEmpty) return _Hint(l10n.insPeekNoData);
+    if (latest.isEmpty) return PeekHint(l10n.insPeekNoData);
     return Column(
       children: [
         for (final a in latest)
@@ -637,66 +643,4 @@ class _Week {
     }
     return _Week(dateOnly(from), tss, secs, n);
   }
-}
-
-class _Figure {
-  const _Figure(this.label, this.value);
-  final String label;
-  final String value;
-}
-
-/// A row of small labelled figures.
-class _Figures extends StatelessWidget {
-  const _Figures(this.figures);
-
-  final List<_Figure> figures;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Wrap(
-      spacing: 18,
-      runSpacing: 6,
-      children: [
-        for (final f in figures)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                f.value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              Text(
-                f.label,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-      ],
-    );
-  }
-}
-
-class _Hint extends StatelessWidget {
-  const _Hint(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Text(
-      text,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        fontStyle: FontStyle.italic,
-      ),
-    ),
-  );
 }

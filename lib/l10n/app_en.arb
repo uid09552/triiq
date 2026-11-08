@@ -1750,5 +1750,8 @@
   "insPeekLastWeek": "Last week",
   "insPeekHours": "Time",
   "insPeekSessions": "Sessions",
-  "insPeekWeekBefore": "Week before"
+  "insPeekWeekBefore": "Week before",
+  "readinessPeekFitness": "Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.",
+  "readinessPeekToday": "Today",
+  "readinessPeekWeekChange": "vs a week ago"
 }
