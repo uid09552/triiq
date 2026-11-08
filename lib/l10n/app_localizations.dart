@@ -7741,6 +7741,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connected with an API key'**
   String get connectedViaApiKey;
+
+  /// No description provided for @readinessSignalLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load'**
+  String get readinessSignalLoad;
+
+  /// No description provided for @readinessSignalDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get readinessSignalDevice;
+
+  /// No description provided for @readinessOptionLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load: today\'s training so far, and the acute:chronic ratio (ATL ÷ CTL)'**
+  String get readinessOptionLoad;
+
+  /// No description provided for @readinessOptionDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'The readiness figure your watch or app writes to Intervals.icu (0–100)'**
+  String get readinessOptionDevice;
+
+  /// No description provided for @readinessRangeLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal below {value} ATL ÷ CTL'**
+  String readinessRangeLoad(String value);
+
+  /// No description provided for @readinessLoadToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{tss} TSS today'**
+  String readinessLoadToday(String tss);
+
+  /// No description provided for @readinessRangeDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal from {value}'**
+  String readinessRangeDevice(String value);
 }
 
 class _AppLocalizationsDelegate

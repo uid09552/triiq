@@ -1710,5 +1710,15 @@
   "loginFailed": "Could not log in: {error}",
   "@loginFailed": {"placeholders": {"error": {"type": "String"}}},
   "connectedViaOAuth": "Signed in with Intervals.icu",
-  "connectedViaApiKey": "Connected with an API key"
+  "connectedViaApiKey": "Connected with an API key",
+  "readinessSignalLoad": "Load",
+  "readinessSignalDevice": "Device",
+  "readinessOptionLoad": "Load: today's training so far, and the acute:chronic ratio (ATL ÷ CTL)",
+  "readinessOptionDevice": "The readiness figure your watch or app writes to Intervals.icu (0–100)",
+  "readinessRangeLoad": "Normal below {value} ATL ÷ CTL",
+  "@readinessRangeLoad": {"placeholders": {"value": {"type": "String"}}},
+  "readinessLoadToday": "{tss} TSS today",
+  "@readinessLoadToday": {"placeholders": {"tss": {"type": "String"}}},
+  "readinessRangeDevice": "Normal from {value}",
+  "@readinessRangeDevice": {"placeholders": {"value": {"type": "String"}}}
 }

@@ -1494,12 +1494,16 @@ class TrainingDataTools {
               ReadinessSignalKind.sleep => 'hours',
               ReadinessSignalKind.form => 'CTL - ATL',
               ReadinessSignalKind.subjective => '1 good .. 4 bad',
+              ReadinessSignalKind.load => 'ATL / CTL ratio',
+              ReadinessSignalKind.device =>
+                '0..100, from the athlete\'s device',
             },
             'baseline_mean': _round(s.mean),
             'baseline_sd': _round(s.sd),
             'ok_bound': _round(s.okBound),
             'fatigue': s.fatigue,
             'soreness': s.soreness,
+            'training_load_today_tss': _round(s.dayLoad),
           }),
       ],
       'note':

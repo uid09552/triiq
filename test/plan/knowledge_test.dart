@@ -93,6 +93,10 @@ void main() {
       expect(r.restingHrBpm, d.restingHrBpm);
       expect(r.sleepHoursCaution, d.sleepHoursCaution);
       expect(r.form, d.form);
+      expect(r.acwr, d.acwr);
+      expect(r.dayLoadVsCtl, d.dayLoadVsCtl);
+      expect(r.minCtl, d.minCtl);
+      expect(r.deviceReadiness, d.deviceReadiness);
       expect(r.baselineDays, d.baselineDays);
       expect(r.minBaselineDays, d.minBaselineDays);
     });

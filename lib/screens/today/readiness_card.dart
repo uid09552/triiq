@@ -28,6 +28,8 @@ String readinessSignalLabel(AppLocalizations l10n, ReadinessSignalKind kind) =>
       ReadinessSignalKind.sleep => l10n.readinessSignalSleep,
       ReadinessSignalKind.form => l10n.readinessSignalForm,
       ReadinessSignalKind.subjective => l10n.readinessSignalSubjective,
+      ReadinessSignalKind.load => l10n.readinessSignalLoad,
+      ReadinessSignalKind.device => l10n.readinessSignalDevice,
     };
 
 /// Green / amber / red, from the theme where it has a fitting role.
@@ -243,6 +245,8 @@ class _SignalPills extends StatelessWidget {
         ReadinessSignalKind.sleep => '${_num(v, 1)} h',
         ReadinessSignalKind.form => '${v >= 0 ? '+' : ''}${_num(v)}',
         ReadinessSignalKind.subjective => '${v.round()}/4',
+        ReadinessSignalKind.load => _num(v, 2),
+        ReadinessSignalKind.device => _num(v),
       };
     }
 
@@ -255,24 +259,27 @@ class _SignalPills extends StatelessWidget {
 
     final pills = <Widget>[
       for (final s in r.active)
-        _Pill(
-          key: ValueKey('pill-${s.kind.name}'),
-          label: readinessSignalLabel(l10n, s.kind),
-          value: valueOf(s) ?? '–',
-          color: tint(s.rating),
-          icon: switch (s.rating) {
-            SignalRating.ok => Icons.check_circle,
-            SignalRating.caution => Icons.warning_amber_rounded,
-            SignalRating.backOff => Icons.error,
-            _ => Icons.remove_circle_outline,
-          },
-          rating: switch (s.rating) {
-            SignalRating.ok => l10n.a11ySignalOk,
-            SignalRating.caution => l10n.a11ySignalCaution,
-            SignalRating.backOff => l10n.a11ySignalBackOff,
-            _ => l10n.a11ySignalNone,
-          },
-        ),
+        // The device's own figure is a bonus signal: no pill without one.
+        if (!(s.kind == ReadinessSignalKind.device &&
+            s.rating == SignalRating.missing))
+          _Pill(
+            key: ValueKey('pill-${s.kind.name}'),
+            label: readinessSignalLabel(l10n, s.kind),
+            value: valueOf(s) ?? '–',
+            color: tint(s.rating),
+            icon: switch (s.rating) {
+              SignalRating.ok => Icons.check_circle,
+              SignalRating.caution => Icons.warning_amber_rounded,
+              SignalRating.backOff => Icons.error,
+              _ => Icons.remove_circle_outline,
+            },
+            rating: switch (s.rating) {
+              SignalRating.ok => l10n.a11ySignalOk,
+              SignalRating.caution => l10n.a11ySignalCaution,
+              SignalRating.backOff => l10n.a11ySignalBackOff,
+              _ => l10n.a11ySignalNone,
+            },
+          ),
     ];
 
     // Fitness: latest CTL and its change against a week before.
