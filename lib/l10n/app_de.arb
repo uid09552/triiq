@@ -4,7 +4,7 @@
   "navToday": "Heute",
   "navCalendar": "Kalender",
   "navChat": "Chat",
-  "navStatistics": "Statistik",
+  "navStatistics": "Einblicke",
   "navMore": "Mehr",
   "profileAndSettingsTooltip": "Profil & Einstellungen",
 
@@ -250,11 +250,8 @@
   },
 
   "moreSyncSubtitle": "Trainingsdaten von Intervals.icu abrufen",
-  "moreActivitiesSubtitle": "Alle zwischengespeicherten Aktivitäten",
   "trainingPlansTitle": "Trainingspläne",
   "moreKnowledgeSubtitle": "Deine eigenen Trainingsunterlagen, die der Assistent durchsuchen kann",
-  "gearTitle": "Ausrüstung",
-  "comingSoon": "Demnächst verfügbar",
 
   "knowledgeLibraryTitle": "Wissensbibliothek",
   "knowledgeImportButton": "Importieren",
@@ -635,7 +632,6 @@
   "plannedDoneTitle": "Erledigt: {name}",
   "plannedOpenActivity": "Aktivität öffnen",
   "weeklyReviewTitle": "Wochenrückblick",
-  "moreReviewSubtitle": "Plan gegen Erledigt, 80/20 und Belastungstrend pro Woche",
   "weeklyReviewTopic": "Woche ab {date}",
   "previousWeek": "Vorige Woche",
   "nextWeek": "Nächste Woche",
@@ -691,7 +687,7 @@
   "weeklyTargetShowOnToday": "Auf \"Heute\" anzeigen",
   "weeklyTargetShowOnTodayHelp": "Ein Fortschrittsring pro Sportart mit festgelegtem Ziel.",
 
-  "performanceTitle": "Leistung",
+  "performanceTitle": "Leistungskurven",
   "performanceSubtitle": "Bestleistungen nach Dauer und Distanz, Saison gegen Saison",
   "curveMetricPower": "Leistung",
   "curveMetricPace": "Pace",
@@ -877,8 +873,7 @@
   "yearGoalBehind": "{km} km hinter dem Soll",
   "yearGoalProjection": "Auf Kurs für {km} km",
   "todaySectionYearGoals": "Jahresziele",
-  "analysisTitle": "Analyse",
-  "moreAnalysisSubtitle": "Kennzahlen im Vergleich",
+  "analysisTitle": "Metrik-Explorer",
   "analysisFilters": "Filter",
   "analysisPeriod": "Zeitraum",
   "analysisRange30d": "30 Tage",
@@ -1346,5 +1341,8 @@
   "replaceUndone": "Zurück zu „{name}“",
   "couldNotUndo": "Rückgängig nicht möglich: {error}",
   "workoutReplacedUndoable": "{name} ersetzt die Einheit",
-  "workoutDeletedUndoable": "„{name}“ gelöscht"
+  "workoutDeletedUndoable": "„{name}“ gelöscht",
+  "moreGroupPlan": "Planung",
+  "moreGroupTrainer": "Trainer",
+  "moreGroupData": "Daten"
 }

@@ -23,11 +23,7 @@ import '../../widgets/sync_status_chip.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
-import 'analytics_screen.dart';
-import '../compare/compare_screen.dart';
-import 'load_heatmap_screen.dart';
-import 'performance_screen.dart';
-import 'wellness_trends_screen.dart';
+import 'insights_grid.dart';
 
 /// Training-load trends and volume, all of it read from the local cache:
 /// the CTL/ATL curve over the chosen window, completed-vs-planned load per
@@ -274,70 +270,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.trending_up),
-              title: Text(l10n.performanceTitle),
-              subtitle: Text(l10n.performanceSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const PerformanceScreen(),
-                ),
-              ),
-            ),
-          ),
           const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.insights_outlined),
-              title: Text(l10n.anTitle),
-              subtitle: Text(l10n.anSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const AnalyticsScreen(),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.grid_view_rounded),
-              title: Text(l10n.hmTitle),
-              subtitle: Text(l10n.hmSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => LoadHeatmapScreen()),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.monitor_heart_outlined),
-              title: Text(l10n.wtTitle),
-              subtitle: Text(l10n.wtSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => WellnessTrendsScreen()),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.compare_arrows),
-              title: Text(l10n.cmpTitle),
-              subtitle: Text(l10n.cmpSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const CompareScreen()),
-              ),
-            ),
-          ),
+          // Every analysis view, one tap away, in a few compact rows — so
+          // the charts below start on the first screen.
+          const InsightsGrid(),
           const SizedBox(height: 16),
           SectionCard(
             icon: Icons.show_chart,

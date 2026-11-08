@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navChat => 'Chat';
 
   @override
-  String get navStatistics => 'Statistics';
+  String get navStatistics => 'Insights';
 
   @override
   String get navMore => 'More';
@@ -617,20 +617,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreSyncSubtitle => 'Pull training data from Intervals.icu';
 
   @override
-  String get moreActivitiesSubtitle => 'Every cached activity';
-
-  @override
   String get trainingPlansTitle => 'Training plans';
 
   @override
   String get moreKnowledgeSubtitle =>
       'Your own coaching documents the agent can search';
-
-  @override
-  String get gearTitle => 'Gear';
-
-  @override
-  String get comingSoon => 'Coming soon';
 
   @override
   String get knowledgeLibraryTitle => 'Knowledge library';
@@ -1720,10 +1711,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weeklyReviewTitle => 'Weekly review';
 
   @override
-  String get moreReviewSubtitle =>
-      'Plan vs done, 80/20 and load trend per week';
-
-  @override
   String weeklyReviewTopic(String date) {
     return 'Week of $date';
   }
@@ -1946,7 +1933,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'A progress ring per sport with a target set.';
 
   @override
-  String get performanceTitle => 'Performance';
+  String get performanceTitle => 'Performance curves';
 
   @override
   String get performanceSubtitle =>
@@ -2572,10 +2559,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todaySectionYearGoals => 'Year goals';
 
   @override
-  String get analysisTitle => 'Analysis';
-
-  @override
-  String get moreAnalysisSubtitle => 'Compare metrics side by side';
+  String get analysisTitle => 'Metric explorer';
 
   @override
   String get analysisFilters => 'Filters';
@@ -4293,4 +4277,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String workoutDeletedUndoable(String name) {
     return '“$name” deleted';
   }
+
+  @override
+  String get moreGroupPlan => 'Plan';
+
+  @override
+  String get moreGroupTrainer => 'Trainer';
+
+  @override
+  String get moreGroupData => 'Data';
 }

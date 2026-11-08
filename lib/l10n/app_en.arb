@@ -4,7 +4,7 @@
   "navToday": "Today",
   "navCalendar": "Calendar",
   "navChat": "Chat",
-  "navStatistics": "Statistics",
+  "navStatistics": "Insights",
   "navMore": "More",
   "profileAndSettingsTooltip": "Profile & settings",
 
@@ -250,11 +250,8 @@
   },
 
   "moreSyncSubtitle": "Pull training data from Intervals.icu",
-  "moreActivitiesSubtitle": "Every cached activity",
   "trainingPlansTitle": "Training plans",
   "moreKnowledgeSubtitle": "Your own coaching documents the agent can search",
-  "gearTitle": "Gear",
-  "comingSoon": "Coming soon",
 
   "knowledgeLibraryTitle": "Knowledge library",
   "knowledgeImportButton": "Import",
@@ -667,7 +664,6 @@
   "@plannedDoneTitle": {"placeholders": {"name": {"type": "String"}}},
   "plannedOpenActivity": "Open the activity",
   "weeklyReviewTitle": "Weekly review",
-  "moreReviewSubtitle": "Plan vs done, 80/20 and load trend per week",
   "weeklyReviewTopic": "Week of {date}",
   "@weeklyReviewTopic": {"placeholders": {"date": {"type": "String"}}},
   "previousWeek": "Previous week",
@@ -743,7 +739,7 @@
   "weeklyTargetShowOnToday": "Show on Today",
   "weeklyTargetShowOnTodayHelp": "A progress ring per sport with a target set.",
 
-  "performanceTitle": "Performance",
+  "performanceTitle": "Performance curves",
   "performanceSubtitle": "Best efforts by duration and distance, season against season",
   "curveMetricPower": "Power",
   "curveMetricPace": "Pace",
@@ -1009,8 +1005,7 @@
     }
   },
   "todaySectionYearGoals": "Year goals",
-  "analysisTitle": "Analysis",
-  "moreAnalysisSubtitle": "Compare metrics side by side",
+  "analysisTitle": "Metric explorer",
   "analysisFilters": "Filters",
   "analysisPeriod": "Period",
   "analysisRange30d": "30 days",
@@ -1593,5 +1588,8 @@
   "workoutReplacedUndoable": "{name} replaces the session",
   "@workoutReplacedUndoable": {"placeholders": {"name": {"type": "String"}}},
   "workoutDeletedUndoable": "“{name}” deleted",
-  "@workoutDeletedUndoable": {"placeholders": {"name": {"type": "String"}}}
+  "@workoutDeletedUndoable": {"placeholders": {"name": {"type": "String"}}},
+  "moreGroupPlan": "Plan",
+  "moreGroupTrainer": "Trainer",
+  "moreGroupData": "Data"
 }

@@ -372,7 +372,7 @@ class TrainingDataTools {
           'each with the current and candidate value, percent change, '
           'direction and the data it came from. Read-only — this tool never '
           "writes a threshold. When the athlete asks about one, explain it "
-          "from these figures and point them to Statistics → Performance to "
+          "from these figures and point them to Insights → Performance curves to "
           'review and apply it there; you cannot apply or dismiss it '
           'yourself.',
       schema: const {'type': 'object', 'properties': <String, dynamic>{}},
@@ -1457,7 +1457,7 @@ class TrainingDataTools {
       ],
       'note': suggestions.isEmpty
           ? 'No threshold suggestions right now.'
-          : 'Review and apply in Statistics → Performance; this tool '
+          : 'Review and apply in Insights → Performance curves; this tool '
                 'cannot apply or dismiss one.',
     });
   }

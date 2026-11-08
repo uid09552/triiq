@@ -18,7 +18,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navChat => 'Chat';
 
   @override
-  String get navStatistics => 'Statistik';
+  String get navStatistics => 'Einblicke';
 
   @override
   String get navMore => 'Mehr';
@@ -627,20 +627,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get moreSyncSubtitle => 'Trainingsdaten von Intervals.icu abrufen';
 
   @override
-  String get moreActivitiesSubtitle => 'Alle zwischengespeicherten Aktivitäten';
-
-  @override
   String get trainingPlansTitle => 'Trainingspläne';
 
   @override
   String get moreKnowledgeSubtitle =>
       'Deine eigenen Trainingsunterlagen, die der Assistent durchsuchen kann';
-
-  @override
-  String get gearTitle => 'Ausrüstung';
-
-  @override
-  String get comingSoon => 'Demnächst verfügbar';
 
   @override
   String get knowledgeLibraryTitle => 'Wissensbibliothek';
@@ -1738,10 +1729,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get weeklyReviewTitle => 'Wochenrückblick';
 
   @override
-  String get moreReviewSubtitle =>
-      'Plan gegen Erledigt, 80/20 und Belastungstrend pro Woche';
-
-  @override
   String weeklyReviewTopic(String date) {
     return 'Woche ab $date';
   }
@@ -1967,7 +1954,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein Fortschrittsring pro Sportart mit festgelegtem Ziel.';
 
   @override
-  String get performanceTitle => 'Leistung';
+  String get performanceTitle => 'Leistungskurven';
 
   @override
   String get performanceSubtitle =>
@@ -2601,10 +2588,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get todaySectionYearGoals => 'Jahresziele';
 
   @override
-  String get analysisTitle => 'Analyse';
-
-  @override
-  String get moreAnalysisSubtitle => 'Kennzahlen im Vergleich';
+  String get analysisTitle => 'Metrik-Explorer';
 
   @override
   String get analysisFilters => 'Filter';
@@ -4330,4 +4314,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String workoutDeletedUndoable(String name) {
     return '„$name“ gelöscht';
   }
+
+  @override
+  String get moreGroupPlan => 'Planung';
+
+  @override
+  String get moreGroupTrainer => 'Trainer';
+
+  @override
+  String get moreGroupData => 'Daten';
 }

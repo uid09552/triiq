@@ -77,7 +77,7 @@ void main() {
     expect(suggestions.single['current_value'], 252);
     expect(suggestions.single['candidate_value'], 262);
     expect(suggestions.single['direction'], 'up');
-    expect(result['note'], contains('Statistics'));
+    expect(result['note'], contains('Insights'));
   });
 
   test('says nothing right now when there are no suggestions', () async {

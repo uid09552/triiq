@@ -13,10 +13,11 @@ void main() {
 
     // Not pumpAndSettle: Today's data-loading spinner is indeterminate and
     // stays mounted (offstage) in the IndexedStack, so it never settles.
-    await tester.tap(find.text('Statistics'));
+    await tester.tap(find.text('Insights'));
     await tester.pump();
 
-    // Statistics shows the Performance entry at the top, whatever data exists.
-    expect(find.text('Performance'), findsWidgets);
+    // The Insights hub lists every analysis view, whatever data exists.
+    expect(find.text('Performance curves'), findsWidgets);
+    expect(find.text('Metric explorer'), findsWidgets);
   });
 }

@@ -119,7 +119,7 @@ abstract class AppLocalizations {
   /// No description provided for @navStatistics.
   ///
   /// In en, this message translates to:
-  /// **'Statistics'**
+  /// **'Insights'**
   String get navStatistics;
 
   /// No description provided for @navMore.
@@ -1166,12 +1166,6 @@ abstract class AppLocalizations {
   /// **'Pull training data from Intervals.icu'**
   String get moreSyncSubtitle;
 
-  /// No description provided for @moreActivitiesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Every cached activity'**
-  String get moreActivitiesSubtitle;
-
   /// No description provided for @trainingPlansTitle.
   ///
   /// In en, this message translates to:
@@ -1183,18 +1177,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your own coaching documents the agent can search'**
   String get moreKnowledgeSubtitle;
-
-  /// No description provided for @gearTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Gear'**
-  String get gearTitle;
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
 
   /// No description provided for @knowledgeLibraryTitle.
   ///
@@ -2906,12 +2888,6 @@ abstract class AppLocalizations {
   /// **'Weekly review'**
   String get weeklyReviewTitle;
 
-  /// No description provided for @moreReviewSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Plan vs done, 80/20 and load trend per week'**
-  String get moreReviewSubtitle;
-
   /// No description provided for @weeklyReviewTopic.
   ///
   /// In en, this message translates to:
@@ -3227,7 +3203,7 @@ abstract class AppLocalizations {
   /// No description provided for @performanceTitle.
   ///
   /// In en, this message translates to:
-  /// **'Performance'**
+  /// **'Performance curves'**
   String get performanceTitle;
 
   /// No description provided for @performanceSubtitle.
@@ -4265,14 +4241,8 @@ abstract class AppLocalizations {
   /// No description provided for @analysisTitle.
   ///
   /// In en, this message translates to:
-  /// **'Analysis'**
+  /// **'Metric explorer'**
   String get analysisTitle;
-
-  /// No description provided for @moreAnalysisSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Compare metrics side by side'**
-  String get moreAnalysisSubtitle;
 
   /// No description provided for @analysisFilters.
   ///
@@ -7087,6 +7057,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'“{name}” deleted'**
   String workoutDeletedUndoable(String name);
+
+  /// No description provided for @moreGroupPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get moreGroupPlan;
+
+  /// No description provided for @moreGroupTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get moreGroupTrainer;
+
+  /// No description provided for @moreGroupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get moreGroupData;
 }
 
 class _AppLocalizationsDelegate
