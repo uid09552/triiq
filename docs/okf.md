@@ -1159,13 +1159,42 @@ right there; a synced Intervals.icu event on Today still opens the fuller
 planned-workout screen first, which also has the button.
 
 Otherwise, pick a sport (run/ride/swim), duration and
-intensity (recovery/endurance/intervals), then **Propose training**. This
+intensity (recovery/endurance/intervals) and a **Detail** level, then
+**Propose training**. **Detailed** (the default) asks for a coach-written
+session: a one-line purpose, then a section per block (Warm-up, Main set,
+Cool-down, plus Drills or Strength & mobility when exercises deserve their
+own block), each a two-column table — **Exercise** (named exercise, drill or
+interval type with its sets, reps or time/distance and the rest between) and
+**How** (target, cadence or stroke rate, equipment and a coaching cue) — and
+a closing load and rationale. The exercises follow the sport (run: leg
+swings, A-skips, strides, calf raises; ride: spin-ups, single-leg pedalling,
+cadence blocks; swim: catch-up, fingertip drag, kick and pull sets), see
+`exerciseMenu` in `lib/agent/training_detail.dart`. **Short** keeps the old
+compact table, one row per segment. The same level carries into **Create in
+Intervals.icu**: a detailed session keeps each exercise as its own step with
+its cue, rest between repeats as steps, and a plain-text purpose line
+(`workoutStructuringPromptFor`). TriIQ plan sessions (the plan generator's
+`description`, now up to 2,600 characters) are asked for the same: named
+exercises, reps and rest per set, and a form cue per step. This
 sends the same [training agent](#the-training-agent) a prompt built from
 those choices, instructed to check the last 7 days of TSS/CTL/ATL/ramp rate
 with its own tools before proposing — so a fatigued week gets a lighter
 prescription, not a canned template. The proposal streams in as markdown,
-same rendering as Chat; **Ask again** re-runs it. Needs an LLM provider
+same rendering as Chat (below); **Ask again** re-runs it. Needs an LLM provider
 configured, same as Chat.
+
+**Formatting.** Markdown from the trainer (Chat, Train now, the weekly
+review) is drawn by `MarkdownReply` with the app's own look: `##` headings
+carry an accent bar, `###` headings are small letter-spaced labels, bullets
+are accent diamonds and numbered lists get round badges, tables are one
+rounded card with an accent header row, quotes are callouts, and a single
+newline is a line break. Workout text in Intervals.icu step syntax (the
+create preview, a planned workout's detail) is drawn by `WorkoutDescription`
+(`lib/widgets/workout_steps.dart`): the purpose as an italic lead-in, each
+step as its duration, a target chip and the exercise with its cue, repeat
+blocks under a "3 ×" header, and a colour bar per step by intensity (grey for
+recovery, green, yellow, orange, red, purple above 120 %). Text with no steps
+(a coach's note) is shown as written.
 
 Once a session has been proposed there are two ways to keep it:
 

@@ -4656,4 +4656,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String a11yStreamChart(String series) {
     return 'Zeitreihen-Diagramm: $series';
   }
+
+  @override
+  String get trainDetailLabel => 'Detailgrad';
+
+  @override
+  String get trainDetailShort => 'Kurz';
+
+  @override
+  String get trainDetailDetailed => 'Ausführlich';
+
+  @override
+  String get trainDetailShortHint =>
+      'Eine kompakte Tabelle: eine Zeile pro Abschnitt.';
+
+  @override
+  String get trainDetailDetailedHint =>
+      'Benannte Übungen und Drills mit Sätzen, Wiederholungen, Pause, Zielwerten und einem Coaching-Hinweis je Block.';
 }

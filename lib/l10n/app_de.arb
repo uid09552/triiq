@@ -1440,5 +1440,10 @@
   "a11ySignalBackOff": "zurückfahren",
   "a11ySignalNone": "ohne Bewertung",
   "a11yHeatmap": "Belastungs-Heatmap: {days} Tage mit Training, insgesamt {tss} TSS, längste Serie {streak} Tage.",
-  "a11yStreamChart": "Zeitreihen-Diagramm: {series}"
+  "a11yStreamChart": "Zeitreihen-Diagramm: {series}",
+  "trainDetailLabel": "Detailgrad",
+  "trainDetailShort": "Kurz",
+  "trainDetailDetailed": "Ausführlich",
+  "trainDetailShortHint": "Eine kompakte Tabelle: eine Zeile pro Abschnitt.",
+  "trainDetailDetailedHint": "Benannte Übungen und Drills mit Sätzen, Wiederholungen, Pause, Zielwerten und einem Coaching-Hinweis je Block."
 }

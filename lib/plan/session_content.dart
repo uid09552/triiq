@@ -33,7 +33,7 @@ class SessionContentGenerator {
   final Duration _timeout;
 
   static const maxShortDescriptionLength = 140;
-  static const maxDescriptionLength = 2000;
+  static const maxDescriptionLength = 2600;
 
   /// [plan] with as many sessions' content rewritten as the provider
   /// returned something usable for. Every other session, and the whole plan
@@ -91,6 +91,14 @@ class SessionContentGenerator {
       'lines like "- 10m 70%" or "4x" / "  - 3m 95%" / "  - 1m 60%"; note '
       '"m" after a number means MINUTES — write a swim distance in metres as '
       '"mtr", e.g. "- 200mtr drill", never "- 200m"). '
+      'Make the description a real coached session, not a list of '
+      'percentages: name the exercises (warm-up drills such as A-skips or '
+      'leg swings, strides, cadence work such as spin-ups or single-leg '
+      'pedalling, swim drills and kick or pull sets, a short strength or '
+      'mobility finisher where it fits the phase), give every set its reps '
+      'and the rest between reps as its own step, and put the target '
+      '(% or pace), the equipment and a form cue in the step line. Every '
+      'step still needs its own duration or distance and a target. '
       'Make the description explain itself: begin with one plain-text line '
       'stating the session\'s purpose and the physiological effect it is '
       'meant to have in its phase, and end every step line with a short cue '

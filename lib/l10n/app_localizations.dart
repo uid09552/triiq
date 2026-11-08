@@ -7663,6 +7663,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time-series chart: {series}'**
   String a11yStreamChart(String series);
+
+  /// No description provided for @trainDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail'**
+  String get trainDetailLabel;
+
+  /// No description provided for @trainDetailShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get trainDetailShort;
+
+  /// No description provided for @trainDetailDetailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed'**
+  String get trainDetailDetailed;
+
+  /// No description provided for @trainDetailShortHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One compact table: a row per segment.'**
+  String get trainDetailShortHint;
+
+  /// No description provided for @trainDetailDetailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block.'**
+  String get trainDetailDetailedHint;
 }
 
 class _AppLocalizationsDelegate

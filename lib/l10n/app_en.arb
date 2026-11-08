@@ -1696,5 +1696,10 @@
   "a11yHeatmap": "Load heatmap: {days} days with training, {tss} TSS in total, longest streak {streak} days.",
   "@a11yHeatmap": {"placeholders": {"days": {"type": "int"}, "tss": {"type": "int"}, "streak": {"type": "int"}}},
   "a11yStreamChart": "Time-series chart: {series}",
-  "@a11yStreamChart": {"placeholders": {"series": {"type": "String"}}}
+  "@a11yStreamChart": {"placeholders": {"series": {"type": "String"}}},
+  "trainDetailLabel": "Detail",
+  "trainDetailShort": "Short",
+  "trainDetailDetailed": "Detailed",
+  "trainDetailShortHint": "One compact table: a row per segment.",
+  "trainDetailDetailedHint": "Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block."
 }

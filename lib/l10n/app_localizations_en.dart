@@ -4616,4 +4616,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String a11yStreamChart(String series) {
     return 'Time-series chart: $series';
   }
+
+  @override
+  String get trainDetailLabel => 'Detail';
+
+  @override
+  String get trainDetailShort => 'Short';
+
+  @override
+  String get trainDetailDetailed => 'Detailed';
+
+  @override
+  String get trainDetailShortHint => 'One compact table: a row per segment.';
+
+  @override
+  String get trainDetailDetailedHint =>
+      'Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block.';
 }
