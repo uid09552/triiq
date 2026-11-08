@@ -19,6 +19,9 @@ flutter analyze                 # must be 0 errors
 flutter test                    # all tests
 flutter test test/widget_test.dart --plain-name "test name"
 flutter test --dart-define=INTERVALS_API_KEY=<key>   # also the live Intervals.icu suite
+# "Log in with Intervals.icu": the OAuth client and redirect default to the registered
+# app (client 1727); another build can set --dart-define=INTERVALS_CLIENT_ID=<id>
+# and --dart-define=INTERVALS_REDIRECT_URI=<uri>
 ```
 
 `test/flutter_test_config.dart` gives every test file its own temporary

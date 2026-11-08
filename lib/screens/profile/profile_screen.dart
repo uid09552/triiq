@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../data/intervals_session.dart';
+import '../../data/oauth/intervals_oauth.dart';
 import '../../data/pending_writes.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/athlete_avatar.dart';
+import '../../widgets/intervals_login.dart';
 import '../../widgets/section_card.dart';
 import '../settings/settings_screen.dart';
 
@@ -13,7 +15,20 @@ import '../settings/settings_screen.dart';
 /// which auth-tests it against Intervals.icu before persisting it to
 /// secure storage.
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({
+    super.key,
+    this.oauth,
+    this.session,
+    this.loginAvailable,
+    this.login,
+  });
+
+  /// Test seams: the browser login, the session it connects, whether the
+  /// platform offers it, and a replacement for the whole login.
+  final IntervalsOAuth? oauth;
+  final IntervalsSession? session;
+  final bool? loginAvailable;
+  final Future<void> Function()? login;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -21,9 +36,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _apiKeyController = TextEditingController();
-  final _session = IntervalsSession.instance;
+  late final IntervalsSession _session =
+      widget.session ?? IntervalsSession.instance;
 
   bool _connecting = false;
+  bool _loggingIn = false;
   String? _error;
 
   @override
@@ -119,21 +136,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: restoring
                     ? Text(l10n.checkingForSavedKey)
                     : connected
-                    ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: FilledButton.tonal(
-                          onPressed: () async {
-                            // Nothing made in this account may be sent to
-                            // the next one connected.
-                            await PendingWritesService.instance.clearAll();
-                            await _session.disconnect();
-                          },
-                          child: Text(l10n.disconnectButton),
-                        ),
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _session.method == ConnectionMethod.oauth
+                                ? l10n.connectedViaOAuth
+                                : l10n.connectedViaApiKey,
+                            key: const ValueKey('connected-via'),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 10),
+                          FilledButton.tonal(
+                            onPressed: () async {
+                              // Nothing made in this account may be sent to
+                              // the next one connected.
+                              await PendingWritesService.instance.clearAll();
+                              await _session.disconnect();
+                            },
+                            child: Text(l10n.disconnectButton),
+                          ),
+                        ],
                       )
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          IntervalsLoginButton(
+                            onBusyChanged: (busy) =>
+                                setState(() => _loggingIn = busy),
+                            onError: (message) =>
+                                setState(() => _error = message),
+                            oauth: widget.oauth,
+                            session: _session,
+                            available: widget.loginAvailable,
+                            login: widget.login,
+                          ),
                           Text(
                             _session.remembersApiKey
                                 ? l10n.apiKeyHelpSecure
@@ -145,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           TextField(
                             controller: _apiKeyController,
                             obscureText: true,
-                            enabled: !_connecting,
+                            enabled: !_connecting && !_loggingIn,
                             decoration: InputDecoration(
                               labelText: l10n.intervalsApiKeyLabel,
                             ),
@@ -163,7 +201,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: ValueListenableBuilder(
                               valueListenable: _apiKeyController,
                               builder: (context, value, _) => FilledButton(
-                                onPressed: value.text.isEmpty || _connecting
+                                onPressed:
+                                    value.text.isEmpty ||
+                                        _connecting ||
+                                        _loggingIn
                                     ? null
                                     : _connect,
                                 child: _connecting

@@ -56,7 +56,7 @@ athlete can:
 | Area | Status |
 |---|---|
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
-| Intervals.icu connection (Profile) | ✅ Implemented — API key is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch |
+| Intervals.icu connection (Profile) | ✅ Implemented — two ways in: **Log in with Intervals.icu** (OAuth 2 with PKCE as a public client: the browser opens Intervals.icu's page, the app gets a bearer token back, no secret and no password in the app) or a pasted **API key**. Either is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch (`IntervalsSession.connect` / `connectWithToken`; one credential at a time). Disconnect forgets it, and revokes the token at Intervals.icu for an OAuth login |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
 | Today screen | ✅ Real data once connected — a compact **header tile** (date badge, today's status — "Ready to train" until something is logged, or "Train with care" / "Take it easy today" in the readiness colour when readiness says Caution / Back off, so the header and the readiness card never disagree, done-vs-planned TSS / time / session count with a hairline progress bar, the refresh button and a ⋯ button; **long-press** or ⋯ opens quick actions: sync now, Train now, log fatigue & soreness, open the calendar on Intervals.icu, customize Today), a readiness card (a 0–100 score ring in the status colour, Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with small tinted pills for each signal's value plus CTL with its weekly trend, and a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each with a tiny sparkline inside and a trend arrow (rising / steady / falling: CTL/ATL/Form/Ramp against a week earlier, TSS today as the last 7 days vs the 7 before, TSS week as the last finished week vs the one before), each tappable through to its own chart; optional a slim stacked bar of this week's total training hours (swim/ride/run/other, against the summed targets) above per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
@@ -849,6 +849,17 @@ is re-synced so the new session appears immediately.
 
 ### Connecting your Intervals.icu account
 
+**Log in with Intervals.icu** (Android and Windows): tap the profile icon
+(top-right) → **Log in with Intervals.icu**. Your browser opens Intervals.icu's
+page asking you to allow TriIQ (activities, wellness, calendar and settings,
+read and write where the app writes back); agree and the browser returns to
+the app, which is then connected. TriIQ never sees your password and stores
+no client secret: the login uses OAuth with PKCE (`lib/data/oauth/`). The
+same button is on the Connect step of the first-run flow. Saying no in the
+browser just cancels. On the web preview and iOS only the API key is offered.
+
+**Or with an API key:**
+
 1. Tap the profile icon (top-right).
 2. Find your API key on intervals.icu under Settings.
 3. Paste it into **Intervals.icu API key** and tap **Connect**. This
@@ -859,7 +870,42 @@ is re-synced so the new session appears immediately.
    credential store (Keystore-encrypted storage on Android, Credential
    Manager on Windows) across app
    restarts — the app re-validates it on every launch and reconnects
-   automatically. **Disconnect** clears both the session and the saved key.
+   automatically. **Disconnect** clears both the session and the saved key
+   (or token — for an OAuth login it also removes TriIQ from your connected
+   apps at Intervals.icu). Profile says which way you are connected.
+
+**How the browser login is wired.** `IntervalsOAuth` builds
+`https://intervals.icu/oauth/authorize?client_id=…&redirect_uri=…&scope=…&state=…&code_challenge=…&code_challenge_method=S256`
+(the verifier is 64 URL-safe characters, S256 is the only method Intervals.icu
+supports), opens it with `url_launcher`, waits for the redirect
+(`?code=…&state=…`, or `?error=access_denied`), checks `state`, and within two
+minutes POSTs form data `client_id`, `code` and `code_verifier` — no secret, as
+for a public client — to `https://intervals.icu/api/oauth/token`. The answer
+(`token_type`, `access_token`, granted `scope`, `athlete {id, name}`) gives the
+bearer token (`AccessToken` scheme of the generated client); API calls use
+`0` as the athlete id, which means the token's athlete. Disconnect sends
+`DELETE /api/v1/disconnect-app` with the token. The redirect comes back
+differently per platform: Android registers `triiq://oauth/callback` in the
+manifest and `MainActivity` passes it to Dart over the `triiq/oauth` channel;
+Windows listens on `http://127.0.0.1:<free port>/callback` while the login is
+open (Intervals.icu ignores the port of a registered localhost redirect).
+
+**One-time setup at Intervals.icu** (as the athlete who owns the app, on the
+app's management page): the app must be **approved** (it shows "Pending" until
+then and the flow does not work), flagged a **public client**, and have these
+redirect URIs registered exactly: `triiq://oauth/callback` and
+`http://127.0.0.1/callback`. "Require PKCE" can be ticked, since every build
+uses PKCE. The client id is `1727`; a build can use another client or redirect
+with `--dart-define=INTERVALS_CLIENT_ID=…` and
+`--dart-define=INTERVALS_REDIRECT_URI=…`. The token is stored like the API key
+(Keystore-encrypted storage / Credential Manager), is only saved after it has
+loaded the athlete profile, and is dropped when Intervals.icu answers 401/403.
+Scopes requested (WRITE implies READ, so each at the level the app uses it):
+`ACTIVITY:READ` (activities, power and pace curves), `WELLNESS:WRITE` (wellness
+and the fatigue/soreness written back), `CALENDAR:WRITE` (planned workouts and
+events), `SETTINGS:WRITE` (athlete settings, and the thresholds you apply from
+a suggestion). The athlete can untick scopes on Intervals.icu's page; the
+features that need a missing one then fail with a 403.
    In the browser build the key is only kept for that tab: browsers have no
    comparable secure store, so you re-enter it after a reload.
 

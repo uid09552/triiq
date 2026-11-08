@@ -4459,7 +4459,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get obConnectBody =>
-      'TriIQ liest Aktivitäten, Wellness und Kalender aus Intervals.icu. Füge deinen API-Schlüssel ein, um dich zu verbinden.';
+      'TriIQ liest Aktivitäten, Wellness und Kalender aus Intervals.icu. Melde dich mit Intervals.icu an oder füge deinen API-Schlüssel ein.';
 
   @override
   String get obWhereKey => 'Wo finde ich ihn?';
@@ -4673,4 +4673,31 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get trainDetailDetailedHint =>
       'Benannte Übungen und Drills mit Sätzen, Wiederholungen, Pause, Zielwerten und einem Coaching-Hinweis je Block.';
+
+  @override
+  String get loginWithIntervals => 'Mit Intervals.icu anmelden';
+
+  @override
+  String get loginHelp =>
+      'Öffnet Intervals.icu im Browser. TriIQ sieht dein Passwort nie.';
+
+  @override
+  String get loginWaiting => 'Schließe die Anmeldung im Browser ab …';
+
+  @override
+  String get loginOrApiKey => 'oder einen API-Schlüssel verwenden';
+
+  @override
+  String get loginCancelled => 'Anmeldung abgebrochen.';
+
+  @override
+  String loginFailed(String error) {
+    return 'Anmeldung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get connectedViaOAuth => 'Mit Intervals.icu angemeldet';
+
+  @override
+  String get connectedViaApiKey => 'Mit einem API-Schlüssel verbunden';
 }

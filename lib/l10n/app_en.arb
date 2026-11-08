@@ -1633,7 +1633,7 @@
   "obWelcomePrivacy": "Your data stays on this device. TriIQ reads it from Intervals.icu and only sends it to an AI provider if you agree.",
   "obGetStarted": "Get started",
   "obConnectTitle": "Connect Intervals.icu",
-  "obConnectBody": "TriIQ reads your activities, wellness and calendar from Intervals.icu. Paste your API key to connect.",
+  "obConnectBody": "TriIQ reads your activities, wellness and calendar from Intervals.icu. Log in with Intervals.icu, or paste your API key.",
   "obWhereKey": "Where do I find it?",
   "obConnect": "Test and connect",
   "obConnected": "Connected as {name}",
@@ -1701,5 +1701,14 @@
   "trainDetailShort": "Short",
   "trainDetailDetailed": "Detailed",
   "trainDetailShortHint": "One compact table: a row per segment.",
-  "trainDetailDetailedHint": "Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block."
+  "trainDetailDetailedHint": "Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block.",
+  "loginWithIntervals": "Log in with Intervals.icu",
+  "loginHelp": "Opens Intervals.icu in your browser. TriIQ never sees your password.",
+  "loginWaiting": "Finish logging in in your browser…",
+  "loginOrApiKey": "or use an API key",
+  "loginCancelled": "Login cancelled.",
+  "loginFailed": "Could not log in: {error}",
+  "@loginFailed": {"placeholders": {"error": {"type": "String"}}},
+  "connectedViaOAuth": "Signed in with Intervals.icu",
+  "connectedViaApiKey": "Connected with an API key"
 }
