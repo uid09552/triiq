@@ -4341,4 +4341,81 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get actMoreActions => 'Weitere Aktionen';
+
+  @override
+  String get actSearchHint => 'Nach Name suchen';
+
+  @override
+  String get actSearch => 'Suchen';
+
+  @override
+  String get actFilterTitle => 'Filtern und sortieren';
+
+  @override
+  String get actFilterSport => 'Sportart';
+
+  @override
+  String get actAllSports => 'Alle';
+
+  @override
+  String get actFilterDate => 'Zeitraum';
+
+  @override
+  String get actThisWeek => 'Diese Woche';
+
+  @override
+  String get actThisMonth => 'Dieser Monat';
+
+  @override
+  String get actLast3Months => 'Letzte 3 Monate';
+
+  @override
+  String get actCustomRange => 'Eigener …';
+
+  @override
+  String get actFilterDistance => 'Distanz (km)';
+
+  @override
+  String get actFilterDuration => 'Dauer (min)';
+
+  @override
+  String get actHasPower => 'Mit Leistung';
+
+  @override
+  String get actHasGps => 'Mit GPS';
+
+  @override
+  String get actSortBy => 'Sortieren nach';
+
+  @override
+  String get actSortDate => 'Datum';
+
+  @override
+  String get actSortDistance => 'Distanz';
+
+  @override
+  String get actSortDuration => 'Dauer';
+
+  @override
+  String get actSortLoad => 'Belastung (TSS)';
+
+  @override
+  String actResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktivitäten',
+      one: '1 Aktivität',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actClearFilters => 'Alle löschen';
+
+  @override
+  String get actNoMatch => 'Keine Aktivität passt zu diesen Filtern.';
+
+  @override
+  String get actAny => 'Beliebig';
 }

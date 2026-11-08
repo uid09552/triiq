@@ -7111,6 +7111,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More actions'**
   String get actMoreActions;
+
+  /// No description provided for @actSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get actSearchHint;
+
+  /// No description provided for @actSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get actSearch;
+
+  /// No description provided for @actFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter and sort'**
+  String get actFilterTitle;
+
+  /// No description provided for @actFilterSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get actFilterSport;
+
+  /// No description provided for @actAllSports.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get actAllSports;
+
+  /// No description provided for @actFilterDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get actFilterDate;
+
+  /// No description provided for @actThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get actThisWeek;
+
+  /// No description provided for @actThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get actThisMonth;
+
+  /// No description provided for @actLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get actLast3Months;
+
+  /// No description provided for @actCustomRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get actCustomRange;
+
+  /// No description provided for @actFilterDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance (km)'**
+  String get actFilterDistance;
+
+  /// No description provided for @actFilterDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (min)'**
+  String get actFilterDuration;
+
+  /// No description provided for @actHasPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Has power'**
+  String get actHasPower;
+
+  /// No description provided for @actHasGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Has GPS'**
+  String get actHasGps;
+
+  /// No description provided for @actSortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get actSortBy;
+
+  /// No description provided for @actSortDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get actSortDate;
+
+  /// No description provided for @actSortDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get actSortDistance;
+
+  /// No description provided for @actSortDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get actSortDuration;
+
+  /// No description provided for @actSortLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load (TSS)'**
+  String get actSortLoad;
+
+  /// No description provided for @actResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 activity} other{{count} activities}}'**
+  String actResultCount(int count);
+
+  /// No description provided for @actClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get actClearFilters;
+
+  /// No description provided for @actNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity matches these filters.'**
+  String get actNoMatch;
+
+  /// No description provided for @actAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get actAny;
 }
 
 class _AppLocalizationsDelegate

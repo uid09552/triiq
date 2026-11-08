@@ -4304,4 +4304,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actMoreActions => 'More actions';
+
+  @override
+  String get actSearchHint => 'Search by name';
+
+  @override
+  String get actSearch => 'Search';
+
+  @override
+  String get actFilterTitle => 'Filter and sort';
+
+  @override
+  String get actFilterSport => 'Sport';
+
+  @override
+  String get actAllSports => 'All';
+
+  @override
+  String get actFilterDate => 'Date';
+
+  @override
+  String get actThisWeek => 'This week';
+
+  @override
+  String get actThisMonth => 'This month';
+
+  @override
+  String get actLast3Months => 'Last 3 months';
+
+  @override
+  String get actCustomRange => 'Custom…';
+
+  @override
+  String get actFilterDistance => 'Distance (km)';
+
+  @override
+  String get actFilterDuration => 'Duration (min)';
+
+  @override
+  String get actHasPower => 'Has power';
+
+  @override
+  String get actHasGps => 'Has GPS';
+
+  @override
+  String get actSortBy => 'Sort by';
+
+  @override
+  String get actSortDate => 'Date';
+
+  @override
+  String get actSortDistance => 'Distance';
+
+  @override
+  String get actSortDuration => 'Duration';
+
+  @override
+  String get actSortLoad => 'Load (TSS)';
+
+  @override
+  String actResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activities',
+      one: '1 activity',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actClearFilters => 'Clear all';
+
+  @override
+  String get actNoMatch => 'No activity matches these filters.';
+
+  @override
+  String get actAny => 'Any';
 }

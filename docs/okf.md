@@ -683,7 +683,13 @@ both reading straight from the SQLite cache (no separate network call).
   rendered as `ListTile` rows rather than a literal `DataTable` — a table
   widget doesn't fit this app's card/list visual language or a phone
   width, and a `ListTile` row (icon, name, date · distance · duration,
-  trailing TSS) carries the same information at a glance. Tapping a row
+  trailing TSS) carries the same information at a glance. A search field in
+  the app bar narrows by name as you type (250 ms debounce); the options icon
+  opens filters (sport, this week / this month / last 3 months / custom
+  dates, distance and duration ranges, has power, has GPS) and sort (date,
+  distance, duration, load). Active filters show as removable chips with the
+  result count. All of it is `ActivityFilter` (`activity_filter.dart`),
+  applied to the local cache only. Tapping a row
   pushes `ActivityDetailScreen`.
 - `activity_detail_screen.dart` — `ActivityDetailScreen(activity: LocalActivity)`.
   Layout: a summary header (name, date, sport, key figures) above a pinned
