@@ -6689,7 +6689,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvTitle.
   ///
   /// In en, this message translates to:
-  /// **'Privacy & data'**
+  /// **'Consent & your rights'**
   String get pvTitle;
 
   /// No description provided for @pvSubtitle.
@@ -6893,7 +6893,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvConsentDialogBody.
   ///
   /// In en, this message translates to:
-  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Privacy & data.'**
+  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.'**
   String pvConsentDialogBody(String provider);
 
   /// No description provided for @pvConsentAllow.

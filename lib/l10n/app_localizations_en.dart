@@ -4042,7 +4042,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get heroTitleBackOff => 'Take it easy today';
 
   @override
-  String get pvTitle => 'Privacy & data';
+  String get pvTitle => 'Consent & your rights';
 
   @override
   String get pvSubtitle => 'What TriIQ stores, who sees it, and your choices';
@@ -4162,7 +4162,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pvConsentDialogBody(String provider) {
-    return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. $provider may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Privacy & data.';
+    return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. $provider may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.';
   }
 
   @override

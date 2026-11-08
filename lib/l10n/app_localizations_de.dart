@@ -4079,7 +4079,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get heroTitleBackOff => 'Heute etwas kürzertreten';
 
   @override
-  String get pvTitle => 'Datenschutz & Daten';
+  String get pvTitle => 'Einwilligung & Rechte';
 
   @override
   String get pvSubtitle =>
@@ -4200,7 +4200,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pvConsentDialogBody(String provider) {
-    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. $provider verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Datenschutz & Daten widerrufen.';
+    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. $provider verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Einwilligung & Rechte widerrufen.';
   }
 
   @override

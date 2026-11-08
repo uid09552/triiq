@@ -64,7 +64,7 @@ class RouteMap extends StatelessWidget {
         ),
       ),
       children: [
-        // Only with the athlete's say-so (Settings → Privacy & data),
+        // Only with the athlete's say-so (Settings → Data & privacy → Consent & your rights),
         // and not before that choice has been read.
         OsmTileLayer(showTiles: showTiles),
         PolylineLayer(
