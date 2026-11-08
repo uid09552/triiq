@@ -47,6 +47,23 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- "Log in with Intervals.icu": the browser returns to
+                 triiq://oauth/callback after the athlete agrees. MainActivity
+                 passes the address to Dart (channel triiq/oauth). Flutter's
+                 own deep-link routing is off so the address is not also
+                 pushed as a route. -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="false" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="triiq"
+                    android:host="oauth"
+                    android:pathPrefix="/callback"/>
+            </intent-filter>
         </activity>
         <!-- Home-screen widget: today's session and form. -->
         <receiver

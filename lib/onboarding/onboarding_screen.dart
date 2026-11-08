@@ -7,6 +7,7 @@ import '../data/sync/sync_scope.dart';
 import '../data/sync/sync_service.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/settings/ai_consent.dart';
+import '../widgets/intervals_login.dart';
 import '../screens/settings/privacy_screen.dart';
 import '../screens/settings/weekly_targets_settings.dart';
 import 'onboarding_settings.dart';
@@ -26,7 +27,14 @@ class OnboardingScreen extends StatefulWidget {
     this.llm,
     this.settings,
     this.askConsent,
+    this.login,
+    this.loginAvailable,
   });
+
+  /// The browser login (default: Intervals.icu OAuth, then connect), and
+  /// whether to offer it (default: where the platform supports it).
+  final Future<void> Function()? login;
+  final bool? loginAvailable;
 
   /// Checks and saves the key; default [IntervalsSession.connect].
   final Future<void> Function(String apiKey)? connect;
@@ -118,6 +126,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       });
       return;
     }
+    await _syncAfterConnect();
+  }
+
+  /// Connected (by key or by the browser login): bring this month in.
+  Future<void> _syncAfterConnect() async {
     if (!mounted) return;
     setState(() => _sync = _Sync.syncing);
     try {
@@ -308,6 +321,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _title(context, Icons.link, l10n.obConnectTitle),
       Text(l10n.obConnectBody),
       const SizedBox(height: 16),
+      if (!connected)
+        IntervalsLoginButton(
+          available: widget.loginAvailable,
+          login: widget.login,
+          onBusyChanged: (busy) => setState(
+            () => _sync = busy
+                ? _Sync.connecting
+                : (_sync == _Sync.connecting ? _Sync.idle : _sync),
+          ),
+          onError: (message) => setState(() => _connectError = message),
+          onConnected: () {
+            setState(() => _connectError = null);
+            _syncAfterConnect();
+          },
+        ),
       TextField(
         key: const ValueKey('onboarding-api-key'),
         controller: _apiKey,

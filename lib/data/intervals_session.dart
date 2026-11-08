@@ -11,21 +11,33 @@ enum RestoreFailure {
   /// Restore succeeded, or has not run.
   none,
 
-  /// No key was stored.
+  /// No key or token was stored.
   noKey,
 
-  /// Intervals.icu rejected the stored key (401/403) and it was deleted.
+  /// Intervals.icu rejected the stored key or token (401/403) and it was
+  /// deleted.
   rejected,
 
-  /// The key could not be checked (offline, timeout, 5xx); it was kept.
+  /// The credential could not be checked (offline, timeout, 5xx); it was kept.
   network,
+}
+
+/// How the athlete signed in.
+enum ConnectionMethod {
+  /// A pasted API key.
+  apiKey,
+
+  /// "Log in with Intervals.icu": an OAuth access token.
+  oauth,
 }
 
 /// Holds the current Intervals.icu connection: the authenticated
 /// [IntervallsClient] plus the athlete identity, shared across screens.
 ///
-/// The API key is only ever written to the OS credential vault *after* it has
-/// been proven to work (see [connect]) — a bad key never gets persisted. See
+/// The API key — or the OAuth access token from "Log in with Intervals.icu"
+/// (see [connectWithToken]) — is only ever written to the OS credential vault
+/// *after* it has been proven to work (see [connect]); a bad one never gets
+/// persisted. One credential at a time: connecting one replaces the other. See
 /// [SecureKeyStore] for which vault that is per platform, and why the web
 /// build deliberately persists nothing.
 class IntervalsSession extends ChangeNotifier {
@@ -58,6 +70,13 @@ class IntervalsSession extends ChangeNotifier {
   }
 
   static final _apiKeyStore = SecureKeyStore('intervals_api_key');
+  static final _tokenStore = SecureKeyStore('intervals_oauth_token');
+
+  /// Name of the bearer scheme in the generated client (`AccessToken`).
+  static const _bearerScheme = 'AccessToken';
+
+  /// How the current connection was made; null while disconnected.
+  ConnectionMethod? method;
 
   IntervallsClient? _client;
   String? athleteId;
@@ -115,47 +134,60 @@ class IntervalsSession extends ChangeNotifier {
     return null;
   }
 
-  /// Whether a verified key is saved — an install that was connected once.
-  /// Never throws; false when the vault can't be read.
+  /// Whether a verified key or token is saved — an install that was
+  /// connected once. Never throws; false when the vault can't be read.
   Future<bool> hasSavedKey() async {
     try {
-      return await _apiKeyStore.read().timeout(const Duration(seconds: 2)) !=
-          null;
+      const wait = Duration(seconds: 2);
+      return await _tokenStore.read().timeout(wait) != null ||
+          await _apiKeyStore.read().timeout(wait) != null;
     } catch (_) {
       return false;
     }
   }
 
-  /// If a previously-verified API key is in the vault, re-validates it (via
-  /// [connect]) so the session comes back after an app restart. Safe to call
-  /// once at startup; never throws.
+  /// If a previously-verified token or API key is in the vault, re-validates
+  /// it (via [connectWithToken] / [connect]) so the session comes back after
+  /// an app restart. Safe to call once at startup; never throws.
   Future<void> restore() async {
     lastRestoreFailure = RestoreFailure.none;
     try {
-      final savedKey = await _apiKeyStore.read();
-      if (savedKey != null) {
-        await connect(savedKey);
+      final token = await _tokenStore.read();
+      final key = token == null ? await _apiKeyStore.read() : null;
+      if (token != null) {
+        await _restoreFrom(_tokenStore, () => connectWithToken(token));
+      } else if (key != null) {
+        await _restoreFrom(_apiKeyStore, () => connect(key));
       } else {
         lastRestoreFailure = RestoreFailure.noKey;
       }
+    } finally {
+      isRestoring = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _restoreFrom(
+    SecureKeyStore store,
+    Future<void> Function() connectNow,
+  ) async {
+    try {
+      await connectNow();
     } on DioException catch (error) {
-      // Only drop the key when Intervals.icu actively rejects it (revoked or
-      // regenerated). A timeout, DNS failure or 5xx says nothing about the
-      // key's validity, so keep it and retry on the next launch instead of
-      // making every offline start cost the user a re-entry.
+      // Only drop the credential when Intervals.icu actively rejects it
+      // (revoked or regenerated). A timeout, DNS failure or 5xx says nothing
+      // about its validity, so keep it and retry on the next launch instead
+      // of making every offline start cost the user a re-login.
       final status = error.response?.statusCode;
       if (status == 401 || status == 403) {
-        await _apiKeyStore.delete();
+        await store.delete();
         lastRestoreFailure = RestoreFailure.rejected;
       } else {
         lastRestoreFailure = RestoreFailure.network;
       }
     } catch (_) {
-      await _apiKeyStore.delete();
+      await store.delete();
       lastRestoreFailure = RestoreFailure.rejected;
-    } finally {
-      isRestoring = false;
-      notifyListeners();
     }
   }
 
@@ -167,17 +199,42 @@ class IntervalsSession extends ChangeNotifier {
   Future<void> connect(String apiKey) async {
     final client = IntervallsClient();
     client.setBasicAuth('APIKey', 'API_KEY', apiKey);
+    final athlete = await _verify(client);
 
+    await _apiKeyStore.write(apiKey);
+    await _tokenStore.delete();
+    await _adopt(client, athlete, ConnectionMethod.apiKey);
+  }
+
+  /// The same, for the access token of "Log in with Intervals.icu".
+  Future<void> connectWithToken(String accessToken) async {
+    final client = IntervallsClient();
+    client.setBearerAuth(_bearerScheme, accessToken);
+    final athlete = await _verify(client);
+
+    await _tokenStore.write(accessToken);
+    await _apiKeyStore.delete();
+    await _adopt(client, athlete, ConnectionMethod.oauth);
+  }
+
+  /// The athlete the credential on [client] belongs to.
+  Future<AthleteForProfile> _verify(IntervallsClient client) async {
     final response = await client.getAthletenApi().getAthleteProfile(id: '0');
     final athlete = response.data?.athlete;
     if (athlete?.id == null) {
       throw StateError('Intervals.icu did not return an athlete profile.');
     }
+    return athlete!;
+  }
 
-    await _apiKeyStore.write(apiKey);
-
+  Future<void> _adopt(
+    IntervallsClient client,
+    AthleteForProfile athlete,
+    ConnectionMethod how,
+  ) async {
     _client = client;
-    athleteId = athlete!.id;
+    method = how;
+    athleteId = athlete.id;
     athleteName = athlete.name;
     await _rememberAthlete(athleteId);
     notifyListeners();
@@ -230,8 +287,22 @@ class IntervalsSession extends ChangeNotifier {
   }
 
   Future<void> disconnect() async {
+    // A login made with OAuth is revoked at Intervals.icu as well, so the app
+    // disappears from the athlete's connected apps. Best effort: offline, the
+    // token is still forgotten here.
+    if (method == ConnectionMethod.oauth) {
+      try {
+        await _client?.getOAuthServerControllerApi().disconnectApp().timeout(
+          const Duration(seconds: 5),
+        );
+      } catch (error) {
+        debugPrint('IntervalsSession: could not revoke the token: $error');
+      }
+    }
     await _apiKeyStore.delete();
+    await _tokenStore.delete();
     await _rememberAthlete(null);
+    method = null;
     _client = null;
     athleteId = null;
     athleteName = null;

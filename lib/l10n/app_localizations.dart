@@ -7337,7 +7337,7 @@ abstract class AppLocalizations {
   /// No description provided for @obConnectBody.
   ///
   /// In en, this message translates to:
-  /// **'TriIQ reads your activities, wellness and calendar from Intervals.icu. Paste your API key to connect.'**
+  /// **'TriIQ reads your activities, wellness and calendar from Intervals.icu. Log in with Intervals.icu, or paste your API key.'**
   String get obConnectBody;
 
   /// No description provided for @obWhereKey.
@@ -7693,6 +7693,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block.'**
   String get trainDetailDetailedHint;
+
+  /// No description provided for @loginWithIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in with Intervals.icu'**
+  String get loginWithIntervals;
+
+  /// No description provided for @loginHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens Intervals.icu in your browser. TriIQ never sees your password.'**
+  String get loginHelp;
+
+  /// No description provided for @loginWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish logging in in your browser…'**
+  String get loginWaiting;
+
+  /// No description provided for @loginOrApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'or use an API key'**
+  String get loginOrApiKey;
+
+  /// No description provided for @loginCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Login cancelled.'**
+  String get loginCancelled;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not log in: {error}'**
+  String loginFailed(String error);
+
+  /// No description provided for @connectedViaOAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in with Intervals.icu'**
+  String get connectedViaOAuth;
+
+  /// No description provided for @connectedViaApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected with an API key'**
+  String get connectedViaApiKey;
 }
 
 class _AppLocalizationsDelegate

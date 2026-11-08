@@ -27,7 +27,7 @@ for it. Questions or requests: open an issue at
 | What | Where |
 |---|---|
 | Activities, wellness, planned workouts, plans, knowledge library, caches | A SQLite database on the device — Android: app storage; Windows: the per-user app-data folder (`%APPDATA%\…\triiq\triiq.db`) |
-| Intervals.icu, Claude and Ollama keys | The operating system's secure storage (the Android Keystore, the Windows credential store) |
+| Intervals.icu login (API key or the access token from *Log in with Intervals.icu*), Claude and Ollama keys | The operating system's secure storage (the Android Keystore, the Windows credential store) |
 | Settings (goal, targets, theme, trainer memory, …) | App preferences on the device |
 
 Android's system backup is switched off for the app, because the encrypted
@@ -37,7 +37,7 @@ keys could not be decrypted on another device anyway.
 
 | Service | When | What is sent |
 |---|---|---|
-| **Intervals.icu** (https) | Sync, and when you create, move or delete planned workouts or apply a threshold | Your API key and the requests themselves |
+| **Intervals.icu** (https) | Logging in, sync, and when you create, move or delete planned workouts or apply a threshold | Your API key or access token and the requests themselves. With *Log in with Intervals.icu* you sign in on Intervals.icu's own page in your browser; TriIQ never receives your password and holds no client secret |
 | **Your LLM** (Claude / Ollama Cloud over https, or your own Ollama server) | Only when you use the chat, Train now or AI-written plan content | The conversation, including the results of the tools the trainer calls on your local data |
 | **OpenStreetMap** tile servers (https) | Only when a route map is shown | Map tile requests |
 

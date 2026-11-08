@@ -1387,7 +1387,7 @@
   "obWelcomePrivacy": "Deine Daten bleiben auf diesem Gerät. TriIQ liest sie aus Intervals.icu und sendet sie nur mit deiner Zustimmung an einen KI-Anbieter.",
   "obGetStarted": "Los geht's",
   "obConnectTitle": "Intervals.icu verbinden",
-  "obConnectBody": "TriIQ liest Aktivitäten, Wellness und Kalender aus Intervals.icu. Füge deinen API-Schlüssel ein, um dich zu verbinden.",
+  "obConnectBody": "TriIQ liest Aktivitäten, Wellness und Kalender aus Intervals.icu. Melde dich mit Intervals.icu an oder füge deinen API-Schlüssel ein.",
   "obWhereKey": "Wo finde ich ihn?",
   "obConnect": "Prüfen und verbinden",
   "obConnected": "Verbunden als {name}",
@@ -1445,5 +1445,13 @@
   "trainDetailShort": "Kurz",
   "trainDetailDetailed": "Ausführlich",
   "trainDetailShortHint": "Eine kompakte Tabelle: eine Zeile pro Abschnitt.",
-  "trainDetailDetailedHint": "Benannte Übungen und Drills mit Sätzen, Wiederholungen, Pause, Zielwerten und einem Coaching-Hinweis je Block."
+  "trainDetailDetailedHint": "Benannte Übungen und Drills mit Sätzen, Wiederholungen, Pause, Zielwerten und einem Coaching-Hinweis je Block.",
+  "loginWithIntervals": "Mit Intervals.icu anmelden",
+  "loginHelp": "Öffnet Intervals.icu im Browser. TriIQ sieht dein Passwort nie.",
+  "loginWaiting": "Schließe die Anmeldung im Browser ab …",
+  "loginOrApiKey": "oder einen API-Schlüssel verwenden",
+  "loginCancelled": "Anmeldung abgebrochen.",
+  "loginFailed": "Anmeldung fehlgeschlagen: {error}",
+  "connectedViaOAuth": "Mit Intervals.icu angemeldet",
+  "connectedViaApiKey": "Mit einem API-Schlüssel verbunden"
 }

@@ -24,11 +24,17 @@
 
 ## 2. Connect Intervals.icu
 
+**Easiest (Android, Windows):** open the profile icon (top-right) →
+**Profile** → **Log in with Intervals.icu**. Your browser asks Intervals.icu
+to let TriIQ in; agree and you are connected. TriIQ never sees your password.
+
+**Or with an API key:**
+
 1. In Intervals.icu open **Settings → Developer** and copy your **API key**.
 2. In TriIQ open the profile icon (top-right) → **Profile**, paste the key and connect.
 
-The key is tested against Intervals.icu first and only then stored in the
-OS vault. TriIQ syncs today on every app start, the current month in the
+Either way the credential is tested against Intervals.icu first and only then
+stored in the OS vault. TriIQ syncs today on every app start, the current month in the
 background while it is open, and (Android) every night.
 
 ## 3. Choose an LLM for the AI trainer
