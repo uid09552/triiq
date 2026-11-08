@@ -7783,6 +7783,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Normal from {value}'**
   String readinessRangeDevice(String value);
+
+  /// No description provided for @insPeekAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness, fatigue and form over time, with load-safety checks.'**
+  String get insPeekAnalytics;
+
+  /// No description provided for @insPeekExplorer.
+  ///
+  /// In en, this message translates to:
+  /// **'Any metric over any period, week by week or day by day.'**
+  String get insPeekExplorer;
+
+  /// No description provided for @insPeekHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training load, day by day, in one grid.'**
+  String get insPeekHeatmap;
+
+  /// No description provided for @insPeekCurves.
+  ///
+  /// In en, this message translates to:
+  /// **'Your best power, pace and heart rate for every duration.'**
+  String get insPeekCurves;
+
+  /// No description provided for @insPeekBestEfforts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your best efforts lately, against the season.'**
+  String get insPeekBestEfforts;
+
+  /// No description provided for @insPeekDurability.
+  ///
+  /// In en, this message translates to:
+  /// **'How much power you keep once you are already fatigued.'**
+  String get insPeekDurability;
+
+  /// No description provided for @insPeekWellness.
+  ///
+  /// In en, this message translates to:
+  /// **'Trends in HRV, resting heart rate, sleep and weight.'**
+  String get insPeekWellness;
+
+  /// No description provided for @insPeekCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Two activities, or two training blocks, side by side.'**
+  String get insPeekCompare;
+
+  /// No description provided for @insPeekWeeklyReview.
+  ///
+  /// In en, this message translates to:
+  /// **'How last week went, against the week before.'**
+  String get insPeekWeeklyReview;
+
+  /// No description provided for @insPeekActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'Every synced session: search, filter, sort.'**
+  String get insPeekActivities;
+
+  /// No description provided for @insPeekNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data yet. Sync to fill this in.'**
+  String get insPeekNoData;
+
+  /// No description provided for @insPeekOpenToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it once to load your curves.'**
+  String get insPeekOpenToLoad;
+
+  /// No description provided for @insPeekTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to close · tap to open'**
+  String get insPeekTapHint;
+
+  /// No description provided for @insPeekThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get insPeekThisWeek;
+
+  /// No description provided for @insPeekAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get insPeekAverage;
+
+  /// No description provided for @insPeekActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Active days'**
+  String get insPeekActiveDays;
+
+  /// No description provided for @insPeekStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest streak'**
+  String get insPeekStreak;
+
+  /// No description provided for @insPeekTss.
+  ///
+  /// In en, this message translates to:
+  /// **'TSS'**
+  String get insPeekTss;
+
+  /// No description provided for @insPeekSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get insPeekSeason;
+
+  /// No description provided for @insPeekSixWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 6 weeks'**
+  String get insPeekSixWeeks;
+
+  /// No description provided for @insPeekRides.
+  ///
+  /// In en, this message translates to:
+  /// **'Rides over 1,000 kJ (12 weeks)'**
+  String get insPeekRides;
+
+  /// No description provided for @insPeekHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV'**
+  String get insPeekHrv;
+
+  /// No description provided for @insPeekRestingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting HR'**
+  String get insPeekRestingHr;
+
+  /// No description provided for @insPeekSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get insPeekSleep;
+
+  /// No description provided for @insPeekBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get insPeekBefore;
+
+  /// No description provided for @insPeekLast4.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 weeks'**
+  String get insPeekLast4;
+
+  /// No description provided for @insPeekLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get insPeekLastWeek;
+
+  /// No description provided for @insPeekHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get insPeekHours;
+
+  /// No description provided for @insPeekSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get insPeekSessions;
+
+  /// No description provided for @insPeekWeekBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Week before'**
+  String get insPeekWeekBefore;
 }
 
 class _AppLocalizationsDelegate

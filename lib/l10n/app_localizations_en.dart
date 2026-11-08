@@ -4688,4 +4688,102 @@ class AppLocalizationsEn extends AppLocalizations {
   String readinessRangeDevice(String value) {
     return 'Normal from $value';
   }
+
+  @override
+  String get insPeekAnalytics =>
+      'Fitness, fatigue and form over time, with load-safety checks.';
+
+  @override
+  String get insPeekExplorer =>
+      'Any metric over any period, week by week or day by day.';
+
+  @override
+  String get insPeekHeatmap => 'Your training load, day by day, in one grid.';
+
+  @override
+  String get insPeekCurves =>
+      'Your best power, pace and heart rate for every duration.';
+
+  @override
+  String get insPeekBestEfforts =>
+      'Your best efforts lately, against the season.';
+
+  @override
+  String get insPeekDurability =>
+      'How much power you keep once you are already fatigued.';
+
+  @override
+  String get insPeekWellness =>
+      'Trends in HRV, resting heart rate, sleep and weight.';
+
+  @override
+  String get insPeekCompare =>
+      'Two activities, or two training blocks, side by side.';
+
+  @override
+  String get insPeekWeeklyReview =>
+      'How last week went, against the week before.';
+
+  @override
+  String get insPeekActivities => 'Every synced session: search, filter, sort.';
+
+  @override
+  String get insPeekNoData => 'No data yet. Sync to fill this in.';
+
+  @override
+  String get insPeekOpenToLoad => 'Open it once to load your curves.';
+
+  @override
+  String get insPeekTapHint => 'Release to close · tap to open';
+
+  @override
+  String get insPeekThisWeek => 'This week';
+
+  @override
+  String get insPeekAverage => 'Average';
+
+  @override
+  String get insPeekActiveDays => 'Active days';
+
+  @override
+  String get insPeekStreak => 'Longest streak';
+
+  @override
+  String get insPeekTss => 'TSS';
+
+  @override
+  String get insPeekSeason => 'Season';
+
+  @override
+  String get insPeekSixWeeks => 'Last 6 weeks';
+
+  @override
+  String get insPeekRides => 'Rides over 1,000 kJ (12 weeks)';
+
+  @override
+  String get insPeekHrv => 'HRV';
+
+  @override
+  String get insPeekRestingHr => 'Resting HR';
+
+  @override
+  String get insPeekSleep => 'Sleep';
+
+  @override
+  String get insPeekBefore => 'Before';
+
+  @override
+  String get insPeekLast4 => 'Last 4 weeks';
+
+  @override
+  String get insPeekLastWeek => 'Last week';
+
+  @override
+  String get insPeekHours => 'Time';
+
+  @override
+  String get insPeekSessions => 'Sessions';
+
+  @override
+  String get insPeekWeekBefore => 'Week before';
 }
