@@ -47,7 +47,8 @@ class _NewTrainingTriggerState extends State<NewTrainingTrigger> {
   bool _showing = false;
 
   bool get _enabled =>
-      (widget.enabled ?? () => NotificationSettings.instance.insightsPopupEnabled)();
+      (widget.enabled ??
+      () => NotificationSettings.instance.insightsPopupEnabled)();
 
   @override
   void initState() {

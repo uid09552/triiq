@@ -78,9 +78,9 @@ class _FeelDialogState extends State<_FeelDialog> {
         children: [
           Text(
             l10n.feelScaleHint,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           Text(l10n.feelFatigueLabel),

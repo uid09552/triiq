@@ -19,7 +19,11 @@ class GaugeRing extends StatelessWidget {
     this.child,
     this.dim = false,
     this.animate = true,
+    this.semanticsLabel,
   });
+
+  /// Read instead of the figure inside, e.g. "Readiness 72 of 100".
+  final String? semanticsLabel;
 
   /// 0..1; anything outside is clamped (a 150 % target is a full ring).
   final double progress;
@@ -52,7 +56,7 @@ class GaugeRing extends StatelessWidget {
       child: Center(child: child),
     );
 
-    return SizedBox(
+    final ring = SizedBox(
       width: size,
       height: size,
       child: animate
@@ -64,6 +68,14 @@ class GaugeRing extends StatelessWidget {
             )
           : paint(target),
     );
+    return semanticsLabel == null
+        ? ring
+        : Semantics(
+            container: true,
+            label: semanticsLabel,
+            excludeSemantics: true,
+            child: ring,
+          );
   }
 }
 

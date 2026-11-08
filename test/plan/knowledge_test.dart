@@ -14,7 +14,10 @@ void main() {
       final knowledge = TrainingKnowledge.parse(shipped);
 
       expect(knowledge.warnings, isEmpty);
-      expect(knowledge.goals.keys, containsAll(['long_distance', 'short_event']));
+      expect(
+        knowledge.goals.keys,
+        containsAll(['long_distance', 'short_event']),
+      );
       expect(knowledge.rules.weekMultipliers, [1.0, 1.08, 1.15, 0.6]);
     });
 
@@ -48,8 +51,7 @@ void main() {
       expect(taper['short_event'], [0.6]);
     });
 
-    test('every goal has taper templates per slot and sport, and openers',
-        () {
+    test('every goal has taper templates per slot and sport, and openers', () {
       final knowledge = TrainingKnowledge.parse(shipped);
 
       for (final goal in knowledge.goals.values) {
@@ -70,8 +72,12 @@ void main() {
         for (final sport in const ['Run', 'Ride']) {
           expect(
             knowledge
-                .templateFor(goal.id, SessionSlot.intervals, 'openers',
-                    sport: sport)
+                .templateFor(
+                  goal.id,
+                  SessionSlot.intervals,
+                  'openers',
+                  sport: sport,
+                )
                 .name,
             'Race openers',
           );
@@ -97,7 +103,12 @@ void main() {
       for (final goal in knowledge.goals.values) {
         for (final slot in [SessionSlot.z2, SessionSlot.intervals]) {
           for (final phase in knowledge.rules.weekPhases) {
-            final t = knowledge.templateFor(goal.id, slot, phase, sport: 'Swim');
+            final t = knowledge.templateFor(
+              goal.id,
+              slot,
+              phase,
+              sport: 'Swim',
+            );
             expect(t.sports, ['Swim'], reason: '${goal.id} / $phase');
           }
         }
@@ -155,7 +166,10 @@ void main() {
       expect(knowledge.goals.keys, ['g']);
       expect(knowledge.warnings.first, contains('okf-goal block #1'));
       // No rules block at all: defaults apply, and the athlete is told.
-      expect(knowledge.rules.weekMultipliers, PlanRules.defaults.weekMultipliers);
+      expect(
+        knowledge.rules.weekMultipliers,
+        PlanRules.defaults.weekMultipliers,
+      );
     });
 
     test('a rules block without readiness gets the readiness defaults', () {
@@ -179,21 +193,23 @@ void main() {
       );
     });
 
-    test('a malformed readiness object skips the rules block with a warning',
-        () {
-      const md = '''
+    test(
+      'a malformed readiness object skips the rules block with a warning',
+      () {
+        const md = '''
 ```okf-rules
 {"weekPhases":["build"],"weekMultipliers":[1.0],"maxWeeklyIncrease":0.2,
  "maxCtlRamp":7,"lowIntensityTarget":0.8,"lowIntensityTolerance":0.05,
  "minHistoryWeeks":4,"readiness":{"hrvSd":[1]}}
 ```
 ''';
-      final knowledge = TrainingKnowledge.parse(md);
+        final knowledge = TrainingKnowledge.parse(md);
 
-      expect(knowledge.warnings.first, contains('readiness.hrvSd'));
-      expect(knowledge.rules.maxWeeklyIncrease, 0.10);
-      expect(knowledge.rules.readiness.hrvSd, [1, 2]);
-    });
+        expect(knowledge.warnings.first, contains('readiness.hrvSd'));
+        expect(knowledge.rules.maxWeeklyIncrease, 0.10);
+        expect(knowledge.rules.readiness.hrvSd, [1, 2]);
+      },
+    );
 
     test('taper: missing means none, malformed skips the rules block', () {
       final json = {

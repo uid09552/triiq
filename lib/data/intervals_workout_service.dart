@@ -2,6 +2,7 @@ import '../client/intervalls/intervalls_client.dart';
 import '../util/dates.dart';
 import 'intervals_session.dart';
 import 'intervals_steps.dart';
+import 'models/local_event.dart';
 
 /// A planned session about to be written to the athlete's Intervals.icu
 /// calendar — the agent's proposal, reduced to the fields the API takes.
@@ -16,7 +17,30 @@ class PlannedWorkoutDraft {
     this.indoor = false,
     this.tags,
     this.externalId,
+    this.startsAt,
   });
+
+  /// The original draft of a planned entry, as complete as the cache knows
+  /// it: steps, duration, load, tags, the external id and the time of day.
+  /// What "undo replace" puts back.
+  factory PlannedWorkoutDraft.fromEvent(LocalEvent e) {
+    final tags = e.raw['tags'];
+    final externalId = e.raw['external_id'];
+    return PlannedWorkoutDraft(
+      name: e.name ?? e.type ?? 'Workout',
+      sport: e.type ?? 'Workout',
+      description: e.description ?? '',
+      date: DateTime.tryParse(e.date) ?? DateTime.now(),
+      durationSeconds: e.plannedTime,
+      load: e.plannedLoad,
+      indoor: e.indoor,
+      tags: tags is List ? [for (final t in tags) '$t'] : null,
+      externalId: externalId is String && externalId.isNotEmpty
+          ? externalId
+          : null,
+      startsAt: e.hasTimeOfDay ? e.startsAt : null,
+    );
+  }
 
   final String name;
 
@@ -41,6 +65,19 @@ class PlannedWorkoutDraft {
   /// The creator's own id for the entry (a plan session), kept by
   /// Intervals.icu alongside it.
   final String? externalId;
+
+  /// A time of day for the entry; null means "some time on [date]" (sent as
+  /// midnight, the convention Intervals.icu uses for that).
+  final DateTime? startsAt;
+
+  /// The `start_date_local` to send.
+  String get startDateLocal {
+    final t = startsAt;
+    String two(int v) => v.toString().padLeft(2, '0');
+    return t == null
+        ? '${isoDate(date)}T00:00:00'
+        : '${isoDate(date)}T${two(t.hour)}:${two(t.minute)}:00';
+  }
 }
 
 /// What the plan code needs from Intervals.icu — an interface so plan writing
@@ -84,7 +121,7 @@ class IntervalsWorkoutService implements PlannedWorkoutWriter {
         category: EventExCategoryEnum.WORKOUT,
         // Intervals.icu wants a local date-time; a planned session has no
         // time of day, so midnight local is the convention it uses too.
-        startDateLocal: '${isoDate(draft.date)}T00:00:00',
+        startDateLocal: draft.startDateLocal,
         type: draft.sport,
         name: draft.name,
         // Whatever wrote a swim's steps (the AI trainer, the plan's session

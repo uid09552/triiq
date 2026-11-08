@@ -74,10 +74,8 @@ class WeeklyReview {
   final double lowTarget;
   final double lowTolerance;
 
-  int get plannedSessions =>
-      days.fold(0, (n, d) => n + d.planned.length);
-  int get completedPlanned =>
-      days.fold(0, (n, d) => n + d.matches.length);
+  int get plannedSessions => days.fold(0, (n, d) => n + d.planned.length);
+  int get completedPlanned => days.fold(0, (n, d) => n + d.matches.length);
   int get missedSessions => days.fold(0, (n, d) => n + d.missed.length);
 
   /// Planned sessions done, 0..1; `null` when nothing was planned.
@@ -90,7 +88,8 @@ class WeeklyReview {
     return low != null && low < lowTarget - lowTolerance;
   }
 
-  double? get loadVsRecent => recentAverageLoad == null || recentAverageLoad == 0
+  double? get loadVsRecent =>
+      recentAverageLoad == null || recentAverageLoad == 0
       ? null
       : load / recentAverageLoad! - 1;
 

@@ -20,9 +20,7 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
-        home: Scaffold(
-          body: WeeklyTargetsSection(settings: settings),
-        ),
+        home: Scaffold(body: WeeklyTargetsSection(settings: settings)),
       ),
     );
   }
@@ -43,10 +41,7 @@ void main() {
     await settings.setRunHours(3);
     await pump(tester);
 
-    await tester.enterText(
-      find.byKey(const ValueKey('weekly-target-run')),
-      '',
-    );
+    await tester.enterText(find.byKey(const ValueKey('weekly-target-run')), '');
     await tester.pump();
 
     expect(settings.runHours, isNull);
@@ -56,9 +51,7 @@ void main() {
     await pump(tester);
     expect(settings.showOnToday, isTrue);
 
-    await tester.tap(
-      find.byKey(const ValueKey('weekly-target-show-on-today')),
-    );
+    await tester.tap(find.byKey(const ValueKey('weekly-target-show-on-today')));
     await tester.pump();
 
     expect(settings.showOnToday, isFalse);

@@ -11,27 +11,26 @@ import '../chat/ask_trainer.dart';
 
 /// One line per firing signal, e.g. "HRV below your normal on 4 of the last
 /// 5 days".
-String fatigueSignalText(AppLocalizations l10n, FatigueSignal s) =>
-    switch (s.kind) {
-      FatigueSignalKind.hrvLow => l10n.fatigueSignalHrv(s.badDays, s.dataDays),
-      FatigueSignalKind.restingHrHigh => l10n.fatigueSignalRestingHr(
-        s.badDays,
-        s.dataDays,
-      ),
-      FatigueSignalKind.sleepShort => l10n.fatigueSignalSleep(
-        s.badDays,
-        s.dataDays,
-      ),
-      FatigueSignalKind.formLow => l10n.fatigueSignalForm(s.badDays, s.dataDays),
-      FatigueSignalKind.rampHigh => l10n.fatigueSignalRamp(
-        s.badDays,
-        s.dataDays,
-      ),
-      FatigueSignalKind.subjective => l10n.fatigueSignalSubjective(
-        s.badDays,
-        s.dataDays,
-      ),
-    };
+String fatigueSignalText(
+  AppLocalizations l10n,
+  FatigueSignal s,
+) => switch (s.kind) {
+  FatigueSignalKind.hrvLow => l10n.fatigueSignalHrv(s.badDays, s.dataDays),
+  FatigueSignalKind.restingHrHigh => l10n.fatigueSignalRestingHr(
+    s.badDays,
+    s.dataDays,
+  ),
+  FatigueSignalKind.sleepShort => l10n.fatigueSignalSleep(
+    s.badDays,
+    s.dataDays,
+  ),
+  FatigueSignalKind.formLow => l10n.fatigueSignalForm(s.badDays, s.dataDays),
+  FatigueSignalKind.rampHigh => l10n.fatigueSignalRamp(s.badDays, s.dataDays),
+  FatigueSignalKind.subjective => l10n.fatigueSignalSubjective(
+    s.badDays,
+    s.dataDays,
+  ),
+};
 
 /// The fatigue early warning on Today: loads itself, refreshes after each
 /// sync, and shows nothing unless the multi-day trend says watch or
@@ -117,7 +116,9 @@ class _FatigueWarningBannerState extends State<FatigueWarningBanner> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      warning ? l10n.fatigueWarningTitle : l10n.fatigueWatchTitle,
+                      warning
+                          ? l10n.fatigueWarningTitle
+                          : l10n.fatigueWatchTitle,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: fg,

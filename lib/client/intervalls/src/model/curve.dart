@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'curve.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,64 +17,27 @@ part 'curve.g.dart';
 )
 class Curve {
   /// Returns a new [Curve] instance.
-  Curve({
+  Curve({this.id, this.coefficients, this.r2});
 
-     this.id,
-
-     this.coefficients,
-
-     this.r2,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'coefficients',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'coefficients', required: false, includeIfNull: false)
   final List<double>? coefficients;
 
-
-
-  @JsonKey(
-    
-    name: r'r2',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'r2', required: false, includeIfNull: false)
   final double? r2;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Curve &&
+          other.id == id &&
+          other.coefficients == coefficients &&
+          other.r2 == r2;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Curve &&
-      other.id == id &&
-      other.coefficients == coefficients &&
-      other.r2 == r2;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        coefficients.hashCode +
-        r2.hashCode;
+  @override
+  int get hashCode => id.hashCode + coefficients.hashCode + r2.hashCode;
 
   factory Curve.fromJson(Map<String, dynamic> json) => _$CurveFromJson(json);
 
@@ -85,6 +47,4 @@ class Curve {
   String toString() {
     return toJson().toString();
   }
-
 }
-

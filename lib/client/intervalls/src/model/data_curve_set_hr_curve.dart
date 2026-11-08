@@ -10,7 +10,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'data_curve_set_hr_curve.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,50 +19,26 @@ part 'data_curve_set_hr_curve.g.dart';
 )
 class DataCurveSetHRCurve {
   /// Returns a new [DataCurveSetHRCurve] instance.
-  DataCurveSetHRCurve({
+  DataCurveSetHRCurve({this.list, this.activities});
 
-     this.list,
-
-     this.activities,
-  });
-
-  @JsonKey(
-    
-    name: r'list',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'list', required: false, includeIfNull: false)
   final List<DataCurve>? list;
 
-
-
-  @JsonKey(
-    
-    name: r'activities',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'activities', required: false, includeIfNull: false)
   final Map<String, Activity>? activities;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DataCurveSetHRCurve &&
+          other.list == list &&
+          other.activities == activities;
 
+  @override
+  int get hashCode => list.hashCode + activities.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DataCurveSetHRCurve &&
-      other.list == list &&
-      other.activities == activities;
-
-    @override
-    int get hashCode =>
-        list.hashCode +
-        activities.hashCode;
-
-  factory DataCurveSetHRCurve.fromJson(Map<String, dynamic> json) => _$DataCurveSetHRCurveFromJson(json);
+  factory DataCurveSetHRCurve.fromJson(Map<String, dynamic> json) =>
+      _$DataCurveSetHRCurveFromJson(json);
 
   Map<String, dynamic> toJson() => _$DataCurveSetHRCurveToJson(this);
 
@@ -71,6 +46,4 @@ class DataCurveSetHRCurve {
   String toString() {
     return toJson().toString();
   }
-
 }
-

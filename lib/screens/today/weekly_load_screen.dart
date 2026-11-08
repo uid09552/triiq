@@ -286,9 +286,7 @@ class _WeeklyLoadScreenState extends State<WeeklyLoadScreen> {
   }
 
   static String _formatWeek(BuildContext context, DateTime start) =>
-      DateFormat.MMMd(
-        Localizations.localeOf(context).toString(),
-      ).format(start);
+      DateFormat.MMMd(Localizations.localeOf(context).toString()).format(start);
 
   static String _formatHours(int seconds) =>
       '${(seconds / 3600).toStringAsFixed(1)}h';

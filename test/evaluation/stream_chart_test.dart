@@ -55,7 +55,8 @@ void main() {
           body: StreamChart(
             streams: sixHours,
             visible: visible,
-            format: (t, v) => t == 'watts' ? '${v.round()} W' : '${v.round()} bpm',
+            format: (t, v) =>
+                t == 'watts' ? '${v.round()} W' : '${v.round()} bpm',
           ),
         ),
       ),
@@ -78,11 +79,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('dragging shows every visible stream at that moment',
-      (tester) async {
+  testWidgets('dragging shows every visible stream at that moment', (
+    tester,
+  ) async {
     await pump(tester, {'watts', 'heartrate'});
 
-    final box = tester.getRect(find.byKey(const ValueKey('stream-chart-paint')));
+    final box = tester.getRect(
+      find.byKey(const ValueKey('stream-chart-paint')),
+    );
     await tester.tapAt(Offset(box.left + box.width / 2, box.center.dy));
     // Selected at once, without waiting for the double-tap window.
     await tester.pump();
@@ -95,8 +99,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   });
 
-  testWidgets('a stream switched off is neither drawn nor read out',
-      (tester) async {
+  testWidgets('a stream switched off is neither drawn nor read out', (
+    tester,
+  ) async {
     await pump(tester, {'heartrate'});
 
     expect(painter(tester).series.keys, ['heartrate']);
@@ -123,10 +128,13 @@ void main() {
       return seen;
     }
 
-    testWidgets('a mouse moving over the chart reports the elapsed seconds',
-        (tester) async {
+    testWidgets('a mouse moving over the chart reports the elapsed seconds', (
+      tester,
+    ) async {
       final seen = await pumpWithCursor(tester);
-      final box = tester.getRect(find.byKey(const ValueKey('stream-chart-paint')));
+      final box = tester.getRect(
+        find.byKey(const ValueKey('stream-chart-paint')),
+      );
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(location: Offset(box.left + 5, box.center.dy));
       await tester.pump();
@@ -142,7 +150,9 @@ void main() {
 
     testWidgets('a tap reports too', (tester) async {
       final seen = await pumpWithCursor(tester);
-      final box = tester.getRect(find.byKey(const ValueKey('stream-chart-paint')));
+      final box = tester.getRect(
+        find.byKey(const ValueKey('stream-chart-paint')),
+      );
       await tester.tapAt(Offset(box.left + box.width / 2, box.center.dy));
       await tester.pump();
       expect(seen.last, closeTo(10800, 2500));

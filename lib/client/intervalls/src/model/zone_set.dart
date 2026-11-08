@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'zone_set.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,50 +18,24 @@ part 'zone_set.g.dart';
 )
 class ZoneSet {
   /// Returns a new [ZoneSet] instance.
-  ZoneSet({
+  ZoneSet({this.code, this.zones});
 
-     this.code,
-
-     this.zones,
-  });
-
-  @JsonKey(
-    
-    name: r'code',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'code', required: false, includeIfNull: false)
   final String? code;
 
-
-
-  @JsonKey(
-    
-    name: r'zones',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'zones', required: false, includeIfNull: false)
   final List<ZoneInfo>? zones;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ZoneSet && other.code == code && other.zones == zones;
 
+  @override
+  int get hashCode => code.hashCode + zones.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ZoneSet &&
-      other.code == code &&
-      other.zones == zones;
-
-    @override
-    int get hashCode =>
-        code.hashCode +
-        zones.hashCode;
-
-  factory ZoneSet.fromJson(Map<String, dynamic> json) => _$ZoneSetFromJson(json);
+  factory ZoneSet.fromJson(Map<String, dynamic> json) =>
+      _$ZoneSetFromJson(json);
 
   Map<String, dynamic> toJson() => _$ZoneSetToJson(this);
 
@@ -70,6 +43,4 @@ class ZoneSet {
   String toString() {
     return toJson().toString();
   }
-
 }
-

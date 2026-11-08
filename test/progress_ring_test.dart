@@ -39,20 +39,23 @@ void main() {
       expect(ring.cappedProgress, 1.0);
     });
 
-    test('over target: still done, arc capped at 1.0 instead of overshooting', () {
-      const ring = ProgressRing(
-        label: 'Swim',
-        percentLabel: '150%',
-        valueLabel: '3.0 / 2.0 h',
-        progress: 1.5,
-        color: color,
-        doneColor: doneColor,
-      );
+    test(
+      'over target: still done, arc capped at 1.0 instead of overshooting',
+      () {
+        const ring = ProgressRing(
+          label: 'Swim',
+          percentLabel: '150%',
+          valueLabel: '3.0 / 2.0 h',
+          progress: 1.5,
+          color: color,
+          doneColor: doneColor,
+        );
 
-      expect(ring.isDone, isTrue);
-      expect(ring.ringColor, doneColor);
-      expect(ring.cappedProgress, 1.0);
-    });
+        expect(ring.isDone, isTrue);
+        expect(ring.ringColor, doneColor);
+        expect(ring.cappedProgress, 1.0);
+      },
+    );
   });
 
   testWidgets('renders the sport, percentage and value labels', (tester) async {
@@ -106,17 +109,29 @@ void ringIndicatorTests() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('a gauge animates to its value and clamps overshoot', (tester) async {
+  testWidgets('a gauge animates to its value and clamps overshoot', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: GaugeRing(progress: 1.7, color: color, size: 80, child: Text('x')),
+          body: GaugeRing(
+            progress: 1.7,
+            color: color,
+            size: 80,
+            child: Text('x'),
+          ),
         ),
       ),
     );
     await tester.pump(const Duration(seconds: 1));
     final paint = tester.widget<CustomPaint>(
-      find.descendant(of: find.byType(GaugeRing), matching: find.byType(CustomPaint)).first,
+      find
+          .descendant(
+            of: find.byType(GaugeRing),
+            matching: find.byType(CustomPaint),
+          )
+          .first,
     );
     expect((paint.painter! as GaugePainter).progress, 1.0);
   });

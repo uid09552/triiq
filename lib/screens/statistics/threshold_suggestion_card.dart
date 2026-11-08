@@ -35,22 +35,28 @@ String thresholdValueLabel(ThresholdSuggestion s, double value) {
 String thresholdBasisText(AppLocalizations l10n, ThresholdSuggestion s) {
   final percent = (s.changeFraction.abs() * 100).toStringAsFixed(1);
   return switch (s.basisKind) {
-    ThresholdBasisKind.rideSeasonModel =>
-      l10n.thresholdBasisRideSeasonModel(percent),
-    ThresholdBasisKind.rideRecentModel =>
-      l10n.thresholdBasisRideRecentModel(percent),
-    ThresholdBasisKind.runSeason60Min =>
-      l10n.thresholdBasisRunSeason60Min(percent),
+    ThresholdBasisKind.rideSeasonModel => l10n.thresholdBasisRideSeasonModel(
+      percent,
+    ),
+    ThresholdBasisKind.rideRecentModel => l10n.thresholdBasisRideRecentModel(
+      percent,
+    ),
+    ThresholdBasisKind.runSeason60Min => l10n.thresholdBasisRunSeason60Min(
+      percent,
+    ),
     ThresholdBasisKind.runSeason40MinHeuristic =>
       l10n.thresholdBasisRunSeason40MinHeuristic,
-    ThresholdBasisKind.runRecent60Min =>
-      l10n.thresholdBasisRunRecent60Min(percent),
+    ThresholdBasisKind.runRecent60Min => l10n.thresholdBasisRunRecent60Min(
+      percent,
+    ),
     ThresholdBasisKind.runRecent40MinHeuristic =>
       l10n.thresholdBasisRunRecent40MinHeuristic,
-    ThresholdBasisKind.swimSeasonCss =>
-      l10n.thresholdBasisSwimSeasonCss(percent),
-    ThresholdBasisKind.swimRecentCss =>
-      l10n.thresholdBasisSwimRecentCss(percent),
+    ThresholdBasisKind.swimSeasonCss => l10n.thresholdBasisSwimSeasonCss(
+      percent,
+    ),
+    ThresholdBasisKind.swimRecentCss => l10n.thresholdBasisSwimRecentCss(
+      percent,
+    ),
   };
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../data/pending_deletes.dart';
 import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/planned_items.dart';
@@ -16,15 +17,15 @@ import '../../util/intervals_links.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/chart_options.dart';
+import '../../widgets/responsive.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/status_message.dart';
+import '../../widgets/skeleton.dart';
+import '../../widgets/sync_status_chip.dart';
 import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
-import 'analytics_screen.dart';
-import '../compare/compare_screen.dart';
-import 'load_heatmap_screen.dart';
-import 'performance_screen.dart';
-import 'wellness_trends_screen.dart';
+import 'insights_grid.dart';
 
 /// Training-load trends and volume, all of it read from the local cache:
 /// the CTL/ATL curve over the chosen window, completed-vs-planned load per
@@ -69,6 +70,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _session.addListener(_load);
     AutoSyncService.instance.addListener(_load);
     PlanChanges.instance.addListener(_load);
+    PendingDeletes.instance.addListener(_load);
     SyncSettings.instance.addListener(_load);
     _load();
   }
@@ -78,6 +80,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _session.removeListener(_load);
     AutoSyncService.instance.removeListener(_load);
     PlanChanges.instance.removeListener(_load);
+    PendingDeletes.instance.removeListener(_load);
     SyncSettings.instance.removeListener(_load);
     super.dispose();
   }
@@ -224,276 +227,222 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: ChartOptionsButton(
-              summary: _days == 365
-                  ? l10n.rangeOneYear
-                  : l10n.rangeDaysShort(_days),
-              onPressed: () => showChartOptions(
-                context,
-                title: l10n.navStatistics,
-                ownerSetState: setState,
-                builder: (sheet, apply) => OptionGroup(
-                  label: l10n.chartOptionsRange,
-                  child: SegmentedButton<int>(
-                    showSelectedIcon: false,
-                    segments: [
-                      for (final days in _rangeOptions)
-                        ButtonSegment(
-                          value: days,
-                          label: Text(
-                            days == 365
-                                ? l10n.rangeOneYear
-                                : l10n.rangeDaysShort(days),
+          Row(
+            children: [
+              // Bounded, so a long status (German, many waiting writes)
+              // ellipsizes instead of pushing the range button off screen.
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SyncStatusChip(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ChartOptionsButton(
+                summary: _days == 365
+                    ? l10n.rangeOneYear
+                    : l10n.rangeDaysShort(_days),
+                onPressed: () => showChartOptions(
+                  context,
+                  title: l10n.navStatistics,
+                  ownerSetState: setState,
+                  builder: (sheet, apply) => OptionGroup(
+                    label: l10n.chartOptionsRange,
+                    child: SegmentedButton<int>(
+                      showSelectedIcon: false,
+                      segments: [
+                        for (final days in _rangeOptions)
+                          ButtonSegment(
+                            value: days,
+                            label: Text(
+                              days == 365
+                                  ? l10n.rangeOneYear
+                                  : l10n.rangeDaysShort(days),
+                            ),
+                          ),
+                      ],
+                      selected: {_days},
+                      onSelectionChanged: (selection) {
+                        apply(() => _days = selection.first);
+                        _load();
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Every analysis view, one tap away, in a few compact rows — so
+          // the charts below start on the first screen.
+          const InsightsGrid(),
+          const SizedBox(height: 16),
+          ResponsiveColumns(
+            children: [
+              SectionCard(
+                icon: Icons.show_chart,
+                title: l10n.fitnessTrendTitle,
+                child: _loading
+                    ? const _ChartPlaceholder()
+                    : !hasFitness
+                    ? _EmptyChart(connected: _session.isConnected)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 190,
+                            child: MetricLineChart(
+                              series: series,
+                              labels: [
+                                for (final point in _fitness)
+                                  DateFormat.MMMd(locale).format(point.date),
+                              ],
+                              labelEvery: (_fitness.length / 4).ceil(),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ChartLegend(series: series),
+                        ],
+                      ),
+              ),
+              SectionCard(
+                icon: Icons.bar_chart_outlined,
+                title: l10n.completedVsPlanned,
+                child: _loading
+                    ? const _ChartPlaceholder()
+                    : !hasWeeks
+                    ? _EmptyChart(connected: _session.isConnected)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _selectedWeek >= 0
+                                ? l10n.selectedWeekLoad(
+                                    DateFormat.MMMd(
+                                      locale,
+                                    ).format(_weeks[_selectedWeek].start),
+                                    _weeks[_selectedWeek].completed,
+                                    _weeks[_selectedWeek].planned,
+                                  )
+                                : l10n.tapBarForWeek,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 180,
+                            child: SimpleBarChart(
+                              bars: [
+                                for (final week in _weeks)
+                                  ChartBar(
+                                    label: DateFormat.Md(
+                                      locale,
+                                    ).format(week.start),
+                                    value: week.completed.toDouble(),
+                                    target: week.planned > 0
+                                        ? week.planned.toDouble()
+                                        : null,
+                                    highlighted: week == _weeks.last,
+                                  ),
+                              ],
+                              selectedIndex: _selectedWeek < 0
+                                  ? null
+                                  : _selectedWeek,
+                              onSelect: (index) =>
+                                  setState(() => _selectedWeek = index),
+                              labelEvery: (_weeks.length / 6).ceil().clamp(
+                                1,
+                                12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              SectionCard(
+                icon: Icons.route_outlined,
+                title: l10n.volumeTitle,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: StatTile(
+                            label: l10n.thisWeek,
+                            value: _week.distanceLabel,
+                            subtitle: _week.timeLabel,
+                            icon: Icons.calendar_view_week,
+                            color: colorScheme.primary,
+                            onLongPress: () => showOpenInIntervalsSheet(
+                              context,
+                              label: l10n.thisWeek,
+                              path: 'activities',
+                            ),
                           ),
                         ),
-                    ],
-                    selected: {_days},
-                    onSelectionChanged: (selection) {
-                      apply(() => _days = selection.first);
-                      _load();
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.trending_up),
-              title: Text(l10n.performanceTitle),
-              subtitle: Text(l10n.performanceSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const PerformanceScreen(),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.insights_outlined),
-              title: Text(l10n.anTitle),
-              subtitle: Text(l10n.anSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const AnalyticsScreen(),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.grid_view_rounded),
-              title: Text(l10n.hmTitle),
-              subtitle: Text(l10n.hmSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => LoadHeatmapScreen()),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.monitor_heart_outlined),
-              title: Text(l10n.wtTitle),
-              subtitle: Text(l10n.wtSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => WellnessTrendsScreen(),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.compare_arrows),
-              title: Text(l10n.cmpTitle),
-              subtitle: Text(l10n.cmpSubtitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const CompareScreen()),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.show_chart,
-            title: l10n.fitnessTrendTitle,
-            child: _loading
-                ? const _ChartPlaceholder()
-                : !hasFitness
-                ? _EmptyChart(
-                    message: _session.isConnected
-                        ? l10n.noDataCachedForRange
-                        : l10n.statsNotConnected,
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 190,
-                        child: MetricLineChart(
-                          series: series,
-                          labels: [
-                            for (final point in _fitness)
-                              DateFormat.MMMd(locale).format(point.date),
-                          ],
-                          labelEvery: (_fitness.length / 4).ceil(),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: StatTile(
+                            label: l10n.thisMonth,
+                            value: _month.distanceLabel,
+                            subtitle: _month.timeLabel,
+                            icon: Icons.calendar_view_month,
+                            color: colorScheme.tertiary,
+                            onLongPress: () => showOpenInIntervalsSheet(
+                              context,
+                              label: l10n.thisMonth,
+                              path: 'activities',
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      ChartLegend(series: series),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.bar_chart_outlined,
-            title: l10n.completedVsPlanned,
-            child: _loading
-                ? const _ChartPlaceholder()
-                : !hasWeeks
-                ? _EmptyChart(
-                    message: _session.isConnected
-                        ? l10n.noDataCachedForRange
-                        : l10n.statsNotConnected,
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _selectedWeek >= 0
-                            ? l10n.selectedWeekLoad(
-                                DateFormat.MMMd(
-                                  locale,
-                                ).format(_weeks[_selectedWeek].start),
-                                _weeks[_selectedWeek].completed,
-                                _weeks[_selectedWeek].planned,
-                              )
-                            : l10n.tapBarForWeek,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: StatTile(
+                            label: l10n.thisYear,
+                            value: _year.distanceLabel,
+                            subtitle: _year.timeLabel,
+                            icon: Icons.calendar_today_outlined,
+                            color: colorScheme.secondary,
+                            onLongPress: () => showOpenInIntervalsSheet(
+                              context,
+                              label: l10n.thisYear,
+                              path: 'activities',
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 180,
-                        child: SimpleBarChart(
-                          bars: [
-                            for (final week in _weeks)
-                              ChartBar(
-                                label: DateFormat.Md(locale).format(week.start),
-                                value: week.completed.toDouble(),
-                                target: week.planned > 0
-                                    ? week.planned.toDouble()
-                                    : null,
-                                highlighted: week == _weeks.last,
-                              ),
-                          ],
-                          selectedIndex: _selectedWeek < 0
-                              ? null
-                              : _selectedWeek,
-                          onSelect: (index) =>
-                              setState(() => _selectedWeek = index),
-                          labelEvery: (_weeks.length / 6).ceil().clamp(1, 12),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.route_outlined,
-            title: l10n.volumeTitle,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatTile(
-                        label: l10n.thisWeek,
-                        value: _week.distanceLabel,
-                        subtitle: _week.timeLabel,
-                        icon: Icons.calendar_view_week,
-                        color: colorScheme.primary,
-                        onLongPress: () => showOpenInIntervalsSheet(
-                          context,
-                          label: l10n.thisWeek,
-                          path: 'activities',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: StatTile(
-                        label: l10n.thisMonth,
-                        value: _month.distanceLabel,
-                        subtitle: _month.timeLabel,
-                        icon: Icons.calendar_view_month,
-                        color: colorScheme.tertiary,
-                        onLongPress: () => showOpenInIntervalsSheet(
-                          context,
-                          label: l10n.thisMonth,
-                          path: 'activities',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: StatTile(
-                        label: l10n.thisYear,
-                        value: _year.distanceLabel,
-                        subtitle: _year.timeLabel,
-                        icon: Icons.calendar_today_outlined,
-                        color: colorScheme.secondary,
-                        onLongPress: () => showOpenInIntervalsSheet(
-                          context,
-                          label: l10n.thisYear,
-                          path: 'activities',
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.pie_chart_outline,
-            title: l10n.bySportTitle,
-            child: _sports.isEmpty
-                ? Text(
-                    _session.isConnected
-                        ? l10n.noDataCachedForRange
-                        : l10n.statsNotConnected,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  )
-                : Column(
-                    children: [
-                      for (final sport in _sports)
-                        _SportRow(
-                          totals: sport,
-                          // Share of time, not of load: load isn't
-                          // comparable across sports.
-                          shareOfTime: totalSeconds == 0
-                              ? 0
-                              : sport.seconds / totalSeconds,
+              ),
+              SectionCard(
+                icon: Icons.pie_chart_outline,
+                title: l10n.bySportTitle,
+                child: _sports.isEmpty
+                    ? Text(
+                        _session.isConnected
+                            ? l10n.noDataCachedForRange
+                            : l10n.statsNotConnected,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
-                    ],
-                  ),
+                      )
+                    : Column(
+                        children: [
+                          for (final sport in _sports)
+                            _SportRow(
+                              totals: sport,
+                              // Share of time, not of load: load isn't
+                              // comparable across sports.
+                              shareOfTime: totalSeconds == 0
+                                  ? 0
+                                  : sport.seconds / totalSeconds,
+                            ),
+                        ],
+                      ),
+              ),
+            ],
           ),
         ],
       ),
@@ -659,46 +608,27 @@ class _ChartPlaceholder extends StatelessWidget {
   const _ChartPlaceholder();
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
-    height: 190,
-    child: Center(child: CircularProgressIndicator()),
-  );
+  Widget build(BuildContext context) => const Skeleton(height: 190, radius: 14);
 }
 
 class _EmptyChart extends StatelessWidget {
-  const _EmptyChart({required this.message});
+  const _EmptyChart({required this.connected});
 
-  final String message;
+  final bool connected;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      height: 160,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            colorScheme.primary.withValues(alpha: 0.12),
-            colorScheme.primary.withValues(alpha: 0.02),
-          ],
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.insights_outlined,
-            size: 32,
-            color: colorScheme.primary.withValues(alpha: 0.6),
-          ),
-          const SizedBox(height: 8),
-          Text(message, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
-    );
+    final l10n = AppLocalizations.of(context)!;
+    return connected
+        ? StatusMessage.needsSync(
+            context,
+            title: l10n.noDataCachedForRange,
+            icon: Icons.insights_outlined,
+            compact: true,
+          )
+        : StatusMessage.error(
+            error: StateError('Not connected to Intervals.icu.'),
+            compact: true,
+          );
   }
 }

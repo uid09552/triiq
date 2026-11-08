@@ -37,8 +37,9 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  testWidgets('today\'s session shows insights and counts as seen',
-      (tester) async {
+  testWidgets('today\'s session shows insights and counts as seen', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -102,9 +103,8 @@ void main() {
     expect(find.byKey(const ValueKey('insights')), findsOneWidget);
     expect(find.byKey(const ValueKey('insights-recovery')), findsOneWidget);
     expect(find.textContaining('320 W'), findsOneWidget);
-    expect(
-      await tester.runAsync(() => SeenSessionsStore().seenToday()),
-      {'i7'},
-    );
+    expect(await tester.runAsync(() => SeenSessionsStore().seenToday()), {
+      'i7',
+    });
   });
 }

@@ -116,8 +116,9 @@ void main() {
     }
   }
 
-  testWidgets('figures from the cache; no provider means no note',
-      (tester) async {
+  testWidgets('figures from the cache; no provider means no note', (
+    tester,
+  ) async {
     await pump(tester, settings: LlmSettings.forTesting());
 
     expect(
@@ -126,7 +127,10 @@ void main() {
     );
     expect(find.text('✗ missed: Long run'), findsOneWidget);
     expect(find.byKey(const ValueKey('weekly-8020-flag')), findsOneWidget);
-    expect(find.text('Not enough earlier weeks cached to compare.'), findsOneWidget);
+    expect(
+      find.text('Not enough earlier weeks cached to compare.'),
+      findsOneWidget,
+    );
     expect(find.text('Next week'), findsNothing);
   });
 

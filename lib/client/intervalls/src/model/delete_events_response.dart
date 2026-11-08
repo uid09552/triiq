@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'delete_events_response.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,34 +17,21 @@ part 'delete_events_response.g.dart';
 )
 class DeleteEventsResponse {
   /// Returns a new [DeleteEventsResponse] instance.
-  DeleteEventsResponse({
+  DeleteEventsResponse({this.eventsDeleted});
 
-     this.eventsDeleted,
-  });
-
-  @JsonKey(
-    
-    name: r'eventsDeleted',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'eventsDeleted', required: false, includeIfNull: false)
   final int? eventsDeleted;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DeleteEventsResponse && other.eventsDeleted == eventsDeleted;
 
+  @override
+  int get hashCode => eventsDeleted.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DeleteEventsResponse &&
-      other.eventsDeleted == eventsDeleted;
-
-    @override
-    int get hashCode =>
-        eventsDeleted.hashCode;
-
-  factory DeleteEventsResponse.fromJson(Map<String, dynamic> json) => _$DeleteEventsResponseFromJson(json);
+  factory DeleteEventsResponse.fromJson(Map<String, dynamic> json) =>
+      _$DeleteEventsResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$DeleteEventsResponseToJson(this);
 
@@ -53,6 +39,4 @@ class DeleteEventsResponse {
   String toString() {
     return toJson().toString();
   }
-
 }
-

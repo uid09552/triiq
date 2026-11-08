@@ -115,6 +115,17 @@ class IntervalsSession extends ChangeNotifier {
     return null;
   }
 
+  /// Whether a verified key is saved — an install that was connected once.
+  /// Never throws; false when the vault can't be read.
+  Future<bool> hasSavedKey() async {
+    try {
+      return await _apiKeyStore.read().timeout(const Duration(seconds: 2)) !=
+          null;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// If a previously-verified API key is in the vault, re-validates it (via
   /// [connect]) so the session comes back after an app restart. Safe to call
   /// once at startup; never throws.

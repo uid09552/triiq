@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_charts.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,98 +18,43 @@ part 'activity_charts.g.dart';
 )
 class ActivityCharts {
   /// Returns a new [ActivityCharts] instance.
-  ActivityCharts({
+  ActivityCharts({this.home, this.power, this.hr, this.pace, this.data});
 
-     this.home,
-
-     this.power,
-
-     this.hr,
-
-     this.pace,
-
-     this.data,
-  });
-
-  @JsonKey(
-    
-    name: r'home',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'home', required: false, includeIfNull: false)
   final List<Pos>? home;
 
-
-
-  @JsonKey(
-    
-    name: r'power',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'power', required: false, includeIfNull: false)
   final List<Pos>? power;
 
-
-
-  @JsonKey(
-    
-    name: r'hr',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'hr', required: false, includeIfNull: false)
   final List<Pos>? hr;
 
-
-
-  @JsonKey(
-    
-    name: r'pace',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'pace', required: false, includeIfNull: false)
   final List<Pos>? pace;
 
-
-
-  @JsonKey(
-    
-    name: r'data',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'data', required: false, includeIfNull: false)
   final List<Pos>? data;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityCharts &&
+          other.home == home &&
+          other.power == power &&
+          other.hr == hr &&
+          other.pace == pace &&
+          other.data == data;
 
+  @override
+  int get hashCode =>
+      home.hashCode +
+      power.hashCode +
+      hr.hashCode +
+      pace.hashCode +
+      data.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityCharts &&
-      other.home == home &&
-      other.power == power &&
-      other.hr == hr &&
-      other.pace == pace &&
-      other.data == data;
-
-    @override
-    int get hashCode =>
-        home.hashCode +
-        power.hashCode +
-        hr.hashCode +
-        pace.hashCode +
-        data.hashCode;
-
-  factory ActivityCharts.fromJson(Map<String, dynamic> json) => _$ActivityChartsFromJson(json);
+  factory ActivityCharts.fromJson(Map<String, dynamic> json) =>
+      _$ActivityChartsFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityChartsToJson(this);
 
@@ -118,6 +62,4 @@ class ActivityCharts {
   String toString() {
     return toJson().toString();
   }
-
 }
-

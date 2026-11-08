@@ -57,17 +57,17 @@ void main() {
     final vault = <String, String>{};
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
-      (call) async {
-        final args = (call.arguments as Map).cast<String, dynamic>();
-        return switch (call.method) {
-          'read' => vault[args['key'] as String],
-          'write' => vault[args['key'] as String] = args['value'] as String,
-          'delete' => vault.remove(args['key'] as String),
-          _ => null,
-        };
-      },
-    );
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (call) async {
+            final args = (call.arguments as Map).cast<String, dynamic>();
+            return switch (call.method) {
+              'read' => vault[args['key'] as String],
+              'write' => vault[args['key'] as String] = args['value'] as String,
+              'delete' => vault.remove(args['key'] as String),
+              _ => null,
+            };
+          },
+        );
   });
 
   setUp(() async {
@@ -96,8 +96,10 @@ void main() {
     expect(IntervalsSession.instance.isConnected, isTrue);
     expect(IntervalsSession.instance.athleteId, isNotNull);
     // ignore: avoid_print
-    print('athlete: ${IntervalsSession.instance.athleteId} '
-        '(${IntervalsSession.instance.athleteName})');
+    print(
+      'athlete: ${IntervalsSession.instance.athleteId} '
+      '(${IntervalsSession.instance.athleteName})',
+    );
   });
 
   test('syncs a real date range into SQLite', skip: _skip, () async {
@@ -108,12 +110,15 @@ void main() {
     final result = await syncService.syncRange(oldest, newest);
 
     // ignore: avoid_print
-    print('fetched ${result.wellnessCount} wellness, '
-        '${result.activitiesCount} activities');
+    print(
+      'fetched ${result.wellnessCount} wellness, '
+      '${result.activitiesCount} activities',
+    );
     expect(
       result.wellnessCount + result.activitiesCount,
       greaterThan(0),
-      reason: 'the account returned no data at all for the last 90 days, so '
+      reason:
+          'the account returned no data at all for the last 90 days, so '
           'this run would not actually verify anything',
     );
 
@@ -148,108 +153,126 @@ void main() {
     expect(state.newest, _formatDate(newest));
   });
 
-  test('re-syncing the same range updates rather than duplicates',
-      skip: _skip, () async {
-    await IntervalsSession.instance.connect(_apiKey);
+  test(
+    're-syncing the same range updates rather than duplicates',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
 
-    final newest = DateTime.now();
-    final oldest = newest.subtract(const Duration(days: 30));
+      final newest = DateTime.now();
+      final oldest = newest.subtract(const Duration(days: 30));
 
-    final first = await syncService.syncRange(oldest, newest);
-    final second = await syncService.syncRange(oldest, newest);
+      final first = await syncService.syncRange(oldest, newest);
+      final second = await syncService.syncRange(oldest, newest);
 
-    expect(second.activitiesCount, first.activitiesCount);
-    final stored = await activitiesRepository.getRange(
-      _formatDate(oldest),
-      _formatDate(newest),
-    );
-    expect(stored, hasLength(first.activitiesCount));
-    expect(
-      stored.map((a) => a.id).toSet(),
-      hasLength(stored.length),
-      reason: 'primary key should have collapsed the second sync onto the '
-          'same rows',
-    );
-  });
+      expect(second.activitiesCount, first.activitiesCount);
+      final stored = await activitiesRepository.getRange(
+        _formatDate(oldest),
+        _formatDate(newest),
+      );
+      expect(stored, hasLength(first.activitiesCount));
+      expect(
+        stored.map((a) => a.id).toSet(),
+        hasLength(stored.length),
+        reason:
+            'primary key should have collapsed the second sync onto the '
+            'same rows',
+      );
+    },
+  );
 
-  test('full-history sync (the "Everything" button) completes', skip: _skip,
-      () async {
-    await IntervalsSession.instance.connect(_apiKey);
+  test(
+    'full-history sync (the "Everything" button) completes',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
 
-    final result = await syncService.syncScope(SyncScope.all);
+      final result = await syncService.syncScope(SyncScope.all);
 
-    // ignore: avoid_print
-    print('full history: ${result.wellnessCount} wellness, '
-        '${result.activitiesCount} activities');
-    expect(result.activitiesCount, greaterThan(0));
+      // ignore: avoid_print
+      print(
+        'full history: ${result.wellnessCount} wellness, '
+        '${result.activitiesCount} activities',
+      );
+      expect(result.activitiesCount, greaterThan(0));
 
-    final db = await database.database;
-    final activityRows = Sqflite.firstIntValue(
-      await db.rawQuery('SELECT COUNT(*) FROM activities'),
-    );
-    final wellnessRows = Sqflite.firstIntValue(
-      await db.rawQuery('SELECT COUNT(*) FROM wellness'),
-    );
-    expect(activityRows, result.activitiesCount);
-    expect(wellnessRows, result.wellnessCount);
-  }, timeout: const Timeout(Duration(minutes: 5)));
+      final db = await database.database;
+      final activityRows = Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM activities'),
+      );
+      final wellnessRows = Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM wellness'),
+      );
+      expect(activityRows, result.activitiesCount);
+      expect(wellnessRows, result.wellnessCount);
+    },
+    timeout: const Timeout(Duration(minutes: 5)),
+  );
 
-  test('syncs the Today window: planned events land in SQLite', skip: _skip,
-      () async {
-    await IntervalsSession.instance.connect(_apiKey);
+  test(
+    'syncs the Today window: planned events land in SQLite',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
 
-    final result = await syncService.syncTodayWindow();
-    final (weekStart, weekEnd) = SyncService.todayWindow();
+      final result = await syncService.syncTodayWindow();
+      final (weekStart, weekEnd) = SyncService.todayWindow();
 
-    // ignore: avoid_print
-    print('today window ${_formatDate(weekStart)}..${_formatDate(weekEnd)}: '
+      // ignore: avoid_print
+      print(
+        'today window ${_formatDate(weekStart)}..${_formatDate(weekEnd)}: '
         '${result.eventsCount} planned events, '
-        '${result.activitiesCount} activities');
+        '${result.activitiesCount} activities',
+      );
 
-    final stored = await eventsRepository.getRange(
-      _formatDate(weekStart),
-      _formatDate(weekEnd),
-    );
-    expect(stored, hasLength(result.eventsCount));
-    for (final event in stored) {
-      expect(event.id, isNotEmpty);
-      expect(event.date, matches(r'^\d{4}-\d{2}-\d{2}$'));
-    }
-  });
+      final stored = await eventsRepository.getRange(
+        _formatDate(weekStart),
+        _formatDate(weekEnd),
+      );
+      expect(stored, hasLength(result.eventsCount));
+      for (final event in stored) {
+        expect(event.id, isNotEmpty);
+        expect(event.date, matches(r'^\d{4}-\d{2}-\d{2}$'));
+      }
+    },
+  );
 
-  test('re-syncing planned events drops entries deleted upstream',
-      skip: _skip, () async {
-    await IntervalsSession.instance.connect(_apiKey);
+  test(
+    're-syncing planned events drops entries deleted upstream',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
 
-    final (weekStart, weekEnd) = SyncService.todayWindow();
-    await syncService.syncTodayWindow();
+      final (weekStart, weekEnd) = SyncService.todayWindow();
+      await syncService.syncTodayWindow();
 
-    // A stale plan the server no longer knows about. The next sync must
-    // clear it rather than leave a ghost session on the Today screen.
-    final db = await database.database;
-    await db.insert('events', {
-      'id': 'stale-ghost-event',
-      'date': _formatDate(weekStart),
-      'category': 'WORKOUT',
-      'type': 'Ride',
-      'name': 'Deleted upstream',
-      'description': null,
-      'planned_load': 99,
-      'planned_time': null,
-      'planned_distance': null,
-      'indoor': 0,
-      'raw': '{}',
-      'synced_at': DateTime.now().millisecondsSinceEpoch,
-    });
+      // A stale plan the server no longer knows about. The next sync must
+      // clear it rather than leave a ghost session on the Today screen.
+      final db = await database.database;
+      await db.insert('events', {
+        'id': 'stale-ghost-event',
+        'date': _formatDate(weekStart),
+        'category': 'WORKOUT',
+        'type': 'Ride',
+        'name': 'Deleted upstream',
+        'description': null,
+        'planned_load': 99,
+        'planned_time': null,
+        'planned_distance': null,
+        'indoor': 0,
+        'raw': '{}',
+        'synced_at': DateTime.now().millisecondsSinceEpoch,
+      });
 
-    await syncService.syncTodayWindow();
+      await syncService.syncTodayWindow();
 
-    final stored = await eventsRepository.getRange(
-      _formatDate(weekStart),
-      _formatDate(weekEnd),
-    );
-    expect(stored.map((e) => e.id), isNot(contains('stale-ghost-event')));
-  });
+      final stored = await eventsRepository.getRange(
+        _formatDate(weekStart),
+        _formatDate(weekEnd),
+      );
+      expect(stored.map((e) => e.id), isNot(contains('stale-ghost-event')));
+    },
+  );
 
   test('moving a created workout keeps its steps', skip: _skip, () async {
     await IntervalsSession.instance.connect(_apiKey);
@@ -348,8 +371,7 @@ void main() {
     },
   );
 
-  test('real icu_achievements parse into best efforts', skip: _skip,
-      () async {
+  test('real icu_achievements parse into best efforts', skip: _skip, () async {
     await IntervalsSession.instance.connect(_apiKey);
     final now = DateTime.now();
     await syncService.syncRange(now.subtract(const Duration(days: 365)), now);
@@ -358,7 +380,8 @@ void main() {
       _formatDate(now),
     );
     final withAchievements = all.where(
-      (a) => a.raw['icu_achievements'] is List &&
+      (a) =>
+          a.raw['icu_achievements'] is List &&
           (a.raw['icu_achievements'] as List).isNotEmpty,
     );
     if (withAchievements.isEmpty) {
@@ -368,78 +391,97 @@ void main() {
     }
     final sample = withAchievements.first;
     // ignore: avoid_print
-    print('icu_achievements of ${sample.id}: ${sample.raw['icu_achievements']}');
-    expect(personalBests(sample.raw), isNotEmpty,
-        reason: 'the parser should read the real payload');
-  });
-
-  test('performance curves fetch and parse for every sport and metric',
-      skip: _skip, () async {
-    await IntervalsSession.instance.connect(_apiKey);
-    final repo = PerformanceCurvesRepository(
-      database: database,
-      newestActivity: (_) async => null,
+    print(
+      'icu_achievements of ${sample.id}: ${sample.raw['icu_achievements']}',
     );
-    for (final sport in CurveSport.values) {
-      for (final metric in CurveMetric.values) {
-        final curves = await repo.load(sport, metric, force: true);
-        final s0 = curves.period('s0');
-        // ignore: avoid_print
-        print('${sport.name}/${metric.name}: '
-            '${curves.periods.map((p) => '${p.id}=${p.points.length}').join(' ')}'
-            ' model=${s0?.model?.toJson()}');
-        // A sport the account never did may come back empty; what matters
-        // is that the real payload fetches with our auth and parses.
-        if (s0 != null && s0.points.length > 1) {
-          expect(s0.points.first.x, lessThan(s0.points.last.x));
-        }
-      }
-    }
-  });
-
-  test('wellness carries the keys daily readiness reads', skip: _skip,
-      () async {
-    await IntervalsSession.instance.connect(_apiKey);
-
-    final newest = DateTime.now();
-    final oldest = newest.subtract(const Duration(days: 60));
-    await syncService.syncRange(oldest, newest);
-    final records = await wellnessRepository.getRange(
-      _formatDate(oldest),
-      _formatDate(newest),
-    );
-
-    const keys = [
-      'hrv',
-      'restingHR',
-      'sleepSecs',
-      'readiness',
-      'fatigue',
-      'soreness',
-    ];
-    final counts = {
-      for (final key in keys) key: records.where((r) => r.raw[key] != null).length,
-    };
-    // ignore: avoid_print
-    print('wellness records: ${records.length}, non-null per key: $counts');
-
     expect(
-      counts['hrv']! + counts['restingHR']! + counts['sleepSecs']!,
-      greaterThan(0),
-      reason: 'no HRV, resting HR or sleep in 60 days: either the account '
-          'has no wearable data or the keys are named differently',
+      personalBests(sample.raw),
+      isNotEmpty,
+      reason: 'the parser should read the real payload',
     );
-    // Intervals.icu's subjective scores are 1 (good) .. 4 (bad); readiness
-    // treats 4 as the worst level.
-    for (final record in records) {
-      for (final key in const ['fatigue', 'soreness']) {
-        final value = record.raw[key];
-        if (value != null) {
-          expect(value, inInclusiveRange(1, 4), reason: '$key on ${record.date}');
+  });
+
+  test(
+    'performance curves fetch and parse for every sport and metric',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
+      final repo = PerformanceCurvesRepository(
+        database: database,
+        newestActivity: (_) async => null,
+      );
+      for (final sport in CurveSport.values) {
+        for (final metric in CurveMetric.values) {
+          final curves = await repo.load(sport, metric, force: true);
+          final s0 = curves.period('s0');
+          // ignore: avoid_print
+          print(
+            '${sport.name}/${metric.name}: '
+            '${curves.periods.map((p) => '${p.id}=${p.points.length}').join(' ')}'
+            ' model=${s0?.model?.toJson()}',
+          );
+          // A sport the account never did may come back empty; what matters
+          // is that the real payload fetches with our auth and parses.
+          if (s0 != null && s0.points.length > 1) {
+            expect(s0.points.first.x, lessThan(s0.points.last.x));
+          }
         }
       }
-    }
-  });
+    },
+  );
+
+  test(
+    'wellness carries the keys daily readiness reads',
+    skip: _skip,
+    () async {
+      await IntervalsSession.instance.connect(_apiKey);
+
+      final newest = DateTime.now();
+      final oldest = newest.subtract(const Duration(days: 60));
+      await syncService.syncRange(oldest, newest);
+      final records = await wellnessRepository.getRange(
+        _formatDate(oldest),
+        _formatDate(newest),
+      );
+
+      const keys = [
+        'hrv',
+        'restingHR',
+        'sleepSecs',
+        'readiness',
+        'fatigue',
+        'soreness',
+      ];
+      final counts = {
+        for (final key in keys)
+          key: records.where((r) => r.raw[key] != null).length,
+      };
+      // ignore: avoid_print
+      print('wellness records: ${records.length}, non-null per key: $counts');
+
+      expect(
+        counts['hrv']! + counts['restingHR']! + counts['sleepSecs']!,
+        greaterThan(0),
+        reason:
+            'no HRV, resting HR or sleep in 60 days: either the account '
+            'has no wearable data or the keys are named differently',
+      );
+      // Intervals.icu's subjective scores are 1 (good) .. 4 (bad); readiness
+      // treats 4 as the worst level.
+      for (final record in records) {
+        for (final key in const ['fatigue', 'soreness']) {
+          final value = record.raw[key];
+          if (value != null) {
+            expect(
+              value,
+              inInclusiveRange(1, 4),
+              reason: '$key on ${record.date}',
+            );
+          }
+        }
+      }
+    },
+  );
 }
 
 String _formatDate(DateTime date) =>

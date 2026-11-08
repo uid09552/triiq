@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/status_message.dart';
 
 /// Power (rides) or pace (runs) after a lot of work, against the fresh
 /// season best: the best efforts that started after 1,000 / 2,000 / 3,000 kJ
@@ -182,7 +183,7 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
             const SizedBox(height: 8),
           ],
           if (_error != null)
-            Text(l10n.durError('$_error'))
+            StatusMessage.error(error: _error!, onRetry: _load)
           else if (_result != null)
             ..._content(context, l10n, _result!),
         ],

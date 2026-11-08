@@ -45,15 +45,18 @@ List<(int, double)> downsample(List<double?> values, int buckets) {
 
 /// A colour per stream type, readable in light and dark.
 Color streamColor(String type, ColorScheme scheme) => switch (type) {
-  'watts' => scheme.brightness == Brightness.dark
-      ? const Color(0xFFFFB74D)
-      : const Color(0xFFE65100),
-  'heartrate' => scheme.brightness == Brightness.dark
-      ? const Color(0xFFEF9A9A)
-      : const Color(0xFFC62828),
-  'velocity_smooth' => scheme.brightness == Brightness.dark
-      ? const Color(0xFF81C784)
-      : const Color(0xFF2E7D32),
+  'watts' =>
+    scheme.brightness == Brightness.dark
+        ? const Color(0xFFFFB74D)
+        : const Color(0xFFE65100),
+  'heartrate' =>
+    scheme.brightness == Brightness.dark
+        ? const Color(0xFFEF9A9A)
+        : const Color(0xFFC62828),
+  'velocity_smooth' =>
+    scheme.brightness == Brightness.dark
+        ? const Color(0xFF81C784)
+        : const Color(0xFF2E7D32),
   'cadence' => scheme.tertiary,
   'altitude' => scheme.outline,
   _ => scheme.secondary,
@@ -140,7 +143,11 @@ class StreamChart extends StatefulWidget {
     this.smoothSeconds = 0,
     this.viewport,
     this.onCursorSeconds,
+    this.semanticsLabel,
   });
+
+  /// What a screen reader says about the chart (the streams drawn).
+  final String? semanticsLabel;
 
   final SessionStreams streams;
 
@@ -167,7 +174,12 @@ class StreamChart extends StatefulWidget {
   static const buckets = 600;
 
   /// Streams smoothing makes sense for (altitude is already smooth).
-  static const smoothable = {'watts', 'heartrate', 'velocity_smooth', 'cadence'};
+  static const smoothable = {
+    'watts',
+    'heartrate',
+    'velocity_smooth',
+    'cadence',
+  };
 
   @override
   State<StreamChart> createState() => _StreamChartState();
@@ -327,64 +339,74 @@ class _StreamChartState extends State<StreamChart> {
               if (t != null) cb(t);
             }
           },
-          child: SizedBox(
-            height: widget.height,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ListenableBuilder(
-                  listenable: vp,
-                  builder: (context, _) {
-                    final start = vp.lo.floor();
-                    final end = math.min(_length - 1, vp.hi.ceil());
-                    return CustomPaint(
-                      key: const ValueKey('stream-chart-paint'),
-                      painter: StreamChartPainter(
-                        series: {
-                          for (final t in types)
-                            t: _window(_drawn[t]!, start, end),
-                        },
-                        averages: {
-                          for (final t in types)
-                            if (_average(widget.streams.series[t]!, start, end)
-                                case final avg?)
-                              t: avg,
-                        },
-                        readoutValues: {
-                          if (readout != null)
+          child: Semantics(
+            container: true,
+            label: widget.semanticsLabel,
+            child: SizedBox(
+              height: widget.height,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ListenableBuilder(
+                    listenable: vp,
+                    builder: (context, _) {
+                      final start = vp.lo.floor();
+                      final end = math.min(_length - 1, vp.hi.ceil());
+                      return CustomPaint(
+                        key: const ValueKey('stream-chart-paint'),
+                        painter: StreamChartPainter(
+                          series: {
                             for (final t in types)
-                              if (readout < widget.streams.series[t]!.length)
-                                t: widget.streams.series[t]![readout],
-                        },
-                        readoutLabel: readout == null ? null : _clock(readout),
-                        length: _length,
-                        lo: vp.lo,
-                        hi: vp.hi,
-                        time: widget.streams.time,
-                        intervals: widget.streams.intervals,
-                        readout: readout,
-                        colorOf: (t) => streamColor(t, scheme),
-                        format: widget.format,
-                        leftAxis: leftW,
-                        rightAxis: rightW,
-                        band: scheme.primary.withValues(alpha: 0.09),
-                        grid: scheme.outlineVariant,
-                        cursor: scheme.onSurface,
-                        surface: scheme.surface,
-                        labelStyle: TextStyle(
-                          fontSize: 10,
-                          color: scheme.onSurfaceVariant,
+                              t: _window(_drawn[t]!, start, end),
+                          },
+                          averages: {
+                            for (final t in types)
+                              if (_average(
+                                    widget.streams.series[t]!,
+                                    start,
+                                    end,
+                                  )
+                                  case final avg?)
+                                t: avg,
+                          },
+                          readoutValues: {
+                            if (readout != null)
+                              for (final t in types)
+                                if (readout < widget.streams.series[t]!.length)
+                                  t: widget.streams.series[t]![readout],
+                          },
+                          readoutLabel: readout == null
+                              ? null
+                              : _clock(readout),
+                          length: _length,
+                          lo: vp.lo,
+                          hi: vp.hi,
+                          time: widget.streams.time,
+                          intervals: widget.streams.intervals,
+                          readout: readout,
+                          colorOf: (t) => streamColor(t, scheme),
+                          format: widget.format,
+                          leftAxis: leftW,
+                          rightAxis: rightW,
+                          band: scheme.primary.withValues(alpha: 0.09),
+                          grid: scheme.outlineVariant,
+                          cursor: scheme.onSurface,
+                          surface: scheme.surface,
+                          labelStyle: TextStyle(
+                            fontSize: 10,
+                            color: scheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                Positioned(
-                  top: 2,
-                  left: leftW + 4,
-                  child: ZoomControls(viewport: vp),
-                ),
-              ],
+                      );
+                    },
+                  ),
+                  Positioned(
+                    top: 2,
+                    left: leftW + 4,
+                    child: ZoomControls(viewport: vp),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -414,8 +436,10 @@ class _StreamChartState extends State<StreamChart> {
     final from = start.clamp(0, values.length - 1);
     final to = end.clamp(from, values.length - 1);
     return [
-      for (final (i, v)
-          in downsample(values.sublist(from, to + 1), StreamChart.buckets))
+      for (final (i, v) in downsample(
+        values.sublist(from, to + 1),
+        StreamChart.buckets,
+      ))
         (i + from, v),
     ];
   }
@@ -517,7 +541,8 @@ class _OverviewPainter extends CustomPainter {
     }
     final span = max - min == 0 ? 1.0 : max - min;
     double x(num i) => i / (length - 1) * size.width;
-    double y(double v) => size.height - 4 - (v - min) / span * (size.height - 8);
+    double y(double v) =>
+        size.height - 4 - (v - min) / span * (size.height - 8);
     final path = Path()..moveTo(x(points.first.$1), y(points.first.$2));
     for (final p in points.skip(1)) {
       path.lineTo(x(p.$1), y(p.$2));
@@ -560,7 +585,14 @@ class _Scale {
     final mag = math.pow(10, (math.log(raw) / math.ln10).floor()).toDouble();
     final norm = raw / mag;
     final step =
-        (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
+        (norm <= 1
+            ? 1
+            : norm <= 2
+            ? 2
+            : norm <= 5
+            ? 5
+            : 10) *
+        mag;
     return _Scale((lo / step).floor() * step, (hi / step).ceil() * step, step);
   }
 
@@ -662,7 +694,11 @@ class StreamChartPainter extends CustomPainter {
       final type = entries.first.key;
       for (final tick in scales[type]!.ticks) {
         final ty = y(type, tick);
-        canvas.drawLine(Offset(plot.left, ty), Offset(plot.right, ty), gridPaint);
+        canvas.drawLine(
+          Offset(plot.left, ty),
+          Offset(plot.right, ty),
+          gridPaint,
+        );
         _axisLabel(
           canvas,
           format(type, tick),
@@ -697,14 +733,20 @@ class StreamChartPainter extends CustomPainter {
     canvas.clipRect(plot.inflate(0.5));
 
     for (final interval in intervals.where((i) => i.isWork)) {
-      final r = Rect.fromLTRB(x(interval.start), plot.top, x(interval.end), plot.bottom);
+      final r = Rect.fromLTRB(
+        x(interval.start),
+        plot.top,
+        x(interval.end),
+        plot.bottom,
+      );
       canvas.drawRect(r, Paint()..color = band);
     }
 
     for (final (n, e) in entries.indexed) {
       final points = e.value;
       final color = colorOf(e.key);
-      final path = Path()..moveTo(x(points.first.$1), y(e.key, points.first.$2));
+      final path = Path()
+        ..moveTo(x(points.first.$1), y(e.key, points.first.$2));
       for (final p in points.skip(1)) {
         path.lineTo(x(p.$1), y(e.key, p.$2));
       }
@@ -778,7 +820,9 @@ class StreamChartPainter extends CustomPainter {
         tp.paint(
           canvas,
           Offset(
-            (px - tp.width / 2).clamp(plot.left, plot.right - tp.width).toDouble(),
+            (px - tp.width / 2)
+                .clamp(plot.left, plot.right - tp.width)
+                .toDouble(),
             math.max(0.0, py - tp.height - 5),
           ),
         );
@@ -799,12 +843,18 @@ class StreamChartPainter extends CustomPainter {
     for (var t = (t0 / step).ceil() * step; t <= t1; t += step) {
       final tx = x(indexAtTime(time, t.toDouble()));
       if (tx < plot.left || tx > plot.right) continue;
-      canvas.drawLine(Offset(tx, plot.bottom), Offset(tx, plot.bottom + 3), tickPaint);
+      canvas.drawLine(
+        Offset(tx, plot.bottom),
+        Offset(tx, plot.bottom + 3),
+        tickPaint,
+      );
       final tp = _tp(_tickLabel(t, step), labelStyle);
       tp.paint(
         canvas,
         Offset(
-          (tx - tp.width / 2).clamp(plot.left, size.width - tp.width).toDouble(),
+          (tx - tp.width / 2)
+              .clamp(plot.left, size.width - tp.width)
+              .toDouble(),
           plot.bottom + 4,
         ),
       );
@@ -825,17 +875,22 @@ class StreamChartPainter extends CustomPainter {
         for (final e in entries) {
           final v = readoutValues[e.key];
           if (v == null) continue;
-          canvas.drawCircle(Offset(rx, y(e.key, v)), 4.5, Paint()..color = surface);
-          canvas.drawCircle(Offset(rx, y(e.key, v)), 3, Paint()..color = colorOf(e.key));
+          canvas.drawCircle(
+            Offset(rx, y(e.key, v)),
+            4.5,
+            Paint()..color = surface,
+          );
+          canvas.drawCircle(
+            Offset(rx, y(e.key, v)),
+            3,
+            Paint()..color = colorOf(e.key),
+          );
         }
         final label = readoutLabel;
         if (label != null) {
           final tp = _tp(
             label,
-            labelStyle.copyWith(
-              color: surface,
-              fontWeight: FontWeight.w700,
-            ),
+            labelStyle.copyWith(color: surface, fontWeight: FontWeight.w700),
           );
           final chip = RRect.fromRectAndRadius(
             Rect.fromLTWH(

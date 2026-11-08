@@ -6,10 +6,18 @@ import 'package:triiq/screens/calendar/day_actions.dart';
 import 'package:triiq/screens/today/train_now_screen.dart';
 
 LocalEvent ev({bool plan = false}) => LocalEvent(
-  id: plan ? 'plan:1' : '501', date: '2026-11-10', category: 'WORKOUT', type: 'Run',
-  name: 'Run', description: null, plannedLoad: 40, plannedTime: 3600,
-  plannedDistance: null, indoor: false,
-  raw: plan ? {LocalEvent.planSessionKey: 1} : const {}, syncedAt: DateTime(2026),
+  id: plan ? 'plan:1' : '501',
+  date: '2026-11-10',
+  category: 'WORKOUT',
+  type: 'Run',
+  name: 'Run',
+  description: null,
+  plannedLoad: 40,
+  plannedTime: 3600,
+  plannedDistance: null,
+  indoor: false,
+  raw: plan ? {LocalEvent.planSessionKey: 1} : const {},
+  syncedAt: DateTime(2026),
 );
 
 void main() {
@@ -30,11 +38,17 @@ void main() {
             body: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onLongPress: () => showDayActions(
-                context, date, events,
+                context,
+                date,
+                events,
                 today: () => today,
                 openTrainNow: (_, day) => opened.add(day),
               ),
-              child: const SizedBox(width: 200, height: 200, key: ValueKey('cell')),
+              child: const SizedBox(
+                width: 200,
+                height: 200,
+                key: ValueKey('cell'),
+              ),
             ),
           ),
         ),
@@ -44,80 +58,103 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('a future day offers propose next to delete; propose opens that day',
-      (t) async {
-    final opened = <DateTime>[];
-    await open(t, DateTime(2026, 11, 10), [ev(plan: true)], opened);
-    expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
-    expect(find.byKey(const ValueKey('day-delete')), findsOneWidget);
-    await t.tap(find.byKey(const ValueKey('day-propose')));
-    await t.pumpAndSettle();
-    expect(opened, [DateTime(2026, 11, 10)]);
-  });
+  testWidgets(
+    'a future day offers propose next to delete; propose opens that day',
+    (t) async {
+      final opened = <DateTime>[];
+      await open(t, DateTime(2026, 11, 10), [ev(plan: true)], opened);
+      expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
+      expect(find.byKey(const ValueKey('day-delete')), findsOneWidget);
+      await t.tap(find.byKey(const ValueKey('day-propose')));
+      await t.pumpAndSettle();
+      expect(opened, [DateTime(2026, 11, 10)]);
+    },
+  );
 
-  testWidgets('an empty future day still offers propose, not delete', (t) async {
+  testWidgets('an empty future day still offers propose, not delete', (
+    t,
+  ) async {
     await open(t, DateTime(2026, 11, 10), const [], []);
     expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
     expect(find.byKey(const ValueKey('day-delete')), findsNothing);
   });
 
-  testWidgets('a past day only offers delete, and nothing when nothing is deletable',
-      (t) async {
-    await open(t, DateTime(2026, 11, 2), [ev(plan: true)], []);
-    expect(find.byKey(const ValueKey('day-propose')), findsNothing);
-    expect(find.byKey(const ValueKey('day-delete')), findsOneWidget);
-  });
+  testWidgets(
+    'a past day only offers delete, and nothing when nothing is deletable',
+    (t) async {
+      await open(t, DateTime(2026, 11, 2), [ev(plan: true)], []);
+      expect(find.byKey(const ValueKey('day-propose')), findsNothing);
+      expect(find.byKey(const ValueKey('day-delete')), findsOneWidget);
+    },
+  );
 
-  testWidgets('a past day whose sessions cannot be deleted still offers an event',
-      (t) async {
-    await open(t, DateTime(2026, 11, 2), [ev()], []);
-    expect(find.byKey(const ValueKey('day-propose')), findsNothing);
-    expect(find.byKey(const ValueKey('day-delete')), findsNothing);
-    expect(find.byKey(const ValueKey('day-add-event')), findsOneWidget);
-  });
+  testWidgets(
+    'a past day whose sessions cannot be deleted still offers an event',
+    (t) async {
+      await open(t, DateTime(2026, 11, 2), [ev()], []);
+      expect(find.byKey(const ValueKey('day-propose')), findsNothing);
+      expect(find.byKey(const ValueKey('day-delete')), findsNothing);
+      expect(find.byKey(const ValueKey('day-add-event')), findsOneWidget);
+    },
+  );
 
-  testWidgets('add event: pick the kind, the editor opens on that day and kind',
-      (t) async {
-    final opened = <(DateTime, String)>[];
-    await t.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('en'),
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onLongPress: () => showDayActions(
-                context, DateTime(2026, 11, 2), const [],
-                today: () => today,
-                openEventEditor: (_, day, kind) => opened.add((day, kind)),
+  testWidgets(
+    'add event: pick the kind, the editor opens on that day and kind',
+    (t) async {
+      final opened = <(DateTime, String)>[];
+      await t.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onLongPress: () => showDayActions(
+                  context,
+                  DateTime(2026, 11, 2),
+                  const [],
+                  today: () => today,
+                  openEventEditor: (_, day, kind) => opened.add((day, kind)),
+                ),
+                child: const SizedBox(
+                  width: 200,
+                  height: 200,
+                  key: ValueKey('cell'),
+                ),
               ),
-              child: const SizedBox(width: 200, height: 200, key: ValueKey('cell')),
             ),
           ),
         ),
-      ),
-    );
-    await t.longPress(find.byKey(const ValueKey('cell')));
-    await t.pumpAndSettle();
-    await t.tap(find.byKey(const ValueKey('day-add-event')));
-    await t.pumpAndSettle();
-    expect(find.byKey(const ValueKey('event-kind-SICK')), findsOneWidget);
-    expect(find.byKey(const ValueKey('event-kind-RACE_A')), findsOneWidget);
-    await t.tap(find.byKey(const ValueKey('event-kind-SICK')));
-    await t.pumpAndSettle();
-    expect(opened, [(DateTime(2026, 11, 2), 'SICK')]);
-  });
+      );
+      await t.longPress(find.byKey(const ValueKey('cell')));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const ValueKey('day-add-event')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('event-kind-SICK')), findsOneWidget);
+      expect(find.byKey(const ValueKey('event-kind-RACE_A')), findsOneWidget);
+      await t.tap(find.byKey(const ValueKey('event-kind-SICK')));
+      await t.pumpAndSettle();
+      expect(opened, [(DateTime(2026, 11, 2), 'SICK')]);
+    },
+  );
 
   test('the prompt names the day when it is not today', () {
     final p = TrainNowScreen.buildPrompt(
-      intensityWord: 'an easy', sport: 'Run', minutes: 45, dayLabel: '2026-11-10',
+      intensityWord: 'an easy',
+      sport: 'Run',
+      minutes: 45,
+      dayLabel: '2026-11-10',
     );
     expect(p, contains('on 2026-11-10'));
     expect(p, isNot(contains('right now')));
     expect(
-      TrainNowScreen.buildPrompt(intensityWord: 'an easy', sport: 'Run', minutes: 45),
+      TrainNowScreen.buildPrompt(
+        intensityWord: 'an easy',
+        sport: 'Run',
+        minutes: 45,
+      ),
       contains('right now'),
     );
   });

@@ -112,17 +112,29 @@ List<SeasonBlock> buildSeason(
     if (taperStart.isBefore(cursor)) taperStart = cursor;
     final buildEnd = taperStart.subtract(const Duration(days: 1));
     if (blocks.isEmpty && baseWeeksBeforeFirstBuild > 0) {
-      final baseEnd = cursor.add(Duration(days: baseWeeksBeforeFirstBuild * 7 - 1));
+      final baseEnd = cursor.add(
+        Duration(days: baseWeeksBeforeFirstBuild * 7 - 1),
+      );
       if (baseEnd.isBefore(buildEnd)) {
         add(BlockKind.base, cursor, baseEnd);
         cursor = baseEnd.add(const Duration(days: 1));
       }
     }
     add(BlockKind.build, cursor, buildEnd);
-    add(BlockKind.taper, taperStart, day.subtract(const Duration(days: 1)), race);
+    add(
+      BlockKind.taper,
+      taperStart,
+      day.subtract(const Duration(days: 1)),
+      race,
+    );
     add(BlockKind.race, day, day, race);
     final recoveryEnd = day.add(Duration(days: race.recoveryDays));
-    add(BlockKind.recovery, day.add(const Duration(days: 1)), recoveryEnd, race);
+    add(
+      BlockKind.recovery,
+      day.add(const Duration(days: 1)),
+      recoveryEnd,
+      race,
+    );
     cursor = recoveryEnd.add(const Duration(days: 1));
   }
   return blocks;

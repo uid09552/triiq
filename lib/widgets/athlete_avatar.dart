@@ -9,11 +9,7 @@ import '../data/intervals_session.dart';
 /// left to Flutter's image cache; a failure to load is not worth an error
 /// state, so it quietly shows the fallback.
 class AthleteAvatar extends StatelessWidget {
-  const AthleteAvatar({
-    super.key,
-    this.size = 40,
-    this.onSurface = false,
-  });
+  const AthleteAvatar({super.key, this.size = 40, this.onSurface = false});
 
   final double size;
 
@@ -59,8 +55,7 @@ class AthleteAvatar extends StatelessWidget {
                   width: size,
                   height: size,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, _, _) =>
-                      _fallback(context, initial),
+                  errorBuilder: (context, _, _) => _fallback(context, initial),
                 )
               : _fallback(context, initial),
         );

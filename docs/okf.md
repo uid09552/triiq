@@ -61,23 +61,26 @@ athlete can:
 | Today screen | ✅ Real data once connected — a compact **header tile** (date badge, today's status — "Ready to train" until something is logged, or "Train with care" / "Take it easy today" in the readiness colour when readiness says Caution / Back off, so the header and the readiness card never disagree, done-vs-planned TSS / time / session count with a hairline progress bar, the refresh button and a ⋯ button; **long-press** or ⋯ opens quick actions: sync now, Train now, log fatigue & soreness, open the calendar on Intervals.icu, customize Today), a readiness card (a 0–100 score ring in the status colour, Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with small tinted pills for each signal's value plus CTL with its weekly trend, and a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each with a tiny sparkline inside and a trend arrow (rising / steady / falling: CTL/ATL/Form/Ramp against a week earlier, TSS today as the last 7 days vs the 7 before, TSS week as the last finished week vs the one before), each tappable through to its own chart; optional a slim stacked bar of this week's total training hours (swim/ride/run/other, against the summed targets) above per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
-| New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → Notifications |
+| New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → App → Notifications |
 | Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
-| Statistics screen | ✅ Implemented — CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen (content centred and capped at 840 px on wide windows; the model card shows FTP / CP / W′ / Pmax and the settings value as tiles across its width, with the model-vs-settings gap beneath) with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
+| Insights (was Statistics) | ✅ Implemented — the **Insights hub** (bottom-nav tab, `lib/screens/statistics/`): a compact grid of every analysis view, one tap each and accented by group — *Fitness* (Training analytics, Metric explorer — formerly "Analysis" in More —, Load heatmap), *Performance* (Performance curves, Best efforts, Durability), *Health* (Wellness trends), *Compare*, *Review* (Weekly review, Activities) — with the sync status and the range option in one slim row above and the overview charts right below, so the first chart is on the first screen. Then: CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen (content centred and capped at 840 px on wide windows; the model card shows FTP / CP / W′ / Pmax and the settings value as tiles across its width, with the model-vs-settings gap beneath) with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
 | Fatigue early warning | ✅ Implemented — a Today card (and `get_fatigue_warning`) when HRV, resting HR, sleep, form, CTL ramp or the fatigue/soreness scores stay off on enough of the last 5 days: **watch** (two signals) or **warning** (three, or HRV/resting HR plus a load or feel signal); "Ask the trainer" or "Not now" (hidden for the day unless it worsens) |
-| Morning briefing | ✅ Implemented (Android/iOS) — Settings → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
-| Training analytics (Statistics → Training analytics) | ✅ Implemented — all from the local cache, maths in `lib/evaluation/training_analytics.dart`: **fitness by sport** (CTL or ATL per swim/ride/run from each sport's own daily TSS with the 42/7-day model, 180 days of warm-up, plus the total) and a stacked weekly **where your load comes from** chart with per-sport shares; **intensity distribution** (weekly/monthly share of easy / threshold / hard zone time via `intensityOf`, labelled polarized / pyramidal / threshold-heavy / high-intensity with Treff's polarization index, needs ≥ 1 h of zone time); **load safety** (acute:chronic load ratio 7 d/28 d — safe 0.8–1.3, risky ≤ 1.5, too fast above; CTL ramp rate — safe ≤ 5/week, risky ≤ 8; Foster monotony and strain over 7 days — safe ≤ 1.5, risky ≤ 2); **aerobic base** (EF and Pa:HR decoupling for ride/run sessions ≥ 60 min with ≥ 70 % easy zone time, EF least-squares trend per month, decoupling < 5 % solid / 5–10 % developing / > 10 % drifting) |
-| Compare (Statistics → Compare, or "Compare with…" on a run/ride's page) | ✅ Implemented — running and cycling only; maths in `lib/evaluation/compare.dart`. **Activities tab**: pick two activities of the same sport; one chart per stream (power, heart rate, speed/pace, cadence, altitude) overlays both on a shared **distance** or **time** axis (blue = A, orange = B; distance is unavailable when either lacks a `distance` stream, fetched on demand by `ActivityStreamsRepository.loadForCompare`), both **courses on one map** in the two colours, and a side-by-side table of the same figures. A shared **tracker**: touching the chart moves a labelled dot for each activity on the map (the position of each at that distance/time), and tapping the map moves the chart's cursor to the nearest point of the closest course; switching axis keeps the tracker on the same moment. **Periods tab**: this block against the previous block of 7/14/28/56 days for runs or rides — sessions, distance, time, elevation, load, pace/speed, power, heart rate, EF, decoupling, easy share with the change between them, plus cumulative distance/time/load by day for both blocks |
+| Morning briefing | ✅ Implemented (Android/iOS) — Settings → App → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
+| Training analytics (Insights → Training analytics) | ✅ Implemented — all from the local cache, maths in `lib/evaluation/training_analytics.dart`: **fitness by sport** (CTL or ATL per swim/ride/run from each sport's own daily TSS with the 42/7-day model, 180 days of warm-up, plus the total) and a stacked weekly **where your load comes from** chart with per-sport shares; **intensity distribution** (weekly/monthly share of easy / threshold / hard zone time via `intensityOf`, labelled polarized / pyramidal / threshold-heavy / high-intensity with Treff's polarization index, needs ≥ 1 h of zone time); **load safety** (acute:chronic load ratio 7 d/28 d — safe 0.8–1.3, risky ≤ 1.5, too fast above; CTL ramp rate — safe ≤ 5/week, risky ≤ 8; Foster monotony and strain over 7 days — safe ≤ 1.5, risky ≤ 2); **aerobic base** (EF and Pa:HR decoupling for ride/run sessions ≥ 60 min with ≥ 70 % easy zone time, EF least-squares trend per month, decoupling < 5 % solid / 5–10 % developing / > 10 % drifting) |
+| Compare (Insights → Compare, or "Compare with…" on a run/ride's page) | ✅ Implemented — running and cycling only; maths in `lib/evaluation/compare.dart`. **Activities tab**: pick two activities of the same sport; one chart per stream (power, heart rate, speed/pace, cadence, altitude) overlays both on a shared **distance** or **time** axis (blue = A, orange = B; distance is unavailable when either lacks a `distance` stream, fetched on demand by `ActivityStreamsRepository.loadForCompare`), both **courses on one map** in the two colours, and a side-by-side table of the same figures. A shared **tracker**: touching the chart moves a labelled dot for each activity on the map (the position of each at that distance/time), and tapping the map moves the chart's cursor to the nearest point of the closest course; switching axis keeps the tracker on the same moment. **Periods tab**: this block against the previous block of 7/14/28/56 days for runs or rides — sessions, distance, time, elevation, load, pace/speed, power, heart rate, EF, decoupling, easy share with the change between them, plus cumulative distance/time/load by day for both blocks |
 | Readiness signals (long-press the readiness card, or the options icon on its detail screen) | ✅ Implemented — choose which of HRV, resting HR, sleep, form and fatigue/soreness count toward readiness (`ReadinessSettings`, `lib/evaluation/readiness_settings.dart`, stored on the device in `shared_preferences` as the switched-off signals; at least one stays on). A switched-off signal is rated `excluded`: it moves neither the status nor the 0–100 score, its pill disappears from the card, and the detail screen lists it greyed as "Not used". `ReadinessService` applies the choice everywhere it is used — Today, the detail screen, the morning briefing, plan adjustments — and the `get_readiness` tool reports only `signals_used` (naming `signals_switched_off`) so the trainer does not base readiness advice on them |
-| Durability (Statistics → Performance → Durability, rides and runs) | ✅ Implemented — how much of your fresh power or pace is left after a lot of work. Intervals.icu only serves two predefined fatigued curves, so the levels are computed in `lib/evaluation/durability.dart` from the sessions' own streams: for rides the best 5 s / 1 min / 5 min / 20 min / 1 h power of efforts that *started after* 1,000 / 2,000 / 3,000 kJ of work, for runs the fastest 1 / 3 / 5 / 10 km after 10 / 20 / 30 km already run, taken across the most recent long sessions (rides ≥ 1,000 kJ or 1.5 h, runs ≥ 10 km; last 90/180/365 days, at most 40 sessions, streams fetched once and cached). The fresh reference is the season curve (else last 42 days) from the Performance curves; the screen plots all levels, shows the value and the share kept per point, and says how many sessions it was based on |
-| Wellness trends (Statistics → Wellness trends, or "Longer trends" on the readiness screen) | ✅ Implemented — HRV, resting HR, sleep (hours) and weight over 30/90/180/365 days from the wellness cache (`lib/evaluation/wellness_trends.dart`): the daily values, a 7-day trailing average that carries through missing days, a shaded band of the usual range (mean ± 1 SD over the period, needs 14 values), and latest / 7-day average / change against a week earlier with a below / within / above-range note. Metrics can be hidden in the options sheet; a metric with no data has no card |
-| Best efforts (Statistics → Performance → Best efforts, rides and runs) | ✅ Implemented — the best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 / 10 km (runs) of every session over the last year, from Intervals.icu's per-activity curves (`activity-power-curves` / `activity-pace-curves`, `lib/evaluation/best_efforts.dart`; cached 6 h in SQLite, the last copy used offline). One line of the best per 30-day window (12 windows) with a second line of the best of the 90 days up to each, for the effort chosen in the options sheet, and a table of the last 30 days against the best of the 90 days before them with the change (green better, red worse; for pace a lower time is better). The pace response is not documented, so it is parsed defensively and not yet checked against the live API |
-| Load heatmap (Statistics → Load heatmap) | ✅ Implemented — a calendar grid of daily TSS (one square per day, a column per week, Monday first, scrolled to the latest week), coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`); last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
+| Durability (Insights → Durability, rides and runs) | ✅ Implemented — how much of your fresh power or pace is left after a lot of work. Intervals.icu only serves two predefined fatigued curves, so the levels are computed in `lib/evaluation/durability.dart` from the sessions' own streams: for rides the best 5 s / 1 min / 5 min / 20 min / 1 h power of efforts that *started after* 1,000 / 2,000 / 3,000 kJ of work, for runs the fastest 1 / 3 / 5 / 10 km after 10 / 20 / 30 km already run, taken across the most recent long sessions (rides ≥ 1,000 kJ or 1.5 h, runs ≥ 10 km; last 90/180/365 days, at most 40 sessions, streams fetched once and cached). The fresh reference is the season curve (else last 42 days) from the Performance curves; the screen plots all levels, shows the value and the share kept per point, and says how many sessions it was based on |
+| Wellness trends (Insights → Wellness trends, or "Longer trends" on the readiness screen) | ✅ Implemented — HRV, resting HR, sleep (hours) and weight over 30/90/180/365 days from the wellness cache (`lib/evaluation/wellness_trends.dart`): the daily values, a 7-day trailing average that carries through missing days, a shaded band of the usual range (mean ± 1 SD over the period, needs 14 values), and latest / 7-day average / change against a week earlier with a below / within / above-range note. Metrics can be hidden in the options sheet; a metric with no data has no card |
+| Best efforts (Insights → Best efforts, rides and runs) | ✅ Implemented — the best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 / 10 km (runs) of every session over the last year, from Intervals.icu's per-activity curves (`activity-power-curves` / `activity-pace-curves`, `lib/evaluation/best_efforts.dart`; cached 6 h in SQLite, the last copy used offline). One line of the best per 30-day window (12 windows) with a second line of the best of the 90 days up to each, for the effort chosen in the options sheet, and a table of the last 30 days against the best of the 90 days before them with the change (green better, red worse; for pace a lower time is better). The pace response is not documented, so it is parsed defensively and not yet checked against the live API |
+| Load heatmap (Insights → Load heatmap) | ✅ Implemented — a calendar grid of daily TSS (one square per day, a column per week, Monday first, scrolled to the latest week), coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`); last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
+| Privacy & data (Settings → Data & privacy → Privacy & data) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
+| Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (under the header figures) and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
+| More tab | ✅ Implemented — three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone |
 | Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
 | Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL, and a ring per sport with a weekly target (swim/ride/run, percent and hours done of the target; the ring stops at 100 %); resizable from 4×1 (one row: session + form) and 2×2 (session + form) up to 4×2 (adds the details) and 4×3+ (adds the target rings), with a layout chosen per size; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
 | Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
-| Backup (Settings → Backup) | ✅ Implemented — export synced data, plans, knowledge library and settings as one JSON file (share sheet on phones, save dialog on desktop), restore on another device; secrets are never included |
+| Backup (Settings → Data & privacy → Backup) | ✅ Implemented — export synced data, plans, knowledge library and settings as one JSON file (share sheet on phones, save dialog on desktop), restore on another device; secrets are never included |
 | Season (More → Season) | ✅ Implemented — **fitness forecast** (CTL/ATL/form projected from the planned sessions, with "form on race day" per race), **season timeline** (build / taper / race / recovery blocks across all `RACE_A/B/C` events and the goal's event date, with a conflict check), the **illness / injury mode** card, and the **race predictor** |
 | Race predictor | ✅ Implemented — finish time per leg from the pace curves (Riegel) and power curve (race-intensity fraction + physics model), a CTL / race-day-form allowance, a pacing plan and a fuelling plan; swim/ride/run presets from 5 km to 140.6 |
 | Illness / injury mode | ✅ Implemented — a `SICK` / `INJURED` Intervals.icu event reshapes the plan: rest (sick) or cross-training (injury), then a graded return ramp; shown on Today and Season, applied only after confirming |
@@ -86,12 +89,16 @@ athlete can:
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
-| Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → Appearance, applies instantly, persisted |
+| Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak), the readiness gauge ("Readiness 72 of 100") and the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
+| Error and empty states | ✅ Implemented — one `StatusMessage` (`lib/widgets/status_message.dart`): icon, short title, plain reason, one action. `describeError` maps failures to text you can act on — offline (no response, socket, timeout) → "You're offline" + Retry; HTTP 401/403 → "Intervals.icu refused the request" + Open Profile; not connected → Open Profile; 429 / 5xx → wait and retry; SQLite → local data; else "Something went wrong". The exception text only behind an expandable **Details**. Empty states (`StatusMessage.needsSync`) say what is missing and offer Open Sync. Used on Insights, Performance curves, Durability, Best efforts, Compare periods, Wellness trends, the load heatmap, Weekly review, Activities and the activity page's chart |
+| First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key or Ollama server, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
+| Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Each opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
+| Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → App → Appearance, applies instantly, persisted |
 | Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
-| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`) decides every number and date, including a swim **technique session** every other build/peak week; its content (a short description plus the detailed, set-by-set text) is then written by the athlete's configured LLM provider when one is set up, `lib/plan/session_content.dart`, falling back to plain deterministic text otherwise or on any failure; **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
+| Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`) decides every number and date, including a swim **technique session** every other build/peak week; its content (a short description plus the detailed, set-by-set text) is then written by the athlete's configured LLM provider when one is set up, `lib/plan/session_content.dart`, falling back to plain deterministic text otherwise or on any failure; **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Data & privacy → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -131,10 +138,15 @@ the single read path for the UI.
   Intervals.icu profile picture once connected, their initial otherwise —
   pushes `ProfileScreen` (connect/disconnect Intervals.icu, link to
   Settings);
-- a bottom `NavigationBar` with five destinations, kept alive via
-  `IndexedStack`: **Today**, **Calendar**, **Chat**, **Statistics**, **More**.
-- **More** is the submenu: Profile, Settings, **Sync**, **Training plan**, plus a disabled
-  placeholder for gear.
+- five destinations, kept alive via `IndexedStack`: **Today**, **Calendar**,
+  **Chat**, **Insights**, **More** — a bottom `NavigationBar` on phones, a
+  `NavigationRail` from 840 px wide (`railBreakpoint`), extended with labels
+  from 1,200 px (Windows, tablets);
+- wide windows: Today goes two columns from 900 px (what to do today on the
+  left, figures and the rest on the right), Insights lays its charts out two
+  by two (`ResponsiveColumns`, `lib/widgets/responsive.dart`), Chat and More
+  are capped in width (`ContentWidth`);
+- **More** is grouped into Plan, Trainer and Data.
 
 ### Session & sync
 
@@ -235,11 +247,11 @@ the single read path for the UI.
   Monday when today is Sunday — unless the cache was refreshed within the
   last 6 hours, in which case it makes no request. It restores the stored
   key itself; a network error keeps the key, a 401/403 does not. Outcomes
-  and a consecutive-failure counter go to `SyncSettings` (Settings → Sync
+  and a consecutive-failure counter go to `SyncSettings` (Settings → Data & privacy → Sync
   shows the last run and result). The athlete is notified once after three
   failures in a row, and once when the key is rejected; the job always
   reports success to WorkManager so a dead network or revoked key is retried
-  the next night, not with backoff. The toggle is in Settings → Sync
+  the next night, not with backoff. The toggle is in Settings → Data & privacy → Sync
   (default on) and registration is re-applied at every launch
   (`ExistingPeriodicWorkPolicy.keep`, so reopening the app never pushes the
   schedule back). **Windows and web have no closed-app wake**: the toggle is
@@ -302,7 +314,7 @@ is asked for or after a newer activity of that sport was synced.
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
 | `get_training_guidance` | Matching sections of the optional bundled reference and every enabled document the athlete imported under More → Knowledge library, each tagged with the document it came from |
 | `get_performance_curve` | Best efforts per duration (power, HR) or distance (pace) for one sport — this season, last season, last 42 days — at fixed key points with the session that set each, the model fit (FTP/CP/W'/Pmax or critical speed/D') and its gap to the settings threshold. Fetches from Intervals.icu only when nothing is cached or a newer activity of that sport arrived |
-| `get_threshold_suggestions` | Current ride FTP / run / swim threshold-pace suggestions: current and candidate value, percent change, direction and what it's based on. Read-only — the agent explains a suggestion and points the athlete to Statistics → Performance to review and apply it; it cannot apply or dismiss one itself |
+| `get_threshold_suggestions` | Current ride FTP / run / swim threshold-pace suggestions: current and candidate value, percent change, direction and what it's based on. Read-only — the agent explains a suggestion and points the athlete to Insights → Performance curves to review and apply it; it cannot apply or dismiss one itself |
 | `sync_from_intervals` | Fetches a date range into the cache |
 | `get_training_plan` | The saved goal, the load graph per week (proposed/target TSS, share, allowed range, phase, limits exceeded) and the current plan's weeks and sessions with their `session_id` |
 | `generate_training_plan` | A plan built by the engine from the goal (and any weeks / load factors / sport mix passed) — plus a **proposal** to take it |
@@ -327,8 +339,8 @@ that writes a threshold — only the Performance screen's confirm sheet
 (**Apply**) does, through `SportSettingsService`
 (`lib/data/sport_settings_service.dart`). It's the first TriIQ write that
 changes Intervals.icu *settings* rather than calendar data, so the payload
-is deliberately minimal (only the one changed field) — see Statistics →
-Performance above for the full flow and why that's safe.
+is deliberately minimal (only the one changed field) — see Insights →
+Performance curves above for the full flow and why that's safe.
 
 Thresholds are a case worth calling out: they aren't cached in their own
 right, but every activity carries the FTP/LTHR/max-HR/pace and zone
@@ -558,7 +570,7 @@ Which one is active is controlled by `ThemeController`
 (`lib/theme_controller.dart`), a singleton `ChangeNotifier` holding a
 `AppThemeChoice` (`system` | `light` | `dark` | `developer`, default `system`; `developer` is a terminal-style theme — black, monospace, green/amber/cyan, square corners — served as the dark theme). `TriiqApp`
 wraps `MaterialApp` in a `ListenableBuilder` on it, so changing the mode
-(from Settings → Appearance) re-themes the whole app immediately. The choice is persisted
+(from Settings → App → Appearance) re-themes the whole app immediately. The choice is persisted
 in shared_preferences (`theme.choice`) and loaded at startup in `main.dart`.
 
 ### App icon
@@ -639,7 +651,7 @@ single plugin covers this app's platforms:
   reply notification only fires when this is `false` — otherwise the reply
   is already visible in the chat bubble and a notification would just be
   noise.
-- Settings → **Notifications**: the master toggle calls
+- Settings → App → Notifications**: the master toggle calls
   `requestPermission()` (the actual OS prompt on Android 13+/iOS; a no-op
   `true` elsewhere) before persisting `enabled`; a denied prompt leaves the
   toggle off with an explanatory SnackBar. The daily-reminder sub-toggle and
@@ -675,9 +687,24 @@ both reading straight from the SQLite cache (no separate network call).
   rendered as `ListTile` rows rather than a literal `DataTable` — a table
   widget doesn't fit this app's card/list visual language or a phone
   width, and a `ListTile` row (icon, name, date · distance · duration,
-  trailing TSS) carries the same information at a glance. Tapping a row
+  trailing TSS) carries the same information at a glance. A search field in
+  the app bar narrows by name as you type (250 ms debounce); the options icon
+  opens filters (sport, this week / this month / last 3 months / custom
+  dates, distance and duration ranges, has power, has GPS) and sort (date,
+  distance, duration, load). Active filters show as removable chips with the
+  result count. All of it is `ActivityFilter` (`activity_filter.dart`),
+  applied to the local cache only. Tapping a row
   pushes `ActivityDetailScreen`.
 - `activity_detail_screen.dart` — `ActivityDetailScreen(activity: LocalActivity)`.
+  Layout: a summary header (name, date, sport, key figures) above a pinned
+  tab bar — **Overview** (verdict against the plan, stat grid, zones, brick,
+  insights), **Charts** (session diagram + effort profile), **Intervals**
+  (the one interval table; tapping a row jumps to Charts zoomed to it — only
+  for run/ride/swim) and **Map** (outdoor runs/rides). Compare sits in the
+  app bar; "How did it feel?" and "Open intervals.icu" in its overflow menu.
+  From 900 px wide the tabs give way to two columns (overview | charts,
+  intervals, map). The chart and the interval table share one
+  `ChartViewport`; the diagram no longer repeats the interval list.
   `LocalActivity` only promotes a handful of fields to SQLite columns (see
   Local storage); this screen needs far more (HR, power, elevation, zone
   times), so it calls `LocalActivity.toActivity()` — `Activity.fromJson(raw)`
@@ -710,7 +737,7 @@ both reading straight from the SQLite cache (no separate network call).
     shown at most once per activity (`FeelPromptStore`, the ids already
     prompted), regardless of whether it's saved or cancelled. Turning that
     setting off only stops the automatic prompt; the button keeps working.
-- Reached from **More → Activities**, from tapping any activity in Today's
+- Reached from **Insights → Activities**, from tapping any activity in Today's
   "Today's activities" card (`_TodayActivities` in `today_screen.dart`), and
   from a sport row on Statistics, which passes `ActivitiesScreen(initialType:
   ...)` to open the list filtered to that sport. The filter is in-memory over
@@ -911,7 +938,7 @@ averaged (gap when missing). Week buckets start on Monday.
 
 ### Year goals
 
-Settings → **Year goals**: a yearly distance goal (km) per sport (swim, ride,
+Settings → Training → Year goals**: a yearly distance goal (km) per sport (swim, ride,
 run), stored by `YearGoalsSettings` (`shared_preferences`; blank = no goal).
 Right under the fields, and on Today as the "Year goals" section (switchable
 and reorderable; "Show on Today" in the same Settings card), a progress bar
@@ -940,7 +967,13 @@ explanation, the zoomable graph, "Show history" and "Open in Intervals.icu".
 sheet (`customize_today_sheet.dart`) to drag the sections below the hero
 (readiness, adjustments, load tiles, weekly targets, threshold suggestions,
 activities, today's/tomorrow's training, athlete) into any order and switch
-each off; stored by `TodayLayoutSettings` (`shared_preferences`). Long-pressing
+each off; stored by `TodayLayoutSettings` (`shared_preferences`). A new
+install (and "Reset layout") starts lean: readiness, today's training,
+adjustments, load tiles and today's activities; weekly targets, year goals,
+thresholds, tomorrow and athlete are off. An existing install that never
+customized keeps every section (detected by other stored preferences, then
+saved). Cards with a header fold on a tap; the folded state is stored too.
+Long-pressing
 today's planned training — or the selected day's card in the Calendar —
 offers to delete all of that day's Intervals.icu planned sessions
 (`confirmAndDeleteDaysWorkouts`); TriIQ plan sessions are left to the Plan
@@ -966,7 +999,7 @@ bars, weekly completed-vs-planned bars, or the metric's own curve over 30,
 so it all works offline.
 
 **Weekly targets.** Below the tiles, a ring per sport (swim/cycle/run) with
-a weekly target set in Settings → Weekly targets, each showing this week's
+a weekly target set in Settings → Training → Weekly targets, each showing this week's
 achieved training time against that target — percentage in the middle,
 hours below ("3.0 / 2.0 h"), coloured the same way the rest of the app
 colours that sport, and switching to a "done" colour once the target is
@@ -1045,7 +1078,7 @@ Toggle between **Month** and **Week** views. Each day shows a tiny icon per
 session — tertiary-coloured for Intervals.icu planned events, secondary for
 TriIQ plan sessions, primary for completed activities — reading planned
 items from `PlannedItemsRepository` (`lib/data/planned_items.dart`: the
-current plan's sessions plus, when Settings → Calendar copies them, the
+current plan's sessions plus, when Settings → Data & privacy → Calendar copies them, the
 cached `events`; a sent session shows once, as its synced event) and
 completed ones from `activities`. Today and Statistics read planned load
 from the same source. A plan session in the day list says whether it was
@@ -1076,7 +1109,7 @@ reading it through tools rather than guessing: while it works, a line under
 the transcript names what it's doing ("Reading your daily load and
 wellness…"), and the reply streams in as the model writes it.
 
-Set up a provider in **Settings → LLM provider** first; until then the
+Set up a provider in **Settings → AI trainer → LLM provider** first; until then the
 screen says so, with an **Open Settings** button straight there. What the
 agent can see is limited to what's been synced, so sync the range you want
 to ask about (it will offer to sync a missing range itself when connected).
@@ -1314,7 +1347,7 @@ trainer"; you can delete any item or all of them. It is advice-level: the plan
 engine and adaptation rules do not enforce a preference (set training days
 and long/interval days in the goal for that).
 
-**Backup** (`lib/data/backup/`, Settings → Backup). *Export* writes one JSON file
+**Backup** (`lib/data/backup/`, Settings → Data & privacy → Backup). *Export* writes one JSON file
 (`format: triiq-backup`, `version: 1`) with the tables wellness, activities,
 sync_state, events, plans, plan_sessions, knowledge_docs and knowledge_sections,
 plus the settings stored in shared preferences (goal, targets, theme, language,
@@ -1368,7 +1401,7 @@ load or feel signal; **watch** — two signals, or HRV/resting HR alone on four
 days. One bad night never triggers it.
 
 **Morning briefing** (`lib/notifications/morning_briefing.dart`). Enable under
-Settings → Notifications (needs notifications on; Android/iOS). Android/iOS can
+Settings → App → Notifications (needs notifications on; Android/iOS). Android/iOS can
 only fire a pre-written notification, so the text is a snapshot of the cache
 when it was armed — at app start, after every sync, on plan changes and after
 the nightly background sync. It lists the day's planned workouts, readiness
@@ -1399,8 +1432,8 @@ point `_tileUrl` in `route_card.dart` at a tile provider with an API key.
 publishes it as a GitHub release.
 
 - **Merge to `main`** → automatic **pre-release**, tagged
-  `v<version>-rc<short commit hash>` (e.g. `v0.9.0-rc1a2b3c4`). `<version>` is the
-  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.0+1`); bump it there to start
+  `v<version>-rc<short commit hash>` (e.g. `v0.9.1-rc1a2b3c4`). `<version>` is the
+  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.1+1`); bump it there to start
   a new line. Put `[skip release]` in the merge commit message to skip it.
 - **Your own tag** (`git tag v1.0.0 && git push origin v1.0.0`) → a release for
   exactly that tag, built with that version; a tag containing `-` is a
@@ -1531,7 +1564,7 @@ load — is always the deterministic engine's; separately, each session's
 name and description (a short one-line summary, shown next to the name
 where the preview and the week grid otherwise show only it, and a detailed
 set-by-set description, as today) are written by whichever LLM provider
-you've configured in Settings → LLM provider (Claude or Ollama). No
+you've configured in Settings → AI trainer → LLM provider (Claude or Ollama). No
 provider configured, a slow or failing one, or a response that doesn't
 parse: generation still succeeds, and the affected sessions keep the
 engine's own plain text instead — nothing about plan generation requires an
@@ -1588,7 +1621,7 @@ alternative** opens Train now for tomorrow.
 session from today you haven't looked at, it pops up once: one page per
 session (swipe between them) with its evaluation and insights. **OK** closes
 it and it won't show again; opening the session's detail counts too. Turn it
-off under Settings → Notifications.
+off under Settings → App → Notifications.
 
 ### Settings
 

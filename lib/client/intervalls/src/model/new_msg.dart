@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'new_msg.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,48 +18,21 @@ part 'new_msg.g.dart';
 )
 class NewMsg {
   /// Returns a new [NewMsg] instance.
-  NewMsg({
+  NewMsg({this.id, this.newChat});
 
-     this.id,
-
-     this.newChat,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final int? id;
 
-
-
-  @JsonKey(
-    
-    name: r'new_chat',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'new_chat', required: false, includeIfNull: false)
   final Chat? newChat;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewMsg && other.id == id && other.newChat == newChat;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is NewMsg &&
-      other.id == id &&
-      other.newChat == newChat;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        newChat.hashCode;
+  @override
+  int get hashCode => id.hashCode + newChat.hashCode;
 
   factory NewMsg.fromJson(Map<String, dynamic> json) => _$NewMsgFromJson(json);
 
@@ -70,6 +42,4 @@ class NewMsg {
   String toString() {
     return toJson().toString();
   }
-
 }
-

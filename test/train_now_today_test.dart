@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/agent/llm_settings.dart';
+import 'package:triiq/data/privacy_settings.dart';
 import 'package:triiq/agent/tools/training_data_tools.dart';
 import 'package:triiq/agent/training_agent.dart';
 import 'package:triiq/client/intervalls/intervalls_client.dart';
@@ -106,6 +107,9 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await LlmSettings.instance.load();
+    // The trainer is only available with the athlete's consent.
+    await PrivacySettings.instance.setAiConsent(true);
+    addTearDown(() => PrivacySettings.instance.setAiConsent(false));
     await LlmSettings.instance.setProvider(LlmProvider.ollama);
     await LlmSettings.instance.setOllamaBaseUrl('http://localhost:11434');
     sqfliteFfiInit();
@@ -179,15 +183,18 @@ void main() {
   }
 
   Finder mainButton() => find.byKey(const ValueKey('train-now-main'));
-  String mainLabel(WidgetTester tester) =>
-      (tester.widget<Text>(
-        find.descendant(of: mainButton(), matching: find.byType(Text)),
-      )).data!;
+  String mainLabel(WidgetTester tester) => (tester.widget<Text>(
+    find.descendant(of: mainButton(), matching: find.byType(Text)),
+  )).data!;
   Set<Object?> selected<T>(WidgetTester tester, int index) =>
-      (tester.widgetList(find.byWidgetPredicate((w) => w is SegmentedButton))
-                  .elementAt(index)
-              as dynamic)
-          .selected as Set<Object?>;
+      (tester
+                      .widgetList(
+                        find.byWidgetPredicate((w) => w is SegmentedButton),
+                      )
+                      .elementAt(index)
+                  as dynamic)
+              .selected
+          as Set<Object?>;
 
   testWidgets('nothing planned: no cards, Propose training', (tester) async {
     await open(tester);
@@ -227,8 +234,9 @@ void main() {
     expect(selected(tester, 1).single.toString(), contains('intervals'));
   });
 
-  testWidgets('two sessions: pick one, presets follow, later edits stick',
-      (tester) async {
+  testWidgets('two sessions: pick one, presets follow, later edits stick', (
+    tester,
+  ) async {
     await tester.runAsync(
       () => plans.save(
         _plan([
@@ -269,8 +277,9 @@ void main() {
     expect(selected(tester, 0).single, 'Run', reason: 'a reload keeps edits');
   });
 
-  testWidgets('replace a local plan session with the alternative',
-      (tester) async {
+  testWidgets('replace a local plan session with the alternative', (
+    tester,
+  ) async {
     await tester.runAsync(
       () => plans.save(
         _plan([
@@ -321,8 +330,65 @@ void main() {
     expect(find.text("Today's plan session changed in TriIQ"), findsOneWidget);
   });
 
+  testWidgets('Undo puts the replaced plan session back', (tester) async {
+    await tester.runAsync(
+      () => plans.save(
+        _plan([
+          _session(
+            id: 1,
+            name: 'Long endurance',
+            sport: 'Ride',
+            slot: SessionSlot.long,
+            minutes: 150,
+            load: 145,
+          ),
+        ]),
+      ),
+    );
+    await open(
+      tester,
+      agentTurns: [
+        AIChatMessage.text(
+          '| Duration | Session |\n|---|---|\n| Run — 45m | Easy |\n\n'
+          'About 40 TSS.',
+        ),
+        AIChatMessage.text(
+          '{"name": "Easy run", "sport": "Run", "duration_minutes": 45, '
+          '"load": 40, "description": "- 45m 75% Pace"}',
+        ),
+      ],
+    );
+
+    await tester.tap(mainButton());
+    await realWait(tester);
+    await tester.tap(find.text('Create in Intervals.icu'));
+    await realWait(tester);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create'));
+    await realWait(tester);
+    await tester.pumpAndSettle();
+    expect(
+      (await tester.runAsync(plans.getCurrent))!.sessions.single.name,
+      'Easy run',
+    );
+
+    // The snackbar that says it was replaced offers to take it back.
+    expect(find.text('Undo'), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await realWait(tester);
+    await tester.pumpAndSettle();
+
+    final session = (await tester.runAsync(plans.getCurrent))!.sessions.single;
+    expect(session.name, 'Long endurance');
+    expect(session.sport, 'Ride');
+    expect(session.minutes, 150);
+    expect(find.text('Back to “Long endurance”'), findsOneWidget);
+  });
+
   final runTurns = [
-    AIChatMessage.text('| Duration | Session |\n|---|---|\n| Run — 45m | Easy |'),
+    AIChatMessage.text(
+      '| Duration | Session |\n|---|---|\n| Run — 45m | Easy |',
+    ),
     AIChatMessage.text(
       '{"name": "Easy run", "sport": "Run", "duration_minutes": 45, '
       '"load": 40, "description": "- 45m 75% Pace"}',
@@ -348,8 +414,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('offline: Add alongside is not offered, Replace is',
-      (tester) async {
+  testWidgets('offline: Add alongside is not offered, Replace is', (
+    tester,
+  ) async {
     await tester.runAsync(savePlanSession);
     await open(tester, agentTurns: runTurns);
     await toPreview(tester);
@@ -361,8 +428,9 @@ void main() {
     expect(mode.segments.first.enabled, isTrue);
   });
 
-  testWidgets('add alongside leaves the planned session untouched',
-      (tester) async {
+  testWidgets('add alongside leaves the planned session untouched', (
+    tester,
+  ) async {
     IntervalsSession.instance.debugSetConnected(true);
     addTearDown(() => IntervalsSession.instance.debugSetConnected(false));
     await tester.runAsync(savePlanSession);
@@ -380,8 +448,9 @@ void main() {
     expect(plan!.sessions.single.name, 'Long endurance');
   });
 
-  testWidgets('a sent session with sending off: refused, says why',
-      (tester) async {
+  testWidgets('a sent session with sending off: refused, says why', (
+    tester,
+  ) async {
     send = false;
     await tester.runAsync(
       () => plans.save(
@@ -419,8 +488,10 @@ void main() {
       ),
     );
     expect(create.onPressed, isNull);
-    expect((await tester.runAsync(plans.getCurrent))!.sessions.single.name,
-        'Long endurance');
+    expect(
+      (await tester.runAsync(plans.getCurrent))!.sessions.single.name,
+      'Long endurance',
+    );
   });
 
   test('the alternative prompt carries the reference session first', () {
@@ -447,8 +518,13 @@ void main() {
     expect(prompt, contains('"Long endurance", 90 min, about 85 TSS'));
     expect(prompt, contains('alternative'));
     expect(prompt, contains('must last about 30 minutes'));
-    expect(prompt, contains('Propose a steady endurance Run session lasting '
-        'about 30 minutes'));
+    expect(
+      prompt,
+      contains(
+        'Propose a steady endurance Run session lasting '
+        'about 30 minutes',
+      ),
+    );
     expect('x'.allMatches(prompt).length, lessThan(1600));
 
     final fresh = TrainNowScreen.buildPrompt(

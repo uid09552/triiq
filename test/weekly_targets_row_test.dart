@@ -38,10 +38,7 @@ void main() {
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('en'),
       home: Scaffold(
-        body: WeeklyTargetsRow(
-          weekActivities: activities,
-          settings: settings,
-        ),
+        body: WeeklyTargetsRow(weekActivities: activities, settings: settings),
       ),
     ),
   );
@@ -52,8 +49,9 @@ void main() {
     expect(find.byType(ProgressRing), findsNothing);
   });
 
-  testWidgets('hidden when Show on Today is off, even with targets set',
-      (tester) async {
+  testWidgets('hidden when Show on Today is off, even with targets set', (
+    tester,
+  ) async {
     await settings.setSwimHours(2);
     await settings.setShowOnToday(false);
     await pump(tester);
@@ -75,8 +73,9 @@ void main() {
     expect(find.byType(ProgressRing), findsNWidgets(2));
   });
 
-  testWidgets('achieved time sums across virtual/real variants of a sport',
-      (tester) async {
+  testWidgets('achieved time sums across virtual/real variants of a sport', (
+    tester,
+  ) async {
     await settings.setCycleHours(2);
     await pump(
       tester,
@@ -120,15 +119,19 @@ void main() {
     expect(find.byType(ListTile), findsNWidgets(2));
   });
 
-  testWidgets('hours bar sums every activity against the summed targets',
-      (tester) async {
+  testWidgets('hours bar sums every activity against the summed targets', (
+    tester,
+  ) async {
     await settings.setCycleHours(6);
     await settings.setRunHours(4);
-    await pump(tester, activities: [
-      _activity(type: 'Ride', movingTime: 3 * 3600),
-      _activity(type: 'Run', movingTime: 3600 + 1800),
-      _activity(type: 'Hike', movingTime: 1800), // not a target sport
-    ]);
+    await pump(
+      tester,
+      activities: [
+        _activity(type: 'Ride', movingTime: 3 * 3600),
+        _activity(type: 'Run', movingTime: 3600 + 1800),
+        _activity(type: 'Hike', movingTime: 1800), // not a target sport
+      ],
+    );
 
     expect(find.byKey(const ValueKey('weekly-hours-bar')), findsOneWidget);
     expect(
@@ -141,8 +144,12 @@ void main() {
     await settings.setRunHours(4);
     await pump(tester);
 
-    final bar = tester.getTopLeft(find.byKey(const ValueKey('weekly-hours-bar')));
-    final ring = tester.getTopLeft(find.byKey(const ValueKey('weekly-target-ring-run')));
+    final bar = tester.getTopLeft(
+      find.byKey(const ValueKey('weekly-hours-bar')),
+    );
+    final ring = tester.getTopLeft(
+      find.byKey(const ValueKey('weekly-target-ring-run')),
+    );
     expect(bar.dy, lessThan(ring.dy));
     expect(
       tester.widget<Text>(find.byKey(const ValueKey('weekly-hours-text'))).data,

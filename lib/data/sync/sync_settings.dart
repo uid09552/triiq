@@ -144,7 +144,10 @@ class SyncSettings extends ChangeNotifier {
 
   /// Records the outcome of a background run. [failed] counts toward
   /// [backgroundFailures]; anything else resets it.
-  Future<void> recordBackgroundRun(String result, {required bool failed}) async {
+  Future<void> recordBackgroundRun(
+    String result, {
+    required bool failed,
+  }) async {
     backgroundLastRunAt = DateTime.now();
     backgroundLastResult = result;
     backgroundFailures = failed ? backgroundFailures + 1 : 0;

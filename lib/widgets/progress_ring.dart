@@ -60,53 +60,59 @@ class ProgressRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: size,
-          height: size,
-          child: GaugeRing(
-            progress: cappedProgress,
-            color: ringColor,
-            size: size,
-            strokeWidth: strokeWidth,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null || isDone)
-                  Icon(
-                    isDone ? Icons.check_rounded : icon,
-                    key: ValueKey(isDone ? 'ring-done' : 'ring-icon'),
-                    size: 15,
-                    color: ringColor,
+    // "Swim: 1.2 / 2.0 h, 60 %" — one phrase rather than three fragments.
+    return Semantics(
+      container: true,
+      label: '$label: $valueLabel, $percentLabel',
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: size,
+            height: size,
+            child: GaugeRing(
+              progress: cappedProgress,
+              color: ringColor,
+              size: size,
+              strokeWidth: strokeWidth,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null || isDone)
+                    Icon(
+                      isDone ? Icons.check_rounded : icon,
+                      key: ValueKey(isDone ? 'ring-done' : 'ring-icon'),
+                      size: 15,
+                      color: ringColor,
+                    ),
+                  Text(
+                    percentLabel,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: ringColor,
+                      height: 1.1,
+                    ),
                   ),
-                Text(
-                  percentLabel,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: ringColor,
-                    height: 1.1,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: theme.textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w700,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-        Text(
-          valueLabel,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+          Text(
+            valueLabel,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

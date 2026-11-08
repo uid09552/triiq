@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/intervals_session.dart';
 import '../../data/intervals_workout_service.dart';
+import '../../data/pending_deletes.dart';
 import '../../data/pending_writes.dart';
 import '../../data/models/local_event.dart';
 import '../../data/repositories/events_repository.dart';
@@ -68,68 +71,74 @@ Future<void> _syncDay(String day) async {
   }
 }
 
-/// Asks for confirmation, then deletes [event] from the athlete's
-/// Intervals.icu calendar and from the local cache.
+/// Deletes [event] with a way back: it disappears from the calendar at once
+/// and a snackbar offers **Undo** for [undoWindow]. Only when the snackbar
+/// goes away is the delete carried out for real — upstream on Intervals.icu,
+/// from the event cache, and (for a plan session, or the event a plan session
+/// was sent as) from the plan. Undo, or a failed delete, brings it back.
 ///
-/// Returns whether it was deleted. Failures surface as a snackbar rather
-/// than an exception — every caller would otherwise do the same thing with
-/// them.
-Future<bool> confirmAndDeletePlannedWorkout(
+/// Nothing is written inside the window, so leaving the app then keeps the
+/// entry. Returns true: the entry is gone from view (the detail screen closes
+/// on it).
+Future<bool> deletePlannedWorkoutWithUndo(
   BuildContext context,
   LocalEvent event, {
   PlannedWorkoutWriter? workoutService,
   EventsRepository? eventsRepository,
   PlansRepository? plansRepository,
+  PendingDeletes? pendingDeletes,
+  Duration undoWindow = const Duration(seconds: 6),
 }) async {
   final l10n = AppLocalizations.of(context)!;
   final messenger = ScaffoldMessenger.of(context);
+  final hidden = pendingDeletes ?? PendingDeletes.instance;
   final name = plannedWorkoutTitle(l10n, event);
 
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      final colorScheme = Theme.of(context).colorScheme;
-      return AlertDialog(
-        title: Text(l10n.deletePlannedWorkoutTitle),
-        content: Text(l10n.deletePlannedWorkoutConfirm(name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancelButton),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              foregroundColor: colorScheme.onError,
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.deleteButton),
-          ),
-        ],
-      );
-    },
+  // Inside the undo window only the on-screen lists react (they listen to
+  // [PendingDeletes]). The home widget, the morning briefing and the sync
+  // throttle follow the app-wide change notifications, which fire only once
+  // the delete has really happened.
+  // (The real delete itself notifies [PlanChanges].)
+  void announceRealChange() => AutoSyncService.instance.notifyCacheChanged();
+
+  hidden.hide(event.id);
+
+  final controller = messenger.showSnackBar(
+    SnackBar(
+      content: Text(l10n.workoutDeletedUndoable(name)),
+      duration: undoWindow,
+      // A snackbar with an action otherwise stays until dismissed, and the
+      // delete would never be carried out.
+      persist: false,
+      action: SnackBarAction(label: l10n.undoButton, onPressed: () {}),
+    ),
   );
-  if (confirmed != true) return false;
 
-  try {
-    await _deleteEverywhere(
-      event,
-      service: workoutService ?? QueuedWorkoutWriter(),
-      events: eventsRepository ?? EventsRepository(),
-      plans: plansRepository ?? PlansRepository(),
-    );
-  } catch (error) {
-    messenger.showSnackBar(
-      SnackBar(content: Text(l10n.couldNotDeleteWorkout('$error'))),
-    );
-    return false;
-  }
-  await _syncDay(event.date);
-
-  // Wakes the screens kept alive behind the current one, so the session is
-  // gone from the calendar by the time the athlete is looking at it again.
-  AutoSyncService.instance.notifyCacheChanged();
-  messenger.showSnackBar(SnackBar(content: Text(l10n.workoutDeleted(name))));
+  unawaited(
+    controller.closed.then((reason) async {
+      if (reason == SnackBarClosedReason.action) {
+        hidden.restore(event.id);
+        return;
+      }
+      try {
+        await _deleteEverywhere(
+          event,
+          service: workoutService ?? QueuedWorkoutWriter(),
+          events: eventsRepository ?? EventsRepository(),
+          plans: plansRepository ?? PlansRepository(),
+        );
+        await _syncDay(event.date);
+        // Gone for real: the hide is no longer needed.
+        hidden.restore(event.id);
+        announceRealChange();
+      } catch (error) {
+        hidden.restore(event.id);
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.couldNotDeleteWorkout('$error'))),
+        );
+      }
+    }),
+  );
   return true;
 }
 

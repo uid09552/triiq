@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'update_streams_result.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,50 +17,26 @@ part 'update_streams_result.g.dart';
 )
 class UpdateStreamsResult {
   /// Returns a new [UpdateStreamsResult] instance.
-  UpdateStreamsResult({
+  UpdateStreamsResult({this.updated, this.deleted});
 
-     this.updated,
-
-     this.deleted,
-  });
-
-  @JsonKey(
-    
-    name: r'updated',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'updated', required: false, includeIfNull: false)
   final List<String>? updated;
 
-
-
-  @JsonKey(
-    
-    name: r'deleted',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'deleted', required: false, includeIfNull: false)
   final List<String>? deleted;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UpdateStreamsResult &&
+          other.updated == updated &&
+          other.deleted == deleted;
 
+  @override
+  int get hashCode => updated.hashCode + deleted.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is UpdateStreamsResult &&
-      other.updated == updated &&
-      other.deleted == deleted;
-
-    @override
-    int get hashCode =>
-        updated.hashCode +
-        deleted.hashCode;
-
-  factory UpdateStreamsResult.fromJson(Map<String, dynamic> json) => _$UpdateStreamsResultFromJson(json);
+  factory UpdateStreamsResult.fromJson(Map<String, dynamic> json) =>
+      _$UpdateStreamsResultFromJson(json);
 
   Map<String, dynamic> toJson() => _$UpdateStreamsResultToJson(this);
 
@@ -69,6 +44,4 @@ class UpdateStreamsResult {
   String toString() {
     return toJson().toString();
   }
-
 }
-

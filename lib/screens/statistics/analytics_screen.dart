@@ -10,6 +10,7 @@ import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/charts/stacked_bar_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 
 /// Training analytics read from the local cache: fitness and load split per
 /// sport, intensity distribution, load-safety ratios and the aerobic base.
@@ -176,9 +177,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           if (_loading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 64),
-              child: Center(child: CircularProgressIndicator()),
+            const Column(
+              children: [
+                SkeletonCard(height: 190),
+                SizedBox(height: 16),
+                SkeletonCard(height: 150),
+                SizedBox(height: 16),
+                SkeletonCard(height: 150),
+              ],
             )
           else ...[
             _fitnessCard(context, l10n),

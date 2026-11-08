@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_hr_curve_payload.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,50 +18,26 @@ part 'activity_hr_curve_payload.g.dart';
 )
 class ActivityHRCurvePayload {
   /// Returns a new [ActivityHRCurvePayload] instance.
-  ActivityHRCurvePayload({
+  ActivityHRCurvePayload({this.secs, this.curves});
 
-     this.secs,
-
-     this.curves,
-  });
-
-  @JsonKey(
-    
-    name: r'secs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'secs', required: false, includeIfNull: false)
   final List<int>? secs;
 
-
-
-  @JsonKey(
-    
-    name: r'curves',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'curves', required: false, includeIfNull: false)
   final List<ActivityHRCurve>? curves;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityHRCurvePayload &&
+          other.secs == secs &&
+          other.curves == curves;
 
+  @override
+  int get hashCode => secs.hashCode + curves.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityHRCurvePayload &&
-      other.secs == secs &&
-      other.curves == curves;
-
-    @override
-    int get hashCode =>
-        secs.hashCode +
-        curves.hashCode;
-
-  factory ActivityHRCurvePayload.fromJson(Map<String, dynamic> json) => _$ActivityHRCurvePayloadFromJson(json);
+  factory ActivityHRCurvePayload.fromJson(Map<String, dynamic> json) =>
+      _$ActivityHRCurvePayloadFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityHRCurvePayloadToJson(this);
 
@@ -70,6 +45,4 @@ class ActivityHRCurvePayload {
   String toString() {
     return toJson().toString();
   }
-
 }
-

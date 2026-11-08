@@ -39,7 +39,8 @@ class QueuedOfflineException implements Exception {
   const QueuedOfflineException();
 
   @override
-  String toString() => 'Saved offline; it will be sent when you are back online.';
+  String toString() =>
+      'Saved offline; it will be sent when you are back online.';
 }
 
 enum PendingKind { createWorkout, deleteEvent, moveEvent, replaceWorkout }
@@ -90,7 +91,9 @@ class PendingWritesRepository {
             id: r['id'] as int,
             kind: kind,
             payload: jsonDecode(r['payload'] as String) as Map<String, dynamic>,
-            createdAt: DateTime.fromMillisecondsSinceEpoch(r['created_at'] as int),
+            createdAt: DateTime.fromMillisecondsSinceEpoch(
+              r['created_at'] as int,
+            ),
             attempts: r['attempts'] as int,
             lastError: r['last_error'] as String?,
             failed: r['status'] == 'failed',
@@ -120,7 +123,11 @@ class PendingWritesRepository {
     await db.delete('pending_writes', where: "status = 'failed'");
   }
 
-  Future<void> recordFailure(int id, String error, {required bool permanent}) async {
+  Future<void> recordFailure(
+    int id,
+    String error, {
+    required bool permanent,
+  }) async {
     final db = await _database.database;
     await db.rawUpdate(
       'UPDATE pending_writes SET attempts = attempts + 1, last_error = ?, '
@@ -185,7 +192,9 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
       await _inner.deletePlannedWorkout(eventId);
     } catch (e) {
       if (!isOfflineError(e)) rethrow;
-      if (!await _queue.enqueue(PendingKind.deleteEvent, {'event_id': eventId})) {
+      if (!await _queue.enqueue(PendingKind.deleteEvent, {
+        'event_id': eventId,
+      })) {
         rethrow;
       }
     }
@@ -215,6 +224,7 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
     'indoor': d.indoor,
     'tags': d.tags,
     'external_id': d.externalId,
+    if (d.startsAt != null) 'starts_at': d.startsAt!.toIso8601String(),
   };
 
   static PlannedWorkoutDraft draftFromJson(Map<String, dynamic> j) =>
@@ -228,6 +238,7 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
         indoor: j['indoor'] == true,
         tags: (j['tags'] as List?)?.cast<String>(),
         externalId: j['external_id'] as String?,
+        startsAt: DateTime.tryParse('${j['starts_at'] ?? ''}'),
       );
 }
 
@@ -361,7 +372,8 @@ class PendingWritesService extends ChangeNotifier {
     await refresh();
   }
 
-  static bool _gone(Object e) => e is DioException && e.response?.statusCode == 404;
+  static bool _gone(Object e) =>
+      e is DioException && e.response?.statusCode == 404;
 
   Future<void> _send(PendingWrite w) async {
     switch (w.kind) {
@@ -450,7 +462,9 @@ class PendingWritesService extends ChangeNotifier {
     final externalId = draft.externalId;
     final sessionId = externalId == null
         ? null
-        : int.tryParse(_sessionIdPattern.firstMatch(externalId)?.group(1) ?? '');
+        : int.tryParse(
+            _sessionIdPattern.firstMatch(externalId)?.group(1) ?? '',
+          );
     PlanSession? session;
     if (sessionId != null) {
       session = await _plans.getSession(sessionId);

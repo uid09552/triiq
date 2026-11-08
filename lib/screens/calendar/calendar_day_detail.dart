@@ -48,7 +48,9 @@ class CalendarDayDetail extends StatelessWidget {
 
   bool _isToday() {
     final now = (today ?? DateTime.now)();
-    return now.year == date.year && now.month == date.month && now.day == date.day;
+    return now.year == date.year &&
+        now.month == date.month &&
+        now.day == date.day;
   }
 
   @override
@@ -59,8 +61,14 @@ class CalendarDayDetail extends StatelessWidget {
     final locale = Localizations.localeOf(context).toString();
     final plannedEvents = events.where((e) => e.isTraining).toList();
 
-    final plannedTss = plannedEvents.fold<int>(0, (s, e) => s + (e.plannedLoad ?? 0));
-    final doneTss = activities.fold<int>(0, (s, a) => s + (a.trainingLoad ?? 0));
+    final plannedTss = plannedEvents.fold<int>(
+      0,
+      (s, e) => s + (e.plannedLoad ?? 0),
+    );
+    final doneTss = activities.fold<int>(
+      0,
+      (s, a) => s + (a.trainingLoad ?? 0),
+    );
     final doneFamilies = {for (final a in activities) sportFamily(a.type)};
     bool covered(LocalEvent e) => doneFamilies.contains(sportFamily(e.type));
 
@@ -74,8 +82,11 @@ class CalendarDayDetail extends StatelessWidget {
         plannedEvents.isEmpty && activities.isEmpty && dayEvents.isEmpty;
 
     String detail(int? seconds, int? tss) {
-      final mins = seconds == null || seconds <= 0 ? null : (seconds / 60).round();
-      if (mins != null && tss != null) return l10n.planSessionMinutes(mins, tss);
+      final mins = seconds == null || seconds <= 0
+          ? null
+          : (seconds / 60).round();
+      if (mins != null && tss != null)
+        return l10n.planSessionMinutes(mins, tss);
       if (mins != null) return '$mins min';
       if (tss != null) return '$tss TSS';
       return '';
@@ -164,7 +175,10 @@ class CalendarDayDetail extends StatelessWidget {
               else ...[
                 const SizedBox(height: 2),
                 for (final e in dayEvents)
-                  _DayEventRow(key: ValueKey('day-event-row-${e.id}'), event: e),
+                  _DayEventRow(
+                    key: ValueKey('day-event-row-${e.id}'),
+                    event: e,
+                  ),
                 for (final event in plannedEvents.where((e) => e.isPlanSession))
                   _Row(
                     key: ValueKey('plan-session-${event.planSessionId}'),
@@ -176,7 +190,7 @@ class CalendarDayDetail extends StatelessWidget {
                         '${l10n.planSessionMinutes((event.plannedTime ?? 0) ~/ 60, event.plannedLoad ?? 0)}',
                     onTap: () => showPlanSessionSheetForEvent(context, event),
                     onDelete: canDeletePlannedWorkout(event)
-                        ? () => confirmAndDeletePlannedWorkout(context, event)
+                        ? () => deletePlannedWorkoutWithUndo(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
                     status: Row(
@@ -234,7 +248,7 @@ class CalendarDayDetail extends StatelessWidget {
                     // the session first: the calendar is where reshuffling a
                     // week actually happens.
                     onDelete: canDeletePlannedWorkout(event)
-                        ? () => confirmAndDeletePlannedWorkout(context, event)
+                        ? () => deletePlannedWorkoutWithUndo(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
                   ),
@@ -305,7 +319,11 @@ class _DayEventRow extends StatelessWidget {
                 color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(eventCategoryIcon(event.category), size: 14, color: color),
+              child: Icon(
+                eventCategoryIcon(event.category),
+                size: 14,
+                color: color,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -314,7 +332,10 @@ class _DayEventRow extends StatelessWidget {
                 children: [
                   Text(
                     event.name ?? eventCategoryLabel(l10n, event.category),
-                    style: const TextStyle(fontWeight: FontWeight.w600, height: 1.2),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -330,7 +351,11 @@ class _DayEventRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, size: 20, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -387,7 +412,10 @@ class _Row extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w600, height: 1.2),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -408,7 +436,6 @@ class _Row extends StatelessWidget {
               IconButton(
                 onPressed: onDelete,
                 tooltip: deleteTooltip,
-                visualDensity: VisualDensity.compact,
                 iconSize: 20,
                 icon: Icon(
                   Icons.delete_outline,

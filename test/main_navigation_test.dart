@@ -6,12 +6,14 @@ import 'package:triiq/widgets/main_navigation.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    // Past the first-run flow (covered in onboarding_test.dart).
+    SharedPreferences.setMockInitialValues({'onboarding.done': true});
     MainNavigation.instance.debugReset();
   });
 
-  testWidgets('openCalendar selects the Calendar tab and shows the date',
-      (tester) async {
+  testWidgets('openCalendar selects the Calendar tab and shows the date', (
+    tester,
+  ) async {
     await tester.pumpWidget(const TriiqApp());
     await tester.pump();
 

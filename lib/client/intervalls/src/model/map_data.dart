@@ -10,7 +10,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'map_data.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,82 +19,35 @@ part 'map_data.g.dart';
 )
 class MapData {
   /// Returns a new [MapData] instance.
-  MapData({
+  MapData({this.bounds, this.latlngs, this.route, this.weather});
 
-     this.bounds,
-
-     this.latlngs,
-
-     this.route,
-
-     this.weather,
-  });
-
-  @JsonKey(
-    
-    name: r'bounds',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'bounds', required: false, includeIfNull: false)
   final List<List<double>>? bounds;
 
-
-
-  @JsonKey(
-    
-    name: r'latlngs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'latlngs', required: false, includeIfNull: false)
   final List<List<double>>? latlngs;
 
-
-
-  @JsonKey(
-    
-    name: r'route',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'route', required: false, includeIfNull: false)
   final AthleteRoute? route;
 
-
-
-  @JsonKey(
-    
-    name: r'weather',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'weather', required: false, includeIfNull: false)
   final ActivityWeather? weather;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MapData &&
+          other.bounds == bounds &&
+          other.latlngs == latlngs &&
+          other.route == route &&
+          other.weather == weather;
 
+  @override
+  int get hashCode =>
+      bounds.hashCode + latlngs.hashCode + route.hashCode + weather.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is MapData &&
-      other.bounds == bounds &&
-      other.latlngs == latlngs &&
-      other.route == route &&
-      other.weather == weather;
-
-    @override
-    int get hashCode =>
-        bounds.hashCode +
-        latlngs.hashCode +
-        route.hashCode +
-        weather.hashCode;
-
-  factory MapData.fromJson(Map<String, dynamic> json) => _$MapDataFromJson(json);
+  factory MapData.fromJson(Map<String, dynamic> json) =>
+      _$MapDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$MapDataToJson(this);
 
@@ -103,6 +55,4 @@ class MapData {
   String toString() {
     return toJson().toString();
   }
-
 }
-

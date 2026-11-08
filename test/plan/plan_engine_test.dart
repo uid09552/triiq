@@ -574,8 +574,7 @@ void main() {
       }
     });
 
-    test('every other build week\'s swim Z2 session is technique-focused',
-        () {
+    test('every other build week\'s swim Z2 session is technique-focused', () {
       final p = plan(tri(), loads: null);
 
       for (var i = 0; i < p.weeks.length; i++) {

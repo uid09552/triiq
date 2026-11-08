@@ -88,8 +88,7 @@ void main() {
     });
 
     test('a TSS-set week keeps its share when the baseline changes', () {
-      final c = LoadCurveController(limits: _limits, weeks: 2)
-        ..dragTss(0, 300);
+      final c = LoadCurveController(limits: _limits, weeks: 2)..dragTss(0, 300);
       final share = c.factors[0];
 
       c.update(
@@ -162,14 +161,12 @@ void main() {
 
       expect(find.byType(LoadCurveEditor), findsOneWidget);
       // The axis is painted; its range shows in the semantics values.
-      expect(
-        tester.getSemantics(week(2)).getSemanticsData().value,
-        '399 TSS',
-      );
+      expect(tester.getSemantics(week(2)).getSemanticsData().value, '399 TSS');
     });
 
-    testWidgets('dragging is relative: up by 60 TSS from anywhere',
-        (tester) async {
+    testWidgets('dragging is relative: up by 60 TSS from anywhere', (
+      tester,
+    ) async {
       var changes = 0;
       final c = await pump(tester, onChanged: () => changes++);
       // Press near the bottom of week 3's column, far from its point.
@@ -185,8 +182,9 @@ void main() {
       expect(find.text('Week 3 · 460 TSS · 115%'), findsOneWidget);
     });
 
-    testWidgets('a drag far above stops at the top of the band',
-        (tester) async {
+    testWidgets('a drag far above stops at the top of the band', (
+      tester,
+    ) async {
       final c = await pump(tester);
 
       await dragFrom(tester, tester.getCenter(week(3)), -400);
@@ -234,8 +232,9 @@ void main() {
       expect(tester.getTopLeft(week(0)).dx, lessThan(0));
     });
 
-    testWidgets('tap selects; buttons and arrow keys step by 5 TSS, Shift 25',
-        (tester) async {
+    testWidgets('tap selects; buttons and arrow keys step by 5 TSS, Shift 25', (
+      tester,
+    ) async {
       final c = await pump(tester);
 
       await tester.tap(week(1));
@@ -261,7 +260,11 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pump();
       expect(c.selected, 2);
-      expect(c.targets[2], closeTo(395, 1e-9), reason: '399.3 - 5 = 394.3, snapped');
+      expect(
+        c.targets[2],
+        closeTo(395, 1e-9),
+        reason: '399.3 - 5 = 394.3, snapped',
+      );
     });
 
     testWidgets('undo restores the week a drag moved', (tester) async {

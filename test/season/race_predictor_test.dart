@@ -41,7 +41,12 @@ void main() {
 
   test('ride speed rises with watts and falls with climbing', () {
     double v(double w, {double gain = 0}) => rideSpeed(
-      watts: w, massKg: 80, cdA: 0.32, crr: 0.005, gainM: gain, metres: 40000,
+      watts: w,
+      massKg: 80,
+      cdA: 0.32,
+      crr: 0.005,
+      gainM: gain,
+      metres: 40000,
     );
     expect(v(250), greaterThan(8)); // > 29 km/h
     expect(v(250), lessThan(14)); // < 50 km/h
@@ -51,7 +56,8 @@ void main() {
 
   test('a 10k run prediction needs only run data', () {
     final p = predictRace(
-      RaceSpec.run10k, const RaceInputs(runBests: runBests, ctl: 60),
+      RaceSpec.run10k,
+      const RaceInputs(runBests: runBests, ctl: 60),
     );
     expect(p.complete, isTrue);
     expect(p.totalSeconds, closeTo(2500, 5));
@@ -62,7 +68,8 @@ void main() {
 
   test('missing data is reported, not guessed', () {
     final p = predictRace(
-      RaceSpec.olympic, const RaceInputs(runBests: runBests),
+      RaceSpec.olympic,
+      const RaceInputs(runBests: runBests),
     );
     expect(p.complete, isFalse);
     expect(p.missing, containsAll(['Swim', 'Ride']));
@@ -71,8 +78,12 @@ void main() {
 
   test('a full 70.3 predicts three legs, off-bike run penalty and fuel', () {
     final inputs = RaceInputs(
-      runBests: runBests, swimBests: swimBests, powerCurve: power,
-      ftp: 270, ctl: 90, weightKg: 70,
+      runBests: runBests,
+      swimBests: swimBests,
+      powerCurve: power,
+      ftp: 270,
+      ctl: 90,
+      weightKg: 70,
     );
     final p = predictRace(RaceSpec.half70, inputs);
     expect(p.complete, isTrue);
@@ -92,11 +103,17 @@ void main() {
 
   test('low CTL and a loaded start slow a long race', () {
     final base = RaceInputs(
-      runBests: runBests, swimBests: swimBests, powerCurve: power, ctl: 120,
+      runBests: runBests,
+      swimBests: swimBests,
+      powerCurve: power,
+      ctl: 120,
     );
     final low = RaceInputs(
-      runBests: runBests, swimBests: swimBests, powerCurve: power,
-      ctl: 30, raceDayForm: -20,
+      runBests: runBests,
+      swimBests: swimBests,
+      powerCurve: power,
+      ctl: 30,
+      raceDayForm: -20,
     );
     final good = predictRace(RaceSpec.half70, base);
     final weak = predictRace(RaceSpec.half70, low);

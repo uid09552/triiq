@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_power_curve_payload.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,66 +18,30 @@ part 'activity_power_curve_payload.g.dart';
 )
 class ActivityPowerCurvePayload {
   /// Returns a new [ActivityPowerCurvePayload] instance.
-  ActivityPowerCurvePayload({
+  ActivityPowerCurvePayload({this.afterKj, this.secs, this.curves});
 
-     this.afterKj,
-
-     this.secs,
-
-     this.curves,
-  });
-
-  @JsonKey(
-    
-    name: r'after_kj',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'after_kj', required: false, includeIfNull: false)
   final int? afterKj;
 
-
-
-  @JsonKey(
-    
-    name: r'secs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'secs', required: false, includeIfNull: false)
   final List<int>? secs;
 
-
-
-  @JsonKey(
-    
-    name: r'curves',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'curves', required: false, includeIfNull: false)
   final List<ActivityPowerCurve>? curves;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityPowerCurvePayload &&
+          other.afterKj == afterKj &&
+          other.secs == secs &&
+          other.curves == curves;
 
+  @override
+  int get hashCode => afterKj.hashCode + secs.hashCode + curves.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityPowerCurvePayload &&
-      other.afterKj == afterKj &&
-      other.secs == secs &&
-      other.curves == curves;
-
-    @override
-    int get hashCode =>
-        afterKj.hashCode +
-        secs.hashCode +
-        curves.hashCode;
-
-  factory ActivityPowerCurvePayload.fromJson(Map<String, dynamic> json) => _$ActivityPowerCurvePayloadFromJson(json);
+  factory ActivityPowerCurvePayload.fromJson(Map<String, dynamic> json) =>
+      _$ActivityPowerCurvePayloadFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityPowerCurvePayloadToJson(this);
 
@@ -86,6 +49,4 @@ class ActivityPowerCurvePayload {
   String toString() {
     return toJson().toString();
   }
-
 }
-

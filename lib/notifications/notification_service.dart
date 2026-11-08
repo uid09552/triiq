@@ -260,7 +260,12 @@ class _MobileNotificationService implements NotificationService {
   ) async {
     if (!_initialized) return;
     try {
-      await _plugin.show(id: id, title: title, body: body, notificationDetails: details);
+      await _plugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: details,
+      );
     } catch (error) {
       debugPrint('NotificationService: show failed: $error');
     }
@@ -369,18 +374,14 @@ class _MobileNotificationService implements NotificationService {
   /// self-correcting on the next app start — which is a fine trade for a
   /// "remind me around 7am" feature against pulling in a plugin that
   /// doesn't build.
-  static tz.Location _currentOffsetLocation() => tz.Location(
-    'Local',
-    [tz.minTime],
-    [0],
-    [
-      tz.TimeZone(
-        DateTime.now().timeZoneOffset,
-        isDst: false,
-        abbreviation: 'LOCAL',
-      ),
-    ],
-  );
+  static tz.Location _currentOffsetLocation() =>
+      tz.Location('Local', [tz.minTime], [0], [
+        tz.TimeZone(
+          DateTime.now().timeZoneOffset,
+          isDst: false,
+          abbreviation: 'LOCAL',
+        ),
+      ]);
 }
 
 class _WindowsNotificationService implements NotificationService {

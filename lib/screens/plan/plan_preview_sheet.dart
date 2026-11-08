@@ -120,10 +120,7 @@ class _PlanPreviewSheetState extends State<PlanPreviewSheet> {
                           contentPadding: EdgeInsets.zero,
                           leading: Icon(
                             activityTypeIcon(session.sport),
-                            color: sportColor(
-                              session.sport,
-                              theme.colorScheme,
-                            ),
+                            color: sportColor(session.sport, theme.colorScheme),
                             semanticLabel: sportLabel(l10n, session.sport),
                           ),
                           title: Text(session.name),

@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'rank.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,48 +17,21 @@ part 'rank.g.dart';
 )
 class Rank {
   /// Returns a new [Rank] instance.
-  Rank({
+  Rank({this.position, this.watts});
 
-     this.position,
-
-     this.watts,
-  });
-
-  @JsonKey(
-    
-    name: r'position',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'position', required: false, includeIfNull: false)
   final Map<String, double>? position;
 
-
-
-  @JsonKey(
-    
-    name: r'watts',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'watts', required: false, includeIfNull: false)
   final Map<String, double>? watts;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Rank && other.position == position && other.watts == watts;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Rank &&
-      other.position == position &&
-      other.watts == watts;
-
-    @override
-    int get hashCode =>
-        position.hashCode +
-        watts.hashCode;
+  @override
+  int get hashCode => position.hashCode + watts.hashCode;
 
   factory Rank.fromJson(Map<String, dynamic> json) => _$RankFromJson(json);
 
@@ -69,6 +41,4 @@ class Rank {
   String toString() {
     return toJson().toString();
   }
-
 }
-

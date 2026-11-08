@@ -279,6 +279,92 @@ void main() {
     );
   });
 
+  group('undo replace (#42)', () {
+    LocalEvent tagged() => LocalEvent(
+      id: '501',
+      date: isoDate(day),
+      category: 'WORKOUT',
+      type: 'Ride',
+      name: 'Coach ride',
+      description: '- 60m 65%',
+      plannedLoad: 60,
+      plannedTime: 3600,
+      plannedDistance: null,
+      indoor: true,
+      raw: {
+        'start_date_local': '${isoDate(day)}T07:30:00',
+        'tags': ['coach'],
+        'external_id': 'coach-42',
+      },
+      syncedAt: day,
+    );
+
+    test('restores by id, not by name, and keeps tags, id and time', () async {
+      // Another session on the day already carries the replacement's name.
+      final twin = LocalEvent(
+        id: '777',
+        date: isoDate(day),
+        category: 'WORKOUT',
+        type: 'Run',
+        name: 'Easy run',
+        description: '- 30m',
+        plannedLoad: 25,
+        plannedTime: 1800,
+        plannedDistance: null,
+        indoor: false,
+        raw: const {},
+        syncedAt: day,
+      );
+      await events.replaceRange(isoDate(day), isoDate(day), [tagged(), twin]);
+
+      final result = await actions().replaceSessionTracked(
+        tagged(),
+        alternative(),
+      );
+      expect(result.outcome, ReplaceOutcome.replaced);
+      expect(result.eventId, '901');
+      expect(result.canUndo, isTrue);
+
+      await actions().undoReplace(result, tagged());
+
+      // The replacement (901) went, the same-named twin (777) stayed.
+      expect(workouts.deleted, ['501', '901']);
+      final back = workouts.created.last;
+      expect(back.name, 'Coach ride');
+      expect(back.tags, ['coach']);
+      expect(back.externalId, 'coach-42');
+      expect(back.startsAt?.hour, 7);
+      expect(back.startsAt?.minute, 30);
+      expect(back.indoor, isTrue);
+      expect(back.startDateLocal, '${isoDate(day)}T07:30:00');
+    });
+
+    test('a plan session goes back by its session id', () async {
+      final session = await planSession();
+      final planned = PlannedItemsRepository.toLocalEvent(session);
+      final result = await actions().replaceSessionTracked(
+        planned,
+        alternative(),
+      );
+      expect(result.planSessionId, session.id);
+
+      await actions().undoReplace(result, planned);
+      final after = (await plans.getSession(session.id!))!;
+      expect(after.name, session.name);
+      expect(after.sport, session.sport);
+      expect(after.minutes, session.minutes);
+    });
+
+    test('no undo when both still exist or the swap is queued', () {
+      for (final o in [ReplaceOutcome.bothExist, ReplaceOutcome.queued]) {
+        expect(
+          ReplaceResult(outcome: o, draft: alternative(), eventId: '1').canUndo,
+          isFalse,
+        );
+      }
+    });
+  });
+
   group('an Intervals.icu event', () {
     test(
       'new workout created, old deleted upstream and from the cache',
@@ -414,71 +500,84 @@ void main() {
       expect(await events.getByDate(isoDate(day)), isEmpty);
     });
 
-    test('offline with no known account: refused, nothing changes locally',
-        () async {
-      final session = await planSession(eventId: '300');
-      connected = false;
-      final noAccount = PlanActions(
-        workouts: workouts,
-        plans: plans,
-        events: events,
-        sendEnabled: () => send,
-        connected: () => connected,
-        queue: PendingWritesService(
-          athleteId: () async => null,
-          connectedAthleteId: () => null,
-          repository: PendingWritesRepository(database: database),
-          writer: workouts,
+    test(
+      'offline with no known account: refused, nothing changes locally',
+      () async {
+        final session = await planSession(eventId: '300');
+        connected = false;
+        final noAccount = PlanActions(
+          workouts: workouts,
           plans: plans,
           events: events,
-        ),
-        resync: (_) async {},
-        goals: GoalStore(),
-        clock: () => DateTime(2026, 11, 2, 9),
-      );
-      await expectLater(
-        noAccount.replaceSession(
+          sendEnabled: () => send,
+          connected: () => connected,
+          queue: PendingWritesService(
+            athleteId: () async => null,
+            connectedAthleteId: () => null,
+            repository: PendingWritesRepository(database: database),
+            writer: workouts,
+            plans: plans,
+            events: events,
+          ),
+          resync: (_) async {},
+          goals: GoalStore(),
+          clock: () => DateTime(2026, 11, 2, 9),
+        );
+        await expectLater(
+          noAccount.replaceSession(
+            PlannedItemsRepository.toLocalEvent(session),
+            alternative(),
+          ),
+          throwsA(isA<ReplaceRefusedException>()),
+        );
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.name, session.name);
+        expect(after.intervalsEventId, '300');
+      },
+    );
+
+    test(
+      'a sent plan session replaced offline shows the new content at once',
+      () async {
+        final session = await planSession(eventId: '300');
+        await events.upsert(
+          LocalEvent(
+            id: '300',
+            date: isoDate(day),
+            category: 'WORKOUT',
+            type: 'Run',
+            name: 'old',
+            description: '',
+            plannedLoad: 50,
+            plannedTime: 3600,
+            plannedDistance: null,
+            indoor: false,
+            raw: const {},
+            syncedAt: day,
+          ),
+        );
+        connected = false;
+
+        final outcome = await actions().replaceSession(
           PlannedItemsRepository.toLocalEvent(session),
           alternative(),
-        ),
-        throwsA(isA<ReplaceRefusedException>()),
-      );
-      final after = (await plans.getSession(session.id!))!;
-      expect(after.name, session.name);
-      expect(after.intervalsEventId, '300');
-    });
+        );
 
-    test('a sent plan session replaced offline shows the new content at once',
-        () async {
-      final session = await planSession(eventId: '300');
-      await events.upsert(
-        LocalEvent(
-          id: '300', date: isoDate(day), category: 'WORKOUT', type: 'Run',
-          name: 'old', description: '', plannedLoad: 50, plannedTime: 3600,
-          plannedDistance: null, indoor: false, raw: const {}, syncedAt: day,
-        ),
-      );
-      connected = false;
+        expect(outcome, ReplaceOutcome.queued);
+        final local = (await plans.getSession(session.id!))!;
+        expect(local.name, 'Easy run');
+        expect(local.intervalsEventId, isNull);
+        expect(await events.getByDate(isoDate(day)), isEmpty); // old one hidden
+        expect(queue.pending, 1);
 
-      final outcome = await actions().replaceSession(
-        PlannedItemsRepository.toLocalEvent(session),
-        alternative(),
-      );
-
-      expect(outcome, ReplaceOutcome.queued);
-      final local = (await plans.getSession(session.id!))!;
-      expect(local.name, 'Easy run');
-      expect(local.intervalsEventId, isNull);
-      expect(await events.getByDate(isoDate(day)), isEmpty); // old one hidden
-      expect(queue.pending, 1);
-
-      connected = true;
-      await queue.flush();
-      final after = (await plans.getSession(session.id!))!;
-      expect(after.intervalsEventId, '901');
-      expect(after.status, PlanSessionStatus.created);
-      expect(workouts.deleted, ['300']);
-    });
+        connected = true;
+        await queue.flush();
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.intervalsEventId, '901');
+        expect(after.status, PlanSessionStatus.created);
+        expect(workouts.deleted, ['300']);
+      },
+    );
 
     test('a failed delete after the create does not create twice', () async {
       final session = await planSession(eventId: '300');

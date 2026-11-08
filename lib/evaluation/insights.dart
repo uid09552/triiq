@@ -96,7 +96,8 @@ class EfficiencyTrend {
   final int sessions;
 
   /// Change against the median, as a fraction.
-  double? get change => median == null || median == 0 ? null : value / median! - 1;
+  double? get change =>
+      median == null || median == 0 ? null : value / median! - 1;
 }
 
 /// Is [a] an easy session — planned easy, or mostly at low intensity?
@@ -229,7 +230,9 @@ RecoveryHint recoveryHint({
   final nextDay = DateTime(endedAt.year, endedAt.month, endedAt.day + 1);
   final busyUntil = endedAt.add(Duration(hours: hours));
   LocalEvent? conflict;
-  if (busyUntil.isAfter(nextDay.add(const Duration(hours: _tomorrowStartsHour)))) {
+  if (busyUntil.isAfter(
+    nextDay.add(const Duration(hours: _tomorrowStartsHour)),
+  )) {
     for (final e in tomorrow) {
       if (e.isTraining && SessionEvaluator.intentOf(e) == SessionIntent.hard) {
         conflict = e;

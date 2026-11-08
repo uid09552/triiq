@@ -86,25 +86,20 @@ extension $ActivityAnalysisIssueCopyWith on ActivityAnalysisIssue {
 
 ActivityAnalysisIssue _$ActivityAnalysisIssueFromJson(
   Map<String, dynamic> json,
-) => $checkedCreate(
-  'ActivityAnalysisIssue',
-  json,
-  ($checkedConvert) {
-    final val = ActivityAnalysisIssue(
-      type: $checkedConvert(
-        'type',
-        (v) => $enumDecodeNullable(_$ActivityAnalysisIssueTypeEnumEnumMap, v),
-      ),
-      message: $checkedConvert('message', (v) => v as String?),
-      customItemId: $checkedConvert(
-        'custom_item_id',
-        (v) => (v as num?)?.toInt(),
-      ),
-    );
-    return val;
-  },
-  fieldKeyMap: const {'customItemId': 'custom_item_id'},
-);
+) => $checkedCreate('ActivityAnalysisIssue', json, ($checkedConvert) {
+  final val = ActivityAnalysisIssue(
+    type: $checkedConvert(
+      'type',
+      (v) => $enumDecodeNullable(_$ActivityAnalysisIssueTypeEnumEnumMap, v),
+    ),
+    message: $checkedConvert('message', (v) => v as String?),
+    customItemId: $checkedConvert(
+      'custom_item_id',
+      (v) => (v as num?)?.toInt(),
+    ),
+  );
+  return val;
+}, fieldKeyMap: const {'customItemId': 'custom_item_id'});
 
 Map<String, dynamic> _$ActivityAnalysisIssueToJson(
   ActivityAnalysisIssue instance,

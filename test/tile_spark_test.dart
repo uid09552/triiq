@@ -14,8 +14,10 @@ class _Wellness implements WellnessRepository {
   final List<LocalWellness> rows;
 
   @override
-  Future<List<LocalWellness>> getRange(String a, String b) async =>
-      [for (final r in rows) if (r.date.compareTo(a) >= 0 && r.date.compareTo(b) <= 0) r];
+  Future<List<LocalWellness>> getRange(String a, String b) async => [
+    for (final r in rows)
+      if (r.date.compareTo(a) >= 0 && r.date.compareTo(b) <= 0) r,
+  ];
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
@@ -27,21 +29,37 @@ class _Activities implements ActivitiesRepository {
   final List<LocalActivity> rows;
 
   @override
-  Future<List<LocalActivity>> getRange(String a, String b) async =>
-      [for (final r in rows) if (r.date.compareTo(a) >= 0 && r.date.compareTo(b) <= 0) r];
+  Future<List<LocalActivity>> getRange(String a, String b) async => [
+    for (final r in rows)
+      if (r.date.compareTo(a) >= 0 && r.date.compareTo(b) <= 0) r,
+  ];
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
 
-LocalWellness w(String date, double ctl, double atl, [double? ramp]) => LocalWellness(
-  date: date, ctl: ctl, atl: atl, ctlLoad: null, atlLoad: null,
-  rampRate: ramp, raw: const {}, syncedAt: DateTime(2026),
-);
+LocalWellness w(String date, double ctl, double atl, [double? ramp]) =>
+    LocalWellness(
+      date: date,
+      ctl: ctl,
+      atl: atl,
+      ctlLoad: null,
+      atlLoad: null,
+      rampRate: ramp,
+      raw: const {},
+      syncedAt: DateTime(2026),
+    );
 
 LocalActivity a(String date, int load) => LocalActivity(
-  id: '$date$load', date: date, type: 'Run', name: 'x', movingTime: 3600,
-  distance: null, trainingLoad: load, raw: const {}, syncedAt: DateTime(2026),
+  id: '$date$load',
+  date: date,
+  type: 'Run',
+  name: 'x',
+  movingTime: 3600,
+  distance: null,
+  trainingLoad: load,
+  raw: const {},
+  syncedAt: DateTime(2026),
 );
 
 void main() {
@@ -61,8 +79,14 @@ void main() {
     });
 
     test('load trend compares the last 7 days with the 7 before', () {
-      expect(loadTrend([...List.filled(7, 20.0), ...List.filled(7, 60.0)]), StatTrend.up);
-      expect(loadTrend([...List.filled(7, 60.0), ...List.filled(7, 20.0)]), StatTrend.down);
+      expect(
+        loadTrend([...List.filled(7, 20.0), ...List.filled(7, 60.0)]),
+        StatTrend.up,
+      );
+      expect(
+        loadTrend([...List.filled(7, 60.0), ...List.filled(7, 20.0)]),
+        StatTrend.down,
+      );
       expect(loadTrend(List.filled(5, 1.0)), isNull);
     });
 
@@ -82,7 +106,8 @@ void main() {
 
     final loader = TileSparkLoader(
       wellness: _Wellness([
-        for (var i = 13; i >= 0; i--) w(d(i), 50.0 + (13 - i), 60.0, 3.0 + (13 - i) * 0.5),
+        for (var i = 13; i >= 0; i--)
+          w(d(i), 50.0 + (13 - i), 60.0, 3.0 + (13 - i) * 0.5),
       ]),
       activities: _Activities([
         for (var i = 13; i >= 0; i--) a(d(i), i < 7 ? 80 : 30),
@@ -99,32 +124,61 @@ void main() {
   });
 
   group('StatTile', () {
-    Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: SizedBox(width: 190, child: child)));
+    Widget wrap(Widget child) => MaterialApp(
+      home: Scaffold(body: SizedBox(width: 190, child: child)),
+    );
 
     testWidgets('compact tile draws the sparkline and trend arrow', (t) async {
-      await t.pumpWidget(wrap(StatTile(
-        label: 'CTL', value: '62', icon: Icons.trending_up, compact: true,
-        sparkValues: const [50, 52, 55, 60, 62], trend: StatTrend.up,
-      )));
+      await t.pumpWidget(
+        wrap(
+          StatTile(
+            label: 'CTL',
+            value: '62',
+            icon: Icons.trending_up,
+            compact: true,
+            sparkValues: const [50, 52, 55, 60, 62],
+            trend: StatTrend.up,
+          ),
+        ),
+      );
       expect(find.byKey(const ValueKey('tile-spark')), findsOneWidget);
       expect(find.byKey(const ValueKey('tile-trend-up')), findsOneWidget);
       expect(t.takeException(), isNull);
     });
 
     testWidgets('no spark data or one point: nothing extra', (t) async {
-      await t.pumpWidget(wrap(const StatTile(label: 'CTL', value: '62', compact: true)));
+      await t.pumpWidget(
+        wrap(const StatTile(label: 'CTL', value: '62', compact: true)),
+      );
       expect(find.byKey(const ValueKey('tile-spark')), findsNothing);
-      await t.pumpWidget(wrap(const StatTile(
-        label: 'CTL', value: '62', compact: true, sparkValues: [1], trend: StatTrend.flat,
-      )));
+      await t.pumpWidget(
+        wrap(
+          const StatTile(
+            label: 'CTL',
+            value: '62',
+            compact: true,
+            sparkValues: [1],
+            trend: StatTrend.flat,
+          ),
+        ),
+      );
       expect(find.byKey(const ValueKey('tile-spark')), findsNothing);
     });
 
-    testWidgets('a flat series (all equal) still paints without error', (t) async {
-      await t.pumpWidget(wrap(const StatTile(
-        label: 'ATL', value: '40', compact: true,
-        sparkValues: [40, 40, 40, 40], trend: StatTrend.flat,
-      )));
+    testWidgets('a flat series (all equal) still paints without error', (
+      t,
+    ) async {
+      await t.pumpWidget(
+        wrap(
+          const StatTile(
+            label: 'ATL',
+            value: '40',
+            compact: true,
+            sparkValues: [40, 40, 40, 40],
+            trend: StatTrend.flat,
+          ),
+        ),
+      );
       expect(find.byKey(const ValueKey('tile-trend-flat')), findsOneWidget);
       expect(t.takeException(), isNull);
     });

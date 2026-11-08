@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'anomaly.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,82 +17,38 @@ part 'anomaly.g.dart';
 )
 class Anomaly {
   /// Returns a new [Anomaly] instance.
-  Anomaly({
+  Anomaly({this.startIndex, this.endIndex, this.value, this.valueEnd});
 
-     this.startIndex,
-
-     this.endIndex,
-
-     this.value,
-
-     this.valueEnd,
-  });
-
-  @JsonKey(
-    
-    name: r'start_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_index', required: false, includeIfNull: false)
   final int? startIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'end_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'end_index', required: false, includeIfNull: false)
   final int? endIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'value',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'value', required: false, includeIfNull: false)
   final int? value;
 
-
-
-  @JsonKey(
-    
-    name: r'valueEnd',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'valueEnd', required: false, includeIfNull: false)
   final int? valueEnd;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Anomaly &&
+          other.startIndex == startIndex &&
+          other.endIndex == endIndex &&
+          other.value == value &&
+          other.valueEnd == valueEnd;
 
+  @override
+  int get hashCode =>
+      startIndex.hashCode +
+      endIndex.hashCode +
+      value.hashCode +
+      valueEnd.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Anomaly &&
-      other.startIndex == startIndex &&
-      other.endIndex == endIndex &&
-      other.value == value &&
-      other.valueEnd == valueEnd;
-
-    @override
-    int get hashCode =>
-        startIndex.hashCode +
-        endIndex.hashCode +
-        value.hashCode +
-        valueEnd.hashCode;
-
-  factory Anomaly.fromJson(Map<String, dynamic> json) => _$AnomalyFromJson(json);
+  factory Anomaly.fromJson(Map<String, dynamic> json) =>
+      _$AnomalyFromJson(json);
 
   Map<String, dynamic> toJson() => _$AnomalyToJson(this);
 
@@ -101,6 +56,4 @@ class Anomaly {
   String toString() {
     return toJson().toString();
   }
-
 }
-

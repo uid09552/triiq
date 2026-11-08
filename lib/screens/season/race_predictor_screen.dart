@@ -10,10 +10,8 @@ import '../../season/season_timeline.dart';
 import '../../widgets/section_card.dart';
 import 'season_format.dart';
 
-typedef RaceInputsFn = Future<RaceInputs> Function({
-  DateTime? raceDay,
-  bool hot,
-});
+typedef RaceInputsFn =
+    Future<RaceInputs> Function({DateTime? raceDay, bool hot});
 
 String raceSpecLabel(AppLocalizations l10n, RaceSpec s) => switch (s.id) {
   'run5k' => l10n.raceSpec5k,
@@ -131,7 +129,10 @@ class _RacePredictorScreenState extends State<RacePredictorScreen> {
             decoration: InputDecoration(labelText: l10n.raceChoose),
             items: [
               for (final s in RaceSpec.presets)
-                DropdownMenuItem(value: s.id, child: Text(raceSpecLabel(l10n, s))),
+                DropdownMenuItem(
+                  value: s.id,
+                  child: Text(raceSpecLabel(l10n, s)),
+                ),
             ],
             onChanged: (id) {
               if (id == null) return;
@@ -173,7 +174,8 @@ class _RacePredictorScreenState extends State<RacePredictorScreen> {
             const Center(child: CircularProgressIndicator())
           else if (_error != null)
             Text(l10n.seasonLoadError('$_error'))
-          else if (p != null) ..._result(context, l10n, p),
+          else if (p != null)
+            ..._result(context, l10n, p),
         ],
       ),
     );
@@ -224,7 +226,9 @@ class _RacePredictorScreenState extends State<RacePredictorScreen> {
               if (p.slowdown > 1.0005) ...[
                 const SizedBox(height: 4),
                 Text(
-                  l10n.raceSlowdown(((p.slowdown - 1) * 100).toStringAsFixed(1)),
+                  l10n.raceSlowdown(
+                    ((p.slowdown - 1) * 100).toStringAsFixed(1),
+                  ),
                   style: theme.textTheme.bodySmall,
                 ),
               ],
@@ -342,8 +346,10 @@ class _LegRow extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(width: 90, child: Text(legLabel(l10n, leg.sport))),
-          Text(clock(leg.seconds),
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(
+            clock(leg.seconds),
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(detail, style: Theme.of(context).textTheme.bodySmall),
@@ -368,27 +374,37 @@ class _Fueling extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l10n.fuelNone),
-          Text(l10n.fuelPreRace(plan.preRaceCarbsG),
-              style: theme.textTheme.bodySmall),
+          Text(
+            l10n.fuelPreRace(plan.preRaceCarbsG),
+            style: theme.textTheme.bodySmall,
+          ),
         ],
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.fuelCarbsPerHour(plan.carbsPerHour),
-            key: const ValueKey('fuel-carbs'),
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(
+          l10n.fuelCarbsPerHour(plan.carbsPerHour),
+          key: const ValueKey('fuel-carbs'),
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         Text(l10n.fuelFluidPerHour(plan.fluidPerHour)),
         Text(l10n.fuelSodiumPerHour(plan.sodiumPerHour)),
         const SizedBox(height: 4),
         Text(l10n.fuelTotals(plan.totalCarbsG, plan.totalFluidMl)),
-        if (plan.dayBeforeCarbsG > 0) Text(l10n.fuelDayBefore(plan.dayBeforeCarbsG)),
+        if (plan.dayBeforeCarbsG > 0)
+          Text(l10n.fuelDayBefore(plan.dayBeforeCarbsG)),
         Text(l10n.fuelPreRace(plan.preRaceCarbsG)),
         const SizedBox(height: 8),
         for (final s in plan.steps.take(40))
           Text(
-            l10n.fuelStep(s.minute, legLabel(l10n, s.sport), s.carbsG, s.fluidMl),
+            l10n.fuelStep(
+              s.minute,
+              legLabel(l10n, s.sport),
+              s.carbsG,
+              s.fluidMl,
+            ),
             style: theme.textTheme.bodySmall,
           ),
       ],

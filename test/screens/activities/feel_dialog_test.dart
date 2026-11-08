@@ -113,8 +113,9 @@ void main() {
     );
   });
 
-  testWidgets('Save calls setFeel with the selected values and closes',
-      (tester) async {
+  testWidgets('Save calls setFeel with the selected values and closes', (
+    tester,
+  ) async {
     await open(tester);
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -122,26 +123,17 @@ void main() {
     // Fatigue defaults to 1; pick 2. Soreness defaults to 1; pick 4.
     final segmentedButtons = find.byType(SegmentedButton<int>);
     await tester.tap(
-      find.descendant(
-        of: segmentedButtons.at(0),
-        matching: find.text('2'),
-      ),
+      find.descendant(of: segmentedButtons.at(0), matching: find.text('2')),
     );
     await tester.pump();
     await tester.tap(
-      find.descendant(
-        of: segmentedButtons.at(1),
-        matching: find.text('4'),
-      ),
+      find.descendant(of: segmentedButtons.at(1), matching: find.text('4')),
     );
     await tester.pump();
 
     await tester.tap(find.text('Save'));
     await tester.pump(const Duration(seconds: 1));
-    await realWait(
-      tester,
-      until: () => requests.isNotEmpty,
-    );
+    await realWait(tester, until: () => requests.isNotEmpty);
     // The dialog closes after the request returns; give that a moment too.
     await realWait(tester, rounds: 25);
     await tester.pumpAndSettle();

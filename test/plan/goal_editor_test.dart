@@ -55,15 +55,18 @@ void main() {
     weeklyHours: 10,
   );
 
-  testWidgets('the session mix starts at the template; 95% blocks save',
-      (tester) async {
+  testWidgets('the session mix starts at the template; 95% blocks save', (
+    tester,
+  ) async {
     final popped = await open(tester, tri);
 
     expect(find.text('Z2: 30%'), findsOneWidget);
     expect(find.text('Long: 40%'), findsOneWidget);
     expect(find.text('Total 100%'), findsWidgets);
 
-    final z2 = tester.widget<Slider>(find.byKey(const ValueKey('goal-slot-z2')));
+    final z2 = tester.widget<Slider>(
+      find.byKey(const ValueKey('goal-slot-z2')),
+    );
     z2.onChanged!(25);
     await tester.pump();
     expect(find.byKey(const ValueKey('goal-slots-total')), findsOneWidget);
@@ -77,8 +80,7 @@ void main() {
     expect(popped(), isNull);
   });
 
-  testWidgets('the long ride and long run need different days',
-      (tester) async {
+  testWidgets('the long ride and long run need different days', (tester) async {
     final popped = await open(tester, tri);
 
     await tester.tap(find.byKey(const ValueKey('long-day-Ride-6')));
@@ -98,8 +100,9 @@ void main() {
     expect(goal.slotShares, isNull, reason: 'template mix left untouched');
   });
 
-  testWidgets('unticking a training day clears preferences on it',
-      (tester) async {
+  testWidgets('unticking a training day clears preferences on it', (
+    tester,
+  ) async {
     final popped = await open(
       tester,
       tri.copyWith(longDays: {'Ride': 6, 'Run': 7}, intervalDays: {2}),
@@ -123,10 +126,12 @@ void main() {
   testWidgets('max sessions per day is stored', (tester) async {
     final popped = await open(tester, tri);
 
-    await tester.tap(find.descendant(
-      of: find.byKey(const ValueKey('per-day')),
-      matching: find.text('1'),
-    ));
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('per-day')),
+        matching: find.text('1'),
+      ),
+    );
     await tester.pump();
     await save(tester);
 

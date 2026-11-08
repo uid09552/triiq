@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'agent/llm_settings.dart';
+import 'data/privacy_settings.dart';
 import 'evaluation/readiness_settings.dart';
 import 'app.dart';
 import 'data/feel_settings.dart';
@@ -56,6 +57,9 @@ void main() {
   unawaited(TodayLayoutSettings.instance.load());
   // Which signals count toward readiness.
   unawaited(ReadinessSettings.instance.load());
+  // AI consent and the map-tile choice (GDPR): the AI trainer stays off until
+  // the athlete has agreed.
+  unawaited(PrivacySettings.instance.load());
   // Whether a recent activity's detail screen auto-prompts for fatigue and
   // soreness — Settings and the activity detail screen listen and rebuild
   // once it resolves.
@@ -86,7 +90,10 @@ void _keepHomeWidgetFresh() {
   Timer? pending;
   void schedule() {
     pending?.cancel();
-    pending = Timer(const Duration(seconds: 2), () => unawaited(updater.update()));
+    pending = Timer(
+      const Duration(seconds: 2),
+      () => unawaited(updater.update()),
+    );
   }
 
   AutoSyncService.instance.addListener(schedule);
@@ -101,7 +108,10 @@ void _keepBriefingFresh() {
   Timer? pending;
   void schedule() {
     pending?.cancel();
-    pending = Timer(const Duration(seconds: 3), () => unawaited(scheduler.refresh()));
+    pending = Timer(
+      const Duration(seconds: 3),
+      () => unawaited(scheduler.refresh()),
+    );
   }
 
   AutoSyncService.instance.addListener(schedule);

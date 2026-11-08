@@ -18,12 +18,25 @@ import 'package:triiq/notifications/notification_service.dart';
 import 'package:triiq/notifications/notification_settings.dart';
 import 'package:triiq/season/illness_mode.dart';
 
-LocalEvent workout(String name, {int? load, int? secs, String category = 'WORKOUT'}) =>
-    LocalEvent(
-      id: name, date: '2026-05-20', category: category, type: 'Run', name: name,
-      description: null, plannedLoad: load, plannedTime: secs,
-      plannedDistance: null, indoor: false, raw: const {}, syncedAt: DateTime(2026),
-    );
+LocalEvent workout(
+  String name, {
+  int? load,
+  int? secs,
+  String category = 'WORKOUT',
+}) => LocalEvent(
+  id: name,
+  date: '2026-05-20',
+  category: category,
+  type: 'Run',
+  name: name,
+  description: null,
+  plannedLoad: load,
+  plannedTime: secs,
+  plannedDistance: null,
+  indoor: false,
+  raw: const {},
+  syncedAt: DateTime(2026),
+);
 
 Readiness readiness(ReadinessLevel l, ReadinessDataState s) =>
     Readiness(level: l, signals: const [], dataState: s);
@@ -84,9 +97,8 @@ class _Readiness implements ReadinessService {
 
 class _Fatigue implements FatigueWarningService {
   @override
-  Future<FatigueWarning> load() async => const FatigueWarning(
-    level: FatigueLevel.watch, signals: [], window: 5,
-  );
+  Future<FatigueWarning> load() async =>
+      const FatigueWarning(level: FatigueLevel.watch, signals: [], window: 5);
 
   @override
   dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
@@ -96,8 +108,14 @@ class _Wellness implements WellnessRepository {
   @override
   Future<List<LocalWellness>> getRange(String a, String b) async => [
     LocalWellness(
-      date: '2026-05-19', ctl: 62.4, atl: 57.0, ctlLoad: null, atlLoad: null,
-      rampRate: null, raw: const {}, syncedAt: DateTime(2026),
+      date: '2026-05-19',
+      ctl: 62.4,
+      atl: 57.0,
+      ctlLoad: null,
+      atlLoad: null,
+      rampRate: null,
+      raw: const {},
+      syncedAt: DateTime(2026),
     ),
   ];
 
@@ -116,14 +134,25 @@ void main() {
 
   test('nextDue is today when still ahead, else tomorrow', () {
     const t = TimeOfDay(hour: 7, minute: 0);
-    expect(MorningBriefingScheduler.nextDue(DateTime(2026, 5, 20, 6, 30), t), DateTime(2026, 5, 20, 7));
-    expect(MorningBriefingScheduler.nextDue(DateTime(2026, 5, 20, 7, 0), t), DateTime(2026, 5, 21, 7));
-    expect(MorningBriefingScheduler.nextDue(DateTime(2026, 5, 20, 21), t), DateTime(2026, 5, 21, 7));
+    expect(
+      MorningBriefingScheduler.nextDue(DateTime(2026, 5, 20, 6, 30), t),
+      DateTime(2026, 5, 20, 7),
+    );
+    expect(
+      MorningBriefingScheduler.nextDue(DateTime(2026, 5, 20, 7, 0), t),
+      DateTime(2026, 5, 21, 7),
+    );
+    expect(
+      MorningBriefingScheduler.nextDue(DateTime(2026, 5, 20, 21), t),
+      DateTime(2026, 5, 21, 7),
+    );
   });
 
   test('sessions, readiness, fatigue and form in English', () {
     final c = composeBriefing(
-      l10n: en, locale: 'en', day: day,
+      l10n: en,
+      locale: 'en',
+      day: day,
       planned: [
         workout('Easy run', load: 40, secs: 2700),
         workout('Strength', secs: 1800),
@@ -131,28 +160,52 @@ void main() {
         workout('Note', category: 'NOTE'),
       ],
       readiness: readiness(ReadinessLevel.caution, ReadinessDataState.complete),
-      fatigue: const FatigueWarning(level: FatigueLevel.warning, signals: [], window: 5),
-      ctl: 62.4, atl: 57.0,
+      fatigue: const FatigueWarning(
+        level: FatigueLevel.warning,
+        signals: [],
+        window: 5,
+      ),
+      ctl: 62.4,
+      atl: 57.0,
     );
     expect(c.title, contains('Wed'));
-    expect(c.body, contains('Easy run · 45 min · 40 TSS | Strength · 30 min | +1 more'));
+    expect(
+      c.body,
+      contains('Easy run · 45 min · 40 TSS | Strength · 30 min | +1 more'),
+    );
     expect(c.body, contains('Readiness: caution'));
     expect(c.body, contains('Fatigue: warning'));
     expect(c.body, contains('Form +5 · CTL 62'));
   });
 
-  test('no session, readiness not in yet and no fatigue leave those lines out', () {
-    final c = composeBriefing(
-      l10n: en, locale: 'en', day: day, planned: const [],
-      readiness: readiness(ReadinessLevel.ready, ReadinessDataState.waitingForToday),
-      fatigue: const FatigueWarning(level: FatigueLevel.none, signals: [], window: 5),
-    );
-    expect(c.body, 'No session planned today.');
-  });
+  test(
+    'no session, readiness not in yet and no fatigue leave those lines out',
+    () {
+      final c = composeBriefing(
+        l10n: en,
+        locale: 'en',
+        day: day,
+        planned: const [],
+        readiness: readiness(
+          ReadinessLevel.ready,
+          ReadinessDataState.waitingForToday,
+        ),
+        fatigue: const FatigueWarning(
+          level: FatigueLevel.none,
+          signals: [],
+          window: 5,
+        ),
+      );
+      expect(c.body, 'No session planned today.');
+    },
+  );
 
   test('German and an illness line', () {
     final c = composeBriefing(
-      l10n: de, locale: 'de', day: day, planned: [workout('Lauf', load: 40, secs: 3600)],
+      l10n: de,
+      locale: 'de',
+      day: day,
+      planned: [workout('Lauf', load: 40, secs: 3600)],
       health: HealthKind.sick,
     );
     expect(c.title, startsWith('Heute'));
@@ -175,7 +228,13 @@ void main() {
           settings: settings,
           notifications: notifications,
           planned: _Planned([workout('Easy run', load: 40, secs: 2700)]),
-          readiness: _Readiness(r ?? readiness(ReadinessLevel.ready, ReadinessDataState.waitingForToday)),
+          readiness: _Readiness(
+            r ??
+                readiness(
+                  ReadinessLevel.ready,
+                  ReadinessDataState.waitingForToday,
+                ),
+          ),
           fatigue: _Fatigue(),
           wellness: _Wellness(),
           clock: () => now,
@@ -197,20 +256,26 @@ void main() {
       expect(notifications.at, DateTime(2026, 5, 20, 7));
       expect(notifications.body, contains('Easy run'));
       expect(notifications.body, contains('Fatigue: building'));
-      expect(notifications.body, isNot(contains('Readiness'))); // watch not in yet
+      expect(
+        notifications.body,
+        isNot(contains('Readiness')),
+      ); // watch not in yet
     });
 
-    test('after the time it targets tomorrow and omits today-only readiness', () async {
-      await settings.load();
-      await settings.setEnabled(true);
-      await settings.setMorningBriefingEnabled(true);
-      await scheduler(
-        DateTime(2026, 5, 20, 9),
-        r: readiness(ReadinessLevel.ready, ReadinessDataState.complete),
-      ).refresh();
-      expect(notifications.at, DateTime(2026, 5, 21, 7));
-      expect(notifications.body, isNot(contains('Readiness')));
-    });
+    test(
+      'after the time it targets tomorrow and omits today-only readiness',
+      () async {
+        await settings.load();
+        await settings.setEnabled(true);
+        await settings.setMorningBriefingEnabled(true);
+        await scheduler(
+          DateTime(2026, 5, 20, 9),
+          r: readiness(ReadinessLevel.ready, ReadinessDataState.complete),
+        ).refresh();
+        expect(notifications.at, DateTime(2026, 5, 21, 7));
+        expect(notifications.body, isNot(contains('Readiness')));
+      },
+    );
 
     test('readiness appears when today is due and the data is in', () async {
       await settings.load();

@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'zone_time.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,50 +17,24 @@ part 'zone_time.g.dart';
 )
 class ZoneTime {
   /// Returns a new [ZoneTime] instance.
-  ZoneTime({
+  ZoneTime({this.id, this.secs});
 
-     this.id,
-
-     this.secs,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'secs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'secs', required: false, includeIfNull: false)
   final int? secs;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ZoneTime && other.id == id && other.secs == secs;
 
+  @override
+  int get hashCode => id.hashCode + secs.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ZoneTime &&
-      other.id == id &&
-      other.secs == secs;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        secs.hashCode;
-
-  factory ZoneTime.fromJson(Map<String, dynamic> json) => _$ZoneTimeFromJson(json);
+  factory ZoneTime.fromJson(Map<String, dynamic> json) =>
+      _$ZoneTimeFromJson(json);
 
   Map<String, dynamic> toJson() => _$ZoneTimeToJson(this);
 
@@ -69,6 +42,4 @@ class ZoneTime {
   String toString() {
     return toJson().toString();
   }
-
 }
-

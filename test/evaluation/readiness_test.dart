@@ -296,10 +296,22 @@ void main() {
         level: ReadinessLevel.caution,
         dataState: ReadinessDataState.complete,
         signals: [
-          ReadinessSignal(kind: ReadinessSignalKind.hrv, rating: SignalRating.ok),
-          ReadinessSignal(kind: ReadinessSignalKind.restingHr, rating: SignalRating.caution),
-          ReadinessSignal(kind: ReadinessSignalKind.sleep, rating: SignalRating.backOff),
-          ReadinessSignal(kind: ReadinessSignalKind.form, rating: SignalRating.noBaseline),
+          ReadinessSignal(
+            kind: ReadinessSignalKind.hrv,
+            rating: SignalRating.ok,
+          ),
+          ReadinessSignal(
+            kind: ReadinessSignalKind.restingHr,
+            rating: SignalRating.caution,
+          ),
+          ReadinessSignal(
+            kind: ReadinessSignalKind.sleep,
+            rating: SignalRating.backOff,
+          ),
+          ReadinessSignal(
+            kind: ReadinessSignalKind.form,
+            rating: SignalRating.noBaseline,
+          ),
         ],
       );
       expect(readinessScore(r), 65); // (100 + 65 + 30) / 3

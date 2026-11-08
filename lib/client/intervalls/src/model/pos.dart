@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'pos.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,64 +17,27 @@ part 'pos.g.dart';
 )
 class Pos {
   /// Returns a new [Pos] instance.
-  Pos({
+  Pos({this.id, this.width, this.height});
 
-     this.id,
-
-     this.width,
-
-     this.height,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'width',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'width', required: false, includeIfNull: false)
   final String? width;
 
-
-
-  @JsonKey(
-    
-    name: r'height',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'height', required: false, includeIfNull: false)
   final String? height;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Pos &&
+          other.id == id &&
+          other.width == width &&
+          other.height == height;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Pos &&
-      other.id == id &&
-      other.width == width &&
-      other.height == height;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        width.hashCode +
-        height.hashCode;
+  @override
+  int get hashCode => id.hashCode + width.hashCode + height.hashCode;
 
   factory Pos.fromJson(Map<String, dynamic> json) => _$PosFromJson(json);
 
@@ -85,6 +47,4 @@ class Pos {
   String toString() {
     return toJson().toString();
   }
-
 }
-

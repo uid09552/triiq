@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'duplicate_events_dto.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,66 +17,31 @@ part 'duplicate_events_dto.g.dart';
 )
 class DuplicateEventsDTO {
   /// Returns a new [DuplicateEventsDTO] instance.
-  DuplicateEventsDTO({
+  DuplicateEventsDTO({this.numCopies, this.weeksBetween, this.eventIds});
 
-     this.numCopies,
-
-     this.weeksBetween,
-
-     this.eventIds,
-  });
-
-  @JsonKey(
-    
-    name: r'numCopies',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'numCopies', required: false, includeIfNull: false)
   final int? numCopies;
 
-
-
-  @JsonKey(
-    
-    name: r'weeksBetween',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'weeksBetween', required: false, includeIfNull: false)
   final int? weeksBetween;
 
-
-
-  @JsonKey(
-    
-    name: r'eventIds',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'eventIds', required: false, includeIfNull: false)
   final List<int>? eventIds;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DuplicateEventsDTO &&
+          other.numCopies == numCopies &&
+          other.weeksBetween == weeksBetween &&
+          other.eventIds == eventIds;
 
+  @override
+  int get hashCode =>
+      numCopies.hashCode + weeksBetween.hashCode + eventIds.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DuplicateEventsDTO &&
-      other.numCopies == numCopies &&
-      other.weeksBetween == weeksBetween &&
-      other.eventIds == eventIds;
-
-    @override
-    int get hashCode =>
-        numCopies.hashCode +
-        weeksBetween.hashCode +
-        eventIds.hashCode;
-
-  factory DuplicateEventsDTO.fromJson(Map<String, dynamic> json) => _$DuplicateEventsDTOFromJson(json);
+  factory DuplicateEventsDTO.fromJson(Map<String, dynamic> json) =>
+      _$DuplicateEventsDTOFromJson(json);
 
   Map<String, dynamic> toJson() => _$DuplicateEventsDTOToJson(this);
 
@@ -85,6 +49,4 @@ class DuplicateEventsDTO {
   String toString() {
     return toJson().toString();
   }
-
 }
-

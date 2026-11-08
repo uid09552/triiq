@@ -87,7 +87,11 @@ Let me know if you want it easier.
 
     test('a swim whose distances use "m" is rewritten to mtr (was ~19 h)', () {
       final draft = parseWorkoutDraft(
-        reply('Swim', '- 300m Warm up, easy\n4x\n  - 50m Catch-up drill\n- 200m Cool down', 30),
+        reply(
+          'Swim',
+          '- 300m Warm up, easy\n4x\n  - 50m Catch-up drill\n- 200m Cool down',
+          30,
+        ),
         date: DateTime(2026, 11, 5),
         fallbackSport: 'Swim',
         fallbackName: 'x',
@@ -102,13 +106,17 @@ Let me know if you want it easier.
       const swim = '- 10m 75%\n4x\n  - 3m 98%\n  - 1m 70%\n- 5m 72%';
       final a = parseWorkoutDraft(
         reply('Swim', swim, 31),
-        date: DateTime(2026, 11, 5), fallbackSport: 'Swim', fallbackName: 'x',
+        date: DateTime(2026, 11, 5),
+        fallbackSport: 'Swim',
+        fallbackName: 'x',
       )!;
       expect(a.description, swim);
       const ride = '- 300m 60%';
       final b = parseWorkoutDraft(
         reply('Ride', ride, 300),
-        date: DateTime(2026, 11, 5), fallbackSport: 'Ride', fallbackName: 'x',
+        date: DateTime(2026, 11, 5),
+        fallbackSport: 'Ride',
+        fallbackName: 'x',
       )!;
       expect(b.description, ride);
     });

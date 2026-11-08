@@ -15,10 +15,13 @@ void main() {
 - 200m Cool down, easy''';
 
   group('estimateStepMinutes', () {
-    test('reads "m" as minutes, like Intervals.icu, with repeats multiplied', () {
-      // 300 + 4*(50+50) + 2*(100+50) + 200 = 1200 minutes = 20 h.
-      expect(estimateStepMinutes(metresAsM), 1200);
-    });
+    test(
+      'reads "m" as minutes, like Intervals.icu, with repeats multiplied',
+      () {
+        // 300 + 4*(50+50) + 2*(100+50) + 200 = 1200 minutes = 20 h.
+        expect(estimateStepMinutes(metresAsM), 1200);
+      },
+    );
 
     test('a normal minute-based swim adds up', () {
       const text = '''
@@ -77,7 +80,10 @@ void main() {
 
     test('without a duration it converts only on a 3-digit "m" step', () {
       expect(fixSwimDistanceUnits('- 300m easy'), '- 300mtr easy');
-      expect(fixSwimDistanceUnits('- 10m 75%\n- 5m 70%'), '- 10m 75%\n- 5m 70%');
+      expect(
+        fixSwimDistanceUnits('- 10m 75%\n- 5m 70%'),
+        '- 10m 75%\n- 5m 70%',
+      );
     });
   });
 }

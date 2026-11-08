@@ -28,22 +28,73 @@ class TodayLayoutSettings extends ChangeNotifier {
 
   static const _orderKey = 'today.section_order';
   static const _hiddenKey = 'today.hidden_sections';
+  static const _collapsedKey = 'today.collapsed_sections';
 
-  List<TodaySection> _order = List.of(TodaySection.values);
-  final Set<TodaySection> _hidden = {};
+  /// The lean layout for new installs and "Reset layout": what to do today
+  /// first, then the load tiles. The rest is one switch away in Customize
+  /// Today.
+  static const defaultOrder = [
+    TodaySection.readiness,
+    TodaySection.todaysTraining,
+    TodaySection.adjustments,
+    TodaySection.metrics,
+    TodaySection.activities,
+    TodaySection.weeklyTargets,
+    TodaySection.yearGoals,
+    TodaySection.thresholds,
+    TodaySection.tomorrowsTraining,
+    TodaySection.athlete,
+  ];
+  static const defaultHidden = {
+    TodaySection.weeklyTargets,
+    TodaySection.yearGoals,
+    TodaySection.thresholds,
+    TodaySection.tomorrowsTraining,
+    TodaySection.athlete,
+  };
+
+  List<TodaySection> _order = List.of(defaultOrder);
+  final Set<TodaySection> _hidden = {...defaultHidden};
+  final Set<TodaySection> _collapsed = {};
 
   /// Every section, in display order (hidden ones included).
   List<TodaySection> get order => List.unmodifiable(_order);
 
   bool isVisible(TodaySection section) => !_hidden.contains(section);
 
+  /// Whether the athlete folded [section] to its header.
+  bool isCollapsed(TodaySection section) => _collapsed.contains(section);
+
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _order = _normalize(prefs.getStringList(_orderKey));
-      _hidden
+      final stored = prefs.getStringList(_orderKey);
+      if (stored != null) {
+        _order = _normalize(stored);
+        _hidden
+          ..clear()
+          ..addAll(_parse(prefs.getStringList(_hiddenKey)));
+      } else if (prefs.getKeys().any(
+        (k) => !k.startsWith('today.') && !k.startsWith('onboarding.'),
+      )) {
+        // An existing install that never customized Today: keep the layout
+        // it has always shown (every section, original order) rather than
+        // hiding sections the athlete is used to.
+        _order = List.of(TodaySection.values);
+        _hidden.clear();
+        await _persist();
+      } else {
+        _order = List.of(defaultOrder);
+        _hidden
+          ..clear()
+          ..addAll(defaultHidden);
+        // Saved right away, so settings chosen later (onboarding, targets)
+        // don't make the next start look like an older install.
+        await _persist();
+      }
+      _collapsed
         ..clear()
-        ..addAll(_parse(prefs.getStringList(_hiddenKey)));
+        ..addAll(_parse(prefs.getStringList(_collapsedKey)));
     } catch (error) {
       debugPrint('TodayLayoutSettings: cannot read stored layout: $error');
     }
@@ -66,9 +117,19 @@ class TodayLayoutSettings extends ChangeNotifier {
     await _persist();
   }
 
+  Future<void> setCollapsed(TodaySection section, bool collapsed) async {
+    if (collapsed == isCollapsed(section)) return;
+    collapsed ? _collapsed.add(section) : _collapsed.remove(section);
+    notifyListeners();
+    await _persist();
+  }
+
   Future<void> reset() async {
-    _order = List.of(TodaySection.values);
-    _hidden.clear();
+    _order = List.of(defaultOrder);
+    _hidden
+      ..clear()
+      ..addAll(defaultHidden);
+    _collapsed.clear();
     notifyListeners();
     await _persist();
   }
@@ -78,6 +139,9 @@ class TodayLayoutSettings extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_orderKey, [for (final s in _order) s.name]);
       await prefs.setStringList(_hiddenKey, [for (final s in _hidden) s.name]);
+      await prefs.setStringList(_collapsedKey, [
+        for (final s in _collapsed) s.name,
+      ]);
     } catch (error) {
       debugPrint('TodayLayoutSettings: cannot persist layout: $error');
     }
@@ -92,7 +156,7 @@ class TodayLayoutSettings extends ChangeNotifier {
   }
 
   /// Stored order first, then any section added by a later app version.
-  static List<TodaySection> _normalize(List<String>? names) {
+  static List<TodaySection> _normalize(List<String> names) {
     final result = _parse(names).toSet().toList();
     for (final s in TodaySection.values) {
       if (!result.contains(s)) result.add(s);

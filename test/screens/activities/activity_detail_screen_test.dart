@@ -51,9 +51,11 @@ void main() {
         onRequest: (options, handler) {
           requests.add(options);
           handler.resolve(
-            Response(requestOptions: options, statusCode: 200, data: {
-              'id': options.path.split('/').last,
-            }),
+            Response(
+              requestOptions: options,
+              statusCode: 200,
+              data: {'id': options.path.split('/').last},
+            ),
           );
         },
       ),
@@ -144,11 +146,19 @@ void main() {
     }
   }
 
-  testWidgets('manual action works on an old activity, connected',
-      (tester) async {
+  /// Opens the app bar's overflow menu, where the feel action lives.
+  Future<void> openMenu(WidgetTester tester) async {
+    await tester.tap(find.byKey(const ValueKey('activity-menu')));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('manual action works on an old activity, connected', (
+    tester,
+  ) async {
     final old = isoDate(DateTime.now().subtract(const Duration(days: 30)));
     await open(tester, activityOn(old));
 
+    await openMenu(tester);
     expect(find.byKey(const ValueKey('feel-action')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('feel-action')));
     await tester.pumpAndSettle();
@@ -172,10 +182,11 @@ void main() {
     final old = isoDate(DateTime.now().subtract(const Duration(days: 30)));
     await open(tester, activityOn(old), connected: false);
 
-    final button = tester.widget<FilledButton>(
+    await openMenu(tester);
+    final item = tester.widget<PopupMenuItem<Object?>>(
       find.byKey(const ValueKey('feel-action')),
     );
-    expect(button.onPressed, isNull);
+    expect(item.enabled, isFalse);
   });
 
   testWidgets(
@@ -197,8 +208,7 @@ void main() {
     },
   );
 
-  testWidgets('no auto-prompt when the day already has values',
-      (tester) async {
+  testWidgets('no auto-prompt when the day already has values', (tester) async {
     final today = isoDate(DateTime.now());
     await tester.runAsync(
       () => wellness.upsertAll([
@@ -228,11 +238,13 @@ void main() {
 
     expect(find.text('How did it feel?'), findsNothing);
     // The manual action still works regardless.
+    await openMenu(tester);
     expect(find.byKey(const ValueKey('feel-action')), findsOneWidget);
   });
 
-  testWidgets('no auto-prompt for an activity older than yesterday',
-      (tester) async {
+  testWidgets('no auto-prompt for an activity older than yesterday', (
+    tester,
+  ) async {
     final old = isoDate(DateTime.now().subtract(const Duration(days: 5)));
 
     await open(tester, activityOn(old, id: 'new4'));

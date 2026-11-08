@@ -166,7 +166,8 @@ class BackgroundSyncRunner {
     // Tell the athlete the first time only; a key that stays revoked would
     // otherwise produce the same notification every night.
     final alreadyTold =
-        settings.backgroundLastResult == BackgroundSyncOutcome.authRejected.name;
+        settings.backgroundLastResult ==
+        BackgroundSyncOutcome.authRejected.name;
     final outcome = await _record(
       BackgroundSyncOutcome.authRejected,
       failed: true,

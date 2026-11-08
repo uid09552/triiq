@@ -18,7 +18,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navChat => 'Chat';
 
   @override
-  String get navStatistics => 'Statistik';
+  String get navStatistics => 'Einblicke';
 
   @override
   String get navMore => 'Mehr';
@@ -627,20 +627,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get moreSyncSubtitle => 'Trainingsdaten von Intervals.icu abrufen';
 
   @override
-  String get moreActivitiesSubtitle => 'Alle zwischengespeicherten Aktivitäten';
-
-  @override
   String get trainingPlansTitle => 'Trainingspläne';
 
   @override
   String get moreKnowledgeSubtitle =>
       'Deine eigenen Trainingsunterlagen, die der Assistent durchsuchen kann';
-
-  @override
-  String get gearTitle => 'Ausrüstung';
-
-  @override
-  String get comingSoon => 'Demnächst verfügbar';
 
   @override
   String get knowledgeLibraryTitle => 'Wissensbibliothek';
@@ -762,15 +753,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noActivitiesCachedConnected =>
-      'Noch keine Aktivitäten zwischengespeichert — versuche Synchronisierung unter Mehr.';
-
-  @override
-  String get noActivitiesCachedDisconnected =>
-      'Verbinde dein Intervals.icu-Konto, um deine Aktivitäten zu sehen.';
+      'Noch keine Aktivitäten gespeichert.';
 
   @override
   String noActivitiesOfType(String sport) {
-    return 'Keine $sport-Aktivitäten gespeichert — synchronisiere unter Mehr.';
+    return 'Keine $sport-Aktivitäten gespeichert.';
   }
 
   @override
@@ -1052,19 +1039,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deleteTooltip => 'Löschen';
-
-  @override
-  String get deletePlannedWorkoutTitle => 'Diese Einheit löschen?';
-
-  @override
-  String deletePlannedWorkoutConfirm(String name) {
-    return '„$name“ wird aus deinem Intervals.icu-Kalender entfernt. Das lässt sich nicht rückgängig machen.';
-  }
-
-  @override
-  String workoutDeleted(String name) {
-    return '„$name“ wurde aus deinem Intervals.icu-Kalender gelöscht.';
-  }
 
   @override
   String couldNotDeleteWorkout(String error) {
@@ -1622,11 +1596,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Diese Aktivität hat keine Zeitreihen (zum Beispiel ein manueller Eintrag).';
 
   @override
-  String sessionDiagramError(String error) {
-    return 'Zeitreihen konnten nicht geladen werden: $error';
-  }
-
-  @override
   String get sessionIntervalsTitle => 'Intervalle';
 
   @override
@@ -1749,10 +1718,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get weeklyReviewTitle => 'Wochenrückblick';
-
-  @override
-  String get moreReviewSubtitle =>
-      'Plan gegen Erledigt, 80/20 und Belastungstrend pro Woche';
 
   @override
   String weeklyReviewTopic(String date) {
@@ -1980,7 +1945,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein Fortschrittsring pro Sportart mit festgelegtem Ziel.';
 
   @override
-  String get performanceTitle => 'Leistung';
+  String get performanceTitle => 'Leistungskurven';
 
   @override
   String get performanceSubtitle =>
@@ -2045,11 +2010,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get curvesEmpty =>
       'Noch keine Bestleistungen für diese Sportart und Messgröße.';
-
-  @override
-  String curvesLoadFailed(String error) {
-    return 'Kurven konnten nicht geladen werden: $error';
-  }
 
   @override
   String get keyEffortsTitle => 'Wichtige Bestwerte';
@@ -2578,7 +2538,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get yearGoalsHelp =>
-      'Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Sync für ein vollständiges Bild.';
+      'Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Daten & Datenschutz → Synchronisierung für ein vollständiges Bild.';
 
   @override
   String yearGoalKmLabel(String sport) {
@@ -2614,10 +2574,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get todaySectionYearGoals => 'Jahresziele';
 
   @override
-  String get analysisTitle => 'Analyse';
-
-  @override
-  String get moreAnalysisSubtitle => 'Kennzahlen im Vergleich';
+  String get analysisTitle => 'Metrik-Explorer';
 
   @override
   String get analysisFilters => 'Filter';
@@ -3915,11 +3872,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'In den gefundenen Einheiten wird keines dieser Niveaus erreicht.';
 
   @override
-  String durError(String error) {
-    return 'Einheiten konnten nicht gelesen werden: $error';
-  }
-
-  @override
   String get wtTitle => 'Wellness-Trends';
 
   @override
@@ -4121,13 +4073,587 @@ class AppLocalizationsDe extends AppLocalizations {
   String get beNoData => 'Keine Leistungen im letzten Jahr aufgezeichnet.';
 
   @override
-  String beError(String error) {
-    return 'Leistungen konnten nicht geladen werden: $error';
-  }
-
-  @override
   String get heroTitleCaution => 'Mit Bedacht trainieren';
 
   @override
   String get heroTitleBackOff => 'Heute etwas kürzertreten';
+
+  @override
+  String get pvTitle => 'Datenschutz & Daten';
+
+  @override
+  String get pvSubtitle =>
+      'Was TriIQ speichert, wer es sieht und deine Optionen';
+
+  @override
+  String get pvIntro =>
+      'TriIQ hat kein Konto, keinen Server und kein Tracking. Deine Daten bleiben auf diesem Gerät und gehen nur an Dienste, die du selbst verbindest.';
+
+  @override
+  String get pvDataTitle => 'Was verarbeitet wird';
+
+  @override
+  String get pvDataBody =>
+      '• Aktivitäten und Strecken (GPS-Tracks) von Intervals.icu\n• Gesundheits- und Wellnessdaten: Herzfrequenz, HRV, Ruhepuls, Schlaf, Gewicht und dein Befinden. Das sind Gesundheitsdaten, eine besondere Kategorie nach der DSGVO.\n• Dein Profil: Name, Bild, Schwellenwerte, Ziele und Pläne\n• API-Schlüssel der Dienste, die du verbindest';
+
+  @override
+  String get pvStoredTitle => 'Wo es gespeichert wird';
+
+  @override
+  String get pvStoredBody =>
+      'Nur auf diesem Gerät: einer lokalen Datenbank und den App-Einstellungen. API-Schlüssel liegen im sicheren Speicher des Betriebssystems. Das Android-Cloud-Backup ist für die App abgeschaltet. TriIQ hat keinen Server und erhält keine deiner Daten.';
+
+  @override
+  String get pvRecipientsTitle => 'Wer Daten erhält';
+
+  @override
+  String get pvRecipientsBody =>
+      '• Intervals.icu: Deine Trainingsdaten werden mit deinem Konto synchronisiert, mit deinem API-Schlüssel.\n• Dein KI-Anbieter (Claude von Anthropic, Ollama Cloud oder dein eigener Ollama-Server): nur wenn du es unten erlaubt hast und den KI-Trainer, „Jetzt trainieren“, die Wochennotiz oder KI-geschriebene Planinhalte nutzt. Gesendet werden das Gespräch und die dafür nötigen Trainings- und Gesundheitsdaten.\n• OpenStreetMap-Kartenserver: nur wenn eine Streckenkarte angezeigt wird. Sie sehen deine IP-Adresse und den Kartenausschnitt.\nSonst nichts: keine Analyse, keine Absturzberichte, keine Werbung.';
+
+  @override
+  String get pvTransferTitle => 'Übermittlung außerhalb der EU/des EWR';
+
+  @override
+  String get pvTransferBody =>
+      'Einige dieser Dienste verarbeiten Daten möglicherweise außerhalb der EU/des EWR (zum Beispiel ein KI-Anbieter in den USA). Für das, was sie erhalten, gelten ihre eigenen Datenschutzbestimmungen. Ein selbst betriebener Ollama-Server im eigenen Netz hält die Daten bei dir.';
+
+  @override
+  String get pvBasisTitle => 'Rechtsgrundlage';
+
+  @override
+  String get pvBasisBody =>
+      'Die Synchronisierung mit Intervals.icu erfolgt, weil du dein Konto verbunden hast. Gesundheits- und Trainingsdaten gehen nur mit deiner ausdrücklichen Einwilligung (DSGVO Art. 6 Abs. 1 lit. a und Art. 9 Abs. 2 lit. a) an einen KI-Anbieter; du kannst sie jederzeit unten widerrufen. Kartenkacheln werden nur geladen, um die geöffnete Karte zu zeigen; das kannst du abschalten.';
+
+  @override
+  String get pvRetentionTitle => 'Wie lange';
+
+  @override
+  String get pvRetentionBody =>
+      'Bis du es löschst: Die Daten bleiben auf deinem Gerät, bis du sie hier löschst, ein Backup darüber einspielst oder die App deinstallierst. Daten, die bereits an Intervals.icu oder einen KI-Anbieter gingen, werden dort nach deren Regeln aufbewahrt.';
+
+  @override
+  String get pvRightsTitle => 'Deine Rechte';
+
+  @override
+  String get pvRightsBody =>
+      '• Auskunft und Übertragbarkeit: Einstellungen → Daten & Datenschutz → Datensicherung exportiert alles hier Gespeicherte als eine Datei.\n• Berichtigung: Korrigiere deine Daten in Intervals.icu; die nächste Synchronisierung aktualisiert dieses Gerät.\n• Löschung: Nutze unten „Alle Daten löschen“. Um deine Daten bei Intervals.icu oder einem KI-Anbieter zu entfernen, nutze deren Kontofunktionen.\n• Einwilligung widerrufen oder widersprechen: Schalte die KI unten aus oder trenne Intervals.icu im Profil.\n• Beschwerde: Du kannst dich bei deiner Datenschutzbehörde beschweren.';
+
+  @override
+  String get pvControlsTitle => 'Deine Optionen';
+
+  @override
+  String get pvAiConsentTitle => 'Meine Daten an den KI-Anbieter senden';
+
+  @override
+  String get pvAiConsentHelp =>
+      'Erlaubt, Trainings- und Gesundheitsdaten an deinen KI-Anbieter zu senden, wenn du den KI-Trainer nutzt. Aus: Die KI-Funktionen bleiben nicht verfügbar.';
+
+  @override
+  String pvAiConsentSince(String date) {
+    return 'Erlaubt am $date';
+  }
+
+  @override
+  String get pvMapTilesTitle => 'Kartenkacheln von OpenStreetMap laden';
+
+  @override
+  String get pvMapTilesHelp =>
+      'Streckenkarten brauchen Kacheln von OpenStreetMap, das deine IP-Adresse und den Ausschnitt sieht. Aus: Strecken werden ohne Karte gezeichnet.';
+
+  @override
+  String get pvEraseTitle => 'Alle Daten auf diesem Gerät löschen';
+
+  @override
+  String get pvEraseHelp =>
+      'Entfernt Aktivitäten, Wellness, Pläne, Einstellungen, gespeicherte Schlüssel und die Offline-Warteschlange von diesem Gerät und trennt Intervals.icu. Bei Intervals.icu oder deinem KI-Anbieter wird nichts gelöscht.';
+
+  @override
+  String get pvEraseButton => 'Alle Daten löschen …';
+
+  @override
+  String get pvEraseConfirmTitle => 'Alle Daten löschen?';
+
+  @override
+  String get pvEraseConfirmBody =>
+      'Alles, was TriIQ auf diesem Gerät speichert, wird entfernt und die App getrennt. Exportiere vorher ein Backup, wenn du es behalten möchtest. Das lässt sich nicht rückgängig machen.';
+
+  @override
+  String get pvEraseConfirm => 'Alles löschen';
+
+  @override
+  String get pvEraseDone => 'Alle Daten auf diesem Gerät wurden gelöscht.';
+
+  @override
+  String pvEraseFailed(String error) {
+    return 'Es konnte nicht alles gelöscht werden: $error';
+  }
+
+  @override
+  String get pvOpenWeb => 'Vollständige Datenschutzerklärung lesen';
+
+  @override
+  String get pvContact =>
+      'Fragen oder Anliegen: Eröffne ein Issue auf github.com/uid09552/triiq.';
+
+  @override
+  String get pvConsentDialogTitle => 'KI-Verarbeitung erlauben?';
+
+  @override
+  String pvConsentDialogBody(String provider) {
+    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. $provider verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Datenschutz & Daten widerrufen.';
+  }
+
+  @override
+  String get pvConsentAllow => 'Erlauben';
+
+  @override
+  String get pvConsentNotNow => 'Nicht jetzt';
+
+  @override
+  String get pvConsentCardTitle => 'Der KI-Trainer braucht deine Einwilligung';
+
+  @override
+  String pvConsentCardBody(String provider) {
+    return 'Wähle, ob deine Trainings- und Gesundheitsdaten an $provider gesendet werden dürfen.';
+  }
+
+  @override
+  String get pvProviderClaude => 'Claude (Anthropic)';
+
+  @override
+  String get pvProviderOllamaCloud => 'Ollama Cloud';
+
+  @override
+  String get pvProviderOllamaServer => 'deinem Ollama-Server';
+
+  @override
+  String get syncStatusNow => 'Gerade synchronisiert';
+
+  @override
+  String syncStatusMinutes(int minutes) {
+    return 'Vor $minutes Min synchronisiert';
+  }
+
+  @override
+  String syncStatusHours(int hours) {
+    return 'Vor $hours Std synchronisiert';
+  }
+
+  @override
+  String syncStatusDays(int days) {
+    return 'Vor $days T synchronisiert';
+  }
+
+  @override
+  String get syncStatusNever => 'Noch nicht synchronisiert';
+
+  @override
+  String get syncStatusNotConnected => 'Nicht verbunden';
+
+  @override
+  String syncStatusWaiting(int count) {
+    return '$count warten auf Versand';
+  }
+
+  @override
+  String syncStatusFailed(int count) {
+    return '$count nicht gesendet';
+  }
+
+  @override
+  String get syncStatusTooltip => 'Synchronisierung öffnen';
+
+  @override
+  String get undoButton => 'Rückgängig';
+
+  @override
+  String workoutRestored(String name) {
+    return '„$name“ wiederhergestellt';
+  }
+
+  @override
+  String replaceUndone(String name) {
+    return 'Zurück zu „$name“';
+  }
+
+  @override
+  String couldNotUndo(String error) {
+    return 'Rückgängig nicht möglich: $error';
+  }
+
+  @override
+  String workoutReplacedUndoable(String name) {
+    return '$name ersetzt die Einheit';
+  }
+
+  @override
+  String workoutDeletedUndoable(String name) {
+    return '„$name“ gelöscht';
+  }
+
+  @override
+  String get moreGroupPlan => 'Planung';
+
+  @override
+  String get moreGroupTrainer => 'Trainer';
+
+  @override
+  String get moreGroupData => 'Daten';
+
+  @override
+  String get exNoIntervals => 'Keine Intervalle in dieser Einheit.';
+
+  @override
+  String get actTabOverview => 'Übersicht';
+
+  @override
+  String get actTabCharts => 'Diagramme';
+
+  @override
+  String get actTabIntervals => 'Intervalle';
+
+  @override
+  String get actTabMap => 'Karte';
+
+  @override
+  String get actMoreActions => 'Weitere Aktionen';
+
+  @override
+  String get actSearchHint => 'Nach Name suchen';
+
+  @override
+  String get actSearch => 'Suchen';
+
+  @override
+  String get actFilterTitle => 'Filtern und sortieren';
+
+  @override
+  String get actFilterSport => 'Sportart';
+
+  @override
+  String get actAllSports => 'Alle';
+
+  @override
+  String get actFilterDate => 'Zeitraum';
+
+  @override
+  String get actThisWeek => 'Diese Woche';
+
+  @override
+  String get actThisMonth => 'Dieser Monat';
+
+  @override
+  String get actLast3Months => 'Letzte 3 Monate';
+
+  @override
+  String get actCustomRange => 'Eigener …';
+
+  @override
+  String get actFilterDistance => 'Distanz (km)';
+
+  @override
+  String get actFilterDuration => 'Dauer (min)';
+
+  @override
+  String get actHasPower => 'Mit Leistung';
+
+  @override
+  String get actHasGps => 'Mit GPS';
+
+  @override
+  String get actSortBy => 'Sortieren nach';
+
+  @override
+  String get actSortDate => 'Datum';
+
+  @override
+  String get actSortDistance => 'Distanz';
+
+  @override
+  String get actSortDuration => 'Dauer';
+
+  @override
+  String get actSortLoad => 'Belastung (TSS)';
+
+  @override
+  String actResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktivitäten',
+      one: '1 Aktivität',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get actClearFilters => 'Alle löschen';
+
+  @override
+  String get actNoMatch => 'Keine Aktivität passt zu diesen Filtern.';
+
+  @override
+  String get actAny => 'Beliebig';
+
+  @override
+  String get setGroupTraining => 'Training';
+
+  @override
+  String get setGroupTrainingSub => 'Wochenziele, Jahresziele, Befinden';
+
+  @override
+  String get setGroupAi => 'KI-Trainer';
+
+  @override
+  String get setGroupAiSub => 'Anbieter, Modell, KI-Einwilligung';
+
+  @override
+  String get setGroupData => 'Daten & Datenschutz';
+
+  @override
+  String get setGroupDataSub =>
+      'Synchronisierung, Kalender, Sicherung, Datenschutz';
+
+  @override
+  String get setGroupApp => 'App';
+
+  @override
+  String get setGroupAppSub => 'Erscheinungsbild, Sprache, Benachrichtigungen';
+
+  @override
+  String get setSearchHint => 'Einstellungen durchsuchen';
+
+  @override
+  String setNoResults(String query) {
+    return 'Keine Einstellung passt zu „$query“.';
+  }
+
+  @override
+  String get obSkipSetup => 'Einrichtung überspringen';
+
+  @override
+  String get obSkipStep => 'Schritt überspringen';
+
+  @override
+  String get obNext => 'Weiter';
+
+  @override
+  String get obBack => 'Zurück';
+
+  @override
+  String get obWelcomeTitle => 'Willkommen bei TriIQ';
+
+  @override
+  String get obWelcomeBody =>
+      'Dein Trainingsbegleiter für Schwimmen, Rad und Laufen: jeden Morgen deine Bereitschaft, Belastung und Form auf einen Blick, Pläne, die sich anpassen, und ein KI-Trainer, der deine Daten kennt.';
+
+  @override
+  String get obWelcomePrivacy =>
+      'Deine Daten bleiben auf diesem Gerät. TriIQ liest sie aus Intervals.icu und sendet sie nur mit deiner Zustimmung an einen KI-Anbieter.';
+
+  @override
+  String get obGetStarted => 'Los geht\'s';
+
+  @override
+  String get obConnectTitle => 'Intervals.icu verbinden';
+
+  @override
+  String get obConnectBody =>
+      'TriIQ liest Aktivitäten, Wellness und Kalender aus Intervals.icu. Füge deinen API-Schlüssel ein, um dich zu verbinden.';
+
+  @override
+  String get obWhereKey => 'Wo finde ich ihn?';
+
+  @override
+  String get obConnect => 'Prüfen und verbinden';
+
+  @override
+  String obConnected(String name) {
+    return 'Verbunden als $name';
+  }
+
+  @override
+  String get obSyncing => 'Dieser Monat wird synchronisiert …';
+
+  @override
+  String obSynced(int count) {
+    return 'Dieser Monat ist synchronisiert: $count Aktivitäten.';
+  }
+
+  @override
+  String get obSyncFailed =>
+      'Verbunden, aber die erste Synchronisierung ist fehlgeschlagen. Sie wird im Hintergrund wiederholt.';
+
+  @override
+  String get obTrainingTitle => 'Dein Training';
+
+  @override
+  String get obTrainingBody =>
+      'Welche Sportarten machst du, und wie viele Stunden pro Woche? „Heute“ zeigt deinen Fortschritt als Ringe.';
+
+  @override
+  String obHoursPerWeek(String sport) {
+    return '$sport: Stunden pro Woche';
+  }
+
+  @override
+  String get obSwim => 'Schwimmen';
+
+  @override
+  String get obRide => 'Rad';
+
+  @override
+  String get obRun => 'Laufen';
+
+  @override
+  String get obAiTitle => 'KI-Trainer (optional)';
+
+  @override
+  String get obAiBody =>
+      'Sprich mit einem Trainer, der deine Daten kennt, und lass ihn Pläne schreiben. Wähle einen Anbieter oder überspringe: Du kannst ihn später in den Einstellungen einrichten.';
+
+  @override
+  String get obAiNone => 'Jetzt nicht';
+
+  @override
+  String get obOllamaServer => 'Ollama-Server';
+
+  @override
+  String get obAiSave => 'Speichern und weiter';
+
+  @override
+  String get obDoneTitle => 'Alles bereit';
+
+  @override
+  String get obDoneBody =>
+      '„Heute“ zeigt deine Bereitschaft, das heutige Training und deine Belastung. Alles, was du gewählt hast, lässt sich in den Einstellungen ändern.';
+
+  @override
+  String get obOpenToday => 'Heute öffnen';
+
+  @override
+  String obStep(int n, int total) {
+    return 'Schritt $n von $total';
+  }
+
+  @override
+  String get smOfflineTitle => 'Du bist offline';
+
+  @override
+  String get smOfflineReason =>
+      'Angezeigt wird, was auf diesem Gerät gespeichert ist. Versuch es erneut, sobald du online bist.';
+
+  @override
+  String get smRefusedTitle => 'Intervals.icu hat die Anfrage abgelehnt';
+
+  @override
+  String get smRefusedReason => 'Prüfe deinen API-Schlüssel im Profil.';
+
+  @override
+  String get smNotConnectedTitle => 'Nicht verbunden';
+
+  @override
+  String get smNotConnectedReason =>
+      'Verbinde Intervals.icu im Profil, um das zu laden.';
+
+  @override
+  String get smServerTitle => 'Intervals.icu hat gerade Probleme';
+
+  @override
+  String get smServerReason => 'Versuch es in ein paar Minuten erneut.';
+
+  @override
+  String get smRateTitle => 'Zu viele Anfragen';
+
+  @override
+  String get smRateReason =>
+      'Intervals.icu bittet um eine Pause. Warte eine Minute und versuch es dann erneut.';
+
+  @override
+  String get smLocalTitle =>
+      'Die Daten auf diesem Gerät konnten nicht gelesen werden';
+
+  @override
+  String get smLocalReason =>
+      'Versuch es erneut. Wenn es weiter fehlschlägt, baut eine Synchronisierung sie neu auf.';
+
+  @override
+  String get smGenericTitle => 'Etwas ist schiefgelaufen';
+
+  @override
+  String get smGenericReason => 'Versuch es erneut.';
+
+  @override
+  String get smDetails => 'Details';
+
+  @override
+  String get smOpenProfile => 'Profil öffnen';
+
+  @override
+  String get smOpenSync => 'Synchronisierung öffnen';
+
+  @override
+  String get smNeedHistory =>
+      'Dafür braucht es synchronisierte Aktivitäten aus Intervals.icu. Synchronisiere mehr Verlauf, um das zu füllen.';
+
+  @override
+  String get wtNoDataReason =>
+      'Wellness-Daten kommen von deiner Uhr oder App über Intervals.icu (HRV, Ruhepuls, Schlaf, Gewicht). Synchronisiere oder wähle einen längeren Zeitraum.';
+
+  @override
+  String get sessionDiagramNoDataTitle => 'Keine Zeitreihe';
+
+  @override
+  String a11yChartSeries(String series, String value, String change) {
+    return '$series: zuletzt $value, $change im Zeitraum';
+  }
+
+  @override
+  String a11yChartSelected(String label, String values) {
+    return 'Ausgewählt $label: $values';
+  }
+
+  @override
+  String get a11yChartNoData => 'Diagramm, keine Daten';
+
+  @override
+  String a11yBarChart(
+    int count,
+    String label,
+    String value,
+    String maxLabel,
+    String max,
+  ) {
+    return 'Balkendiagramm, $count Balken. Zuletzt $label: $value. Höchster $maxLabel: $max.';
+  }
+
+  @override
+  String a11yReadinessScore(int score) {
+    return 'Bereitschaft $score von 100';
+  }
+
+  @override
+  String get a11yReadinessNoScore => 'Bereitschaft, noch kein Wert';
+
+  @override
+  String get a11ySignalOk => 'in Ordnung';
+
+  @override
+  String get a11ySignalCaution => 'Vorsicht';
+
+  @override
+  String get a11ySignalBackOff => 'zurückfahren';
+
+  @override
+  String get a11ySignalNone => 'ohne Bewertung';
+
+  @override
+  String a11yHeatmap(int days, int tss, int streak) {
+    return 'Belastungs-Heatmap: $days Tage mit Training, insgesamt $tss TSS, längste Serie $streak Tage.';
+  }
+
+  @override
+  String a11yStreamChart(String series) {
+    return 'Zeitreihen-Diagramm: $series';
+  }
 }

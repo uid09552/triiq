@@ -33,7 +33,9 @@ void main() {
     home: Scaffold(body: w),
   );
 
-  testWidgets('hidden when empty, shows and reacts when changes wait', (t) async {
+  testWidgets('hidden when empty, shows and reacts when changes wait', (
+    t,
+  ) async {
     final s = _Service();
     await t.pumpWidget(wrap(PendingChangesCard(service: s)));
     expect(find.byKey(const ValueKey('pending-card')), findsNothing);

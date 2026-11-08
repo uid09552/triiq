@@ -27,7 +27,10 @@ void main() {
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call.method);
       if (failing.contains(call.method)) {
-        throw PlatformException(code: 'Exception', message: 'vault unavailable');
+        throw PlatformException(
+          code: 'Exception',
+          message: 'vault unavailable',
+        );
       }
       final args = (call.arguments as Map).cast<String, dynamic>();
       switch (call.method) {
@@ -72,16 +75,18 @@ void main() {
     expect(await SecureKeyStore('test_key').read(), isNull);
   });
 
-  test('reports an unreadable vault as no value, and clears the entry',
-      () async {
-    vault['test_key'] = 's3cret';
-    failing.add('read');
+  test(
+    'reports an unreadable vault as no value, and clears the entry',
+    () async {
+      vault['test_key'] = 's3cret';
+      failing.add('read');
 
-    expect(await SecureKeyStore('test_key').read(), isNull);
-    // Cleared, so the next launch does not hit the same bad entry again.
-    expect(calls, contains('delete'));
-    expect(vault, isEmpty);
-  });
+      expect(await SecureKeyStore('test_key').read(), isNull);
+      // Cleared, so the next launch does not hit the same bad entry again.
+      expect(calls, contains('delete'));
+      expect(vault, isEmpty);
+    },
+  );
 
   test('a vault that refuses to store does not break the caller', () async {
     failing.add('write');

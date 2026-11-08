@@ -54,18 +54,21 @@ void main() {
   late List<(DateTime, DateTime)> refreshes;
 
   Future<TrainingPlan> savedPlan() async {
-    final plan = PlanEngine(
-      TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
-    ).generate(
-      goal: const Goal(
-        targetType: 'long_distance',
-        weekdays: {1, 2, 4, 6},
-        weeklyHours: 12,
-      ),
-      startDate: DateTime(2026, 8, 31),
-      recentWeeklyLoads: const [300, 300, 300, 300],
-      today: DateTime(2026, 8, 26),
-    ).plan!;
+    final plan =
+        PlanEngine(
+              TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
+            )
+            .generate(
+              goal: const Goal(
+                targetType: 'long_distance',
+                weekdays: {1, 2, 4, 6},
+                weeklyHours: 12,
+              ),
+              startDate: DateTime(2026, 8, 31),
+              recentWeeklyLoads: const [300, 300, 300, 300],
+              today: DateTime(2026, 8, 26),
+            )
+            .plan!;
     return repo.save(plan);
   }
 
@@ -155,17 +158,20 @@ void main() {
     expect(remaining, isNotEmpty);
   });
 
-  test('a session already deleted upstream does not stop the removal', () async {
-    final plan = await savedPlan();
-    await writer.write(plan);
-    final written = (await repo.getById(plan.id!))!;
-    workouts.missingUpstream.add(written.sessions.last.intervalsEventId!);
+  test(
+    'a session already deleted upstream does not stop the removal',
+    () async {
+      final plan = await savedPlan();
+      await writer.write(plan);
+      final written = (await repo.getById(plan.id!))!;
+      workouts.missingUpstream.add(written.sessions.last.intervalsEventId!);
 
-    final removed = await writer.removeFrom(written, written.startDate);
+      final removed = await writer.removeFrom(written, written.startDate);
 
-    expect(removed, written.sessions.length - 1);
-    expect((await repo.getById(plan.id!))!.sessions, isEmpty);
-  });
+      expect(removed, written.sessions.length - 1);
+      expect((await repo.getById(plan.id!))!.sessions, isEmpty);
+    },
+  );
 
   test('a failed re-sync does not undo a successful write', () async {
     final plan = await savedPlan();

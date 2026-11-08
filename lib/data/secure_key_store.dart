@@ -84,7 +84,9 @@ class _VaultKeyStore implements SecureKeyStore {
       final value = await _storage.read(key: _name);
       return (value == null || value.isEmpty) ? null : value;
     } catch (error) {
-      debugPrint('SecureKeyStore: cannot read "$_name" from the OS vault: $error');
+      debugPrint(
+        'SecureKeyStore: cannot read "$_name" from the OS vault: $error',
+      );
       // Clear the entry so the next launch starts clean rather than hitting
       // the same unreadable value again.
       await delete();
@@ -97,7 +99,9 @@ class _VaultKeyStore implements SecureKeyStore {
     try {
       await _storage.write(key: _name, value: value);
     } catch (error) {
-      debugPrint('SecureKeyStore: cannot store "$_name" in the OS vault: $error');
+      debugPrint(
+        'SecureKeyStore: cannot store "$_name" in the OS vault: $error',
+      );
     }
   }
 
@@ -106,7 +110,9 @@ class _VaultKeyStore implements SecureKeyStore {
     try {
       await _storage.delete(key: _name);
     } catch (error) {
-      debugPrint('SecureKeyStore: cannot delete "$_name" from the OS vault: $error');
+      debugPrint(
+        'SecureKeyStore: cannot delete "$_name" from the OS vault: $error',
+      );
     }
   }
 }

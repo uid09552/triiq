@@ -13,7 +13,9 @@ import '../../util/dates.dart';
 import '../../widgets/main_navigation.dart';
 import '../../widgets/markdown_reply.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 import '../activities/session_analysis.dart';
+import '../../widgets/status_message.dart';
 
 /// A week against its plan: per-day planned and done, compliance, the 80/20
 /// split, load against recent weeks and the fitness change — all from the
@@ -43,7 +45,7 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
   late final _settings = widget.settings ?? LlmSettings.instance;
   late DateTime _week = startOfWeek(widget.initialWeek ?? DateTime.now());
   WeeklyReview? _review;
-  String? _error;
+  Object? _error;
   String _note = '';
   bool _noteBusy = false;
   StreamSubscription<AgentEvent>? _noteSub;
@@ -74,7 +76,7 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
       setState(() => _review = review);
       if (_settings.isConfigured) _askNote(review);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = error);
     }
   }
 
@@ -202,11 +204,14 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
             ],
           ),
           if (_error != null)
-            Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+            StatusMessage.error(error: _error!, onRetry: _load),
           if (r == null && _error == null)
-            const Padding(
-              padding: EdgeInsets.all(32),
-              child: Center(child: CircularProgressIndicator()),
+            const Column(
+              children: [
+                SkeletonCard(height: 90, lines: 2),
+                SizedBox(height: 16),
+                SkeletonCard(height: 90, lines: 2),
+              ],
             ),
           if (r != null) ...[
             SectionCard(

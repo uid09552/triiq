@@ -12,6 +12,7 @@ import '../../notifications/app_lifecycle_tracker.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../widgets/markdown_reply.dart';
+import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
 import 'proposal_card.dart';
 
@@ -57,6 +58,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool get _isBusy => _subscription != null;
 
+  /// The reply being streamed, so a withdrawn consent can end it.
+  _ChatMessage? _streaming;
+
+  /// Sending is off while a provider is set up but not consented to.
+  bool get _canSend => !_isBusy && !_settings.needsConsent;
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +86,13 @@ class _ChatScreenState extends State<ChatScreen> {
   /// builds a fresh chat model. The transcript stays — it's the athlete's.
   void _onSettingsChanged() {
     _agent = null;
+    // Consent withdrawn mid-reply: stop it now rather than let the provider
+    // keep receiving tool results.
+    final streaming = _streaming;
+    if (_isBusy && streaming != null && _settings.needsConsent && mounted) {
+      _finish(streaming, error: const AiConsentRequiredException());
+      return;
+    }
     if (mounted) setState(() {});
   }
 
@@ -130,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _send() {
     final text = _controller.text.trim();
-    if (text.isEmpty || _isBusy) return;
+    if (text.isEmpty || !_canSend) return;
 
     final reply = _ChatMessage(fromUser: false);
     setState(() {
@@ -144,6 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final agent = _agent ??= TrainingAgent();
     agent.attachedContext = _topic?.context;
+    _streaming = reply;
     try {
       _subscription = agent
           .send(text)
@@ -183,6 +198,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _finish(_ChatMessage reply, {Object? error}) {
     _subscription?.cancel();
     _subscription = null;
+    _streaming = null;
     setState(() {
       _activity = null;
       if (error != null) {
@@ -221,7 +237,8 @@ class _ChatScreenState extends State<ChatScreen> {
         'get_training_guidance' => l10n.chatToolGuidance,
         'sync_from_intervals' => l10n.chatToolSyncing,
         'get_training_plan' => l10n.chatToolPlanRead,
-        'propose_load_curve' || 'propose_session_change' ||
+        'propose_load_curve' ||
+        'propose_session_change' ||
         'generate_training_plan' => l10n.chatToolProposing,
         _ => l10n.toolRunningGeneric(name),
       };
@@ -263,15 +280,15 @@ class _ChatScreenState extends State<ChatScreen> {
           child: _messages.isEmpty
               ? _EmptyState(
                   configured: _settings.isConfigured,
+                  needsConsent: _settings.needsConsent,
                   onSuggestion: _sendText,
                 )
               : ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(16),
                   itemCount: _messages.length,
-                  itemBuilder: (context, index) => _MessageWithProposals(
-                    message: _messages[index],
-                  ),
+                  itemBuilder: (context, index) =>
+                      _MessageWithProposals(message: _messages[index]),
                 ),
         ),
         if (_activity != null) _ActivityLine(label: _activity!),
@@ -300,8 +317,9 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 Expanded(
                   child: TextField(
+                    key: const ValueKey('chat-input'),
                     controller: _controller,
-                    enabled: !_isBusy,
+                    enabled: _canSend,
                     decoration: InputDecoration(
                       hintText: l10n.messageAgentHint,
                       border: InputBorder.none,
@@ -311,7 +329,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton.filled(
-                  onPressed: _isBusy ? null : _send,
+                  key: const ValueKey('chat-send'),
+                  onPressed: _canSend ? _send : null,
                   icon: const Icon(Icons.send_rounded),
                 ),
               ],
@@ -324,9 +343,16 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.configured, required this.onSuggestion});
+  const _EmptyState({
+    required this.configured,
+    required this.onSuggestion,
+    this.needsConsent = false,
+  });
 
   final bool configured;
+
+  /// A provider is set up but the athlete hasn't agreed to data being sent.
+  final bool needsConsent;
 
   /// Tapping a starter question sends it, so a blank screen isn't the first
   /// thing an athlete has to think of a question for.
@@ -361,19 +387,23 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              configured
-                  ? l10n.askAboutTraining
-                  : l10n.pickLlmProviderToChat,
+              configured ? l10n.askAboutTraining : l10n.pickLlmProviderToChat,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
-            if (!configured) ...[
+            if (needsConsent) ...[
+              const SizedBox(height: 16),
+              const AiConsentCard(),
+            ] else if (!configured) ...[
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const SettingsGroupScreen(group: SettingsGroup.ai),
+                  ),
                 ),
                 child: Text(l10n.openSettingsButton),
               ),

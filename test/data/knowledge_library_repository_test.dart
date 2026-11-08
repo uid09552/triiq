@@ -101,15 +101,18 @@ void main() {
       expect(docs.single.enabled, isTrue);
     });
 
-    test('a file with no heading is stored as one section named after it', () async {
-      final result = await repo.import(
-        fileName: 'taper-notes.txt',
-        bytes: bytesOf('Just plain notes about tapering.'),
-      );
+    test(
+      'a file with no heading is stored as one section named after it',
+      () async {
+        final result = await repo.import(
+          fileName: 'taper-notes.txt',
+          bytes: bytesOf('Just plain notes about tapering.'),
+        );
 
-      expect(result.document.title, 'taper-notes');
-      expect(result.document.sectionCount, 1);
-    });
+        expect(result.document.title, 'taper-notes');
+        expect(result.document.sectionCount, 1);
+      },
+    );
 
     test('an okf-template block is stripped and counted', () async {
       final result = await repo.import(
@@ -131,14 +134,17 @@ Some prose.
       expect(sections.single.section.body, isNot(contains('okf-template')));
     });
 
-    test('rejects a file over the size cap, leaving the library unchanged', () async {
-      final big = List.filled(KnowledgeLibraryRepository.maxBytes + 1, 97);
-      await expectLater(
-        () => repo.import(fileName: 'big.md', bytes: big),
-        throwsA(isA<KnowledgeRejectedImport>()),
-      );
-      expect(await repo.list(), isEmpty);
-    });
+    test(
+      'rejects a file over the size cap, leaving the library unchanged',
+      () async {
+        final big = List.filled(KnowledgeLibraryRepository.maxBytes + 1, 97);
+        await expectLater(
+          () => repo.import(fileName: 'big.md', bytes: big),
+          throwsA(isA<KnowledgeRejectedImport>()),
+        );
+        expect(await repo.list(), isEmpty);
+      },
+    );
 
     test('rejects invalid UTF-8', () async {
       await expectLater(
@@ -156,15 +162,19 @@ Some prose.
       expect(await repo.list(), isEmpty);
     });
 
-    test('re-importing the same file name without a choice is rejected', () async {
-      await repo.import(fileName: 'notes.md', bytes: bytesOf('# A\n\nBody.'));
+    test(
+      're-importing the same file name without a choice is rejected',
+      () async {
+        await repo.import(fileName: 'notes.md', bytes: bytesOf('# A\n\nBody.'));
 
-      await expectLater(
-        () => repo.import(fileName: 'notes.md', bytes: bytesOf('# B\n\nBody.')),
-        throwsA(isA<KnowledgeRejectedImport>()),
-      );
-      expect(await repo.list(), hasLength(1));
-    });
+        await expectLater(
+          () =>
+              repo.import(fileName: 'notes.md', bytes: bytesOf('# B\n\nBody.')),
+          throwsA(isA<KnowledgeRejectedImport>()),
+        );
+        expect(await repo.list(), hasLength(1));
+      },
+    );
 
     test('replace swaps the document out', () async {
       await repo.import(fileName: 'notes.md', bytes: bytesOf('# A\n\nBody.'));

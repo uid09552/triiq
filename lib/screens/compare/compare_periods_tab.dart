@@ -9,8 +9,10 @@ import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
 import 'compare_route_map.dart' show compareColorA, compareColorB;
 import 'compare_table.dart';
+import '../../widgets/status_message.dart';
 
 enum _Cumulative { distance, load, time }
 
@@ -48,18 +50,31 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
     _load();
   }
 
+  Object? _error;
+
   Future<void> _load() async {
-    setState(() => _loading = true);
-    final pair = BlockPair(end: _end, days: _days);
-    final rows = await widget.activities.getRange(
-      isoDate(pair.previousStart),
-      isoDate(pair.currentEnd),
-    );
-    if (!mounted) return;
     setState(() {
-      _activities = rows;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    final pair = BlockPair(end: _end, days: _days);
+    try {
+      final rows = await widget.activities.getRange(
+        isoDate(pair.previousStart),
+        isoDate(pair.currentEnd),
+      );
+      if (!mounted) return;
+      setState(() {
+        _activities = rows;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   void _openOptions(BuildContext context, AppLocalizations l10n) {
@@ -183,14 +198,20 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
         ),
         const SizedBox(height: 8),
         if (_loading)
-          const Padding(
-            padding: EdgeInsets.all(48),
-            child: Center(child: CircularProgressIndicator()),
+          const Column(
+            children: [
+              SkeletonCard(height: 160, lines: 4),
+              SizedBox(height: 16),
+              SkeletonCard(height: 180),
+            ],
           )
+        else if (_error != null)
+          StatusMessage.error(error: _error!, onRetry: _load)
         else if (previous.isEmpty && current.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(l10n.cmpNoBlockActivities, textAlign: TextAlign.center),
+          StatusMessage.needsSync(
+            context,
+            title: l10n.cmpNoBlockActivities,
+            icon: Icons.compare_arrows,
           )
         else ...[
           SectionCard(
@@ -242,6 +263,7 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
                       ChartSeries(
                         label: l10n.cmpThisBlock,
                         color: compareColorB,
+                        dashed: true,
                         values: cumCur,
                         average: false,
                       ),
@@ -267,6 +289,7 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
                     ChartSeries(
                       label: l10n.cmpThisBlock,
                       color: compareColorB,
+                      dashed: true,
                       values: const [],
                     ),
                   ],

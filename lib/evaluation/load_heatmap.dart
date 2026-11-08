@@ -95,7 +95,11 @@ LoadHeatmap buildLoadHeatmap(
         a.date.compareTo(isoDate(end)) > 0) {
       continue;
     }
-    tss.update(a.date, (v) => v + (a.trainingLoad ?? 0), ifAbsent: () => a.trainingLoad ?? 0);
+    tss.update(
+      a.date,
+      (v) => v + (a.trainingLoad ?? 0),
+      ifAbsent: () => a.trainingLoad ?? 0,
+    );
     sessions.update(a.date, (v) => v + 1, ifAbsent: () => 1);
   }
 
@@ -105,7 +109,11 @@ LoadHeatmap buildLoadHeatmap(
     weeks.add([
       for (var i = 0; i < 7; i++)
         () {
-          final d = DateTime(weekStart.year, weekStart.month, weekStart.day + i);
+          final d = DateTime(
+            weekStart.year,
+            weekStart.month,
+            weekStart.day + i,
+          );
           final inRange = !d.isBefore(start) && !d.isAfter(end);
           final key = isoDate(d);
           return HeatmapDay(
@@ -124,7 +132,8 @@ LoadHeatmap buildLoadHeatmap(
       for (final d in w)
         if (d.inRange) d,
   ];
-  final loaded = days.where((d) => d.tss > 0).map((d) => d.tss).toList()..sort();
+  final loaded = days.where((d) => d.tss > 0).map((d) => d.tss).toList()
+    ..sort();
   final reference = loaded.isEmpty
       ? 1
       : math.max(1, loaded[((loaded.length - 1) * 0.9).round()]);

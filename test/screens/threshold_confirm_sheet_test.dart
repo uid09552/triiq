@@ -95,7 +95,9 @@ void main() {
     return result;
   }
 
-  testWidgets('shows current and new value, and the zone table', (tester) async {
+  testWidgets('shows current and new value, and the zone table', (
+    tester,
+  ) async {
     final service = _FakeSportSettingsService();
     await openSheet(tester, service: service);
 
@@ -130,8 +132,9 @@ void main() {
     expect(service.applyCalls.single.$2, isTrue);
   });
 
-  testWidgets('a failed apply shows the error and keeps the sheet open',
-      (tester) async {
+  testWidgets('a failed apply shows the error and keeps the sheet open', (
+    tester,
+  ) async {
     final service = _FakeSportSettingsService(applyError: StateError('boom'));
     await openSheet(tester, service: service);
 
@@ -142,7 +145,9 @@ void main() {
     expect(find.text('Updated'), findsNothing);
   });
 
-  testWidgets('undo after a successful apply calls the service', (tester) async {
+  testWidgets('undo after a successful apply calls the service', (
+    tester,
+  ) async {
     final service = _FakeSportSettingsService();
     final result = await openSheet(tester, service: service);
     await tester.tap(find.text('Apply'));
@@ -157,9 +162,7 @@ void main() {
   });
 
   testWidgets('a failed undo shows an error via snackbar', (tester) async {
-    final service = _FakeSportSettingsService(
-      undoError: StateError('network'),
-    );
+    final service = _FakeSportSettingsService(undoError: StateError('network'));
     await openSheet(tester, service: service);
     await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();

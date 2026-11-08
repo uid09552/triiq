@@ -94,27 +94,21 @@ extension $ActivityPowerCurveCopyWith on ActivityPowerCurve {
 // **************************************************************************
 
 ActivityPowerCurve _$ActivityPowerCurveFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      'ActivityPowerCurve',
-      json,
-      ($checkedConvert) {
-        final val = ActivityPowerCurve(
-          id: $checkedConvert('id', (v) => v as String?),
-          startDateLocal: $checkedConvert(
-            'start_date_local',
-            (v) => v as String?,
-          ),
-          weight: $checkedConvert('weight', (v) => (v as num?)?.toDouble()),
-          watts: $checkedConvert(
-            'watts',
-            (v) =>
-                (v as List<dynamic>?)?.map((e) => (e as num).toInt()).toList(),
-          ),
-        );
-        return val;
-      },
-      fieldKeyMap: const {'startDateLocal': 'start_date_local'},
-    );
+    $checkedCreate('ActivityPowerCurve', json, ($checkedConvert) {
+      final val = ActivityPowerCurve(
+        id: $checkedConvert('id', (v) => v as String?),
+        startDateLocal: $checkedConvert(
+          'start_date_local',
+          (v) => v as String?,
+        ),
+        weight: $checkedConvert('weight', (v) => (v as num?)?.toDouble()),
+        watts: $checkedConvert(
+          'watts',
+          (v) => (v as List<dynamic>?)?.map((e) => (e as num).toInt()).toList(),
+        ),
+      );
+      return val;
+    }, fieldKeyMap: const {'startDateLocal': 'start_date_local'});
 
 Map<String, dynamic> _$ActivityPowerCurveToJson(ActivityPowerCurve instance) =>
     <String, dynamic>{

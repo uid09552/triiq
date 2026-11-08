@@ -85,24 +85,31 @@ void main() {
     return data is String ? data : data.toString();
   }
 
-  test('a swim written in metres is sent as mtr, not as hundreds of minutes',
-      () async {
-    final body = await sentDescription(
-      PlannedWorkoutDraft(
-        name: 'Swim', sport: 'Swim', date: DateTime(2026, 11, 8),
-        durationSeconds: 30 * 60,
-        description: '- 300m Warm up\n4x\n  - 50m drill\n  - 50m easy\n- 200m Cool down',
-      ),
-    );
-    expect(body, contains('300mtr'));
-    expect(body, contains('200mtr'));
-    expect(body, isNot(contains('300m ')));
-  });
+  test(
+    'a swim written in metres is sent as mtr, not as hundreds of minutes',
+    () async {
+      final body = await sentDescription(
+        PlannedWorkoutDraft(
+          name: 'Swim',
+          sport: 'Swim',
+          date: DateTime(2026, 11, 8),
+          durationSeconds: 30 * 60,
+          description:
+              '- 300m Warm up\n4x\n  - 50m drill\n  - 50m easy\n- 200m Cool down',
+        ),
+      );
+      expect(body, contains('300mtr'));
+      expect(body, contains('200mtr'));
+      expect(body, isNot(contains('300m ')));
+    },
+  );
 
   test('a minute-based swim and a ride are sent unchanged', () async {
     final swim = await sentDescription(
       PlannedWorkoutDraft(
-        name: 'Swim', sport: 'Swim', date: DateTime(2026, 11, 8),
+        name: 'Swim',
+        sport: 'Swim',
+        date: DateTime(2026, 11, 8),
         durationSeconds: 31 * 60,
         description: '- 10m 75%\n4x\n  - 3m 98%\n  - 1m 70%\n- 5m 72%',
       ),
@@ -111,8 +118,11 @@ void main() {
     expect(swim, isNot(contains('mtr')));
     final ride = await sentDescription(
       PlannedWorkoutDraft(
-        name: 'Ride', sport: 'Ride', date: DateTime(2026, 11, 8),
-        durationSeconds: 60 * 60, description: '- 300m 60%',
+        name: 'Ride',
+        sport: 'Ride',
+        date: DateTime(2026, 11, 8),
+        durationSeconds: 60 * 60,
+        description: '- 300m 60%',
       ),
     );
     expect(ride, contains('300m 60%'));

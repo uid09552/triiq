@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/privacy_settings.dart';
 import '../data/secure_key_store.dart';
 
 /// Which LLM backend the agent talks to.
@@ -27,14 +28,22 @@ enum LlmProvider {
 /// or an unreachable Ollama server surfaces as an error on the first chat
 /// message instead.
 class LlmSettings extends ChangeNotifier {
-  LlmSettings._();
+  LlmSettings._({this.requireConsent = true}) {
+    // A change of the AI consent changes whether the trainer is available.
+    if (requireConsent) PrivacySettings.instance.addListener(notifyListeners);
+  }
 
   static final LlmSettings instance = LlmSettings._();
 
   /// A standalone instance for tests, backed by whatever
-  /// `SharedPreferences.setMockInitialValues` provides.
+  /// `SharedPreferences.setMockInitialValues` provides. It does not ask for
+  /// the athlete's AI consent, which belongs to the app.
   @visibleForTesting
-  factory LlmSettings.forTesting() = LlmSettings._;
+  factory LlmSettings.forTesting() => LlmSettings._(requireConsent: false);
+
+  /// Whether sending data to the provider needs the athlete's consent
+  /// ([PrivacySettings.aiConsent]) first. Always, in the app.
+  final bool requireConsent;
 
   static const _providerKey = 'llm.provider';
   static const _claudeModelKey = 'llm.claude_model';
@@ -117,11 +126,32 @@ class LlmSettings extends ChangeNotifier {
   /// Whether the agent has enough to run. A local/self-hosted Ollama server
   /// needs no credential, only a URL (which always has a default); Ollama
   /// Cloud needs a key, same as Claude.
-  bool get isConfigured => switch (_provider) {
+  bool get isConfigured =>
+      hasProvider && (!requireConsent || PrivacySettings.instance.aiConsent);
+
+  /// A provider is set up (key or server), whether or not the athlete has
+  /// consented to data being sent to it yet.
+  bool get hasProvider => switch (_provider) {
     LlmProvider.claude => hasClaudeApiKey,
     LlmProvider.ollama =>
       _ollamaBaseUrl.trim().isNotEmpty && (!isOllamaCloud || hasOllamaApiKey),
   };
+
+  /// A provider is set up but data may not be sent to it yet.
+  bool get needsConsent =>
+      requireConsent && hasProvider && !PrivacySettings.instance.aiConsent;
+
+  /// Back to a fresh install (after "Delete all data"): default provider and
+  /// models, no keys in memory. The stored keys are removed separately.
+  void resetInMemory() {
+    _provider = LlmProvider.claude;
+    _claudeModel = defaultClaudeModel;
+    _ollamaBaseUrl = defaultOllamaBaseUrl;
+    _ollamaModel = defaultOllamaModel;
+    _claudeApiKey = null;
+    _ollamaApiKey = null;
+    notifyListeners();
+  }
 
   /// Reads stored settings. Safe to call more than once; never throws.
   Future<void> load() async {

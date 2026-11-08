@@ -120,8 +120,9 @@ void main() {
     expect(synced, isEmpty);
   });
 
-  testWidgets('send back on offers to send only upcoming local sessions',
-      (tester) async {
+  testWidgets('send back on offers to send only upcoming local sessions', (
+    tester,
+  ) async {
     // Two weeks starting last Monday: some sessions are already past.
     final knowledge = TrainingKnowledge.parse(
       File('docs/okf.md').readAsStringSync(),
@@ -161,9 +162,6 @@ void main() {
 
     expect(settings.sendPlanToIntervals, isTrue);
     expect(workouts.created, hasLength(upcoming));
-    expect(
-      workouts.created.every((d) => !d.date.isBefore(today)),
-      isTrue,
-    );
+    expect(workouts.created.every((d) => !d.date.isBefore(today)), isTrue);
   });
 }

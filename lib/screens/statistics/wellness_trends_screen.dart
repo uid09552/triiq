@@ -9,6 +9,8 @@ import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/skeleton.dart';
+import '../../widgets/status_message.dart';
 
 /// HRV, resting HR, sleep and weight over 30 days to a year: the daily
 /// values, their 7-day average and the shaded band the athlete normally sits
@@ -42,15 +44,31 @@ class _WellnessTrendsScreenState extends State<WellnessTrendsScreen> {
     _load();
   }
 
+  Object? _error;
+
   Future<void> _load() async {
-    setState(() => _loading = true);
-    final from = _end.subtract(Duration(days: _days));
-    final rows = await widget.repository.getRange(isoDate(from), isoDate(_end));
-    if (!mounted) return;
     setState(() {
-      _records = rows;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    final from = _end.subtract(Duration(days: _days));
+    try {
+      final rows = await widget.repository.getRange(
+        isoDate(from),
+        isoDate(_end),
+      );
+      if (!mounted) return;
+      setState(() {
+        _records = rows;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   String _label(AppLocalizations l10n, WellnessMetric m) => switch (m) {
@@ -159,14 +177,18 @@ class _WellnessTrendsScreenState extends State<WellnessTrendsScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonScreen(cards: 3)
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                if (withData.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(l10n.wtNoData, textAlign: TextAlign.center),
+                if (_error != null)
+                  StatusMessage.error(error: _error!, onRetry: _load)
+                else if (withData.isEmpty)
+                  StatusMessage.needsSync(
+                    context,
+                    title: l10n.wtNoData,
+                    reason: l10n.wtNoDataReason,
+                    icon: Icons.monitor_heart_outlined,
                   ),
                 for (final t in withData) ...[
                   _card(context, l10n, t),

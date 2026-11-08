@@ -11,7 +11,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'athlete_profile.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -21,66 +20,31 @@ part 'athlete_profile.g.dart';
 )
 class AthleteProfile {
   /// Returns a new [AthleteProfile] instance.
-  AthleteProfile({
+  AthleteProfile({this.athlete, this.sharedFolders, this.customItems});
 
-     this.athlete,
-
-     this.sharedFolders,
-
-     this.customItems,
-  });
-
-  @JsonKey(
-    
-    name: r'athlete',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'athlete', required: false, includeIfNull: false)
   final AthleteForProfile? athlete;
 
-
-
-  @JsonKey(
-    
-    name: r'sharedFolders',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'sharedFolders', required: false, includeIfNull: false)
   final List<Folder>? sharedFolders;
 
-
-
-  @JsonKey(
-    
-    name: r'customItems',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'customItems', required: false, includeIfNull: false)
   final List<CustomItem>? customItems;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AthleteProfile &&
+          other.athlete == athlete &&
+          other.sharedFolders == sharedFolders &&
+          other.customItems == customItems;
 
+  @override
+  int get hashCode =>
+      athlete.hashCode + sharedFolders.hashCode + customItems.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is AthleteProfile &&
-      other.athlete == athlete &&
-      other.sharedFolders == sharedFolders &&
-      other.customItems == customItems;
-
-    @override
-    int get hashCode =>
-        athlete.hashCode +
-        sharedFolders.hashCode +
-        customItems.hashCode;
-
-  factory AthleteProfile.fromJson(Map<String, dynamic> json) => _$AthleteProfileFromJson(json);
+  factory AthleteProfile.fromJson(Map<String, dynamic> json) =>
+      _$AthleteProfileFromJson(json);
 
   Map<String, dynamic> toJson() => _$AthleteProfileToJson(this);
 
@@ -88,6 +52,4 @@ class AthleteProfile {
   String toString() {
     return toJson().toString();
   }
-
 }
-

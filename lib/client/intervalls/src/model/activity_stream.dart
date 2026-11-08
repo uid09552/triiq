@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_stream.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,145 +19,73 @@ part 'activity_stream.g.dart';
 class ActivityStream {
   /// Returns a new [ActivityStream] instance.
   ActivityStream({
+    this.type,
 
-     this.type,
+    this.name,
 
-     this.name,
+    this.data,
 
-     this.data,
+    this.data2,
 
-     this.data2,
+    this.valueTypeIsArray,
 
-     this.valueTypeIsArray,
+    this.anomalies,
 
-     this.anomalies,
+    this.custom,
 
-     this.custom,
-
-     this.allNull,
+    this.allNull,
   });
 
-  @JsonKey(
-    
-    name: r'type',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'type', required: false, includeIfNull: false)
   final String? type;
 
-
-
-  @JsonKey(
-    
-    name: r'name',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'name', required: false, includeIfNull: false)
   final String? name;
 
-
-
-  @JsonKey(
-    
-    name: r'data',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'data', required: false, includeIfNull: false)
   final Object? data;
 
-
-
-  @JsonKey(
-    
-    name: r'data2',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'data2', required: false, includeIfNull: false)
   final Object? data2;
 
-
-
-  @JsonKey(
-    
-    name: r'valueTypeIsArray',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'valueTypeIsArray', required: false, includeIfNull: false)
   final bool? valueTypeIsArray;
 
-
-
-  @JsonKey(
-    
-    name: r'anomalies',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'anomalies', required: false, includeIfNull: false)
   final List<Anomaly>? anomalies;
 
-
-
-  @JsonKey(
-    
-    name: r'custom',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'custom', required: false, includeIfNull: false)
   final bool? custom;
 
-
-
-  @JsonKey(
-    
-    name: r'allNull',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'allNull', required: false, includeIfNull: false)
   final bool? allNull;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityStream &&
+          other.type == type &&
+          other.name == name &&
+          other.data == data &&
+          other.data2 == data2 &&
+          other.valueTypeIsArray == valueTypeIsArray &&
+          other.anomalies == anomalies &&
+          other.custom == custom &&
+          other.allNull == allNull;
 
+  @override
+  int get hashCode =>
+      type.hashCode +
+      name.hashCode +
+      data.hashCode +
+      data2.hashCode +
+      valueTypeIsArray.hashCode +
+      anomalies.hashCode +
+      custom.hashCode +
+      allNull.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityStream &&
-      other.type == type &&
-      other.name == name &&
-      other.data == data &&
-      other.data2 == data2 &&
-      other.valueTypeIsArray == valueTypeIsArray &&
-      other.anomalies == anomalies &&
-      other.custom == custom &&
-      other.allNull == allNull;
-
-    @override
-    int get hashCode =>
-        type.hashCode +
-        name.hashCode +
-        data.hashCode +
-        data2.hashCode +
-        valueTypeIsArray.hashCode +
-        anomalies.hashCode +
-        custom.hashCode +
-        allNull.hashCode;
-
-  factory ActivityStream.fromJson(Map<String, dynamic> json) => _$ActivityStreamFromJson(json);
+  factory ActivityStream.fromJson(Map<String, dynamic> json) =>
+      _$ActivityStreamFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityStreamToJson(this);
 
@@ -166,6 +93,4 @@ class ActivityStream {
   String toString() {
     return toJson().toString();
   }
-
 }
-

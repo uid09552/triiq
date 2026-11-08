@@ -35,18 +35,16 @@ class ThresholdDismissalsStore extends ChangeNotifier {
       final raw = prefs.getString(_key);
       if (raw != null) {
         final decoded = jsonDecode(raw) as Map<String, dynamic>;
-        _dismissals = decoded.map(
-          (key, value) {
-            final v = value as Map<String, dynamic>;
-            return MapEntry(
-              key,
-              ThresholdDismissal(
-                candidateValue: (v['candidate'] as num).toDouble(),
-                at: DateTime.fromMillisecondsSinceEpoch(v['at'] as int),
-              ),
-            );
-          },
-        );
+        _dismissals = decoded.map((key, value) {
+          final v = value as Map<String, dynamic>;
+          return MapEntry(
+            key,
+            ThresholdDismissal(
+              candidateValue: (v['candidate'] as num).toDouble(),
+              at: DateTime.fromMillisecondsSinceEpoch(v['at'] as int),
+            ),
+          );
+        });
       }
     } catch (error) {
       debugPrint('ThresholdDismissalsStore: cannot read stored value: $error');

@@ -115,9 +115,7 @@ class _MetricHistoryScreenState extends State<MetricHistoryScreen> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final values = [
-      for (var i = 0; i < _points.length; i++) _valueAt(i),
-    ];
+    final values = [for (var i = 0; i < _points.length; i++) _valueAt(i)];
     final known = values.whereType<double>().toList();
 
     final series = <ChartSeries>[
@@ -144,7 +142,8 @@ class _MetricHistoryScreenState extends State<MetricHistoryScreen> {
     ];
 
     final selectedIndex = _selected;
-    final selectedValue = selectedIndex == null || selectedIndex >= values.length
+    final selectedValue =
+        selectedIndex == null || selectedIndex >= values.length
         ? null
         : values[selectedIndex];
 
@@ -159,9 +158,7 @@ class _MetricHistoryScreenState extends State<MetricHistoryScreen> {
                 ButtonSegment(
                   value: days,
                   label: Text(
-                    days == 365
-                        ? l10n.rangeOneYear
-                        : l10n.rangeDaysShort(days),
+                    days == 365 ? l10n.rangeOneYear : l10n.rangeDaysShort(days),
                   ),
                 ),
             ],
@@ -236,15 +233,10 @@ class _MetricHistoryScreenState extends State<MetricHistoryScreen> {
             _SummaryRow(
               values: [
                 (l10n.currentLabel, _format(known.last)),
-                (
-                  l10n.changeLabel,
-                  _formatSigned(known.last - known.first),
-                ),
+                (l10n.changeLabel, _formatSigned(known.last - known.first)),
                 (
                   l10n.avgLabel,
-                  _format(
-                    known.reduce((a, b) => a + b) / known.length,
-                  ),
+                  _format(known.reduce((a, b) => a + b) / known.length),
                 ),
                 (
                   l10n.rangeLabel,
@@ -276,9 +268,7 @@ class _MetricHistoryScreenState extends State<MetricHistoryScreen> {
       '${value >= 0 ? '+' : ''}${value.toStringAsFixed(1)}';
 
   static String _formatDate(BuildContext context, DateTime date) =>
-      DateFormat.MMMd(
-        Localizations.localeOf(context).toString(),
-      ).format(date);
+      DateFormat.MMMd(Localizations.localeOf(context).toString()).format(date);
 
   static String _metricTitle(AppLocalizations l10n, LoadMetric metric) =>
       switch (metric) {

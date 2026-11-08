@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'coach_tick.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,50 +17,24 @@ part 'coach_tick.g.dart';
 )
 class CoachTick {
   /// Returns a new [CoachTick] instance.
-  CoachTick({
+  CoachTick({this.id, this.text});
 
-     this.id,
-
-     this.text,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final int? id;
 
-
-
-  @JsonKey(
-    
-    name: r'text',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'text', required: false, includeIfNull: false)
   final String? text;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CoachTick && other.id == id && other.text == text;
 
+  @override
+  int get hashCode => id.hashCode + text.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is CoachTick &&
-      other.id == id &&
-      other.text == text;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        text.hashCode;
-
-  factory CoachTick.fromJson(Map<String, dynamic> json) => _$CoachTickFromJson(json);
+  factory CoachTick.fromJson(Map<String, dynamic> json) =>
+      _$CoachTickFromJson(json);
 
   Map<String, dynamic> toJson() => _$CoachTickToJson(this);
 
@@ -69,6 +42,4 @@ class CoachTick {
   String toString() {
     return toJson().toString();
   }
-
 }
-

@@ -12,7 +12,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'power_curve.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -23,513 +22,238 @@ part 'power_curve.g.dart';
 class PowerCurve {
   /// Returns a new [PowerCurve] instance.
   PowerCurve({
+    this.id,
 
-     this.id,
+    this.afterKj,
 
-     this.afterKj,
+    this.filters,
 
-     this.filters,
+    this.label,
 
-     this.label,
+    this.filterLabel,
 
-     this.filterLabel,
+    this.percentile,
 
-     this.percentile,
+    this.startDateLocal,
 
-     this.startDateLocal,
+    this.endDateLocal,
 
-     this.endDateLocal,
+    this.days,
 
-     this.days,
+    this.movingTime,
 
-     this.movingTime,
+    this.trainingLoad,
 
-     this.trainingLoad,
+    this.weight,
 
-     this.weight,
+    this.secs,
 
-     this.secs,
+    this.values,
 
-     this.values,
+    this.submaxValues,
 
-     this.submaxValues,
+    this.submaxActivityId,
 
-     this.submaxActivityId,
+    this.startIndex,
 
-     this.startIndex,
+    this.endIndex,
 
-     this.endIndex,
+    this.activityId,
 
-     this.activityId,
+    this.wattsPerKg,
 
-     this.wattsPerKg,
+    this.wkgActivityId,
 
-     this.wkgActivityId,
+    this.submaxWattsPerKg,
 
-     this.submaxWattsPerKg,
+    this.submaxWkgActivityId,
 
-     this.submaxWkgActivityId,
+    this.powerModels,
 
-     this.powerModels,
+    this.ranks,
 
-     this.ranks,
+    this.mapPlot,
 
-     this.mapPlot,
+    this.streamType,
 
-     this.streamType,
+    this.streamName,
 
-     this.streamName,
+    this.watts,
 
-     this.watts,
+    this.vo2max5m,
 
-     this.vo2max5m,
-
-     this.compoundScore5m,
+    this.compoundScore5m,
   });
 
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'after_kj',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'after_kj', required: false, includeIfNull: false)
   final int? afterKj;
 
-
-
-  @JsonKey(
-    
-    name: r'filters',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'filters', required: false, includeIfNull: false)
   final List<ActivityFilter>? filters;
 
-
-
-  @JsonKey(
-    
-    name: r'label',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'label', required: false, includeIfNull: false)
   final String? label;
 
-
-
-  @JsonKey(
-    
-    name: r'filter_label',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'filter_label', required: false, includeIfNull: false)
   final String? filterLabel;
 
-
-
-  @JsonKey(
-    
-    name: r'percentile',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'percentile', required: false, includeIfNull: false)
   final double? percentile;
 
-
-
-  @JsonKey(
-    
-    name: r'start_date_local',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_date_local', required: false, includeIfNull: false)
   final String? startDateLocal;
 
-
-
-  @JsonKey(
-    
-    name: r'end_date_local',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'end_date_local', required: false, includeIfNull: false)
   final String? endDateLocal;
 
-
-
-  @JsonKey(
-    
-    name: r'days',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'days', required: false, includeIfNull: false)
   final int? days;
 
-
-
-  @JsonKey(
-    
-    name: r'moving_time',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'moving_time', required: false, includeIfNull: false)
   final int? movingTime;
 
-
-
-  @JsonKey(
-    
-    name: r'training_load',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'training_load', required: false, includeIfNull: false)
   final int? trainingLoad;
 
-
-
-  @JsonKey(
-    
-    name: r'weight',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'weight', required: false, includeIfNull: false)
   final double? weight;
 
-
-
-  @JsonKey(
-    
-    name: r'secs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'secs', required: false, includeIfNull: false)
   final List<int>? secs;
 
-
-
-  @JsonKey(
-    
-    name: r'values',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'values', required: false, includeIfNull: false)
   final List<int>? values;
 
-
-
-  @JsonKey(
-    
-    name: r'submax_values',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'submax_values', required: false, includeIfNull: false)
   final List<List<int>>? submaxValues;
 
-
-
-  @JsonKey(
-    
-    name: r'submax_activity_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'submax_activity_id', required: false, includeIfNull: false)
   final List<List<String>>? submaxActivityId;
 
-
-
-  @JsonKey(
-    
-    name: r'start_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_index', required: false, includeIfNull: false)
   final List<int>? startIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'end_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'end_index', required: false, includeIfNull: false)
   final List<int>? endIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'activity_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'activity_id', required: false, includeIfNull: false)
   final List<String>? activityId;
 
-
-
-  @JsonKey(
-    
-    name: r'watts_per_kg',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'watts_per_kg', required: false, includeIfNull: false)
   final List<double>? wattsPerKg;
 
-
-
-  @JsonKey(
-    
-    name: r'wkg_activity_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'wkg_activity_id', required: false, includeIfNull: false)
   final List<String>? wkgActivityId;
 
-
-
-  @JsonKey(
-    
-    name: r'submax_watts_per_kg',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'submax_watts_per_kg', required: false, includeIfNull: false)
   final List<List<double>>? submaxWattsPerKg;
 
-
-
   @JsonKey(
-    
     name: r'submax_wkg_activity_id',
     required: false,
     includeIfNull: false,
   )
-
-
   final List<List<String>>? submaxWkgActivityId;
 
-
-
-  @JsonKey(
-    
-    name: r'powerModels',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'powerModels', required: false, includeIfNull: false)
   final List<PowerModel>? powerModels;
 
-
-
-  @JsonKey(
-    
-    name: r'ranks',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'ranks', required: false, includeIfNull: false)
   final Map<String, Rank>? ranks;
 
-
-
-  @JsonKey(
-    
-    name: r'mapPlot',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'mapPlot', required: false, includeIfNull: false)
   final Plot? mapPlot;
 
-
-
-  @JsonKey(
-    
-    name: r'stream_type',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'stream_type', required: false, includeIfNull: false)
   final String? streamType;
 
-
-
-  @JsonKey(
-    
-    name: r'stream_name',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'stream_name', required: false, includeIfNull: false)
   final String? streamName;
 
-
-
-  @JsonKey(
-    
-    name: r'watts',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'watts', required: false, includeIfNull: false)
   final List<int>? watts;
 
-
-
-  @JsonKey(
-    
-    name: r'vo2max_5m',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'vo2max_5m', required: false, includeIfNull: false)
   final double? vo2max5m;
 
-
-
-  @JsonKey(
-    
-    name: r'compound_score_5m',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'compound_score_5m', required: false, includeIfNull: false)
   final double? compoundScore5m;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PowerCurve &&
+          other.id == id &&
+          other.afterKj == afterKj &&
+          other.filters == filters &&
+          other.label == label &&
+          other.filterLabel == filterLabel &&
+          other.percentile == percentile &&
+          other.startDateLocal == startDateLocal &&
+          other.endDateLocal == endDateLocal &&
+          other.days == days &&
+          other.movingTime == movingTime &&
+          other.trainingLoad == trainingLoad &&
+          other.weight == weight &&
+          other.secs == secs &&
+          other.values == values &&
+          other.submaxValues == submaxValues &&
+          other.submaxActivityId == submaxActivityId &&
+          other.startIndex == startIndex &&
+          other.endIndex == endIndex &&
+          other.activityId == activityId &&
+          other.wattsPerKg == wattsPerKg &&
+          other.wkgActivityId == wkgActivityId &&
+          other.submaxWattsPerKg == submaxWattsPerKg &&
+          other.submaxWkgActivityId == submaxWkgActivityId &&
+          other.powerModels == powerModels &&
+          other.ranks == ranks &&
+          other.mapPlot == mapPlot &&
+          other.streamType == streamType &&
+          other.streamName == streamName &&
+          other.watts == watts &&
+          other.vo2max5m == vo2max5m &&
+          other.compoundScore5m == compoundScore5m;
 
+  @override
+  int get hashCode =>
+      id.hashCode +
+      afterKj.hashCode +
+      filters.hashCode +
+      label.hashCode +
+      filterLabel.hashCode +
+      percentile.hashCode +
+      startDateLocal.hashCode +
+      endDateLocal.hashCode +
+      days.hashCode +
+      movingTime.hashCode +
+      trainingLoad.hashCode +
+      weight.hashCode +
+      secs.hashCode +
+      values.hashCode +
+      submaxValues.hashCode +
+      submaxActivityId.hashCode +
+      startIndex.hashCode +
+      endIndex.hashCode +
+      activityId.hashCode +
+      wattsPerKg.hashCode +
+      wkgActivityId.hashCode +
+      submaxWattsPerKg.hashCode +
+      submaxWkgActivityId.hashCode +
+      powerModels.hashCode +
+      ranks.hashCode +
+      mapPlot.hashCode +
+      streamType.hashCode +
+      streamName.hashCode +
+      watts.hashCode +
+      vo2max5m.hashCode +
+      compoundScore5m.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is PowerCurve &&
-      other.id == id &&
-      other.afterKj == afterKj &&
-      other.filters == filters &&
-      other.label == label &&
-      other.filterLabel == filterLabel &&
-      other.percentile == percentile &&
-      other.startDateLocal == startDateLocal &&
-      other.endDateLocal == endDateLocal &&
-      other.days == days &&
-      other.movingTime == movingTime &&
-      other.trainingLoad == trainingLoad &&
-      other.weight == weight &&
-      other.secs == secs &&
-      other.values == values &&
-      other.submaxValues == submaxValues &&
-      other.submaxActivityId == submaxActivityId &&
-      other.startIndex == startIndex &&
-      other.endIndex == endIndex &&
-      other.activityId == activityId &&
-      other.wattsPerKg == wattsPerKg &&
-      other.wkgActivityId == wkgActivityId &&
-      other.submaxWattsPerKg == submaxWattsPerKg &&
-      other.submaxWkgActivityId == submaxWkgActivityId &&
-      other.powerModels == powerModels &&
-      other.ranks == ranks &&
-      other.mapPlot == mapPlot &&
-      other.streamType == streamType &&
-      other.streamName == streamName &&
-      other.watts == watts &&
-      other.vo2max5m == vo2max5m &&
-      other.compoundScore5m == compoundScore5m;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        afterKj.hashCode +
-        filters.hashCode +
-        label.hashCode +
-        filterLabel.hashCode +
-        percentile.hashCode +
-        startDateLocal.hashCode +
-        endDateLocal.hashCode +
-        days.hashCode +
-        movingTime.hashCode +
-        trainingLoad.hashCode +
-        weight.hashCode +
-        secs.hashCode +
-        values.hashCode +
-        submaxValues.hashCode +
-        submaxActivityId.hashCode +
-        startIndex.hashCode +
-        endIndex.hashCode +
-        activityId.hashCode +
-        wattsPerKg.hashCode +
-        wkgActivityId.hashCode +
-        submaxWattsPerKg.hashCode +
-        submaxWkgActivityId.hashCode +
-        powerModels.hashCode +
-        ranks.hashCode +
-        mapPlot.hashCode +
-        streamType.hashCode +
-        streamName.hashCode +
-        watts.hashCode +
-        vo2max5m.hashCode +
-        compoundScore5m.hashCode;
-
-  factory PowerCurve.fromJson(Map<String, dynamic> json) => _$PowerCurveFromJson(json);
+  factory PowerCurve.fromJson(Map<String, dynamic> json) =>
+      _$PowerCurveFromJson(json);
 
   Map<String, dynamic> toJson() => _$PowerCurveToJson(this);
 
@@ -537,6 +261,4 @@ class PowerCurve {
   String toString() {
     return toJson().toString();
   }
-
 }
-

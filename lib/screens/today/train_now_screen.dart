@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../data/pending_deletes.dart';
 import '../../agent/chat_model_factory.dart';
 import '../../agent/llm_settings.dart';
 import '../../agent/training_agent.dart';
@@ -70,6 +71,7 @@ class TrainNowScreen extends StatefulWidget {
   /// Test seams; the app uses the defaults.
   final PlannedItemsRepository? plannedItems;
   final PlanActions? planActions;
+
   /// The day to plan for (default today): its planned sessions are shown
   /// and a created workout lands on it.
   final DateTime Function()? today;
@@ -131,19 +133,19 @@ class TrainNowScreen extends StatefulWidget {
         'the estimated total TSS and a one-line rationale citing the data '
         'you found.'
         '${loadContext.isEmpty ? '' : ' $loadContext Size the session so '
-              "today's total TSS (done + this session + other planned) and "
-              "tomorrow's planned TSS together stay a sensible progression: "
-              'back off when tomorrow is already hard or today is already '
-              'loaded, and mention it in the rationale.'}'
+                  "today's total TSS (done + this session + other planned) and "
+                  "tomorrow's planned TSS together stay a sensible progression: "
+                  'back off when tomorrow is already hard or today is already '
+                  'loaded, and mention it in the rationale.'}'
         '${sport == 'Swim' ? ' Vary the session: about one swim session in '
-              'three or four, build the main set around technique instead of '
-              'straight swimming — name a specific drill and/or piece of '
-              'equipment (paddles, pull buoy, fins) rather than just '
-              '"swim". Only do this when it fits the requested intensity and '
-              "duration, and don't force it into a hard interval session." : ''}'
+                  'three or four, build the main set around technique instead of '
+                  'straight swimming — name a specific drill and/or piece of '
+                  'equipment (paddles, pull buoy, fins) rather than just '
+                  '"swim". Only do this when it fits the requested intensity and '
+                  "duration, and don't force it into a hard interval session." : ''}'
         '${customPrompt.isEmpty ? '' : ' Additional instructions from me, '
-              'which take priority over the defaults above where they '
-              'conflict: "$customPrompt".'}';
+                  'which take priority over the defaults above where they '
+                  'conflict: "$customPrompt".'}';
   }
 
   @override
@@ -210,6 +212,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   void initState() {
     super.initState();
     PlanChanges.instance.addListener(_loadTodays);
+    PendingDeletes.instance.addListener(_loadTodays);
     AutoSyncService.instance.addListener(_loadTodays);
     SyncSettings.instance.addListener(_loadTodays);
     _loadTodays();
@@ -218,6 +221,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   @override
   void dispose() {
     PlanChanges.instance.removeListener(_loadTodays);
+    PendingDeletes.instance.removeListener(_loadTodays);
     AutoSyncService.instance.removeListener(_loadTodays);
     SyncSettings.instance.removeListener(_loadTodays);
     _subscription?.cancel();
@@ -226,7 +230,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   }
 
   void _propose() {
-    if (_isBusy) return;
+    // The button is hidden without a consented provider; this is the guard
+    // for every other way in.
+    if (_isBusy || !_settings.isConfigured) return;
     setState(() {
       _requested = true;
       _reply = '';
@@ -271,9 +277,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     final now = (widget.today ?? DateTime.now)();
     List<LocalEvent> items;
     try {
-      items = (await _plannedItems.getByDate(isoDate(now)))
-          .where((e) => e.isTraining)
-          .toList();
+      items = (await _plannedItems.getByDate(
+        isoDate(now),
+      )).where((e) => e.isTraining).toList();
     } catch (error) {
       debugPrint('TrainNow: cannot read today\'s plan: $error');
       items = const [];
@@ -301,11 +307,13 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       final done = await (widget.activities ?? ActivitiesRepository())
           .getByDate(isoDate(day));
       final doneTss = done.fold<int>(0, (s, a) => s + (a.trainingLoad ?? 0));
-      final tomorrow = (await _plannedItems.getByDate(isoDate(next)))
-          .where((e) => e.isTraining)
-          .toList();
-      final tomorrowTss =
-          tomorrow.fold<int>(0, (s, e) => s + (e.plannedLoad ?? 0));
+      final tomorrow = (await _plannedItems.getByDate(
+        isoDate(next),
+      )).where((e) => e.isTraining).toList();
+      final tomorrowTss = tomorrow.fold<int>(
+        0,
+        (s, e) => s + (e.plannedLoad ?? 0),
+      );
       final ref = _reference;
       final otherToday = _todays
           .where((e) => e != ref)
@@ -314,7 +322,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
           '${otherToday > 0 ? ', other planned $otherToday TSS' : ''}; '
           '${isoDate(next)} planned: '
           '${tomorrow.isEmpty ? 'nothing' : '$tomorrowTss TSS '
-                '(${tomorrow.map((e) => e.name ?? e.type ?? 'session').join(', ')})'}.';
+                    '(${tomorrow.map((e) => e.name ?? e.type ?? 'session').join(', ')})'}.';
     } catch (error) {
       debugPrint('TrainNow: cannot read load context: $error');
       return '';
@@ -475,19 +483,38 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   }
 
   /// Puts [draft] in [reference]'s place via [PlanActions], and says how
-  /// that went.
+  /// that went — with **Undo** whenever the old session is gone and the new
+  /// one is known, which puts the old one back exactly.
   Future<void> _replace(LocalEvent reference, PlannedWorkoutDraft draft) async {
     final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
     setState(() => _publishing = true);
     try {
-      final outcome = await _planActions.replaceSession(reference, draft);
+      final result = await _planActions.replaceSessionTracked(reference, draft);
       if (!mounted) return;
-      _showMessage(switch (outcome) {
-        ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
-        ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
-        ReplaceOutcome.bothExist => l10n.replaceBothExist,
-        ReplaceOutcome.queued => l10n.replaceQueuedOffline,
-      });
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(switch (result.outcome) {
+            ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
+            ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
+            ReplaceOutcome.bothExist => l10n.replaceBothExist,
+            ReplaceOutcome.queued => l10n.replaceQueuedOffline,
+          }),
+          duration: Duration(seconds: result.canUndo ? 8 : 10),
+          persist: false,
+          action: result.canUndo
+              ? SnackBarAction(
+                  label: l10n.undoButton,
+                  onPressed: () => _undoReplace(
+                    result,
+                    reference,
+                    messenger: messenger,
+                    l10n: l10n,
+                  ),
+                )
+              : null,
+        ),
+      );
       await _loadTodays();
     } on ReplaceRefusedException catch (error) {
       if (!mounted) return;
@@ -496,6 +523,34 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       if (mounted) _showMessage(l10n.couldNotReplace('$error'));
     } finally {
       if (mounted) setState(() => _publishing = false);
+    }
+  }
+
+  /// Swaps the replacement in [result] back for [old], by id.
+  Future<void> _undoReplace(
+    ReplaceResult result,
+    LocalEvent old, {
+    required ScaffoldMessengerState messenger,
+    required AppLocalizations l10n,
+  }) async {
+    try {
+      await _planActions.undoReplace(result, old);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.replaceUndone(old.name ?? old.type ?? result.draft.sport),
+          ),
+        ),
+      );
+      if (mounted) await _loadTodays();
+    } on ReplaceRefusedException catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.couldNotUndo(refusalLabel(l10n, error)))),
+      );
+    } catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.couldNotUndo('$error'))),
+      );
     }
   }
 
@@ -535,9 +590,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       duration: Duration(minutes: _durationMinutes.round()),
     );
     if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.couldNotOpenGoogleCalendar)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.couldNotOpenGoogleCalendar)));
     }
   }
 
@@ -688,7 +743,10 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
             const SizedBox(height: 8),
             OutlinedButton(
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const SettingsGroupScreen(group: SettingsGroup.ai),
+                ),
               ),
               child: Text(l10n.openSettingsButton),
             ),
@@ -740,10 +798,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                     if (_isBusy && _reply.isNotEmpty)
                       const SizedBox(height: 12),
                     if (_error != null)
-                      Text(
-                        _error!,
-                        style: TextStyle(color: colorScheme.error),
-                      )
+                      Text(_error!, style: TextStyle(color: colorScheme.error))
                     else if (_reply.isNotEmpty) ...[
                       MarkdownReply(text: _reply),
                       if (!_isBusy) ...[

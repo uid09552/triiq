@@ -2,9 +2,9 @@
 #
 # Triggers
 #   * push to `main` (a merged PR): builds, then creates the tag
-#     `v<pubspec version>-rc<short commit hash>` (e.g. `v0.9.0-rc1a2b3c4`) and
+#     `v<pubspec version>-rc<short commit hash>` (e.g. `v0.9.1-rc1a2b3c4`) and
 #     publishes it as a **pre-release**. The base version is the one in
-#     pubspec.yaml (`version: 0.9.0+1` -> 0.9.0): bump it there for a new line.
+#     pubspec.yaml (`version: 0.9.1+1` -> 0.9.1): bump it there for a new line.
 #   * push of a tag `v*` (e.g. `git tag v1.0.0 && git push origin v1.0.0`):
 #     builds and publishes a release for exactly that tag, with that version.
 #     A tag containing `-` (v1.0.0-beta1) is marked as a pre-release.

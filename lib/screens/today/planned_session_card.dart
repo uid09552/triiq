@@ -146,9 +146,7 @@ class _SourceChip extends StatelessWidget {
                 color: scheme.onSurfaceVariant,
               )
             : null,
-        label: Text(
-          plan ? l10n.planSessionBadge : l10n.plannedSourceIntervals,
-        ),
+        label: Text(plan ? l10n.planSessionBadge : l10n.plannedSourceIntervals),
       ),
     );
   }

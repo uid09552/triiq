@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'new_activity_msg.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,34 +17,21 @@ part 'new_activity_msg.g.dart';
 )
 class NewActivityMsg {
   /// Returns a new [NewActivityMsg] instance.
-  NewActivityMsg({
+  NewActivityMsg({this.content});
 
-     this.content,
-  });
-
-  @JsonKey(
-    
-    name: r'content',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'content', required: false, includeIfNull: false)
   final String? content;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NewActivityMsg && other.content == content;
 
+  @override
+  int get hashCode => content.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is NewActivityMsg &&
-      other.content == content;
-
-    @override
-    int get hashCode =>
-        content.hashCode;
-
-  factory NewActivityMsg.fromJson(Map<String, dynamic> json) => _$NewActivityMsgFromJson(json);
+  factory NewActivityMsg.fromJson(Map<String, dynamic> json) =>
+      _$NewActivityMsgFromJson(json);
 
   Map<String, dynamic> toJson() => _$NewActivityMsgToJson(this);
 
@@ -53,6 +39,4 @@ class NewActivityMsg {
   String toString() {
     return toJson().toString();
   }
-
 }
-

@@ -85,7 +85,9 @@ class PlanWriter {
       } on QueuedOfflineException {
         queued.add(session);
       } catch (error) {
-        debugPrint('PlanWriter: ${session.name} ${isoDate(session.date)}: $error');
+        debugPrint(
+          'PlanWriter: ${session.name} ${isoDate(session.date)}: $error',
+        );
         final marked = session.copyWith(status: PlanSessionStatus.failed);
         await _plans.updateSession(marked);
         failed.add((session: marked, error: error));

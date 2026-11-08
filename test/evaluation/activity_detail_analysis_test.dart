@@ -26,7 +26,9 @@ void main() {
   late EventsRepository events;
 
   setUp(() async {
-    SharedPreferences.setMockInitialValues({'feel.prompt_on_new_activity': false});
+    SharedPreferences.setMockInitialValues({
+      'feel.prompt_on_new_activity': false,
+    });
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
     dir = await Directory.systemTemp.createTemp('triiq_detail_analysis');
@@ -107,6 +109,17 @@ void main() {
     }
   }
 
+  /// Switches the activity page to one of its tabs and lets it load.
+  Future<void> openTab(WidgetTester tester, String tab) async {
+    await tester.tap(find.byKey(ValueKey('tab-$tab')));
+    for (var i = 0; i < 8; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 30)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
   SessionStreams streams() => SessionStreams(
     series: {
       'time': [for (var i = 0; i < 2700; i++) i.toDouble()],
@@ -125,36 +138,15 @@ void main() {
     ],
   );
 
-  testWidgets('streams, intervals and a verdict against the plan',
-      (tester) async {
+  testWidgets('streams, intervals and a verdict against the plan', (
+    tester,
+  ) async {
     await tester.runAsync(
       () => events.replaceRange('2026-11-03', '2026-11-03', [planned()]),
     );
     await pump(tester, fetch: (_) async => streams());
 
-    expect(find.text('Over time'), findsOneWidget);
-    // The selectors are tucked away until the options are opened.
-    expect(find.byKey(const ValueKey('stream-watts')), findsNothing);
-    expect(find.byKey(const ValueKey('chart-options')), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('chart-options')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('stream-watts')), findsOneWidget);
-    // Toggling a stream in the sheet updates the summary behind it.
-    await tester.tap(find.byKey(const ValueKey('stream-watts')));
-    await tester.pumpAndSettle();
-    await tester.tapAt(const Offset(5, 5));
-    await tester.pumpAndSettle();
-    // The intervals sit behind a collapsed header until it is tapped.
-    expect(find.byKey(const ValueKey('intervals-toggle')), findsOneWidget);
-    expect(find.text('Intervals (1)'), findsOneWidget);
-    expect(find.byKey(const ValueKey('interval-0')), findsNothing);
-    await tester.ensureVisible(find.text('Intervals (1)'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Intervals (1)'));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('interval-0')), findsOneWidget);
-    expect(find.textContaining('260 W'), findsOneWidget);
-
+    // Overview first: how the session went against the plan.
     // 45 of 60 planned minutes.
     expect(find.text('Cut short'), findsOneWidget);
     expect(find.textContaining('45 of 60 planned minutes'), findsOneWidget);
@@ -164,16 +156,44 @@ void main() {
       tester.widget<Text>(find.byKey(const ValueKey('split-text'))).data,
       'Low 89% · Moderate 11% · High 0%',
     );
+
+    // Charts: the streams, selectors tucked away until asked for.
+    await openTab(tester, 'charts');
+    expect(find.text('Over time'), findsOneWidget);
+    expect(find.byKey(const ValueKey('stream-watts')), findsNothing);
+    expect(find.byKey(const ValueKey('chart-options')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('chart-options')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('stream-watts')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('stream-watts')));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+    // The intervals are no longer listed a second time under the chart.
+    expect(find.byKey(const ValueKey('intervals-toggle')), findsNothing);
+
+    // Intervals: one table; a row takes you to the chart, zoomed to it.
+    await openTab(tester, 'intervals');
+    expect(find.byKey(const ValueKey('extras-interval-1')), findsOneWidget);
+    expect(find.text('180 W'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('extras-interval-1')));
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Over time'), findsOneWidget);
   });
 
-  testWidgets('no plan, no streams: says so instead of guessing',
-      (tester) async {
+  testWidgets('no plan, no streams: says so instead of guessing', (
+    tester,
+  ) async {
     await pump(
       tester,
       fetch: (_) async => const SessionStreams(series: {'time': []}),
     );
 
     expect(find.text('No planned session to compare with.'), findsOneWidget);
+    await openTab(tester, 'charts');
+    expect(find.text('No time series'), findsOneWidget);
     expect(find.textContaining('no time-series data'), findsOneWidget);
   });
 
@@ -188,7 +208,10 @@ void main() {
       },
     );
 
-    expect(find.textContaining('Could not load the time series'), findsOneWidget);
+    await openTab(tester, 'charts');
+    // A plain-language message, the technical text behind Details.
+    expect(find.text('Something went wrong'), findsOneWidget);
+    expect(find.byKey(const ValueKey('status-details')), findsOneWidget);
     await tester.tap(find.text('Retry'));
     for (var i = 0; i < 20; i++) {
       await tester.runAsync(
@@ -216,8 +239,9 @@ void main() {
     expect(topic.context, contains('"Z2 endurance"'));
   });
 
-  testWidgets('the planned session shows what was done against it',
-      (tester) async {
+  testWidgets('the planned session shows what was done against it', (
+    tester,
+  ) async {
     final activities = ActivitiesRepository(database: database);
     await tester.runAsync(() => activities.upsertAll([ride]));
     tester.view.physicalSize = const Size(800, 2000);

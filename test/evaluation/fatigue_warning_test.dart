@@ -23,7 +23,10 @@ void main() {
       out.add(
         LocalWellness(
           date: isoDate(d),
-          ctl: ctl, atl: atl, ctlLoad: null, atlLoad: null,
+          ctl: ctl,
+          atl: atl,
+          ctlLoad: null,
+          atlLoad: null,
           rampRate: o['ramp'] as double?,
           raw: {
             'hrv': o['hrv'] ?? 60 + noise * 3,
@@ -45,7 +48,15 @@ void main() {
 
   test('one bad night is not a trend', () {
     final w = evaluateFatigue(
-      history(recent: [{}, {}, {}, {}, {'hrv': 40, 'rhr': 60, 'sleep': 5 * 3600}]),
+      history(
+        recent: [
+          {},
+          {},
+          {},
+          {},
+          {'hrv': 40, 'rhr': 60, 'sleep': 5 * 3600},
+        ],
+      ),
       today,
     );
     expect(w.level, FatigueLevel.none);
@@ -53,7 +64,15 @@ void main() {
 
   test('HRV low three days running alone stays quiet', () {
     final w = evaluateFatigue(
-      history(recent: [{}, {}, {'hrv': 45}, {'hrv': 44}, {'hrv': 46}]),
+      history(
+        recent: [
+          {},
+          {},
+          {'hrv': 45},
+          {'hrv': 44},
+          {'hrv': 46},
+        ],
+      ),
       today,
     );
     expect(w.firing.single.kind, FatigueSignalKind.hrvLow);
@@ -62,24 +81,35 @@ void main() {
 
   test('HRV low four days + short sleep three days is a watch', () {
     final w = evaluateFatigue(
-      history(recent: [
-        {'hrv': 45}, {'hrv': 44, 'sleep': 5.5 * 3600},
-        {'hrv': 46, 'sleep': 5.5 * 3600}, {'hrv': 45, 'sleep': 6 * 3600}, {},
-      ]),
+      history(
+        recent: [
+          {'hrv': 45},
+          {'hrv': 44, 'sleep': 5.5 * 3600},
+          {'hrv': 46, 'sleep': 5.5 * 3600},
+          {'hrv': 45, 'sleep': 6 * 3600},
+          {},
+        ],
+      ),
       today,
     );
-    expect(w.firing.map((s) => s.kind), containsAll([FatigueSignalKind.hrvLow, FatigueSignalKind.sleepShort]));
+    expect(
+      w.firing.map((s) => s.kind),
+      containsAll([FatigueSignalKind.hrvLow, FatigueSignalKind.sleepShort]),
+    );
     expect(w.level, FatigueLevel.watch);
   });
 
   test('HRV + resting HR + fatigue scores is a warning', () {
     final w = evaluateFatigue(
-      history(recent: [
-        {}, {},
-        {'hrv': 44, 'rhr': 58, 'fatigue': 3},
-        {'hrv': 45, 'rhr': 59, 'fatigue': 4},
-        {'hrv': 43, 'rhr': 58, 'soreness': 3},
-      ]),
+      history(
+        recent: [
+          {},
+          {},
+          {'hrv': 44, 'rhr': 58, 'fatigue': 3},
+          {'hrv': 45, 'rhr': 59, 'fatigue': 4},
+          {'hrv': 43, 'rhr': 58, 'soreness': 3},
+        ],
+      ),
       today,
     );
     expect(w.level, FatigueLevel.warning);
@@ -89,7 +119,13 @@ void main() {
   test('physiology plus deep negative form is a warning', () {
     final w = evaluateFatigue(
       history(
-        recent: [{}, {}, {'hrv': 44}, {'hrv': 45}, {'hrv': 43}],
+        recent: [
+          {},
+          {},
+          {'hrv': 44},
+          {'hrv': 45},
+          {'hrv': 43},
+        ],
         loads: [(60, 85), (60, 88), (60, 90), (60, 92), (60, 95)],
       ),
       today,
@@ -100,7 +136,13 @@ void main() {
   test('deep form and a fast ramp without physiology is a watch', () {
     final w = evaluateFatigue(
       history(
-        recent: [{}, {}, {'ramp': 9.0}, {'ramp': 10.0}, {'ramp': 9.5}],
+        recent: [
+          {},
+          {},
+          {'ramp': 9.0},
+          {'ramp': 10.0},
+          {'ramp': 9.5},
+        ],
         loads: [(60, 88), (60, 90), (60, 92), (60, 93), (60, 95)],
       ),
       today,
@@ -111,12 +153,23 @@ void main() {
   test('too little data or baseline never fires', () {
     expect(evaluateFatigue(const [], today).level, FatigueLevel.none);
     final short = history().skip(55).toList(); // 10 days: no baseline
-    expect(evaluateFatigue(short, today).signals.where((s) => s.physiological), isEmpty);
+    expect(
+      evaluateFatigue(short, today).signals.where((s) => s.physiological),
+      isEmpty,
+    );
   });
 
   test('days with 0 (not measured) are ignored', () {
     final w = evaluateFatigue(
-      history(recent: [{'hrv': 0}, {'hrv': 0}, {'hrv': 0}, {'hrv': 0}, {'hrv': 0}]),
+      history(
+        recent: [
+          {'hrv': 0},
+          {'hrv': 0},
+          {'hrv': 0},
+          {'hrv': 0},
+          {'hrv': 0},
+        ],
+      ),
       today,
     );
     expect(w.level, FatigueLevel.none);

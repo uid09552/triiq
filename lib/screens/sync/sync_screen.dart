@@ -114,10 +114,7 @@ class _SyncScreenState extends State<SyncScreen> {
           ],
           if (_lastMessage != null) ...[
             const SizedBox(height: 8),
-            Text(
-              _lastMessage!,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(_lastMessage!, style: Theme.of(context).textTheme.bodySmall),
           ],
         ],
       ),
@@ -162,10 +159,7 @@ class _SyncTile extends StatelessWidget {
       child: ListTile(
         enabled: enabled,
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 4,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(

@@ -8,7 +8,7 @@
     [Releases page](https://github.com/uid09552/triiq/releases) and open it
     on your phone (allow installing from your browser or file manager when
     Android asks). Every merge to `main` publishes a release candidate
-    (`v0.9.0-rc<hash>`); tagged versions are the stable ones.
+    (`v0.9.1-rc<hash>`); tagged versions are the stable ones.
     → [Releases](releases.md)
 
 === "Windows"
@@ -33,7 +33,7 @@ background while it is open, and (Android) every night.
 
 ## 3. Choose an LLM for the AI trainer
 
-Open the profile icon (top-right) → **Settings → LLM provider**.
+Open the profile icon (top-right) → **Settings → AI trainer → LLM provider**.
 
 | Provider | What you need | Notes |
 |---|---|---|
@@ -50,7 +50,7 @@ need one.
 - **Today** shows readiness, load and today's training. Long-press the header
   tile for quick actions (sync, Train now, log fatigue & soreness, …).
 - **More → Training plan** builds a plan; **Take as plan** puts it in the
-  calendar (sending it to Intervals.icu is optional, Settings → Calendar).
+  calendar (sending it to Intervals.icu is optional, Settings → Data & privacy → Calendar).
 - **Chat** answers questions about your own data.
-- **Settings → Notifications** turns on the morning briefing.
-- **Settings → Backup** exports everything to a JSON file.
+- **Settings → App → Notifications** turns on the morning briefing.
+- **Settings → Data & privacy → Backup** exports everything to a JSON file.

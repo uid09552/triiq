@@ -74,8 +74,10 @@ class BackupService {
   static bool excludedPref(String key) =>
       key.startsWith('sync.background_') ||
       key.startsWith('llm.') ||
-      RegExp(r'(api[_-]?key|token|secret|password)', caseSensitive: false)
-          .hasMatch(key);
+      RegExp(
+        r'(api[_-]?key|token|secret|password)',
+        caseSensitive: false,
+      ).hasMatch(key);
 
   Future<Map<String, dynamic>> export({bool includeCaches = false}) async {
     final db = await _database.database;
@@ -191,9 +193,10 @@ class BackupService {
     }
 
     await db.transaction((txn) async {
-      final present = [...coreTables, ...cacheTables]
-          .where(decoded.containsKey)
-          .toList();
+      final present = [
+        ...coreTables,
+        ...cacheTables,
+      ].where(decoded.containsKey).toList();
       for (final t in present.reversed) {
         await txn.delete(t);
       }

@@ -7,6 +7,7 @@ import '../../data/models/local_activity.dart';
 import '../../evaluation/activity_route.dart';
 import '../../evaluation/session_evaluator.dart' show sportFamily;
 import '../../l10n/app_localizations.dart';
+import '../../widgets/osm_layers.dart';
 import '../../widgets/section_card.dart';
 
 /// Whether the activity can have a GPS track worth a map: outdoor running
@@ -20,8 +21,6 @@ bool hasRouteMap(LocalActivity a) {
   if (a.raw['trainer'] == true) return false;
   return true;
 }
-
-const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 /// The track drawn on a map: the route in the theme's colour, a green start
 /// and a red finish marker, OpenStreetMap tiles with attribution.
@@ -59,15 +58,15 @@ class RouteMap extends StatelessWidget {
           padding: EdgeInsets.all(padding),
         ),
         interactionOptions: InteractionOptions(
-          flags: interactive ? InteractiveFlag.all & ~InteractiveFlag.rotate : InteractiveFlag.none,
+          flags: interactive
+              ? InteractiveFlag.all & ~InteractiveFlag.rotate
+              : InteractiveFlag.none,
         ),
       ),
       children: [
-        if (showTiles)
-          TileLayer(
-            urlTemplate: _tileUrl,
-            userAgentPackageName: 'com.triiq.triiq',
-          ),
+        // Only with the athlete's say-so (Settings → Privacy & data),
+        // and not before that choice has been read.
+        OsmTileLayer(showTiles: showTiles),
         PolylineLayer(
           polylines: [
             Polyline(
@@ -113,10 +112,7 @@ class RouteMap extends StatelessWidget {
               );
             },
           ),
-        if (showTiles)
-          const SimpleAttributionWidget(
-            source: Text('© OpenStreetMap contributors'),
-          ),
+        OsmAttribution(showTiles: showTiles),
       ],
     );
   }
@@ -161,7 +157,10 @@ class ActivityRouteCard extends StatefulWidget {
 
 class _ActivityRouteCardState extends State<ActivityRouteCard> {
   late final Future<ActivityRoute?> _future = hasRouteMap(widget.activity)
-      ? widget.routes.load(widget.activity.id).then<ActivityRoute?>((r) => r).catchError((_) => null)
+      ? widget.routes
+            .load(widget.activity.id)
+            .then<ActivityRoute?>((r) => r)
+            .catchError((_) => null)
       : Future<ActivityRoute?>.value(null);
 
   @override

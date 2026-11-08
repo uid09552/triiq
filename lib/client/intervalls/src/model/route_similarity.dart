@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'route_similarity.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,145 +19,73 @@ part 'route_similarity.g.dart';
 class RouteSimilarity {
   /// Returns a new [RouteSimilarity] instance.
   RouteSimilarity({
+    this.route,
 
-     this.route,
+    this.routeDistance,
 
-     this.routeDistance,
+    this.routeActivityCount,
 
-     this.routeActivityCount,
+    this.other,
 
-     this.other,
+    this.otherDistance,
 
-     this.otherDistance,
+    this.otherActivityCount,
 
-     this.otherActivityCount,
+    this.similarity,
 
-     this.similarity,
-
-     this.bounds,
+    this.bounds,
   });
 
-  @JsonKey(
-    
-    name: r'route',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'route', required: false, includeIfNull: false)
   final AthleteRoute? route;
 
-
-
-  @JsonKey(
-    
-    name: r'route_distance',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'route_distance', required: false, includeIfNull: false)
   final double? routeDistance;
 
-
-
-  @JsonKey(
-    
-    name: r'route_activity_count',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'route_activity_count', required: false, includeIfNull: false)
   final int? routeActivityCount;
 
-
-
-  @JsonKey(
-    
-    name: r'other',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'other', required: false, includeIfNull: false)
   final AthleteRoute? other;
 
-
-
-  @JsonKey(
-    
-    name: r'other_distance',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'other_distance', required: false, includeIfNull: false)
   final double? otherDistance;
 
-
-
-  @JsonKey(
-    
-    name: r'other_activity_count',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'other_activity_count', required: false, includeIfNull: false)
   final int? otherActivityCount;
 
-
-
-  @JsonKey(
-    
-    name: r'similarity',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'similarity', required: false, includeIfNull: false)
   final double? similarity;
 
-
-
-  @JsonKey(
-    
-    name: r'bounds',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'bounds', required: false, includeIfNull: false)
   final List<List<double>>? bounds;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RouteSimilarity &&
+          other.route == route &&
+          other.routeDistance == routeDistance &&
+          other.routeActivityCount == routeActivityCount &&
+          other.other == other &&
+          other.otherDistance == otherDistance &&
+          other.otherActivityCount == otherActivityCount &&
+          other.similarity == similarity &&
+          other.bounds == bounds;
 
+  @override
+  int get hashCode =>
+      route.hashCode +
+      routeDistance.hashCode +
+      routeActivityCount.hashCode +
+      other.hashCode +
+      otherDistance.hashCode +
+      otherActivityCount.hashCode +
+      similarity.hashCode +
+      bounds.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is RouteSimilarity &&
-      other.route == route &&
-      other.routeDistance == routeDistance &&
-      other.routeActivityCount == routeActivityCount &&
-      other.other == other &&
-      other.otherDistance == otherDistance &&
-      other.otherActivityCount == otherActivityCount &&
-      other.similarity == similarity &&
-      other.bounds == bounds;
-
-    @override
-    int get hashCode =>
-        route.hashCode +
-        routeDistance.hashCode +
-        routeActivityCount.hashCode +
-        other.hashCode +
-        otherDistance.hashCode +
-        otherActivityCount.hashCode +
-        similarity.hashCode +
-        bounds.hashCode;
-
-  factory RouteSimilarity.fromJson(Map<String, dynamic> json) => _$RouteSimilarityFromJson(json);
+  factory RouteSimilarity.fromJson(Map<String, dynamic> json) =>
+      _$RouteSimilarityFromJson(json);
 
   Map<String, dynamic> toJson() => _$RouteSimilarityToJson(this);
 
@@ -166,6 +93,4 @@ class RouteSimilarity {
   String toString() {
     return toJson().toString();
   }
-
 }
-

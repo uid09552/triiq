@@ -21,6 +21,7 @@ class TodayHeader extends StatelessWidget {
     required this.onCustomize,
     this.onOpenIntervals,
     this.titleColor,
+    this.statusChip,
     this.doneTss = 0,
     this.plannedTss = 0,
     this.doneSeconds = 0,
@@ -33,6 +34,9 @@ class TodayHeader extends StatelessWidget {
   /// Tints the title, e.g. in the readiness colour when readiness advises
   /// caution.
   final Color? titleColor;
+
+  /// A small sync-status line under the figures (see `SyncStatusChip`).
+  final Widget? statusChip;
   final String subtitle;
   final bool loading;
 
@@ -215,7 +219,6 @@ class TodayHeader extends StatelessWidget {
                     key: const ValueKey('hero-more'),
                     onPressed: () => _showActions(context),
                     tooltip: l10n.heroMoreTooltip,
-                    visualDensity: VisualDensity.compact,
                     icon: Icon(
                       Icons.more_horiz,
                       color: scheme.onSurfaceVariant,
@@ -223,19 +226,19 @@ class TodayHeader extends StatelessWidget {
                   ),
                   // Doubles as the refresh affordance: pull-to-refresh is
                   // fine on a phone but awkward with a mouse on Windows.
+                  // 48 dp: the minimum touch target.
                   SizedBox(
-                    width: 40,
-                    height: 40,
+                    width: 48,
+                    height: 48,
                     child: loading
                         ? const Padding(
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(14),
                             child: CircularProgressIndicator(strokeWidth: 2.2),
                           )
                         : IconButton(
                             key: const ValueKey('hero-refresh'),
                             onPressed: onRefresh,
                             tooltip: l10n.refreshTooltip,
-                            visualDensity: VisualDensity.compact,
                             icon: Icon(Icons.refresh, color: scheme.primary),
                           ),
                   ),
@@ -277,6 +280,14 @@ class TodayHeader extends StatelessWidget {
                     ),
                   ),
               ],
+              if (statusChip != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: statusChip,
+                  ),
+                ),
             ],
           ),
         ),

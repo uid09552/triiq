@@ -29,8 +29,9 @@ void main() {
     return settings;
   }
 
-  testWidgets('Android: a switch that turns the nightly sync off and on',
-      (tester) async {
+  testWidgets('Android: a switch that turns the nightly sync off and on', (
+    tester,
+  ) async {
     final settings = await pump(tester, supported: true);
 
     expect(find.byType(SwitchListTile), findsOneWidget);
@@ -49,8 +50,13 @@ void main() {
       tester,
       supported: true,
       prefs: {
-        'sync.background_last_run': DateTime(2026, 10, 30, 3, 12)
-            .millisecondsSinceEpoch,
+        'sync.background_last_run': DateTime(
+          2026,
+          10,
+          30,
+          3,
+          12,
+        ).millisecondsSinceEpoch,
         'sync.background_last_result': 'success',
       },
     );

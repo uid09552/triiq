@@ -38,7 +38,10 @@ void main() {
 
   test('null within threshold, too little data, other sport or no EF', () {
     expect(performanceTrend(act('x', '2026-10-15', 1.51), history), isNull);
-    expect(performanceTrend(act('x', '2026-10-15', 1.7), history.take(2)), isNull);
+    expect(
+      performanceTrend(act('x', '2026-10-15', 1.7), history.take(2)),
+      isNull,
+    );
     expect(
       performanceTrend(act('x', '2026-10-15', 1.7, type: 'Run'), history),
       isNull,

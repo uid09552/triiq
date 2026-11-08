@@ -100,7 +100,8 @@ class IntervalsEventService {
     ),
     startDateLocal: '${isoDate(draft.date)}T00:00:00',
     // Sent as null (omitted) for single-day entries.
-    endDateLocal: eventCategoryHasEndDate(draft.category) &&
+    endDateLocal:
+        eventCategoryHasEndDate(draft.category) &&
             draft.endDate != null &&
             draft.endDate!.isAfter(draft.date)
         ? '${isoDate(draft.endDate!)}T00:00:00'

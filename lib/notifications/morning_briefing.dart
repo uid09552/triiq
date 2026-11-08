@@ -46,7 +46,9 @@ BriefingContent composeBriefing({
       if (e.category == 'WORKOUT') e,
   ];
   String line(LocalEvent e) {
-    final mins = e.plannedTime == null ? '' : ' · ${(e.plannedTime! / 60).round()} min';
+    final mins = e.plannedTime == null
+        ? ''
+        : ' · ${(e.plannedTime! / 60).round()} min';
     final load = e.plannedLoad == null ? '' : ' · ${e.plannedLoad} TSS';
     return '${e.name ?? e.type ?? ''}$mins$load';
   }
@@ -109,7 +111,7 @@ class MorningBriefingScheduler {
     AppLocalizations Function()? l10n,
   }) : _settings = settings ?? NotificationSettings.instance,
        _notifications = notifications ?? NotificationService.instance,
-       _planned = planned ?? PlannedItemsRepository(),
+       _planned = planned ?? PlannedItemsRepository(hidePendingDeletes: false),
        _readiness = readiness ?? ReadinessService(),
        _fatigue = fatigue ?? FatigueWarningService(),
        _wellness = wellness ?? WellnessRepository(),
@@ -126,8 +128,10 @@ class MorningBriefingScheduler {
   final AppLocalizations Function() _l10n;
 
   static AppLocalizations _currentL10n() {
-    final chosen = LocaleController.instance.locale ?? PlatformDispatcher.instance.locale;
-    final code = LocaleController.supportedLocales.any(
+    final chosen =
+        LocaleController.instance.locale ?? PlatformDispatcher.instance.locale;
+    final code =
+        LocaleController.supportedLocales.any(
           (l) => l.languageCode == chosen.languageCode,
         )
         ? chosen.languageCode
@@ -138,7 +142,13 @@ class MorningBriefingScheduler {
   /// The next moment the briefing is due: today at [time] if that is still
   /// ahead, else tomorrow.
   static DateTime nextDue(DateTime now, TimeOfDay time) {
-    final today = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    final today = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
     return today.isAfter(now) ? today : today.add(const Duration(days: 1));
   }
 

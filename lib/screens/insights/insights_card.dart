@@ -68,7 +68,9 @@ class SessionInsightsLoader {
       for (final w in wellness) {
         if (w.ctl != null && w.atl != null) form = w.ctl! - w.atl!;
       }
-      final start = DateTime.tryParse(a.raw['start_date_local'] as String? ?? '');
+      final start = DateTime.tryParse(
+        a.raw['start_date_local'] as String? ?? '',
+      );
       final ended = start == null
           ? _clock()
           : start.add(Duration(seconds: a.movingTime ?? 0));
@@ -129,8 +131,9 @@ class _InsightsCardState extends State<InsightsCard> {
     return h > 0 ? '$h:${two(m)}:${two(s % 60)}' : '$m:${two(s % 60)}';
   }
 
-  String _distance(double m) =>
-      m >= 1000 ? '${(m / 1000).toStringAsFixed(m % 1000 == 0 ? 0 : 1)} km' : '${m.round()} m';
+  String _distance(double m) => m >= 1000
+      ? '${(m / 1000).toStringAsFixed(m % 1000 == 0 ? 0 : 1)} km'
+      : '${m.round()} m';
 
   String _best(AppLocalizations l10n, BestEffort b) {
     final previous = b.previous;
@@ -190,7 +193,10 @@ class _InsightsCardState extends State<InsightsCard> {
                 const SizedBox(height: 10),
               ],
               if (ef != null) ...[
-                Text(l10n.insightsEfficiency, style: theme.textTheme.titleSmall),
+                Text(
+                  l10n.insightsEfficiency,
+                  style: theme.textTheme.titleSmall,
+                ),
                 Text(
                   ef.median == null
                       ? l10n.insightsEfficiencyTooFew(

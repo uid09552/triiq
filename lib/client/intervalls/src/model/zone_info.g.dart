@@ -113,25 +113,19 @@ extension $ZoneInfoCopyWith on ZoneInfo {
 // JsonSerializableGenerator
 // **************************************************************************
 
-ZoneInfo _$ZoneInfoFromJson(Map<String, dynamic> json) => $checkedCreate(
-  'ZoneInfo',
-  json,
-  ($checkedConvert) {
-    final val = ZoneInfo(
-      id: $checkedConvert('id', (v) => v as String?),
-      start: $checkedConvert('start', (v) => (v as num?)?.toDouble()),
-      end: $checkedConvert('end', (v) => (v as num?)?.toDouble()),
-      startValue: $checkedConvert(
-        'start_value',
-        (v) => (v as num?)?.toDouble(),
-      ),
-      endValue: $checkedConvert('end_value', (v) => (v as num?)?.toDouble()),
-      secs: $checkedConvert('secs', (v) => (v as num?)?.toInt()),
-    );
-    return val;
-  },
-  fieldKeyMap: const {'startValue': 'start_value', 'endValue': 'end_value'},
-);
+ZoneInfo _$ZoneInfoFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('ZoneInfo', json, ($checkedConvert) {
+  final val = ZoneInfo(
+    id: $checkedConvert('id', (v) => v as String?),
+    start: $checkedConvert('start', (v) => (v as num?)?.toDouble()),
+    end: $checkedConvert('end', (v) => (v as num?)?.toDouble()),
+    startValue: $checkedConvert('start_value', (v) => (v as num?)?.toDouble()),
+    endValue: $checkedConvert('end_value', (v) => (v as num?)?.toDouble()),
+    secs: $checkedConvert('secs', (v) => (v as num?)?.toInt()),
+  );
+  return val;
+}, fieldKeyMap: const {'startValue': 'start_value', 'endValue': 'end_value'});
 
 Map<String, dynamic> _$ZoneInfoToJson(ZoneInfo instance) => <String, dynamic>{
   'id': ?instance.id,

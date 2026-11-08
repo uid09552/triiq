@@ -41,7 +41,9 @@ class FeelSettings extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_promptOnNewActivityKey, enabled);
     } catch (error) {
-      debugPrint('FeelSettings: cannot persist $_promptOnNewActivityKey: $error');
+      debugPrint(
+        'FeelSettings: cannot persist $_promptOnNewActivityKey: $error',
+      );
     }
   }
 }

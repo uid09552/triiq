@@ -74,12 +74,11 @@ class _MetricPreviewState extends State<MetricPreview> {
               bars: [
                 for (var i = 0; i < days; i++)
                   ChartBar(
-                    label: DateFormat.Md(locale).format(
-                      start.add(Duration(days: i)),
-                    ),
-                    value:
-                        (byDay[isoDate(start.add(Duration(days: i)))] ?? 0)
-                            .toDouble(),
+                    label: DateFormat.Md(
+                      locale,
+                    ).format(start.add(Duration(days: i))),
+                    value: (byDay[isoDate(start.add(Duration(days: i)))] ?? 0)
+                        .toDouble(),
                     highlighted: i == days - 1,
                   ),
               ],
@@ -111,9 +110,9 @@ class _MetricPreviewState extends State<MetricPreview> {
               bars: [
                 for (var i = 0; i < weeks; i++)
                   ChartBar(
-                    label: DateFormat.Md(locale).format(
-                      start.add(Duration(days: 7 * i)),
-                    ),
+                    label: DateFormat.Md(
+                      locale,
+                    ).format(start.add(Duration(days: 7 * i))),
                     value: perWeek[i].toDouble(),
                     highlighted: i == weeks - 1,
                   ),
@@ -135,8 +134,10 @@ class _MetricPreviewState extends State<MetricPreview> {
         final values = <double?>[
           for (var i = 0; i < days; i++)
             switch (widget.metric) {
-              TileMetric.ctl => byDate[isoDate(start.add(Duration(days: i)))]?.ctl,
-              TileMetric.atl => byDate[isoDate(start.add(Duration(days: i)))]?.atl,
+              TileMetric.ctl =>
+                byDate[isoDate(start.add(Duration(days: i)))]?.ctl,
+              TileMetric.atl =>
+                byDate[isoDate(start.add(Duration(days: i)))]?.atl,
               TileMetric.rampRate =>
                 byDate[isoDate(start.add(Duration(days: i)))]?.rampRate,
               _ => () {

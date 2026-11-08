@@ -10,6 +10,8 @@ class SectionCard extends StatelessWidget {
     this.icon,
     this.trailing,
     this.onLongPress,
+    this.collapsed,
+    this.onToggleCollapsed,
   });
 
   final String title;
@@ -20,9 +22,16 @@ class SectionCard extends StatelessWidget {
   /// Long-press on the header, e.g. to open the card's chart options.
   final VoidCallback? onLongPress;
 
+  /// Set (with [onToggleCollapsed]) to make the card foldable: a tap on the
+  /// header folds it down to the header or opens it again.
+  final bool? collapsed;
+  final VoidCallback? onToggleCollapsed;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final foldable = collapsed != null && onToggleCollapsed != null;
+    final isCollapsed = foldable && collapsed!;
 
     return Card(
       child: Padding(
@@ -33,6 +42,7 @@ class SectionCard extends StatelessWidget {
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onLongPress: onLongPress,
+              onTap: onToggleCollapsed,
               child: Row(
                 children: [
                   if (icon != null) ...[
@@ -55,11 +65,21 @@ class SectionCard extends StatelessWidget {
                     ),
                   ),
                   ?trailing,
+                  if (foldable)
+                    Semantics(
+                      button: true,
+                      label: title,
+                      expanded: !isCollapsed,
+                      child: Icon(
+                        isCollapsed ? Icons.expand_more : Icons.expand_less,
+                        key: const ValueKey('section-fold'),
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            child,
+            if (!isCollapsed) ...[const SizedBox(height: 12), child],
           ],
         ),
       ),

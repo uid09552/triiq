@@ -119,6 +119,9 @@ class TrainingAgent {
   /// message ("401 unauthorized", "connection refused") is what the athlete
   /// needs to see.
   Stream<AgentEvent> send(String input) async* {
+    // Before anything is built or sent: no consent, no request — whatever
+    // the screen that called us shows.
+    if (_settings.needsConsent) throw const AiConsentRequiredException();
     final toolset = _tools.build();
     final model = _chatModelFactory(_settings, toolset);
     final byName = {for (final tool in toolset) tool.name: tool};

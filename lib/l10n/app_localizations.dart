@@ -119,7 +119,7 @@ abstract class AppLocalizations {
   /// No description provided for @navStatistics.
   ///
   /// In en, this message translates to:
-  /// **'Statistics'**
+  /// **'Insights'**
   String get navStatistics;
 
   /// No description provided for @navMore.
@@ -1166,12 +1166,6 @@ abstract class AppLocalizations {
   /// **'Pull training data from Intervals.icu'**
   String get moreSyncSubtitle;
 
-  /// No description provided for @moreActivitiesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Every cached activity'**
-  String get moreActivitiesSubtitle;
-
   /// No description provided for @trainingPlansTitle.
   ///
   /// In en, this message translates to:
@@ -1183,18 +1177,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your own coaching documents the agent can search'**
   String get moreKnowledgeSubtitle;
-
-  /// No description provided for @gearTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Gear'**
-  String get gearTitle;
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
 
   /// No description provided for @knowledgeLibraryTitle.
   ///
@@ -1355,19 +1337,13 @@ abstract class AppLocalizations {
   /// No description provided for @noActivitiesCachedConnected.
   ///
   /// In en, this message translates to:
-  /// **'No activities cached yet — try Sync from More.'**
+  /// **'No activities cached yet.'**
   String get noActivitiesCachedConnected;
-
-  /// No description provided for @noActivitiesCachedDisconnected.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect your Intervals.icu account to see your activities.'**
-  String get noActivitiesCachedDisconnected;
 
   /// No description provided for @noActivitiesOfType.
   ///
   /// In en, this message translates to:
-  /// **'No {sport} activities cached — try Sync from More.'**
+  /// **'No {sport} activities cached.'**
   String noActivitiesOfType(String sport);
 
   /// No description provided for @showAllActivities.
@@ -1831,24 +1807,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get deleteTooltip;
-
-  /// No description provided for @deletePlannedWorkoutTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete this session?'**
-  String get deletePlannedWorkoutTitle;
-
-  /// No description provided for @deletePlannedWorkoutConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'“{name}” is removed from your Intervals.icu calendar. This can\'t be undone.'**
-  String deletePlannedWorkoutConfirm(String name);
-
-  /// No description provided for @workoutDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'“{name}” deleted from your Intervals.icu calendar.'**
-  String workoutDeleted(String name);
 
   /// No description provided for @couldNotDeleteWorkout.
   ///
@@ -2720,12 +2678,6 @@ abstract class AppLocalizations {
   /// **'This activity has no time-series data (for example a manual entry).'**
   String get sessionDiagramNoData;
 
-  /// No description provided for @sessionDiagramError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load the time series: {error}'**
-  String sessionDiagramError(String error);
-
   /// No description provided for @sessionIntervalsTitle.
   ///
   /// In en, this message translates to:
@@ -2923,12 +2875,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Weekly review'**
   String get weeklyReviewTitle;
-
-  /// No description provided for @moreReviewSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Plan vs done, 80/20 and load trend per week'**
-  String get moreReviewSubtitle;
 
   /// No description provided for @weeklyReviewTopic.
   ///
@@ -3245,7 +3191,7 @@ abstract class AppLocalizations {
   /// No description provided for @performanceTitle.
   ///
   /// In en, this message translates to:
-  /// **'Performance'**
+  /// **'Performance curves'**
   String get performanceTitle;
 
   /// No description provided for @performanceSubtitle.
@@ -3355,12 +3301,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No efforts for this sport and metric yet.'**
   String get curvesEmpty;
-
-  /// No description provided for @curvesLoadFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t load the curves: {error}'**
-  String curvesLoadFailed(String error);
 
   /// No description provided for @keyEffortsTitle.
   ///
@@ -4229,7 +4169,7 @@ abstract class AppLocalizations {
   /// No description provided for @yearGoalsHelp.
   ///
   /// In en, this message translates to:
-  /// **'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.'**
+  /// **'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Data & privacy → Sync for the full picture.'**
   String get yearGoalsHelp;
 
   /// No description provided for @yearGoalKmLabel.
@@ -4283,14 +4223,8 @@ abstract class AppLocalizations {
   /// No description provided for @analysisTitle.
   ///
   /// In en, this message translates to:
-  /// **'Analysis'**
+  /// **'Metric explorer'**
   String get analysisTitle;
-
-  /// No description provided for @moreAnalysisSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Compare metrics side by side'**
-  String get moreAnalysisSubtitle;
 
   /// No description provided for @analysisFilters.
   ///
@@ -6374,12 +6308,6 @@ abstract class AppLocalizations {
   /// **'Not enough work in the sessions found to reach these levels.'**
   String get durNoData;
 
-  /// No description provided for @durError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not read the sessions: {error}'**
-  String durError(String error);
-
   /// No description provided for @wtTitle.
   ///
   /// In en, this message translates to:
@@ -6746,12 +6674,6 @@ abstract class AppLocalizations {
   /// **'No efforts recorded in the last year.'**
   String get beNoData;
 
-  /// No description provided for @beError.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load your efforts: {error}'**
-  String beError(String error);
-
   /// No description provided for @heroTitleCaution.
   ///
   /// In en, this message translates to:
@@ -6763,6 +6685,984 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take it easy today'**
   String get heroTitleBackOff;
+
+  /// No description provided for @pvTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & data'**
+  String get pvTitle;
+
+  /// No description provided for @pvSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What TriIQ stores, who sees it, and your choices'**
+  String get pvSubtitle;
+
+  /// No description provided for @pvIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ has no account, no server and no tracking. Your data stays on this device and goes only to the services you connect yourself.'**
+  String get pvIntro;
+
+  /// No description provided for @pvDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is processed'**
+  String get pvDataTitle;
+
+  /// No description provided for @pvDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Activities and routes (GPS tracks) from Intervals.icu\n• Health and wellness data: heart rate, HRV, resting heart rate, sleep, weight and how you feel. This is health data, a special category under the GDPR.\n• Your profile: name, picture, thresholds, goals and plans\n• API keys for the services you connect'**
+  String get pvDataBody;
+
+  /// No description provided for @pvStoredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it is stored'**
+  String get pvStoredTitle;
+
+  /// No description provided for @pvStoredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on this device: a local database and app preferences. API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.'**
+  String get pvStoredBody;
+
+  /// No description provided for @pvRecipientsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who receives data'**
+  String get pvRecipientsTitle;
+
+  /// No description provided for @pvRecipientsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, or your own Ollama server): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.'**
+  String get pvRecipientsBody;
+
+  /// No description provided for @pvTransferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers outside the EU/EEA'**
+  String get pvTransferTitle;
+
+  /// No description provided for @pvTransferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A self-hosted Ollama server on your own network keeps the data with you.'**
+  String get pvTransferBody;
+
+  /// No description provided for @pvBasisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal basis'**
+  String get pvBasisTitle;
+
+  /// No description provided for @pvBasisBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing with Intervals.icu happens because you connected your account. Sending health and training data to an AI provider happens only with your explicit consent (GDPR Art. 6(1)(a) and 9(2)(a)), which you can withdraw at any time below. Map tiles are fetched only to show the map you opened; you can switch that off.'**
+  String get pvBasisBody;
+
+  /// No description provided for @pvRetentionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How long'**
+  String get pvRetentionTitle;
+
+  /// No description provided for @pvRetentionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Until you delete it: data stays on your device until you erase it here, restore a backup over it or uninstall the app. Data already sent to Intervals.icu or an AI provider is kept by them under their own rules.'**
+  String get pvRetentionBody;
+
+  /// No description provided for @pvRightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rights'**
+  String get pvRightsTitle;
+
+  /// No description provided for @pvRightsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Access and portability: Settings → Data & privacy → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.'**
+  String get pvRightsBody;
+
+  /// No description provided for @pvControlsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your choices'**
+  String get pvControlsTitle;
+
+  /// No description provided for @pvAiConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send my data to the AI provider'**
+  String get pvAiConsentTitle;
+
+  /// No description provided for @pvAiConsentHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Allows training and health data to be sent to your AI provider when you use the AI trainer. Off: the AI features stay unavailable.'**
+  String get pvAiConsentHelp;
+
+  /// No description provided for @pvAiConsentSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed on {date}'**
+  String pvAiConsentSince(String date);
+
+  /// No description provided for @pvMapTilesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load map tiles from OpenStreetMap'**
+  String get pvMapTilesTitle;
+
+  /// No description provided for @pvMapTilesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Route maps need tiles from OpenStreetMap, which sees your IP address and the area shown. Off: routes are drawn without a map.'**
+  String get pvMapTilesHelp;
+
+  /// No description provided for @pvEraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data on this device'**
+  String get pvEraseTitle;
+
+  /// No description provided for @pvEraseHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes activities, wellness, plans, settings, saved keys and the offline queue from this device and disconnects Intervals.icu. It does not delete anything at Intervals.icu or your AI provider.'**
+  String get pvEraseHelp;
+
+  /// No description provided for @pvEraseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data…'**
+  String get pvEraseButton;
+
+  /// No description provided for @pvEraseConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all data?'**
+  String get pvEraseConfirmTitle;
+
+  /// No description provided for @pvEraseConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything TriIQ stores on this device will be removed and the app disconnected. Export a backup first if you want to keep it. This cannot be undone.'**
+  String get pvEraseConfirmBody;
+
+  /// No description provided for @pvEraseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything'**
+  String get pvEraseConfirm;
+
+  /// No description provided for @pvEraseDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All data on this device was deleted.'**
+  String get pvEraseDone;
+
+  /// No description provided for @pvEraseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete everything: {error}'**
+  String pvEraseFailed(String error);
+
+  /// No description provided for @pvOpenWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the full privacy notice'**
+  String get pvOpenWeb;
+
+  /// No description provided for @pvContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions or requests: open an issue at github.com/uid09552/triiq.'**
+  String get pvContact;
+
+  /// No description provided for @pvConsentDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow AI processing?'**
+  String get pvConsentDialogTitle;
+
+  /// No description provided for @pvConsentDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Privacy & data.'**
+  String pvConsentDialogBody(String provider);
+
+  /// No description provided for @pvConsentAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get pvConsentAllow;
+
+  /// No description provided for @pvConsentNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pvConsentNotNow;
+
+  /// No description provided for @pvConsentCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI trainer needs your consent'**
+  String get pvConsentCardTitle;
+
+  /// No description provided for @pvConsentCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose whether your training and health data may be sent to {provider}.'**
+  String pvConsentCardBody(String provider);
+
+  /// No description provided for @pvProviderClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude (Anthropic)'**
+  String get pvProviderClaude;
+
+  /// No description provided for @pvProviderOllamaCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama Cloud'**
+  String get pvProviderOllamaCloud;
+
+  /// No description provided for @pvProviderOllamaServer.
+  ///
+  /// In en, this message translates to:
+  /// **'your Ollama server'**
+  String get pvProviderOllamaServer;
+
+  /// No description provided for @syncStatusNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced just now'**
+  String get syncStatusNow;
+
+  /// No description provided for @syncStatusMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {minutes} min ago'**
+  String syncStatusMinutes(int minutes);
+
+  /// No description provided for @syncStatusHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {hours} h ago'**
+  String syncStatusHours(int hours);
+
+  /// No description provided for @syncStatusDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced {days} d ago'**
+  String syncStatusDays(int days);
+
+  /// No description provided for @syncStatusNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get syncStatusNever;
+
+  /// No description provided for @syncStatusNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get syncStatusNotConnected;
+
+  /// No description provided for @syncStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting to send'**
+  String syncStatusWaiting(int count);
+
+  /// No description provided for @syncStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} failed to send'**
+  String syncStatusFailed(int count);
+
+  /// No description provided for @syncStatusTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open sync'**
+  String get syncStatusTooltip;
+
+  /// No description provided for @undoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undoButton;
+
+  /// No description provided for @workoutRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored “{name}”'**
+  String workoutRestored(String name);
+
+  /// No description provided for @replaceUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to “{name}”'**
+  String replaceUndone(String name);
+
+  /// No description provided for @couldNotUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not undo: {error}'**
+  String couldNotUndo(String error);
+
+  /// No description provided for @workoutReplacedUndoable.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} replaces the session'**
+  String workoutReplacedUndoable(String name);
+
+  /// No description provided for @workoutDeletedUndoable.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” deleted'**
+  String workoutDeletedUndoable(String name);
+
+  /// No description provided for @moreGroupPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get moreGroupPlan;
+
+  /// No description provided for @moreGroupTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get moreGroupTrainer;
+
+  /// No description provided for @moreGroupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get moreGroupData;
+
+  /// No description provided for @exNoIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'No intervals in this session.'**
+  String get exNoIntervals;
+
+  /// No description provided for @actTabOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get actTabOverview;
+
+  /// No description provided for @actTabCharts.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts'**
+  String get actTabCharts;
+
+  /// No description provided for @actTabIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals'**
+  String get actTabIntervals;
+
+  /// No description provided for @actTabMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get actTabMap;
+
+  /// No description provided for @actMoreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get actMoreActions;
+
+  /// No description provided for @actSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get actSearchHint;
+
+  /// No description provided for @actSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get actSearch;
+
+  /// No description provided for @actFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter and sort'**
+  String get actFilterTitle;
+
+  /// No description provided for @actFilterSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get actFilterSport;
+
+  /// No description provided for @actAllSports.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get actAllSports;
+
+  /// No description provided for @actFilterDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get actFilterDate;
+
+  /// No description provided for @actThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get actThisWeek;
+
+  /// No description provided for @actThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get actThisMonth;
+
+  /// No description provided for @actLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get actLast3Months;
+
+  /// No description provided for @actCustomRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get actCustomRange;
+
+  /// No description provided for @actFilterDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance (km)'**
+  String get actFilterDistance;
+
+  /// No description provided for @actFilterDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (min)'**
+  String get actFilterDuration;
+
+  /// No description provided for @actHasPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Has power'**
+  String get actHasPower;
+
+  /// No description provided for @actHasGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Has GPS'**
+  String get actHasGps;
+
+  /// No description provided for @actSortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get actSortBy;
+
+  /// No description provided for @actSortDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get actSortDate;
+
+  /// No description provided for @actSortDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get actSortDistance;
+
+  /// No description provided for @actSortDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get actSortDuration;
+
+  /// No description provided for @actSortLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load (TSS)'**
+  String get actSortLoad;
+
+  /// No description provided for @actResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 activity} other{{count} activities}}'**
+  String actResultCount(int count);
+
+  /// No description provided for @actClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get actClearFilters;
+
+  /// No description provided for @actNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity matches these filters.'**
+  String get actNoMatch;
+
+  /// No description provided for @actAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get actAny;
+
+  /// No description provided for @setGroupTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get setGroupTraining;
+
+  /// No description provided for @setGroupTrainingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly targets, year goals, how you feel'**
+  String get setGroupTrainingSub;
+
+  /// No description provided for @setGroupAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI trainer'**
+  String get setGroupAi;
+
+  /// No description provided for @setGroupAiSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider, model, AI consent'**
+  String get setGroupAiSub;
+
+  /// No description provided for @setGroupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data & privacy'**
+  String get setGroupData;
+
+  /// No description provided for @setGroupDataSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync, calendar, backup, privacy'**
+  String get setGroupDataSub;
+
+  /// No description provided for @setGroupApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get setGroupApp;
+
+  /// No description provided for @setGroupAppSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance, language, notifications'**
+  String get setGroupAppSub;
+
+  /// No description provided for @setSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get setSearchHint;
+
+  /// No description provided for @setNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No setting matches “{query}”.'**
+  String setNoResults(String query);
+
+  /// No description provided for @obSkipSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip setup'**
+  String get obSkipSetup;
+
+  /// No description provided for @obSkipStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this step'**
+  String get obSkipStep;
+
+  /// No description provided for @obNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get obNext;
+
+  /// No description provided for @obBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get obBack;
+
+  /// No description provided for @obWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to TriIQ'**
+  String get obWelcomeTitle;
+
+  /// No description provided for @obWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training companion for swim, bike and run: readiness each morning, load and fitness at a glance, plans that adapt, and an AI trainer that knows your data.'**
+  String get obWelcomeBody;
+
+  /// No description provided for @obWelcomePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays on this device. TriIQ reads it from Intervals.icu and only sends it to an AI provider if you agree.'**
+  String get obWelcomePrivacy;
+
+  /// No description provided for @obGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get obGetStarted;
+
+  /// No description provided for @obConnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu'**
+  String get obConnectTitle;
+
+  /// No description provided for @obConnectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ reads your activities, wellness and calendar from Intervals.icu. Paste your API key to connect.'**
+  String get obConnectBody;
+
+  /// No description provided for @obWhereKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do I find it?'**
+  String get obWhereKey;
+
+  /// No description provided for @obConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Test and connect'**
+  String get obConnect;
+
+  /// No description provided for @obConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected as {name}'**
+  String obConnected(String name);
+
+  /// No description provided for @obSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing this month…'**
+  String get obSyncing;
+
+  /// No description provided for @obSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'This month is synced: {count} activities.'**
+  String obSynced(int count);
+
+  /// No description provided for @obSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected, but the first sync failed. It will retry in the background.'**
+  String get obSyncFailed;
+
+  /// No description provided for @obTrainingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training'**
+  String get obTrainingTitle;
+
+  /// No description provided for @obTrainingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sports do you do, and how many hours a week? Today shows your progress as rings.'**
+  String get obTrainingBody;
+
+  /// No description provided for @obHoursPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport}: hours per week'**
+  String obHoursPerWeek(String sport);
+
+  /// No description provided for @obSwim.
+  ///
+  /// In en, this message translates to:
+  /// **'Swim'**
+  String get obSwim;
+
+  /// No description provided for @obRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride'**
+  String get obRide;
+
+  /// No description provided for @obRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get obRun;
+
+  /// No description provided for @obAiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI trainer (optional)'**
+  String get obAiTitle;
+
+  /// No description provided for @obAiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with a trainer that knows your data, and let it write plans. Pick a provider, or skip: you can set it up later in Settings.'**
+  String get obAiBody;
+
+  /// No description provided for @obAiNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get obAiNone;
+
+  /// No description provided for @obOllamaServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama server'**
+  String get obOllamaServer;
+
+  /// No description provided for @obAiSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and continue'**
+  String get obAiSave;
+
+  /// No description provided for @obDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re set'**
+  String get obDoneTitle;
+
+  /// No description provided for @obDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Today shows your readiness, today\'s training and your load. Everything you chose can be changed in Settings.'**
+  String get obDoneBody;
+
+  /// No description provided for @obOpenToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Today'**
+  String get obOpenToday;
+
+  /// No description provided for @obStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}'**
+  String obStep(int n, int total);
+
+  /// No description provided for @smOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get smOfflineTitle;
+
+  /// No description provided for @smOfflineReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing what\'s saved on this device. Try again once you\'re online.'**
+  String get smOfflineReason;
+
+  /// No description provided for @smRefusedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu refused the request'**
+  String get smRefusedTitle;
+
+  /// No description provided for @smRefusedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your API key in Profile.'**
+  String get smRefusedReason;
+
+  /// No description provided for @smNotConnectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get smNotConnectedTitle;
+
+  /// No description provided for @smNotConnectedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu in Profile to load this.'**
+  String get smNotConnectedReason;
+
+  /// No description provided for @smServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu is having trouble'**
+  String get smServerTitle;
+
+  /// No description provided for @smServerReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in a few minutes.'**
+  String get smServerReason;
+
+  /// No description provided for @smRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests'**
+  String get smRateTitle;
+
+  /// No description provided for @smRateReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu asks to slow down. Wait a minute, then try again.'**
+  String get smRateReason;
+
+  /// No description provided for @smLocalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read the data on this device'**
+  String get smLocalTitle;
+
+  /// No description provided for @smLocalReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again. If it keeps failing, a sync rebuilds it.'**
+  String get smLocalReason;
+
+  /// No description provided for @smGenericTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get smGenericTitle;
+
+  /// No description provided for @smGenericReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again.'**
+  String get smGenericReason;
+
+  /// No description provided for @smDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get smDetails;
+
+  /// No description provided for @smOpenProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Profile'**
+  String get smOpenProfile;
+
+  /// No description provided for @smOpenSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Sync'**
+  String get smOpenSync;
+
+  /// No description provided for @smNeedHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'This needs synced activities from Intervals.icu. Sync more history to fill it in.'**
+  String get smNeedHistory;
+
+  /// No description provided for @wtNoDataReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Wellness comes from your watch or app through Intervals.icu (HRV, resting heart rate, sleep, weight). Sync, or pick a longer range.'**
+  String get wtNoDataReason;
+
+  /// No description provided for @sessionDiagramNoDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No time series'**
+  String get sessionDiagramNoDataTitle;
+
+  /// No description provided for @a11yChartSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'{series}: latest {value}, {change} over the range'**
+  String a11yChartSeries(String series, String value, String change);
+
+  /// No description provided for @a11yChartSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected {label}: {values}'**
+  String a11yChartSelected(String label, String values);
+
+  /// No description provided for @a11yChartNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart, no data'**
+  String get a11yChartNoData;
+
+  /// No description provided for @a11yBarChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar chart, {count} bars. Latest {label}: {value}. Highest {maxLabel}: {max}.'**
+  String a11yBarChart(
+    int count,
+    String label,
+    String value,
+    String maxLabel,
+    String max,
+  );
+
+  /// No description provided for @a11yReadinessScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness {score} of 100'**
+  String a11yReadinessScore(int score);
+
+  /// No description provided for @a11yReadinessNoScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness, no score yet'**
+  String get a11yReadinessNoScore;
+
+  /// No description provided for @a11ySignalOk.
+  ///
+  /// In en, this message translates to:
+  /// **'fine'**
+  String get a11ySignalOk;
+
+  /// No description provided for @a11ySignalCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'caution'**
+  String get a11ySignalCaution;
+
+  /// No description provided for @a11ySignalBackOff.
+  ///
+  /// In en, this message translates to:
+  /// **'back off'**
+  String get a11ySignalBackOff;
+
+  /// No description provided for @a11ySignalNone.
+  ///
+  /// In en, this message translates to:
+  /// **'no rating'**
+  String get a11ySignalNone;
+
+  /// No description provided for @a11yHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Load heatmap: {days} days with training, {tss} TSS in total, longest streak {streak} days.'**
+  String a11yHeatmap(int days, int tss, int streak);
+
+  /// No description provided for @a11yStreamChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Time-series chart: {series}'**
+  String a11yStreamChart(String series);
 }
 
 class _AppLocalizationsDelegate

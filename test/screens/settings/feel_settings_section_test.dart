@@ -18,8 +18,9 @@ void main() {
         ),
       );
 
-  testWidgets('toggling it flips and persists promptOnNewActivity',
-      (tester) async {
+  testWidgets('toggling it flips and persists promptOnNewActivity', (
+    tester,
+  ) async {
     final settings = FeelSettings.forTesting();
     await settings.load();
     await open(tester, settings);

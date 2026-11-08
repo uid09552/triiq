@@ -4,8 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../evaluation/activity_route.dart';
-
-const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+import '../../widgets/osm_layers.dart';
 
 /// Colours that tell the two compared activities apart, in light and dark,
 /// for the lines, the map and the tracker alike.
@@ -71,11 +70,9 @@ class CompareRouteMap extends StatelessWidget {
             : (_, point) => onTap!(point.latitude, point.longitude),
       ),
       children: [
-        if (showTiles)
-          TileLayer(
-            urlTemplate: _tileUrl,
-            userAgentPackageName: 'com.triiq.triiq',
-          ),
+        // Only with the athlete's say-so (Settings → Privacy & data),
+        // and not before that choice has been read.
+        OsmTileLayer(showTiles: showTiles),
         PolylineLayer(
           polylines: [
             if (a.isNotEmpty)
@@ -116,10 +113,7 @@ class CompareRouteMap extends StatelessWidget {
             );
           },
         ),
-        if (showTiles)
-          const SimpleAttributionWidget(
-            source: Text('© OpenStreetMap contributors'),
-          ),
+        OsmAttribution(showTiles: showTiles),
       ],
     );
   }

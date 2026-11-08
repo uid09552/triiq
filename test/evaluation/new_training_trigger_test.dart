@@ -109,9 +109,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  testWidgets('an unseen session pops up after the open sync, once',
-      (tester) async {
-    await tester.runAsync(() => activities.upsertAll([act('ride', '07:00:00')]));
+  testWidgets('an unseen session pops up after the open sync, once', (
+    tester,
+  ) async {
+    await tester.runAsync(
+      () => activities.upsertAll([act('ride', '07:00:00')]),
+    );
     await pump(tester);
     await realWait(tester, 3);
     expect(find.text('New training'), findsNothing, reason: 'not before sync');
@@ -143,21 +146,26 @@ void main() {
     await fire(tester);
 
     expect(find.byKey(const ValueKey('new-training-dots')), findsOneWidget);
-    expect(find.byKey(const ValueKey('new-training-run')), findsOneWidget,
-        reason: 'newest first');
+    expect(
+      find.byKey(const ValueKey('new-training-run')),
+      findsOneWidget,
+      reason: 'newest first',
+    );
 
     await tester.tap(find.byKey(const ValueKey('new-training-ok')));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
     await realWait(tester);
-    expect(
-      await tester.runAsync(() => SeenSessionsStore().seenToday()),
-      {'run', 'swim'},
-    );
+    expect(await tester.runAsync(() => SeenSessionsStore().seenToday()), {
+      'run',
+      'swim',
+    });
   });
 
   testWidgets('switched off, or nothing new: no sheet', (tester) async {
-    await tester.runAsync(() => activities.upsertAll([act('ride', '07:00:00')]));
+    await tester.runAsync(
+      () => activities.upsertAll([act('ride', '07:00:00')]),
+    );
     enabled = false;
     await pump(tester);
     await fire(tester);
@@ -165,11 +173,15 @@ void main() {
   });
 
   testWidgets('never over another screen', (tester) async {
-    await tester.runAsync(() => activities.upsertAll([act('ride', '07:00:00')]));
+    await tester.runAsync(
+      () => activities.upsertAll([act('ride', '07:00:00')]),
+    );
     await pump(tester);
     final nav = tester.state<NavigatorState>(find.byType(Navigator));
     nav.push(
-      MaterialPageRoute<void>(builder: (_) => const Scaffold(body: Text('other'))),
+      MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(body: Text('other')),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -177,8 +189,9 @@ void main() {
     expect(find.text('New training'), findsNothing);
   });
 
-  testWidgets('a hard day before planned intervals offers an alternative',
-      (tester) async {
+  testWidgets('a hard day before planned intervals offers an alternative', (
+    tester,
+  ) async {
     await tester.runAsync(
       () => activities.upsertAll([act('big', '07:00:00', load: 220)]),
     );

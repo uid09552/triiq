@@ -34,7 +34,10 @@ ThresholdSuggestion _rideDown() => const ThresholdSuggestion(
 );
 
 void main() {
-  Future<void> pump(WidgetTester tester, List<ThresholdSuggestion> suggestions) async {
+  Future<void> pump(
+    WidgetTester tester,
+    List<ThresholdSuggestion> suggestions,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -54,7 +57,9 @@ void main() {
     expect(find.text('Threshold suggestions'), findsNothing);
   });
 
-  testWidgets('shows an up suggestion with its change and basis', (tester) async {
+  testWidgets('shows an up suggestion with its change and basis', (
+    tester,
+  ) async {
     await pump(tester, [_rideUp()]);
 
     expect(find.text('Threshold suggestions'), findsOneWidget);
@@ -66,7 +71,9 @@ void main() {
     );
   });
 
-  testWidgets('shows a down suggestion worded as likely dropped', (tester) async {
+  testWidgets('shows a down suggestion worded as likely dropped', (
+    tester,
+  ) async {
     await pump(tester, [_rideDown()]);
 
     expect(find.byIcon(Icons.arrow_downward), findsOneWidget);

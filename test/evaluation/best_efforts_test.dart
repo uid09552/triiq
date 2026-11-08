@@ -11,18 +11,29 @@ void main() {
 
   group('parsing', () {
     test('power: picks the wanted durations out of the response', () {
-      final out = parsePowerEfforts({
-        'secs': [1, 5, 60, 300, 1200, 3600],
-        'curves': [
-          {
-            'id': 'i1',
-            'start_date_local': '2026-10-01T08:00:00',
-            'watts': [900, 800, 450, 330, 280, 250],
-          },
-          {'id': 'i2', 'start_date_local': 'bad', 'watts': [1]},
-          {'id': 'i3', 'start_date_local': '2026-10-02T08:00:00', 'watts': [0, 0, 0, 0, 0, 0]},
-        ],
-      }, const [5, 60, 300, 1200]);
+      final out = parsePowerEfforts(
+        {
+          'secs': [1, 5, 60, 300, 1200, 3600],
+          'curves': [
+            {
+              'id': 'i1',
+              'start_date_local': '2026-10-01T08:00:00',
+              'watts': [900, 800, 450, 330, 280, 250],
+            },
+            {
+              'id': 'i2',
+              'start_date_local': 'bad',
+              'watts': [1],
+            },
+            {
+              'id': 'i3',
+              'start_date_local': '2026-10-02T08:00:00',
+              'watts': [0, 0, 0, 0, 0, 0],
+            },
+          ],
+        },
+        const [5, 60, 300, 1200],
+      );
       expect(out, hasLength(2));
       expect(out.first.date, '2026-10-01');
       expect(out.first.values, [800, 450, 330, 280]);
@@ -30,31 +41,52 @@ void main() {
     });
 
     test('pace: times as they are, speeds turned into times', () {
-      final times = parsePaceEfforts({
-        'distances': [1000, 5000, 10000, 21097],
-        'curves': [
-          {'id': 'a', 'start_date_local': '2026-10-01T07:00', 'times': [240, 1300, 2700, 6000]},
-        ],
-      }, const [1000.0, 5000.0, 10000.0]);
+      final times = parsePaceEfforts(
+        {
+          'distances': [1000, 5000, 10000, 21097],
+          'curves': [
+            {
+              'id': 'a',
+              'start_date_local': '2026-10-01T07:00',
+              'times': [240, 1300, 2700, 6000],
+            },
+          ],
+        },
+        const [1000.0, 5000.0, 10000.0],
+      );
       expect(times.single.values, [240, 1300, 2700]);
 
-      final speeds = parsePaceEfforts({
-        'distances': [1000, 5000],
-        'curves': [
-          {'id': 'b', 'start_date_local': '2026-10-02T07:00', 'values': [4.0, 3.8]},
-        ],
-      }, const [1000.0, 5000.0]);
+      final speeds = parsePaceEfforts(
+        {
+          'distances': [1000, 5000],
+          'curves': [
+            {
+              'id': 'b',
+              'start_date_local': '2026-10-02T07:00',
+              'values': [4.0, 3.8],
+            },
+          ],
+        },
+        const [1000.0, 5000.0],
+      );
       expect(speeds.single.values[0], closeTo(250, 1e-9));
       expect(speeds.single.values[1], closeTo(5000 / 3.8, 1e-9));
     });
 
     test('pace: finds the figures under an unexpected key', () {
-      final out = parsePaceEfforts({
-        'distances': [1000, 5000],
-        'curves': [
-          {'id': 'c', 'start_date_local': '2026-10-03T07:00', 'whatever': [250, 1400]},
-        ],
-      }, const [1000.0, 5000.0]);
+      final out = parsePaceEfforts(
+        {
+          'distances': [1000, 5000],
+          'curves': [
+            {
+              'id': 'c',
+              'start_date_local': '2026-10-03T07:00',
+              'whatever': [250, 1400],
+            },
+          ],
+        },
+        const [1000.0, 5000.0],
+      );
       expect(out.single.values, [250, 1400]);
     });
   });
@@ -85,7 +117,10 @@ void main() {
       expect(d.baseline, 540);
       expect(d.improvement, closeTo(-0.037, 0.001));
       // A point with no data on either side.
-      expect(effortDeltas(sessions, 4, today, lower: false)[0].improvement, isNull);
+      expect(
+        effortDeltas(sessions, 4, today, lower: false)[0].improvement,
+        isNull,
+      );
     });
 
     test('pace: a lower time is the improvement', () {
@@ -103,30 +138,35 @@ void main() {
   });
 
   group('repository', () {
-    test('caches, serves the cache while fresh, falls back when offline', () async {
-      var calls = 0;
-      var offline = false;
-      var now = DateTime(2026, 11, 7, 8);
-      final repo = BestEffortsRepository(
-        clock: () => now,
-        fetch: (sport, days) async {
-          calls++;
-          if (offline) throw StateError('offline');
-          return [s('2026-11-01', [800, 450, 330, 280])];
-        },
-      );
+    test(
+      'caches, serves the cache while fresh, falls back when offline',
+      () async {
+        var calls = 0;
+        var offline = false;
+        var now = DateTime(2026, 11, 7, 8);
+        final repo = BestEffortsRepository(
+          clock: () => now,
+          fetch: (sport, days) async {
+            calls++;
+            if (offline) throw StateError('offline');
+            return [
+              s('2026-11-01', [800, 450, 330, 280]),
+            ];
+          },
+        );
 
-      final first = await repo.load(CurveSport.ride, 111);
-      expect(first.single.values, [800, 450, 330, 280]);
-      await repo.load(CurveSport.ride, 111);
-      expect(calls, 1); // still fresh
+        final first = await repo.load(CurveSport.ride, 111);
+        expect(first.single.values, [800, 450, 330, 280]);
+        await repo.load(CurveSport.ride, 111);
+        expect(calls, 1); // still fresh
 
-      now = now.add(const Duration(hours: 7));
-      offline = true;
-      final stale = await repo.load(CurveSport.ride, 111);
-      expect(calls, 2); // asked again, failed
-      expect(stale.single.date, '2026-11-01'); // last copy
-    });
+        now = now.add(const Duration(hours: 7));
+        offline = true;
+        final stale = await repo.load(CurveSport.ride, 111);
+        expect(calls, 2); // asked again, failed
+        expect(stale.single.date, '2026-11-01'); // last copy
+      },
+    );
 
     test('no cache and no network is an error, not an empty list', () async {
       final repo = BestEffortsRepository(
@@ -144,7 +184,11 @@ void main() {
         message: 'boom',
         response: code == null
             ? null
-            : Response<Object>(requestOptions: req, statusCode: code, data: body),
+            : Response<Object>(
+                requestOptions: req,
+                statusCode: code,
+                data: body,
+              ),
       );
     }
 
@@ -153,7 +197,10 @@ void main() {
         describeDioFailure(failure(403, {'status': 403, 'error': 'Forbidden'})),
         'Intervals.icu answered HTTP 403: Forbidden',
       );
-      expect(describeDioFailure(failure(500)), 'Intervals.icu answered HTTP 500');
+      expect(
+        describeDioFailure(failure(500)),
+        'Intervals.icu answered HTTP 500',
+      );
       expect(
         describeDioFailure(failure(404, 'nope')),
         'Intervals.icu answered HTTP 404: nope',

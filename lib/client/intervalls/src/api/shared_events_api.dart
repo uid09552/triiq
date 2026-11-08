@@ -12,16 +12,15 @@ import 'package:dio/dio.dart';
 import 'package:triiq/client/intervalls/src/model/with_courses.dart';
 
 class SharedEventsApi {
-
   final Dio _dio;
 
   const SharedEventsApi(this._dio);
 
   /// Get a shared event (e.g. race)
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [fullCourse] - Include full course info (map, weather etc.)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -32,7 +31,7 @@ class SharedEventsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [WithCourses] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<WithCourses>> getSharedEvent({ 
+  Future<Response<WithCourses>> getSharedEvent({
     required int id,
     bool? fullCourse,
     CancelToken? cancelToken,
@@ -42,23 +41,19 @@ class SharedEventsApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/shared-event/{id}'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/shared-event/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -81,9 +76,14 @@ class SharedEventsApi {
     WithCourses? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<WithCourses, WithCourses>(rawData, 'WithCourses', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<WithCourses, WithCourses>(
+              rawData,
+              'WithCourses',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -105,5 +105,4 @@ _responseData = rawData == null ? null : deserialize<WithCourses, WithCourses>(r
       extra: _response.extra,
     );
   }
-
 }

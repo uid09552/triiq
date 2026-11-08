@@ -139,7 +139,12 @@ void main() {
 
     expect(await error({'weeks': 'eight'}), contains('weeks'));
     expect(await error({'weeks': 30}), contains('2 to 16'));
-    expect(await error({'load_factors': [1.5]}), contains('80%'));
+    expect(
+      await error({
+        'load_factors': [1.5],
+      }),
+      contains('80%'),
+    );
     expect(await error({'load_factors': 'flat'}), contains('load_factors'));
     expect(
       await error({
@@ -197,15 +202,17 @@ void main() {
     expect(first['sessions'], hasLength(3));
   });
 
-  test('bad arguments come back as an error string, not an exception',
-      () async {
-    final result = await call('generate_training_plan', {
-      ...args,
-      'weekdays': [2, 6],
-    });
+  test(
+    'bad arguments come back as an error string, not an exception',
+    () async {
+      final result = await call('generate_training_plan', {
+        ...args,
+        'weekdays': [2, 6],
+      });
 
-    expect(result['reason'], 'invalidGoal');
-  });
+      expect(result['reason'], 'invalidGoal');
+    },
+  );
 
   test('get_session_template explains one session', () async {
     final result = await call('get_session_template', {

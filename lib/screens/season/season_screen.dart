@@ -144,22 +144,34 @@ class _ForecastCard extends StatelessWidget {
           ? null
           : snapshot.races.last.date.add(const Duration(days: 7));
       final end = lastRace ?? snapshot.today.add(const Duration(days: 84));
-      final shown = [for (final d in days) if (!d.date.isAfter(end)) d];
+      final shown = [
+        for (final d in days)
+          if (!d.date.isAfter(end)) d,
+      ];
       final series = [
         ChartSeries(
-          label: l10n.forecastCtl, color: scheme.primary,
-          values: [for (final d in shown) d.ctl], fill: true, average: false,
+          label: l10n.forecastCtl,
+          color: scheme.primary,
+          values: [for (final d in shown) d.ctl],
+          fill: true,
+          average: false,
         ),
         ChartSeries(
-          label: l10n.forecastAtl, color: scheme.error,
-          values: [for (final d in shown) d.atl], average: false,
+          label: l10n.forecastAtl,
+          color: scheme.error,
+          values: [for (final d in shown) d.atl],
+          average: false,
         ),
         ChartSeries(
-          label: l10n.forecastForm, color: scheme.tertiary,
-          values: [for (final d in shown) d.form], average: false,
+          label: l10n.forecastForm,
+          color: scheme.tertiary,
+          values: [for (final d in shown) d.form],
+          average: false,
         ),
       ];
-      final idx = selected != null && selected! < shown.length ? selected : null;
+      final idx = selected != null && selected! < shown.length
+          ? selected
+          : null;
       final sel = idx == null ? null : shown[idx];
       final upcoming = [
         for (final r in snapshot.races)
@@ -167,16 +179,14 @@ class _ForecastCard extends StatelessWidget {
       ];
       final peak = upcoming.isEmpty
           ? null
-          : peakForm(
-              days,
-              snapshot.today,
-              upcoming.last.date,
-            );
+          : peakForm(days, snapshot.today, upcoming.last.date);
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.forecastSubtitle,
-              style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            l10n.forecastSubtitle,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 12),
           SizedBox(
             height: 220,
@@ -342,11 +352,15 @@ class _TimelineCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 10, height: 10, color: _blockColor(scheme, k),
+                      width: 10,
+                      height: 10,
+                      color: _blockColor(scheme, k),
                     ),
                     const SizedBox(width: 6),
-                    Text(blockLabel(l10n, k),
-                        style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      blockLabel(l10n, k),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
             ],
@@ -385,7 +399,11 @@ class _TimelineCard extends StatelessWidget {
           if (snapshot.conflicts.isEmpty)
             Row(
               children: [
-                Icon(Icons.check_circle_outline, color: scheme.primary, size: 18),
+                Icon(
+                  Icons.check_circle_outline,
+                  color: scheme.primary,
+                  size: 18,
+                ),
                 const SizedBox(width: 6),
                 Expanded(child: Text(l10n.conflictNone)),
               ],
@@ -397,8 +415,11 @@ class _TimelineCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
-                        color: scheme.error, size: 18),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: scheme.error,
+                      size: 18,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(

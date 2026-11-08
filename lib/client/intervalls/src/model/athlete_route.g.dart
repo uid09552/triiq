@@ -149,47 +149,49 @@ extension $AthleteRouteCopyWith on AthleteRoute {
 // JsonSerializableGenerator
 // **************************************************************************
 
-AthleteRoute _$AthleteRouteFromJson(
-  Map<String, dynamic> json,
-) => $checkedCreate(
-  'AthleteRoute',
-  json,
-  ($checkedConvert) {
-    final val = AthleteRoute(
-      athleteId: $checkedConvert('athlete_id', (v) => v as String?),
-      routeId: $checkedConvert('route_id', (v) => (v as num?)?.toInt()),
-      name: $checkedConvert('name', (v) => v as String?),
-      renameActivities: $checkedConvert('rename_activities', (v) => v as bool?),
-      commute: $checkedConvert('commute', (v) => v as bool?),
-      tags: $checkedConvert(
-        'tags',
-        (v) => (v as List<dynamic>?)?.map((e) => e as String).toList(),
-      ),
-      description: $checkedConvert('description', (v) => v as String?),
-      replacedByRouteId: $checkedConvert(
-        'replaced_by_route_id',
-        (v) => (v as num?)?.toInt(),
-      ),
-      latlngs: $checkedConvert(
-        'latlngs',
-        (v) => (v as List<dynamic>?)
-            ?.map(
-              (e) => (e as List<dynamic>)
-                  .map((e) => (e as num).toDouble())
-                  .toList(),
-            )
-            .toList(),
-      ),
+AthleteRoute _$AthleteRouteFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      'AthleteRoute',
+      json,
+      ($checkedConvert) {
+        final val = AthleteRoute(
+          athleteId: $checkedConvert('athlete_id', (v) => v as String?),
+          routeId: $checkedConvert('route_id', (v) => (v as num?)?.toInt()),
+          name: $checkedConvert('name', (v) => v as String?),
+          renameActivities: $checkedConvert(
+            'rename_activities',
+            (v) => v as bool?,
+          ),
+          commute: $checkedConvert('commute', (v) => v as bool?),
+          tags: $checkedConvert(
+            'tags',
+            (v) => (v as List<dynamic>?)?.map((e) => e as String).toList(),
+          ),
+          description: $checkedConvert('description', (v) => v as String?),
+          replacedByRouteId: $checkedConvert(
+            'replaced_by_route_id',
+            (v) => (v as num?)?.toInt(),
+          ),
+          latlngs: $checkedConvert(
+            'latlngs',
+            (v) => (v as List<dynamic>?)
+                ?.map(
+                  (e) => (e as List<dynamic>)
+                      .map((e) => (e as num).toDouble())
+                      .toList(),
+                )
+                .toList(),
+          ),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'athleteId': 'athlete_id',
+        'routeId': 'route_id',
+        'renameActivities': 'rename_activities',
+        'replacedByRouteId': 'replaced_by_route_id',
+      },
     );
-    return val;
-  },
-  fieldKeyMap: const {
-    'athleteId': 'athlete_id',
-    'routeId': 'route_id',
-    'renameActivities': 'rename_activities',
-    'replacedByRouteId': 'replaced_by_route_id',
-  },
-);
 
 Map<String, dynamic> _$AthleteRouteToJson(AthleteRoute instance) =>
     <String, dynamic>{

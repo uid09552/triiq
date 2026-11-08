@@ -57,69 +57,77 @@ void main() {
     );
   }
 
-  test('runs a requested tool and feeds the result back to the model',
-      () async {
-    agent = buildAgent([
-      AIChatMessage.text(
-        'Let me look that up.',
-        toolCalls: const [
-          AIChatMessageToolCall(
-            id: 'call-1',
-            name: 'get_training_guidance',
-            argumentsRaw: '{"topic":"topic"}',
-            arguments: {'topic': 'topic'},
-          ),
-        ],
-      ),
-      AIChatMessage.text('Here is the answer.'),
-    ]);
+  test(
+    'runs a requested tool and feeds the result back to the model',
+    () async {
+      agent = buildAgent([
+        AIChatMessage.text(
+          'Let me look that up.',
+          toolCalls: const [
+            AIChatMessageToolCall(
+              id: 'call-1',
+              name: 'get_training_guidance',
+              argumentsRaw: '{"topic":"topic"}',
+              arguments: {'topic': 'topic'},
+            ),
+          ],
+        ),
+        AIChatMessage.text('Here is the answer.'),
+      ]);
 
-    final events = await agent.send('What does my reference say?').toList();
+      final events = await agent.send('What does my reference say?').toList();
 
-    expect(
-      events.whereType<AgentTextDelta>().map((e) => e.text).join(),
-      'Let me look that up.Here is the answer.',
-    );
-    expect(events.whereType<AgentToolStarted>().single.name,
-        'get_training_guidance');
-    expect(events.whereType<AgentToolFinished>().single.failed, isFalse);
+      expect(
+        events.whereType<AgentTextDelta>().map((e) => e.text).join(),
+        'Let me look that up.Here is the answer.',
+      );
+      expect(
+        events.whereType<AgentToolStarted>().single.name,
+        'get_training_guidance',
+      );
+      expect(events.whereType<AgentToolFinished>().single.failed, isFalse);
 
-    // Second turn: system prompt + context, then human, assistant, tool.
-    final secondPrompt = model.prompts[1];
-    expect(secondPrompt.whereType<SystemChatMessage>(), hasLength(2));
-    final toolResult = secondPrompt.whereType<ToolChatMessage>().single;
-    expect(toolResult.toolCallId, 'call-1');
-    expect(toolResult.content, contains('Body.'));
-  });
+      // Second turn: system prompt + context, then human, assistant, tool.
+      final secondPrompt = model.prompts[1];
+      expect(secondPrompt.whereType<SystemChatMessage>(), hasLength(2));
+      final toolResult = secondPrompt.whereType<ToolChatMessage>().single;
+      expect(toolResult.toolCallId, 'call-1');
+      expect(toolResult.content, contains('Body.'));
+    },
+  );
 
-  test('a bad tool argument comes back as data the model can recover from',
-      () async {
-    agent = buildAgent([
-      AIChatMessage.text(
-        '',
-        toolCalls: const [
-          AIChatMessageToolCall(
-            id: 'call-1',
-            name: 'get_activities',
-            argumentsRaw: '{"start_date":"whenever"}',
-            arguments: {'start_date': 'whenever'},
-          ),
-        ],
-      ),
-      AIChatMessage.text('I need a proper date.'),
-    ]);
+  test(
+    'a bad tool argument comes back as data the model can recover from',
+    () async {
+      agent = buildAgent([
+        AIChatMessage.text(
+          '',
+          toolCalls: const [
+            AIChatMessageToolCall(
+              id: 'call-1',
+              name: 'get_activities',
+              argumentsRaw: '{"start_date":"whenever"}',
+              arguments: {'start_date': 'whenever'},
+            ),
+          ],
+        ),
+        AIChatMessage.text('I need a proper date.'),
+      ]);
 
-    final events = await agent.send('Show me my rides').toList();
+      final events = await agent.send('Show me my rides').toList();
 
-    expect(events.whereType<AgentToolFinished>().single.failed, isFalse);
-    final toolResult =
-        model.prompts[1].whereType<ToolChatMessage>().single.content;
-    expect(toolResult, contains('YYYY-MM-DD'));
-    expect(
-      events.whereType<AgentTextDelta>().map((e) => e.text).join(),
-      'I need a proper date.',
-    );
-  });
+      expect(events.whereType<AgentToolFinished>().single.failed, isFalse);
+      final toolResult = model.prompts[1]
+          .whereType<ToolChatMessage>()
+          .single
+          .content;
+      expect(toolResult, contains('YYYY-MM-DD'));
+      expect(
+        events.whereType<AgentTextDelta>().map((e) => e.text).join(),
+        'I need a proper date.',
+      );
+    },
+  );
 
   test('an unknown tool name is answered rather than thrown', () async {
     agent = buildAgent([
@@ -146,30 +154,33 @@ void main() {
     );
   });
 
-  test('stops after maxIterations rather than looping on the same call',
-      () async {
-    final loopingTurn = AIChatMessage.text(
-      '',
-      toolCalls: const [
-        AIChatMessageToolCall(
-          id: 'call-1',
-          name: 'get_athlete_context',
-          argumentsRaw: '{}',
-          arguments: {},
-        ),
-      ],
-    );
-    agent = buildAgent(List.filled(TrainingAgent.maxIterations + 2,
-        loopingTurn));
+  test(
+    'stops after maxIterations rather than looping on the same call',
+    () async {
+      final loopingTurn = AIChatMessage.text(
+        '',
+        toolCalls: const [
+          AIChatMessageToolCall(
+            id: 'call-1',
+            name: 'get_athlete_context',
+            argumentsRaw: '{}',
+            arguments: {},
+          ),
+        ],
+      );
+      agent = buildAgent(
+        List.filled(TrainingAgent.maxIterations + 2, loopingTurn),
+      );
 
-    final events = await agent.send('Loop forever').toList();
+      final events = await agent.send('Loop forever').toList();
 
-    expect(model.prompts, hasLength(TrainingAgent.maxIterations));
-    expect(
-      events.whereType<AgentTextDelta>().last.text,
-      contains('ran out of steps'),
-    );
-  });
+      expect(model.prompts, hasLength(TrainingAgent.maxIterations));
+      expect(
+        events.whereType<AgentTextDelta>().last.text,
+        contains('ran out of steps'),
+      );
+    },
+  );
 
   test('the runtime context tells the model today and the cache state', () {
     final context = buildRuntimeContext(
@@ -194,7 +205,7 @@ void main() {
 /// A chat model that replays [turns] and records every prompt it was given.
 class _ScriptedChatModel extends BaseChatModel<FakeChatModelOptions> {
   _ScriptedChatModel(this.turns)
-      : super(defaultOptions: const FakeChatModelOptions());
+    : super(defaultOptions: const FakeChatModelOptions());
 
   final List<AIChatMessage> turns;
   final prompts = <List<ChatMessage>>[];
