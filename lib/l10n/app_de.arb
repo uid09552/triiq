@@ -1453,5 +1453,12 @@
   "loginCancelled": "Anmeldung abgebrochen.",
   "loginFailed": "Anmeldung fehlgeschlagen: {error}",
   "connectedViaOAuth": "Mit Intervals.icu angemeldet",
-  "connectedViaApiKey": "Mit einem API-Schlüssel verbunden"
+  "connectedViaApiKey": "Mit einem API-Schlüssel verbunden",
+  "readinessSignalLoad": "Belastung",
+  "readinessSignalDevice": "Gerät",
+  "readinessOptionLoad": "Belastung: das heutige Training bisher und das Verhältnis akut zu chronisch (ATL ÷ CTL)",
+  "readinessOptionDevice": "Der Bereitschaftswert, den deine Uhr oder App in Intervals.icu einträgt (0–100)",
+  "readinessRangeLoad": "Normal unter {value} ATL ÷ CTL",
+  "readinessLoadToday": "{tss} TSS heute",
+  "readinessRangeDevice": "Normal ab {value}"
 }

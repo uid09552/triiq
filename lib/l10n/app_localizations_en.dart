@@ -4659,4 +4659,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectedViaApiKey => 'Connected with an API key';
+
+  @override
+  String get readinessSignalLoad => 'Load';
+
+  @override
+  String get readinessSignalDevice => 'Device';
+
+  @override
+  String get readinessOptionLoad =>
+      'Load: today\'s training so far, and the acute:chronic ratio (ATL ÷ CTL)';
+
+  @override
+  String get readinessOptionDevice =>
+      'The readiness figure your watch or app writes to Intervals.icu (0–100)';
+
+  @override
+  String readinessRangeLoad(String value) {
+    return 'Normal below $value ATL ÷ CTL';
+  }
+
+  @override
+  String readinessLoadToday(String tss) {
+    return '$tss TSS today';
+  }
+
+  @override
+  String readinessRangeDevice(String value) {
+    return 'Normal from $value';
+  }
 }

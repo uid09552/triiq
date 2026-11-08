@@ -22,6 +22,8 @@ Future<void> showReadinessOptions(
     ReadinessSignalKind.sleep => l10n.readinessOptionSleep,
     ReadinessSignalKind.form => l10n.readinessOptionForm,
     ReadinessSignalKind.subjective => l10n.readinessOptionSubjective,
+    ReadinessSignalKind.load => l10n.readinessOptionLoad,
+    ReadinessSignalKind.device => l10n.readinessOptionDevice,
   };
 
   return showChartOptions(

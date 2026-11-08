@@ -111,7 +111,10 @@ class _ReadinessScreenState extends State<ReadinessScreen> {
             child: Column(
               children: [
                 // The ones that count first, then the switched-off ones.
-                for (final s in r.active) _SignalTile(signal: s),
+                for (final s in r.active)
+                  if (!(s.kind == ReadinessSignalKind.device &&
+                      s.rating == SignalRating.missing))
+                    _SignalTile(signal: s),
                 for (final s in r.signals)
                   if (s.rating == SignalRating.excluded) _SignalTile(signal: s),
               ],
@@ -176,6 +179,8 @@ class _SignalTile extends StatelessWidget {
             ReadinessSignalKind.sleep => _hours(value),
             ReadinessSignalKind.form => _fmt(value, 1),
             ReadinessSignalKind.subjective => _fmt(value, 0),
+            ReadinessSignalKind.load => _fmt(value, 2),
+            ReadinessSignalKind.device => _fmt(value, 0),
           };
 
     final mean = s.mean;
@@ -191,6 +196,12 @@ class _SignalTile extends StatelessWidget {
       ReadinessSignalKind.form when bound != null => l10n.readinessRangeForm(
         _fmt(bound, 0),
       ),
+      ReadinessSignalKind.load when bound != null => [
+        l10n.readinessRangeLoad(_fmt(bound, 2)),
+        if (s.dayLoad != null) l10n.readinessLoadToday(_fmt(s.dayLoad!, 0)),
+      ].join(' · '),
+      ReadinessSignalKind.device when bound != null =>
+        l10n.readinessRangeDevice(_fmt(bound, 0)),
       ReadinessSignalKind.subjective when value != null =>
         l10n.readinessSubjectiveValues(
           s.fatigue?.toString() ?? '—',

@@ -11,6 +11,10 @@ class ReadinessRules {
     this.restingHrBpm = const [5, 10],
     this.sleepHoursCaution = 6,
     this.form = const [-20, -30],
+    this.acwr = const [1.3, 1.5],
+    this.dayLoadVsCtl = const [1.5, 2.5],
+    this.minCtl = 10,
+    this.deviceReadiness = const [50, 25],
     this.baselineDays = 60,
     this.minBaselineDays = 14,
   });
@@ -26,6 +30,23 @@ class ReadinessRules {
 
   /// Form (CTL − ATL) below these values.
   final List<double> form;
+
+  /// Acute:chronic load ratio (ATL ÷ CTL) at or above these values. Around
+  /// 0.8–1.3 is the usual "sweet spot"; beyond 1.5 the recent load is far
+  /// ahead of what the athlete is used to.
+  final List<double> acwr;
+
+  /// Today's training load as a multiple of CTL (the athlete's usual daily
+  /// load) at or above these values: a day that big has already taken a lot.
+  final List<double> dayLoadVsCtl;
+
+  /// Below this CTL the athlete has too little history for the two load
+  /// ratios to mean anything.
+  final double minCtl;
+
+  /// The readiness figure a connected device writes (0–100), below these
+  /// values.
+  final List<double> deviceReadiness;
 
   /// The window before today a baseline is taken from, and how many days of
   /// it need a value before the baseline counts.
@@ -55,6 +76,10 @@ class ReadinessRules {
       sleepHoursCaution:
           number('sleepHoursCaution')?.toDouble() ?? d.sleepHoursCaution,
       form: pair('form', d.form),
+      acwr: pair('acwr', d.acwr),
+      dayLoadVsCtl: pair('dayLoadVsCtl', d.dayLoadVsCtl),
+      minCtl: number('minCtl')?.toDouble() ?? d.minCtl,
+      deviceReadiness: pair('deviceReadiness', d.deviceReadiness),
       baselineDays: number('baselineDays')?.toInt() ?? d.baselineDays,
       minBaselineDays: number('minBaselineDays')?.toInt() ?? d.minBaselineDays,
     );
@@ -77,7 +102,19 @@ enum ReadinessLevel { ready, caution, backOff }
 /// off by the athlete) never affect the status or the score.
 enum SignalRating { ok, caution, backOff, noBaseline, missing, excluded }
 
-enum ReadinessSignalKind { hrv, restingHr, sleep, form, subjective }
+enum ReadinessSignalKind {
+  hrv,
+  restingHr,
+  sleep,
+  form,
+  subjective,
+
+  /// The load already taken: today's training and the acute:chronic ratio.
+  load,
+
+  /// The readiness figure the athlete's device or app wrote.
+  device,
+}
 
 /// Whether today's wearable data (HRV, resting HR, sleep) is in.
 enum ReadinessDataState {
@@ -101,6 +138,7 @@ class ReadinessSignal {
     this.okBound,
     this.fatigue,
     this.soreness,
+    this.dayLoad,
   });
 
   final ReadinessSignalKind kind;
@@ -122,6 +160,9 @@ class ReadinessSignal {
   final int? fatigue;
   final int? soreness;
 
+  /// Today's training load (TSS), for [ReadinessSignalKind.load].
+  final double? dayLoad;
+
   bool get counts =>
       rating == SignalRating.caution || rating == SignalRating.backOff;
 
@@ -135,6 +176,7 @@ class ReadinessSignal {
     okBound: okBound,
     fatigue: fatigue,
     soreness: soreness,
+    dayLoad: dayLoad,
   );
 }
 
@@ -175,11 +217,14 @@ class Readiness {
       signals.firstWhere((s) => s.kind == kind);
 }
 
-/// A 0–100 summary of how many of today's signals are in their normal range:
-/// each rated signal counts 100 (ok), 65 (caution) or 30 (back off), averaged.
-/// Null when no signal could be rated (no baseline or no values yet) — the
-/// level alone is then all there is to say. A display aid; the [Readiness.level]
-/// stays the verdict.
+/// A 0–100 summary of today's signals: each rated signal counts 100 (ok),
+/// 65 (caution) or 30 (back off). The score is half the average and half the
+/// weakest signal, so one signal that is off — a session that already took
+/// a lot, a low HRV — shows in the number instead of being averaged away,
+/// and it never reads better than the verdict: at most 79 on Caution and 59
+/// on Back off. Null when no signal could be rated (no baseline or no values
+/// yet) — the level alone is then all there is to say. A display aid; the
+/// [Readiness.level] stays the verdict.
 int? readinessScore(Readiness r) {
   final rated = [
     for (final s in r.signals)
@@ -191,7 +236,14 @@ int? readinessScore(Readiness r) {
       },
   ].whereType<int>().toList();
   if (rated.isEmpty) return null;
-  return (rated.reduce((a, b) => a + b) / rated.length).round();
+  final average = rated.reduce((a, b) => a + b) / rated.length;
+  final weakest = rated.reduce(math.min);
+  final blend = ((average + weakest) / 2).round();
+  return switch (r.level) {
+    ReadinessLevel.ready => blend,
+    ReadinessLevel.caution => math.min(blend, 79),
+    ReadinessLevel.backOff => math.min(blend, 59),
+  };
 }
 
 /// Rates [today] from [records] (any order; only the [today] row and the
@@ -363,8 +415,50 @@ Readiness evaluateReadiness(
     soreness: soreness,
   );
 
+  // Load: how much is already on the legs. Today's training load against
+  // the athlete's usual daily load (CTL), and the acute:chronic ratio
+  // (ATL ÷ CTL) — both include today's session once Intervals.icu has it.
+  final dayLoad = todayRecord == null
+      ? null
+      : _positive(todayRecord.atlLoad) ?? _positive(todayRecord.ctlLoad);
+  final ctl = loadRecord?.ctl;
+  final atl = loadRecord?.atl;
+  final enoughHistory = ctl != null && ctl >= rules.minCtl;
+  final ratio = enoughHistory && atl != null ? atl / ctl : null;
+  final dayShare = enoughHistory && dayLoad != null ? dayLoad / ctl : null;
+  final loadRating = loadRecord == null
+      ? SignalRating.missing
+      : !enoughHistory
+      ? SignalRating.noBaseline
+      : _worst([
+          _atLeast(ratio, rules.acwr),
+          _atLeast(dayShare, rules.dayLoadVsCtl),
+        ]);
+  final load = ReadinessSignal(
+    kind: ReadinessSignalKind.load,
+    rating: loadRating,
+    value: ratio,
+    okBound: rules.acwr[0],
+    dayLoad: dayLoad,
+  );
+
+  // Device readiness (0-100), as the athlete's watch or app wrote it.
+  final deviceValue = _deviceScore(todayRecord?.raw['readiness']);
+  final device = ReadinessSignal(
+    kind: ReadinessSignalKind.device,
+    rating: deviceValue == null
+        ? SignalRating.missing
+        : deviceValue < rules.deviceReadiness[1]
+        ? SignalRating.backOff
+        : deviceValue < rules.deviceReadiness[0]
+        ? SignalRating.caution
+        : SignalRating.ok,
+    value: deviceValue,
+    okBound: rules.deviceReadiness[0],
+  );
+
   final signals = [
-    for (final s in [hrv, restingHr, sleep, form, subjective])
+    for (final s in [hrv, restingHr, sleep, form, subjective, load, device])
       on.contains(s.kind) ? s : s.excluded(),
   ];
   final backOffs = signals.where((s) => s.rating == SignalRating.backOff);
@@ -382,6 +476,32 @@ Readiness evaluateReadiness(
     lastRecordedDate: recorded.isEmpty ? null : recorded.last,
     deviceReadiness: _positive(todayRecord?.raw['readiness']),
   );
+}
+
+/// [value] at or above the caution / back-off bound of [bounds]; ok below,
+/// missing when there is no value.
+SignalRating _atLeast(double? value, List<double> bounds) => value == null
+    ? SignalRating.missing
+    : value >= bounds[1]
+    ? SignalRating.backOff
+    : value >= bounds[0]
+    ? SignalRating.caution
+    : SignalRating.ok;
+
+/// The worst of the ratings that exist (missing ones don't count); missing
+/// when none does.
+SignalRating _worst(List<SignalRating> ratings) {
+  final rated = ratings.where((r) => r != SignalRating.missing).toList();
+  if (rated.isEmpty) return SignalRating.missing;
+  if (rated.contains(SignalRating.backOff)) return SignalRating.backOff;
+  if (rated.contains(SignalRating.caution)) return SignalRating.caution;
+  return SignalRating.ok;
+}
+
+/// A device readiness on the 0-100 scale; anything else is not one.
+double? _deviceScore(Object? raw) {
+  final v = _positive(raw);
+  return v == null || v > 100 ? null : v;
 }
 
 (double, double) _meanSd(List<double> values) {

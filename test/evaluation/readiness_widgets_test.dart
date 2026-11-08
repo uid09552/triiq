@@ -33,6 +33,7 @@ LocalWellness _day(
   num? sleepSecs,
   double ctl = 60,
   double atl = 60,
+  double? atlLoad,
   num? readiness,
   int? fatigue,
 }) {
@@ -44,7 +45,7 @@ LocalWellness _day(
     ctl: ctl,
     atl: atl,
     ctlLoad: null,
-    atlLoad: null,
+    atlLoad: atlLoad,
     rampRate: null,
     raw: {
       'id': date,
@@ -89,6 +90,82 @@ Widget _app(Widget child) => MaterialApp(
 );
 
 void main() {
+  group('load and device signals', () {
+    List<LocalWellness> records({double? atlLoad, num? readiness}) => [
+      ..._baseline(),
+      _day(
+        0,
+        hrv: 62,
+        rhr: 48,
+        sleepSecs: 8 * 3600,
+        atl: 66,
+        atlLoad: atlLoad,
+        readiness: readiness,
+      ),
+    ];
+
+    testWidgets('a big session today shows on the card: Load pill and a lower '
+        'score', (tester) async {
+      await tester.pumpWidget(
+        _app(ReadinessCard(report: _report(records(atlLoad: 100)))),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pill-load')), findsOneWidget);
+      expect(find.text('Load'), findsOneWidget);
+      expect(find.text('Caution'), findsWidgets);
+      final score = int.parse(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('readiness-score')))
+            .data!,
+      );
+      expect(score, lessThan(100));
+    });
+
+    testWidgets('the same day without that session reads 100', (tester) async {
+      await tester.pumpWidget(
+        _app(ReadinessCard(report: _report(records(atlLoad: 40)))),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Text>(find.byKey(const ValueKey('readiness-score'))).data,
+        '100',
+      );
+    });
+
+    testWidgets('the Device pill appears only when the watch wrote a figure', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_app(ReadinessCard(report: _report(records()))));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pill-device')), findsNothing);
+
+      await tester.pumpWidget(
+        _app(ReadinessCard(report: _report(records(readiness: 38)))),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pill-device')), findsOneWidget);
+      expect(find.text('38'), findsOneWidget);
+    });
+
+    testWidgets('the detail screen lists Load with today\'s TSS', (
+      tester,
+    ) async {
+      final r = records(atlLoad: 100);
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: ReadinessScreen(report: _report(r)),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('Load'), findsOneWidget);
+      expect(find.textContaining('100 TSS today'), findsOneWidget);
+      expect(find.textContaining('ATL ÷ CTL'), findsOneWidget);
+    });
+  });
+
   group('readiness card', () {
     testWidgets('Ready', (tester) async {
       await tester.pumpWidget(

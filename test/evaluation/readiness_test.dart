@@ -12,6 +12,7 @@ LocalWellness _day(
   num? sleepSecs,
   double? ctl = 60,
   double? atl = 60,
+  double? atlLoad,
   int? fatigue,
   int? soreness,
   num? readiness,
@@ -24,7 +25,7 @@ LocalWellness _day(
     ctl: ctl,
     atl: atl,
     ctlLoad: null,
-    atlLoad: null,
+    atlLoad: atlLoad,
     rampRate: null,
     raw: {
       'id': date,
@@ -237,7 +238,9 @@ void main() {
 
       expect(r.dataState, ReadinessDataState.noData);
       expect(r.signal(ReadinessSignalKind.form).rating, SignalRating.caution);
-      expect(r.level, ReadinessLevel.caution);
+      // ATL is 1.6 times CTL: the load signal sees it too.
+      expect(r.signal(ReadinessSignalKind.load).rating, SignalRating.backOff);
+      expect(r.level, ReadinessLevel.backOff);
     });
 
     test('not synced yet: waiting, with yesterday as last recorded', () {
@@ -274,14 +277,180 @@ void main() {
   });
 
   group('device readiness', () {
-    test('shown but not used in the status', () {
-      final r = evaluateReadiness([
-        ..._baseline(),
-        _day(0, hrv: 62, rhr: 48, sleepSecs: 8 * 3600, readiness: 12),
-      ], _today);
+    Readiness rate(num? value) => evaluateReadiness([
+      ..._baseline(),
+      _day(0, hrv: 62, rhr: 48, sleepSecs: 8 * 3600, readiness: value),
+    ], _today);
 
-      expect(r.deviceReadiness, 12);
+    test('is a signal: low values are a caution or a back-off', () {
+      expect(
+        rate(80).signal(ReadinessSignalKind.device).rating,
+        SignalRating.ok,
+      );
+      expect(
+        rate(40).signal(ReadinessSignalKind.device).rating,
+        SignalRating.caution,
+      );
+      expect(rate(40).level, ReadinessLevel.caution);
+      expect(
+        rate(12).signal(ReadinessSignalKind.device).rating,
+        SignalRating.backOff,
+      );
+      expect(rate(12).level, ReadinessLevel.backOff);
+      expect(rate(12).deviceReadiness, 12);
+    });
+
+    test('no figure, or one off the 0-100 scale, changes nothing', () {
+      for (final v in [null, 0, 250]) {
+        final r = rate(v);
+        expect(
+          r.signal(ReadinessSignalKind.device).rating,
+          SignalRating.missing,
+        );
+        expect(r.level, ReadinessLevel.ready);
+      }
+    });
+
+    test('can be switched off like the others', () {
+      final r = evaluateReadiness(
+        [
+          ..._baseline(),
+          _day(0, hrv: 62, rhr: 48, sleepSecs: 8 * 3600, readiness: 12),
+        ],
+        _today,
+        enabled: ReadinessSignalKind.values.toSet()
+          ..remove(ReadinessSignalKind.device),
+      );
+      expect(
+        r.signal(ReadinessSignalKind.device).rating,
+        SignalRating.excluded,
+      );
       expect(r.level, ReadinessLevel.ready);
+    });
+  });
+
+  group('load', () {
+    Readiness rate({
+      double ctl = 60,
+      double atl = 60,
+      double? atlLoad,
+      bool today = true,
+    }) => evaluateReadiness([
+      ..._baseline(),
+      if (today)
+        _day(
+          0,
+          hrv: 62,
+          rhr: 48,
+          sleepSecs: 8 * 3600,
+          ctl: ctl,
+          atl: atl,
+          atlLoad: atlLoad,
+        ),
+    ], _today);
+    SignalRating load(Readiness r) => r.signal(ReadinessSignalKind.load).rating;
+
+    test('a normal day and a normal ratio are fine', () {
+      final r = rate(atl: 62, atlLoad: 55);
+      expect(load(r), SignalRating.ok);
+      expect(r.level, ReadinessLevel.ready);
+      expect(readinessScore(r), 100);
+    });
+
+    test('a session that already took a lot today lowers readiness', () {
+      // CTL 60, 100 TSS today: 1.67 times the usual day. The ratio is still
+      // fine (ATL 66), so this is the day's load speaking.
+      final after = rate(atl: 66, atlLoad: 100);
+      final before = rate(atl: 62);
+      expect(load(before), SignalRating.ok);
+      expect(readinessScore(before), 100);
+      expect(load(after), SignalRating.caution);
+      expect(after.level, ReadinessLevel.caution);
+      expect(readinessScore(after), lessThan(80));
+      expect(after.signal(ReadinessSignalKind.load).dayLoad, 100);
+    });
+
+    test('a huge day is a back-off', () {
+      final r = rate(atl: 70, atlLoad: 160); // 2.67 times CTL
+      expect(load(r), SignalRating.backOff);
+      expect(r.level, ReadinessLevel.backOff);
+      expect(readinessScore(r), lessThanOrEqualTo(59));
+    });
+
+    test('recent load far ahead of the athlete: caution, then back off', () {
+      expect(load(rate(atl: 80)), SignalRating.caution); // 1.33
+      expect(load(rate(atl: 92)), SignalRating.backOff); // 1.53
+      expect(
+        rate(atl: 80).signal(ReadinessSignalKind.load).value,
+        closeTo(1.33, 0.01),
+      );
+    });
+
+    test('too little history, or no load data, says nothing', () {
+      expect(load(rate(ctl: 6, atl: 12, atlLoad: 40)), SignalRating.noBaseline);
+      final none = evaluateReadiness([
+        ..._baseline().map(
+          (d) => LocalWellness(
+            date: d.date,
+            ctl: null,
+            atl: null,
+            ctlLoad: null,
+            atlLoad: null,
+            rampRate: null,
+            raw: d.raw,
+            syncedAt: d.syncedAt,
+          ),
+        ),
+      ], _today);
+      expect(load(none), SignalRating.missing);
+    });
+
+    test(
+      'without today\'s record the latest ratio still counts, the day does not',
+      () {
+        final r = rate(today: false);
+        expect(load(r), SignalRating.ok);
+        expect(r.signal(ReadinessSignalKind.load).dayLoad, isNull);
+      },
+    );
+
+    test('can be switched off', () {
+      final r = evaluateReadiness(
+        [..._baseline(), _day(0, ctl: 60, atl: 66, atlLoad: 160)],
+        _today,
+        enabled: ReadinessSignalKind.values.toSet()
+          ..remove(ReadinessSignalKind.load),
+      );
+      expect(load(r), SignalRating.excluded);
+    });
+
+    test('the thresholds come from the rules', () {
+      final strict = ReadinessRules.fromJson({
+        'acwr': [1.1, 1.2],
+        'dayLoadVsCtl': [0.5, 1.0],
+        'deviceReadiness': [70, 40],
+        'minCtl': 5,
+      });
+      expect(strict.acwr, [1.1, 1.2]);
+      expect(strict.dayLoadVsCtl, [0.5, 1.0]);
+      expect(strict.deviceReadiness, [70, 40]);
+      expect(strict.minCtl, 5);
+      final r = evaluateReadiness(
+        [..._baseline(), _day(0, ctl: 60, atl: 60, atlLoad: 45)],
+        _today,
+        rules: strict,
+      );
+      expect(load(r), SignalRating.caution); // 0.75 of CTL
+      const d = ReadinessRules();
+      expect(d.acwr, [1.3, 1.5]);
+      expect(d.dayLoadVsCtl, [1.5, 2.5]);
+      expect(d.deviceReadiness, [50, 25]);
+      expect(
+        () => ReadinessRules.fromJson({
+          'acwr': [1],
+        }),
+        throwsFormatException,
+      );
     });
   });
 
@@ -291,30 +460,64 @@ void main() {
       expect(readinessScore(r), isNull);
     });
 
-    test('averages ok / caution / back-off signals', () {
-      const r = Readiness(
-        level: ReadinessLevel.caution,
-        dataState: ReadinessDataState.complete,
-        signals: [
-          ReadinessSignal(
-            kind: ReadinessSignalKind.hrv,
-            rating: SignalRating.ok,
-          ),
-          ReadinessSignal(
-            kind: ReadinessSignalKind.restingHr,
-            rating: SignalRating.caution,
-          ),
-          ReadinessSignal(
-            kind: ReadinessSignalKind.sleep,
-            rating: SignalRating.backOff,
-          ),
-          ReadinessSignal(
-            kind: ReadinessSignalKind.form,
-            rating: SignalRating.noBaseline,
-          ),
-        ],
-      );
-      expect(readinessScore(r), 65); // (100 + 65 + 30) / 3
+    Readiness make(ReadinessLevel level, List<SignalRating> ratings) =>
+        Readiness(
+          level: level,
+          dataState: ReadinessDataState.complete,
+          signals: [
+            for (var i = 0; i < ratings.length; i++)
+              ReadinessSignal(
+                kind: ReadinessSignalKind.values[i],
+                rating: ratings[i],
+              ),
+          ],
+        );
+
+    test('is half the average, half the weakest signal', () {
+      // average (100 + 65 + 30) / 3 = 65, weakest 30: (65 + 30) / 2 = 47.5.
+      final r = make(ReadinessLevel.backOff, [
+        SignalRating.ok,
+        SignalRating.caution,
+        SignalRating.backOff,
+        SignalRating.noBaseline,
+      ]);
+      expect(readinessScore(r), 48);
+    });
+
+    test(
+      'one signal off shows in the number instead of being averaged away',
+      () {
+        final ok = SignalRating.ok;
+        // Seven signals, one caution: the plain average would say 95.
+        final r = make(ReadinessLevel.caution, [
+          ok,
+          ok,
+          ok,
+          ok,
+          ok,
+          ok,
+          SignalRating.caution,
+        ]);
+        expect(readinessScore(r), 79);
+        final all = make(ReadinessLevel.ready, [ok, ok, ok, ok, ok, ok, ok]);
+        expect(readinessScore(all), 100);
+      },
+    );
+
+    test('never reads better than the verdict', () {
+      final ok = SignalRating.ok;
+      final c = SignalRating.caution;
+      // Two cautions make Back off: the number is capped to match.
+      final twoCautions = make(ReadinessLevel.backOff, [
+        ok,
+        ok,
+        ok,
+        ok,
+        ok,
+        c,
+        c,
+      ]);
+      expect(readinessScore(twoCautions), lessThanOrEqualTo(59));
     });
   });
 }

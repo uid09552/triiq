@@ -4700,4 +4700,33 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get connectedViaApiKey => 'Mit einem API-Schlüssel verbunden';
+
+  @override
+  String get readinessSignalLoad => 'Belastung';
+
+  @override
+  String get readinessSignalDevice => 'Gerät';
+
+  @override
+  String get readinessOptionLoad =>
+      'Belastung: das heutige Training bisher und das Verhältnis akut zu chronisch (ATL ÷ CTL)';
+
+  @override
+  String get readinessOptionDevice =>
+      'Der Bereitschaftswert, den deine Uhr oder App in Intervals.icu einträgt (0–100)';
+
+  @override
+  String readinessRangeLoad(String value) {
+    return 'Normal unter $value ATL ÷ CTL';
+  }
+
+  @override
+  String readinessLoadToday(String tss) {
+    return '$tss TSS heute';
+  }
+
+  @override
+  String readinessRangeDevice(String value) {
+    return 'Normal ab $value';
+  }
 }
