@@ -91,6 +91,22 @@ jobs:
           flutter-version: 3.41.7
           cache: true
 
+      # Android opens its database through sqflite, i.e. the platform's own
+      # SQLite; the sqlite3 FFI library (app_database.dart) is only loaded on
+      # Windows. By default the sqlite3 build hook still downloads a prebuilt
+      # libsqlite3.so per ABI from GitHub releases into the APK, and a GitHub
+      # outage (504 pages, failing its hash check) then fails the release.
+      # For this build only, point the hook at the system library: nothing is
+      # downloaded or bundled, and nothing on Android loads it. pubspec.yaml
+      # in the repository is unchanged, so Windows keeps the bundled library.
+      - name: Android build uses no prebuilt sqlite3 download
+        run: |
+          if grep -q '^hooks:' pubspec.yaml; then
+            echo "::error::pubspec.yaml already has a hooks: section; merge the sqlite3 user_defines into it"
+            exit 1
+          fi
+          printf '\nhooks:\n  user_defines:\n    sqlite3:\n      source: system\n' >> pubspec.yaml
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -116,11 +132,26 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
 
+      # A dependency fetched during the build (Gradle, Maven, the NDK) can
+      # fail now and then; a short outage should not cost the release, so the
+      # build is retried with a growing pause. A real build error fails every
+      # attempt alike.
       - name: Build APK
         run: |
-          flutter build apk --release \
-            --build-name="${{ steps.ver.outputs.name }}" \
-            --build-number="${GITHUB_RUN_NUMBER}"
+          for attempt in 1 2 3 4; do
+            if flutter build apk --release \
+                --build-name="${{ steps.ver.outputs.name }}" \
+                --build-number="${GITHUB_RUN_NUMBER}"; then
+              break
+            fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error::flutter build apk failed 4 times"
+              exit 1
+            fi
+            delay=$((attempt * 30))
+            echo "::warning::flutter build apk failed (attempt $attempt), retrying in ${delay}s"
+            sleep "$delay"
+          done
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk "dist/triiq-${{ steps.ver.outputs.name }}.apk"
 
