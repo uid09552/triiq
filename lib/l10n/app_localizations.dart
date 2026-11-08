@@ -7309,6 +7309,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No setting matches “{query}”.'**
   String setNoResults(String query);
+
+  /// No description provided for @obSkipSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip setup'**
+  String get obSkipSetup;
+
+  /// No description provided for @obSkipStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this step'**
+  String get obSkipStep;
+
+  /// No description provided for @obNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get obNext;
+
+  /// No description provided for @obBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get obBack;
+
+  /// No description provided for @obWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to TriIQ'**
+  String get obWelcomeTitle;
+
+  /// No description provided for @obWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training companion for swim, bike and run: readiness each morning, load and fitness at a glance, plans that adapt, and an AI trainer that knows your data.'**
+  String get obWelcomeBody;
+
+  /// No description provided for @obWelcomePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays on this device. TriIQ reads it from Intervals.icu and only sends it to an AI provider if you agree.'**
+  String get obWelcomePrivacy;
+
+  /// No description provided for @obGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get obGetStarted;
+
+  /// No description provided for @obConnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu'**
+  String get obConnectTitle;
+
+  /// No description provided for @obConnectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ reads your activities, wellness and calendar from Intervals.icu. Paste your API key to connect.'**
+  String get obConnectBody;
+
+  /// No description provided for @obWhereKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do I find it?'**
+  String get obWhereKey;
+
+  /// No description provided for @obConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Test and connect'**
+  String get obConnect;
+
+  /// No description provided for @obConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected as {name}'**
+  String obConnected(String name);
+
+  /// No description provided for @obSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing this month…'**
+  String get obSyncing;
+
+  /// No description provided for @obSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'This month is synced: {count} activities.'**
+  String obSynced(int count);
+
+  /// No description provided for @obSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected, but the first sync failed. It will retry in the background.'**
+  String get obSyncFailed;
+
+  /// No description provided for @obTrainingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training'**
+  String get obTrainingTitle;
+
+  /// No description provided for @obTrainingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Which sports do you do, and how many hours a week? Today shows your progress as rings.'**
+  String get obTrainingBody;
+
+  /// No description provided for @obHoursPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport}: hours per week'**
+  String obHoursPerWeek(String sport);
+
+  /// No description provided for @obSwim.
+  ///
+  /// In en, this message translates to:
+  /// **'Swim'**
+  String get obSwim;
+
+  /// No description provided for @obRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride'**
+  String get obRide;
+
+  /// No description provided for @obRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get obRun;
+
+  /// No description provided for @obAiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI trainer (optional)'**
+  String get obAiTitle;
+
+  /// No description provided for @obAiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with a trainer that knows your data, and let it write plans. Pick a provider, or skip: you can set it up later in Settings.'**
+  String get obAiBody;
+
+  /// No description provided for @obAiNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get obAiNone;
+
+  /// No description provided for @obOllamaServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama server'**
+  String get obOllamaServer;
+
+  /// No description provided for @obAiSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and continue'**
+  String get obAiSave;
+
+  /// No description provided for @obDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re set'**
+  String get obDoneTitle;
+
+  /// No description provided for @obDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Today shows your readiness, today\'s training and your load. Everything you chose can be changed in Settings.'**
+  String get obDoneBody;
+
+  /// No description provided for @obOpenToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Today'**
+  String get obOpenToday;
+
+  /// No description provided for @obStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}'**
+  String obStep(int n, int total);
 }
 
 class _AppLocalizationsDelegate

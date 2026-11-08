@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/sync/auto_sync_service.dart';
 import '../l10n/app_localizations.dart';
+import '../onboarding/onboarding_screen.dart';
+import '../onboarding/onboarding_settings.dart';
 import '../screens/calendar/calendar_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/insights/new_training_trigger.dart';
@@ -43,6 +45,18 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _navigation.addListener(_onNavigate);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeOnboard());
+  }
+
+  /// A fresh install starts with the first-run flow, once.
+  Future<void> _maybeOnboard() async {
+    if (!await OnboardingSettings.instance.shouldShow() || !mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => const OnboardingScreen(),
+      ),
+    );
   }
 
   @override

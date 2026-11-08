@@ -4451,4 +4451,112 @@ class AppLocalizationsDe extends AppLocalizations {
   String setNoResults(String query) {
     return 'Keine Einstellung passt zu „$query“.';
   }
+
+  @override
+  String get obSkipSetup => 'Einrichtung überspringen';
+
+  @override
+  String get obSkipStep => 'Schritt überspringen';
+
+  @override
+  String get obNext => 'Weiter';
+
+  @override
+  String get obBack => 'Zurück';
+
+  @override
+  String get obWelcomeTitle => 'Willkommen bei TriIQ';
+
+  @override
+  String get obWelcomeBody =>
+      'Dein Trainingsbegleiter für Schwimmen, Rad und Laufen: jeden Morgen deine Bereitschaft, Belastung und Form auf einen Blick, Pläne, die sich anpassen, und ein KI-Trainer, der deine Daten kennt.';
+
+  @override
+  String get obWelcomePrivacy =>
+      'Deine Daten bleiben auf diesem Gerät. TriIQ liest sie aus Intervals.icu und sendet sie nur mit deiner Zustimmung an einen KI-Anbieter.';
+
+  @override
+  String get obGetStarted => 'Los geht\'s';
+
+  @override
+  String get obConnectTitle => 'Intervals.icu verbinden';
+
+  @override
+  String get obConnectBody =>
+      'TriIQ liest Aktivitäten, Wellness und Kalender aus Intervals.icu. Füge deinen API-Schlüssel ein, um dich zu verbinden.';
+
+  @override
+  String get obWhereKey => 'Wo finde ich ihn?';
+
+  @override
+  String get obConnect => 'Prüfen und verbinden';
+
+  @override
+  String obConnected(String name) {
+    return 'Verbunden als $name';
+  }
+
+  @override
+  String get obSyncing => 'Dieser Monat wird synchronisiert …';
+
+  @override
+  String obSynced(int count) {
+    return 'Dieser Monat ist synchronisiert: $count Aktivitäten.';
+  }
+
+  @override
+  String get obSyncFailed =>
+      'Verbunden, aber die erste Synchronisierung ist fehlgeschlagen. Sie wird im Hintergrund wiederholt.';
+
+  @override
+  String get obTrainingTitle => 'Dein Training';
+
+  @override
+  String get obTrainingBody =>
+      'Welche Sportarten machst du, und wie viele Stunden pro Woche? „Heute“ zeigt deinen Fortschritt als Ringe.';
+
+  @override
+  String obHoursPerWeek(String sport) {
+    return '$sport: Stunden pro Woche';
+  }
+
+  @override
+  String get obSwim => 'Schwimmen';
+
+  @override
+  String get obRide => 'Rad';
+
+  @override
+  String get obRun => 'Laufen';
+
+  @override
+  String get obAiTitle => 'KI-Trainer (optional)';
+
+  @override
+  String get obAiBody =>
+      'Sprich mit einem Trainer, der deine Daten kennt, und lass ihn Pläne schreiben. Wähle einen Anbieter oder überspringe: Du kannst ihn später in den Einstellungen einrichten.';
+
+  @override
+  String get obAiNone => 'Jetzt nicht';
+
+  @override
+  String get obOllamaServer => 'Ollama-Server';
+
+  @override
+  String get obAiSave => 'Speichern und weiter';
+
+  @override
+  String get obDoneTitle => 'Alles bereit';
+
+  @override
+  String get obDoneBody =>
+      '„Heute“ zeigt deine Bereitschaft, das heutige Training und deine Belastung. Alles, was du gewählt hast, lässt sich in den Einstellungen ändern.';
+
+  @override
+  String get obOpenToday => 'Heute öffnen';
+
+  @override
+  String obStep(int n, int total) {
+    return 'Schritt $n von $total';
+  }
 }

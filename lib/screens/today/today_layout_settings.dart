@@ -74,7 +74,9 @@ class TodayLayoutSettings extends ChangeNotifier {
         _hidden
           ..clear()
           ..addAll(_parse(prefs.getStringList(_hiddenKey)));
-      } else if (prefs.getKeys().any((k) => !k.startsWith('today.'))) {
+      } else if (prefs.getKeys().any(
+        (k) => !k.startsWith('today.') && !k.startsWith('onboarding.'),
+      )) {
         // An existing install that never customized Today: keep the layout
         // it has always shown (every section, original order) rather than
         // hiding sections the athlete is used to.
@@ -86,6 +88,9 @@ class TodayLayoutSettings extends ChangeNotifier {
         _hidden
           ..clear()
           ..addAll(defaultHidden);
+        // Saved right away, so settings chosen later (onboarding, targets)
+        // don't make the next start look like an older install.
+        await _persist();
       }
       _collapsed
         ..clear()

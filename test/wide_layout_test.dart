@@ -12,6 +12,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(400, 800);
     addTearDown(tester.view.reset);
+    SharedPreferences.setMockInitialValues({'onboarding.done': true});
     await tester.pumpWidget(const TriiqApp());
     await tester.pump();
 

@@ -4413,4 +4413,112 @@ class AppLocalizationsEn extends AppLocalizations {
   String setNoResults(String query) {
     return 'No setting matches “$query”.';
   }
+
+  @override
+  String get obSkipSetup => 'Skip setup';
+
+  @override
+  String get obSkipStep => 'Skip this step';
+
+  @override
+  String get obNext => 'Next';
+
+  @override
+  String get obBack => 'Back';
+
+  @override
+  String get obWelcomeTitle => 'Welcome to TriIQ';
+
+  @override
+  String get obWelcomeBody =>
+      'Your training companion for swim, bike and run: readiness each morning, load and fitness at a glance, plans that adapt, and an AI trainer that knows your data.';
+
+  @override
+  String get obWelcomePrivacy =>
+      'Your data stays on this device. TriIQ reads it from Intervals.icu and only sends it to an AI provider if you agree.';
+
+  @override
+  String get obGetStarted => 'Get started';
+
+  @override
+  String get obConnectTitle => 'Connect Intervals.icu';
+
+  @override
+  String get obConnectBody =>
+      'TriIQ reads your activities, wellness and calendar from Intervals.icu. Paste your API key to connect.';
+
+  @override
+  String get obWhereKey => 'Where do I find it?';
+
+  @override
+  String get obConnect => 'Test and connect';
+
+  @override
+  String obConnected(String name) {
+    return 'Connected as $name';
+  }
+
+  @override
+  String get obSyncing => 'Syncing this month…';
+
+  @override
+  String obSynced(int count) {
+    return 'This month is synced: $count activities.';
+  }
+
+  @override
+  String get obSyncFailed =>
+      'Connected, but the first sync failed. It will retry in the background.';
+
+  @override
+  String get obTrainingTitle => 'Your training';
+
+  @override
+  String get obTrainingBody =>
+      'Which sports do you do, and how many hours a week? Today shows your progress as rings.';
+
+  @override
+  String obHoursPerWeek(String sport) {
+    return '$sport: hours per week';
+  }
+
+  @override
+  String get obSwim => 'Swim';
+
+  @override
+  String get obRide => 'Ride';
+
+  @override
+  String get obRun => 'Run';
+
+  @override
+  String get obAiTitle => 'AI trainer (optional)';
+
+  @override
+  String get obAiBody =>
+      'Chat with a trainer that knows your data, and let it write plans. Pick a provider, or skip: you can set it up later in Settings.';
+
+  @override
+  String get obAiNone => 'Not now';
+
+  @override
+  String get obOllamaServer => 'Ollama server';
+
+  @override
+  String get obAiSave => 'Save and continue';
+
+  @override
+  String get obDoneTitle => 'You\'re set';
+
+  @override
+  String get obDoneBody =>
+      'Today shows your readiness, today\'s training and your load. Everything you chose can be changed in Settings.';
+
+  @override
+  String get obOpenToday => 'Open Today';
+
+  @override
+  String obStep(int n, int total) {
+    return 'Step $n of $total';
+  }
 }
