@@ -1279,7 +1279,7 @@
   "beNoData": "Keine Leistungen im letzten Jahr aufgezeichnet.",
   "heroTitleCaution": "Mit Bedacht trainieren",
   "heroTitleBackOff": "Heute etwas kürzertreten",
-  "pvTitle": "Datenschutz & Daten",
+  "pvTitle": "Einwilligung & Rechte",
   "pvSubtitle": "Was TriIQ speichert, wer es sieht und deine Optionen",
   "pvIntro": "TriIQ hat kein Konto, keinen Server und kein Tracking. Deine Daten bleiben auf diesem Gerät und gehen nur an Dienste, die du selbst verbindest.",
   "pvDataTitle": "Was verarbeitet wird",
@@ -1313,7 +1313,7 @@
   "pvOpenWeb": "Vollständige Datenschutzerklärung lesen",
   "pvContact": "Fragen oder Anliegen: Eröffne ein Issue auf github.com/uid09552/triiq.",
   "pvConsentDialogTitle": "KI-Verarbeitung erlauben?",
-  "pvConsentDialogBody": "Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an {provider}. {provider} verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Datenschutz & Daten widerrufen.",
+  "pvConsentDialogBody": "Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an {provider}. {provider} verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Einwilligung & Rechte widerrufen.",
   "pvConsentAllow": "Erlauben",
   "pvConsentNotNow": "Nicht jetzt",
   "pvConsentCardTitle": "Der KI-Trainer braucht deine Einwilligung",
@@ -1440,5 +1440,10 @@
   "a11ySignalBackOff": "zurückfahren",
   "a11ySignalNone": "ohne Bewertung",
   "a11yHeatmap": "Belastungs-Heatmap: {days} Tage mit Training, insgesamt {tss} TSS, längste Serie {streak} Tage.",
-  "a11yStreamChart": "Zeitreihen-Diagramm: {series}"
+  "a11yStreamChart": "Zeitreihen-Diagramm: {series}",
+  "trainDetailLabel": "Detailgrad",
+  "trainDetailShort": "Kurz",
+  "trainDetailDetailed": "Ausführlich",
+  "trainDetailShortHint": "Eine kompakte Tabelle: eine Zeile pro Abschnitt.",
+  "trainDetailDetailedHint": "Benannte Übungen und Drills mit Sätzen, Wiederholungen, Pause, Zielwerten und einem Coaching-Hinweis je Block."
 }

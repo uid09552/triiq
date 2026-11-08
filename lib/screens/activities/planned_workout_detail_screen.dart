@@ -4,6 +4,7 @@ import '../../data/models/local_event.dart';
 import '../../data/repositories/activities_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/workout_steps.dart';
 import '../../widgets/stat_tile.dart';
 import '../plan/plan_session_sheet.dart' show openChangeTraining;
 import 'activity_detail_screen.dart';
@@ -173,7 +174,7 @@ class _PlannedWorkoutDetailScreenState
             SectionCard(
               icon: Icons.notes_outlined,
               title: l10n.workoutTitle,
-              child: Text(event.description!.trim()),
+              child: WorkoutDescription(text: event.description!.trim()),
             ),
           ],
           const SizedBox(height: 16),

@@ -6689,7 +6689,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvTitle.
   ///
   /// In en, this message translates to:
-  /// **'Privacy & data'**
+  /// **'Consent & your rights'**
   String get pvTitle;
 
   /// No description provided for @pvSubtitle.
@@ -6893,7 +6893,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvConsentDialogBody.
   ///
   /// In en, this message translates to:
-  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Privacy & data.'**
+  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.'**
   String pvConsentDialogBody(String provider);
 
   /// No description provided for @pvConsentAllow.
@@ -7663,6 +7663,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Time-series chart: {series}'**
   String a11yStreamChart(String series);
+
+  /// No description provided for @trainDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail'**
+  String get trainDetailLabel;
+
+  /// No description provided for @trainDetailShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get trainDetailShort;
+
+  /// No description provided for @trainDetailDetailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed'**
+  String get trainDetailDetailed;
+
+  /// No description provided for @trainDetailShortHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One compact table: a row per segment.'**
+  String get trainDetailShortHint;
+
+  /// No description provided for @trainDetailDetailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Named exercises and drills, with sets, reps, rest, targets and a coaching cue for each block.'**
+  String get trainDetailDetailedHint;
 }
 
 class _AppLocalizationsDelegate

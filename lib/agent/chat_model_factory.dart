@@ -17,13 +17,13 @@ class LlmNotConfiguredException implements Exception {
 }
 
 /// The athlete has not agreed to their data being sent to the AI provider
-/// (Settings → Privacy & data). Every path to a provider stops here: the
+/// (Settings → Data & privacy → Consent & your rights). Every path to a provider stops here: the
 /// consent is enforced where requests are made, not only in the UI.
 class AiConsentRequiredException extends LlmNotConfiguredException {
   const AiConsentRequiredException()
     : super(
         'The AI trainer needs your consent before your data can be sent to '
-        'the provider. Allow it in Settings → Privacy & data.',
+        'the provider. Allow it in Settings → Data & privacy → Consent & your rights.',
       );
 }
 

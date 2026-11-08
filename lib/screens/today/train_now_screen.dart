@@ -6,6 +6,7 @@ import '../../data/pending_deletes.dart';
 import '../../agent/chat_model_factory.dart';
 import '../../agent/llm_settings.dart';
 import '../../agent/training_agent.dart';
+import '../../agent/training_detail.dart';
 import '../../agent/workout_draft_parser.dart';
 import '../../data/intervals_session.dart';
 import '../../data/intervals_workout_service.dart';
@@ -21,6 +22,7 @@ import '../../plan/plan_changes.dart';
 import '../../util/calendar_export.dart';
 import '../../util/dates.dart';
 import '../../widgets/markdown_reply.dart';
+import '../../widgets/workout_steps.dart';
 import '../settings/settings_screen.dart';
 import '../plan/plan_labels.dart';
 import 'planned_session_card.dart';
@@ -97,6 +99,7 @@ class TrainNowScreen extends StatefulWidget {
     LocalEvent? reference,
     String loadContext = '',
     String? dayLabel,
+    TrainingDetail detail = TrainingDetail.detailed,
   }) {
     final ref = reference;
     var refText = '';
@@ -120,18 +123,8 @@ class TrainNowScreen extends StatefulWidget {
         '$minutes minutes for me to do ${dayLabel == null ? 'right now' : 'on $dayLabel'}. Before proposing, check my '
         'training load from the last 7 days (TSS, CTL, ATL, ramp rate) with '
         'your tools and take it into account — back off the prescription if '
-        "the data suggests I'm not recovered, and say so. Reply with the "
-        'session as a markdown table, one row per segment (warm-up, each '
-        'interval or set, cool-down), with exactly these two columns and '
-        'nothing else — more columns make the table unreadable on a '
-        'phone: "Duration" (the segment name plus its time or distance, '
-        'e.g. "Warm-up — 10m" or "3x8min"), "Session" (everything else '
-        'about that segment in one cell — the concrete target: % of FTP, % '
-        'of threshold pace, or for swimming a pace per 100m or explicit '
-        'effort; any equipment, e.g. paddles, pull buoy, fins; and any '
-        'other note worth flagging). After the table, add one line with '
-        'the estimated total TSS and a one-line rationale citing the data '
-        'you found.'
+        "the data suggests I'm not recovered, and say so. "
+        '${sessionFormatInstruction(detail, sport)}'
         '${loadContext.isEmpty ? '' : ' $loadContext Size the session so '
                   "today's total TSS (done + this session + other planned) and "
                   "tomorrow's planned TSS together stay a sensible progression: "
@@ -165,6 +158,10 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   String _sport = _sports.first;
   double _durationMinutes = 60;
   _Intensity _intensity = _Intensity.endurance;
+
+  /// Short: one compact table. Detailed: named exercises and a full set
+  /// description for every block.
+  TrainingDetail _detail = TrainingDetail.detailed;
 
   /// Revealed by a separate button rather than always shown — most requests
   /// need nothing beyond sport/duration/intensity, so the field stays out of
@@ -257,6 +254,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   }
 
   String _buildPrompt() => TrainNowScreen.buildPrompt(
+    detail: _detail,
     intensityWord: _intensity.promptWord,
     sport: _sport,
     minutes: _durationMinutes.round(),
@@ -412,7 +410,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 
     PlannedWorkoutDraft? draft;
     try {
-      final structured = await _collectReply(workoutStructuringPrompt);
+      final structured = await _collectReply(
+        workoutStructuringPromptFor(_detail),
+      );
       draft = parseWorkoutDraft(
         structured,
         date: _targetDay,
@@ -691,6 +691,37 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                 ? null
                 : (selection) => setState(() => _intensity = selection.first),
           ),
+          const SizedBox(height: 16),
+          Text(l10n.trainDetailLabel, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 8),
+          SegmentedButton<TrainingDetail>(
+            key: const ValueKey('train-detail'),
+            segments: [
+              ButtonSegment(
+                value: TrainingDetail.short,
+                label: Text(l10n.trainDetailShort),
+                icon: const Icon(Icons.short_text),
+              ),
+              ButtonSegment(
+                value: TrainingDetail.detailed,
+                label: Text(l10n.trainDetailDetailed),
+                icon: const Icon(Icons.format_list_numbered),
+              ),
+            ],
+            selected: {_detail},
+            onSelectionChanged: _isBusy
+                ? null
+                : (selection) => setState(() => _detail = selection.first),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _detail == TrainingDetail.short
+                ? l10n.trainDetailShortHint
+                : l10n.trainDetailDetailedHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
           const SizedBox(height: 12),
           if (!_showCustomPrompt)
             OutlinedButton.icon(
@@ -958,12 +989,7 @@ class _WorkoutPreviewSheetState extends State<_WorkoutPreviewSheet> {
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: SelectableText(
-                    draft.description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                    ),
-                  ),
+                  child: WorkoutDescription(text: draft.description),
                 ),
               ),
             ),

@@ -212,7 +212,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Privacy & data'), findsWidgets);
+      expect(find.text('Consent & your rights'), findsWidgets);
       expect(find.text('What is processed'), findsOneWidget);
       expect(find.text('Who receives data'), findsOneWidget);
       expect(find.text('Transfers outside the EU/EEA'), findsOneWidget);

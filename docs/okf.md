@@ -74,7 +74,7 @@ athlete can:
 | Best efforts (Insights → Best efforts, rides and runs) | ✅ Implemented — the best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 / 10 km (runs) of every session over the last year, from Intervals.icu's per-activity curves (`activity-power-curves` / `activity-pace-curves`, `lib/evaluation/best_efforts.dart`; cached 6 h in SQLite, the last copy used offline). One line of the best per 30-day window (12 windows) with a second line of the best of the 90 days up to each, for the effort chosen in the options sheet, and a table of the last 30 days against the best of the 90 days before them with the change (green better, red worse; for pace a lower time is better). The pace response is not documented, so it is parsed defensively and not yet checked against the live API |
 | Load heatmap (Insights → Load heatmap) | ✅ Implemented — a calendar grid of daily TSS (one square per day, a column per week, Monday first, scrolled to the latest week), coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`); last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
-| Privacy & data (Settings → Data & privacy → Privacy & data) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
+| Consent & your rights (Settings → Data & privacy → Consent & your rights) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
 | Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (under the header figures) and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
 | More tab | ✅ Implemented — three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone |
 | Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
@@ -1159,13 +1159,42 @@ right there; a synced Intervals.icu event on Today still opens the fuller
 planned-workout screen first, which also has the button.
 
 Otherwise, pick a sport (run/ride/swim), duration and
-intensity (recovery/endurance/intervals), then **Propose training**. This
+intensity (recovery/endurance/intervals) and a **Detail** level, then
+**Propose training**. **Detailed** (the default) asks for a coach-written
+session: a one-line purpose, then a section per block (Warm-up, Main set,
+Cool-down, plus Drills or Strength & mobility when exercises deserve their
+own block), each a two-column table — **Exercise** (named exercise, drill or
+interval type with its sets, reps or time/distance and the rest between) and
+**How** (target, cadence or stroke rate, equipment and a coaching cue) — and
+a closing load and rationale. The exercises follow the sport (run: leg
+swings, A-skips, strides, calf raises; ride: spin-ups, single-leg pedalling,
+cadence blocks; swim: catch-up, fingertip drag, kick and pull sets), see
+`exerciseMenu` in `lib/agent/training_detail.dart`. **Short** keeps the old
+compact table, one row per segment. The same level carries into **Create in
+Intervals.icu**: a detailed session keeps each exercise as its own step with
+its cue, rest between repeats as steps, and a plain-text purpose line
+(`workoutStructuringPromptFor`). TriIQ plan sessions (the plan generator's
+`description`, now up to 2,600 characters) are asked for the same: named
+exercises, reps and rest per set, and a form cue per step. This
 sends the same [training agent](#the-training-agent) a prompt built from
 those choices, instructed to check the last 7 days of TSS/CTL/ATL/ramp rate
 with its own tools before proposing — so a fatigued week gets a lighter
 prescription, not a canned template. The proposal streams in as markdown,
-same rendering as Chat; **Ask again** re-runs it. Needs an LLM provider
+same rendering as Chat (below); **Ask again** re-runs it. Needs an LLM provider
 configured, same as Chat.
+
+**Formatting.** Markdown from the trainer (Chat, Train now, the weekly
+review) is drawn by `MarkdownReply` with the app's own look: `##` headings
+carry an accent bar, `###` headings are small letter-spaced labels, bullets
+are accent diamonds and numbered lists get round badges, tables are one
+rounded card with an accent header row, quotes are callouts, and a single
+newline is a line break. Workout text in Intervals.icu step syntax (the
+create preview, a planned workout's detail) is drawn by `WorkoutDescription`
+(`lib/widgets/workout_steps.dart`): the purpose as an italic lead-in, each
+step as its duration, a target chip and the exercise with its cue, repeat
+blocks under a "3 ×" header, and a colour bar per step by intensity (grey for
+recovery, green, yellow, orange, red, purple above 120 %). Text with no steps
+(a coach's note) is shown as written.
 
 Once a session has been proposed there are two ways to keep it:
 
