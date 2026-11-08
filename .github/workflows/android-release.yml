@@ -116,11 +116,27 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
 
+      # The sqlite3 package downloads its prebuilt libsqlite3.so per ABI from
+      # GitHub releases during the build and checks the hash. When GitHub
+      # answers with a 504 page the hash fails and so does the build; one
+      # flaky download should not cost the release, so the build is retried
+      # with a growing pause. A real build error fails every attempt alike.
       - name: Build APK
         run: |
-          flutter build apk --release \
-            --build-name="${{ steps.ver.outputs.name }}" \
-            --build-number="${GITHUB_RUN_NUMBER}"
+          for attempt in 1 2 3 4; do
+            if flutter build apk --release \
+                --build-name="${{ steps.ver.outputs.name }}" \
+                --build-number="${GITHUB_RUN_NUMBER}"; then
+              break
+            fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error::flutter build apk failed 4 times"
+              exit 1
+            fi
+            delay=$((attempt * 30))
+            echo "::warning::flutter build apk failed (attempt $attempt), retrying in ${delay}s"
+            sleep "$delay"
+          done
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk "dist/triiq-${{ steps.ver.outputs.name }}.apk"
 
