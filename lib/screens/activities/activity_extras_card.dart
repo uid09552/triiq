@@ -16,15 +16,25 @@ import 'activity_icons.dart' show formatDurationSecs;
 /// the streams the diagram already downloaded — it adds no request — and
 /// shown for runs and rides only. Draws nothing while loading, offline, or
 /// when the activity has no such stream: it's a bonus, never an error.
+/// Which part of the extras a card shows: the effort profile (variability
+/// and the histogram), the interval table, or both.
+enum ExtrasPart { all, profile, intervals }
+
 class ActivityExtrasCard extends StatefulWidget {
   ActivityExtrasCard({
     super.key,
     required this.activity,
     ActivityStreamsRepository? streams,
+    this.part = ExtrasPart.all,
+    this.onIntervalTap,
   }) : streams = streams ?? ActivityStreamsRepository();
 
   final LocalActivity activity;
   final ActivityStreamsRepository streams;
+  final ExtrasPart part;
+
+  /// A row of the interval table was tapped: its interval, by sample index.
+  final ValueChanged<SessionInterval>? onIntervalTap;
 
   @override
   State<ActivityExtrasCard> createState() => _ActivityExtrasCardState();
@@ -57,6 +67,28 @@ class _ActivityExtrasCardState extends State<ActivityExtrasCard> {
           return const SizedBox.shrink();
         }
         final l10n = AppLocalizations.of(context)!;
+        final part = widget.part;
+        if (part == ExtrasPart.intervals) {
+          final rows = _intervals(context, l10n, streams, heading: false);
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: SectionCard(
+              key: const ValueKey('extras-intervals-card'),
+              icon: Icons.view_list_outlined,
+              title: l10n.exIntervalsTitle,
+              child: rows.isEmpty
+                  ? Text(
+                      l10n.exNoIntervals,
+                      key: const ValueKey('extras-no-intervals'),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: rows,
+                    ),
+            ),
+          );
+        }
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: SectionCard(
@@ -69,7 +101,8 @@ class _ActivityExtrasCardState extends State<ActivityExtrasCard> {
                 _variability(context, l10n, values),
                 const SizedBox(height: 16),
                 _histogram(context, l10n, values),
-                ..._intervals(context, l10n, streams),
+                if (part == ExtrasPart.all)
+                  ..._intervals(context, l10n, streams),
               ],
             ),
           ),
@@ -219,8 +252,9 @@ class _ActivityExtrasCardState extends State<ActivityExtrasCard> {
   List<Widget> _intervals(
     BuildContext context,
     AppLocalizations l10n,
-    SessionStreams streams,
-  ) {
+    SessionStreams streams, {
+    bool heading = true,
+  }) {
     final stats = intervalStats(streams, outputKey: _key);
     if (stats.where((s) => s.isWork).isEmpty) return const [];
     final theme = Theme.of(context);
@@ -259,9 +293,11 @@ class _ActivityExtrasCardState extends State<ActivityExtrasCard> {
         : Colors.green.shade600;
 
     return [
-      const SizedBox(height: 20),
-      Text(l10n.exIntervalsTitle, style: theme.textTheme.titleSmall),
-      const SizedBox(height: 6),
+      if (heading) ...[
+        const SizedBox(height: 20),
+        Text(l10n.exIntervalsTitle, style: theme.textTheme.titleSmall),
+        const SizedBox(height: 6),
+      ],
       Row(
         children: [
           cell(l10n.exColInterval, flex: 1, head: true, end: false),
@@ -274,36 +310,41 @@ class _ActivityExtrasCardState extends State<ActivityExtrasCard> {
       ),
       const Divider(height: 10),
       for (final s in stats)
-        Padding(
+        InkWell(
           key: ValueKey('extras-interval-${s.number}'),
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: Opacity(
-            opacity: s.isWork ? 1 : 0.55,
-            child: Row(
-              children: [
-                cell(
-                  s.isWork ? '${s.number}' : '${s.number}·${l10n.exRecovery}',
-                  flex: 1,
-                  end: false,
-                ),
-                cell(formatDurationSecs(s.seconds)),
-                cell(s.avgOutput == null ? '–' : _output(s.avgOutput!)),
-                cell(
-                  s.avgHeartrate == null ? '–' : '${s.avgHeartrate!.round()}',
-                ),
-                cell(
-                  s.drift == null ? '–' : signed(s.drift!),
-                  color: s.drift == null ? null : driftColor(s.drift!),
-                ),
-                cell(
-                  s.fade == null ? '–' : signed(s.fade! * 100, digits: 0),
-                  // For pace a negative change in m/s is a slower interval,
-                  // for power a weaker one: down is down either way.
-                  color: s.fade != null && s.fade! < -0.05
-                      ? theme.colorScheme.error
-                      : null,
-                ),
-              ],
+          onTap: widget.onIntervalTap == null
+              ? null
+              : () => widget.onIntervalTap!(streams.intervals[s.number - 1]),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Opacity(
+              opacity: s.isWork ? 1 : 0.55,
+              child: Row(
+                children: [
+                  cell(
+                    s.isWork ? '${s.number}' : '${s.number}·${l10n.exRecovery}',
+                    flex: 1,
+                    end: false,
+                  ),
+                  cell(formatDurationSecs(s.seconds)),
+                  cell(s.avgOutput == null ? '–' : _output(s.avgOutput!)),
+                  cell(
+                    s.avgHeartrate == null ? '–' : '${s.avgHeartrate!.round()}',
+                  ),
+                  cell(
+                    s.drift == null ? '–' : signed(s.drift!),
+                    color: s.drift == null ? null : driftColor(s.drift!),
+                  ),
+                  cell(
+                    s.fade == null ? '–' : signed(s.fade! * 100, digits: 0),
+                    // For pace a negative change in m/s is a slower interval,
+                    // for power a weaker one: down is down either way.
+                    color: s.fade != null && s.fade! < -0.05
+                        ? theme.colorScheme.error
+                        : null,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

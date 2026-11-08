@@ -4286,4 +4286,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreGroupData => 'Data';
+
+  @override
+  String get exNoIntervals => 'No intervals in this session.';
+
+  @override
+  String get actTabOverview => 'Overview';
+
+  @override
+  String get actTabCharts => 'Charts';
+
+  @override
+  String get actTabIntervals => 'Intervals';
+
+  @override
+  String get actTabMap => 'Map';
+
+  @override
+  String get actMoreActions => 'More actions';
 }

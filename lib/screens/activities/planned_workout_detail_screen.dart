@@ -41,10 +41,7 @@ class _PlannedWorkoutDetailScreenState
 
   Future<void> _delete() async {
     setState(() => _deleting = true);
-    final deleted = await deletePlannedWorkoutWithUndo(
-      context,
-      widget.event,
-    );
+    final deleted = await deletePlannedWorkoutWithUndo(context, widget.event);
     if (!mounted) return;
     if (deleted) {
       Navigator.of(context).pop(true);
@@ -126,11 +123,10 @@ class _PlannedWorkoutDetailScreenState
                     children: [
                       Text(
                         event.name ?? event.type ?? l10n.plannedSessionFallback,
-                        style: Theme.of(context).textTheme.titleLarge
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -140,10 +136,9 @@ class _PlannedWorkoutDetailScreenState
                           formatIsoDate(event.date),
                           if (event.type != null) event.type!,
                         ].join(' · '),
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
                       ),
                     ],
                   ),
@@ -172,7 +167,8 @@ class _PlannedWorkoutDetailScreenState
               ),
             ),
           ),
-          if (event.description != null && event.description!.trim().isNotEmpty) ...[
+          if (event.description != null &&
+              event.description!.trim().isNotEmpty) ...[
             const SizedBox(height: 16),
             SectionCard(
               icon: Icons.notes_outlined,

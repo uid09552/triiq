@@ -18,6 +18,7 @@ import '../../evaluation/new_training.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../evaluation/session_streams.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/charts/chart_viewport.dart';
 import '../../widgets/section_card.dart';
 import '../../util/dates.dart';
 import '../../widgets/main_navigation.dart';
@@ -74,8 +75,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   LocalActivity get activity => widget.activity;
 
   SeenSessionsStore get seen => widget.seenStore ?? SeenSessionsStore();
-  WellnessRepository get _wellnessRepo => widget.wellness ?? WellnessRepository();
-  FeelSettings get _feelSettings => widget.feelSettings ?? FeelSettings.instance;
+  WellnessRepository get _wellnessRepo =>
+      widget.wellness ?? WellnessRepository();
+  FeelSettings get _feelSettings =>
+      widget.feelSettings ?? FeelSettings.instance;
   FeelPromptStore get _feelPromptStore =>
       widget.feelPromptStore ?? FeelPromptStore.instance;
 
@@ -89,6 +92,9 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   /// Elapsed seconds under the pointer on the session diagram, shared with
   /// the route map so it can mark the same moment.
   final _cursor = ValueNotifier<double?>(null);
+
+  /// The chart's zoom window, so a tap on an interval can zoom to it.
+  final _viewport = ChartViewport();
 
   LocalWellness? _dayWellness;
   bool _autoPromptHandled = false;
@@ -108,6 +114,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   void dispose() {
     IntervalsSession.instance.removeListener(_onConnectionChanged);
     _cursor.dispose();
+    _viewport.dispose();
     super.dispose();
   }
 
@@ -162,7 +169,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     // The columns promoted to LocalActivity cover the list row; everything
     // else (HR, power, zones, ...) comes from re-decoding the full API
@@ -170,151 +176,234 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     // fields only it cares about.
     final full = activity.toActivity();
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.titleActivity)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colorScheme.primary, colorScheme.tertiary],
+    final connected = IntervalsSession.instance.isConnected;
+
+    // Tabs that have something for this sport: intervals and a power or pace
+    // profile for runs and rides, a map only outdoors.
+    final tabs = <_Tab>[
+      _Tab.overview,
+      _Tab.charts,
+      if (isComparable(activity)) _Tab.intervals,
+      if (hasRouteMap(activity)) _Tab.map,
+    ];
+
+    final overview = <Widget>[
+      SessionEvaluationCard(
+        activity: activity,
+        plannedItems: widget.plannedItems,
+        onAskTrainer: (e) => _askTrainer(context, e),
+      ),
+      const SizedBox(height: 16),
+      _StatGrid(activity: activity, full: full),
+      if (_hasZoneData(full)) ...[
+        const SizedBox(height: 16),
+        SectionCard(
+          icon: Icons.stacked_bar_chart_outlined,
+          title: l10n.timeInZone,
+          child: _ZoneTimeChart(zones: _zoneTimes(full)),
+        ),
+      ],
+      const SizedBox(height: 16),
+      BrickCard(
+        activity: activity,
+        loader: BrickLoader(streams: widget.streams),
+      ),
+      InsightsCard(
+        activity: activity,
+        loader: widget.insights,
+        onFindAlternative: (e) {
+          final day = DateTime.tryParse(e.date);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) =>
+                  TrainNowScreen(today: day == null ? null : () => day),
+            ),
+          );
+        },
+      ),
+    ];
+    final charts = <Widget>[
+      SessionDiagramCard(
+        activity: activity,
+        streams: widget.streams,
+        viewport: _viewport,
+        showIntervalList: false,
+        onCursorSeconds: (s) => _cursor.value = s,
+      ),
+      const SizedBox(height: 16),
+      if (isComparable(activity))
+        ActivityExtrasCard(
+          activity: activity,
+          streams: widget.streams,
+          part: ExtrasPart.profile,
+        ),
+    ];
+    Widget intervals(VoidCallback? showCharts) => ActivityExtrasCard(
+      activity: activity,
+      streams: widget.streams,
+      part: ExtrasPart.intervals,
+      onIntervalTap: (i) {
+        showCharts?.call();
+        final pad = (i.end - i.start) * 0.15 + 5;
+        _viewport.setRange(i.start - pad, i.end + pad);
+      },
+    );
+    final map = ActivityRouteCard(
+      activity: activity,
+      routes: widget.routes,
+      cursor: _cursor,
+    );
+
+    Widget list(List<Widget> children) => ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      children: children,
+    );
+
+    final appBar = AppBar(
+      title: Text(l10n.titleActivity),
+      actions: [
+        if (isComparable(activity))
+          IconButton(
+            key: const ValueKey('compare-action'),
+            tooltip: l10n.cmpCompareWith,
+            icon: const Icon(Icons.compare_arrows),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => CompareScreen(initialActivity: activity),
               ),
             ),
-            child: Row(
+          ),
+        PopupMenuButton<String>(
+          key: const ValueKey('activity-menu'),
+          tooltip: l10n.actMoreActions,
+          onSelected: (choice) => switch (choice) {
+            'feel' => _openFeelDialog(context),
+            'intervals' => _openInIntervals(context),
+            _ => null,
+          },
+          itemBuilder: (_) => [
+            PopupMenuItem(
+              key: const ValueKey('feel-action'),
+              value: 'feel',
+              enabled: connected,
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.mood_outlined),
+                title: Text(l10n.feelActionLabel),
+                subtitle: connected ? null : Text(l10n.feelNotConnectedHint),
+              ),
+            ),
+            PopupMenuItem(
+              key: const ValueKey('open-intervals-action'),
+              value: 'intervals',
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.open_in_new),
+                title: Text(l10n.openInIntervals),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Wide (Windows, tablets): no tabs — the overview and intervals on
+        // the left, the chart above the map on the right, so the tracker is
+        // visible on both at once.
+        if (constraints.maxWidth >= 900) {
+          return Scaffold(
+            appBar: appBar,
+            body: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    activityTypeIcon(activity.type),
-                    color: Colors.white,
-                    size: 28,
-                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: _Header(activity: activity),
                 ),
-                const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        activity.name ?? activity.type ?? l10n.activityFallback,
-                        style: Theme.of(context).textTheme.titleLarge
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      Expanded(
+                        child: list([
+                          ...overview,
+                          if (tabs.contains(_Tab.intervals)) intervals(null),
+                        ]),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        [
-                          formatIsoDate(activity.date),
-                          if (activity.type != null) activity.type!,
-                        ].join(' · '),
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
+                      Expanded(
+                        child: list([
+                          ...charts,
+                          if (tabs.contains(_Tab.map)) map,
+                        ]),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          _StatGrid(activity: activity, full: full),
-          if (_hasZoneData(full)) ...[
-            const SizedBox(height: 16),
-            SectionCard(
-              icon: Icons.stacked_bar_chart_outlined,
-              title: l10n.timeInZone,
-              child: _ZoneTimeChart(zones: _zoneTimes(full)),
-            ),
-          ],
-          const SizedBox(height: 16),
-          SessionEvaluationCard(
-            activity: activity,
-            plannedItems: widget.plannedItems,
-            onAskTrainer: (e) => _askTrainer(context, e),
-          ),
-          const SizedBox(height: 16),
-          SessionDiagramCard(
-            activity: activity,
-            streams: widget.streams,
-            onCursorSeconds: (s) => _cursor.value = s,
-          ),
-          const SizedBox(height: 16),
-          ActivityExtrasCard(activity: activity, streams: widget.streams),
-          ActivityRouteCard(
-            activity: activity,
-            routes: widget.routes,
-            cursor: _cursor,
-          ),
-          BrickCard(
-            activity: activity,
-            loader: BrickLoader(streams: widget.streams),
-          ),
-          InsightsCard(
-            activity: activity,
-            loader: widget.insights,
-            onFindAlternative: (e) {
-              final day = DateTime.tryParse(e.date);
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      TrainNowScreen(today: day == null ? null : () => day),
+          );
+        }
+        return DefaultTabController(
+          length: tabs.length,
+          child: Builder(
+            builder: (context) {
+              final controller = DefaultTabController.of(context);
+              void showCharts() =>
+                  controller.animateTo(tabs.indexOf(_Tab.charts));
+              return Scaffold(
+                appBar: appBar,
+                body: NestedScrollView(
+                  headerSliverBuilder: (context, _) => [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: _Header(activity: activity),
+                      ),
+                    ),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _TabBarHeader(
+                        TabBar(
+                          key: const ValueKey('activity-tabs'),
+                          isScrollable: tabs.length > 3,
+                          tabAlignment: tabs.length > 3
+                              ? TabAlignment.start
+                              : TabAlignment.fill,
+                          tabs: [
+                            for (final t in tabs)
+                              Tab(
+                                key: ValueKey('tab-${t.name}'),
+                                text: switch (t) {
+                                  _Tab.overview => l10n.actTabOverview,
+                                  _Tab.charts => l10n.actTabCharts,
+                                  _Tab.intervals => l10n.actTabIntervals,
+                                  _Tab.map => l10n.actTabMap,
+                                },
+                              ),
+                          ],
+                        ),
+                        Theme.of(context).colorScheme.surface,
+                      ),
+                    ),
+                  ],
+                  body: TabBarView(
+                    children: [
+                      for (final t in tabs)
+                        switch (t) {
+                          _Tab.overview => list(overview),
+                          _Tab.charts => list(charts),
+                          _Tab.intervals => list([intervals(showCharts)]),
+                          _Tab.map => list([map]),
+                        },
+                    ],
+                  ),
                 ),
               );
             },
           ),
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 12,
-            runSpacing: 8,
-            children: [
-              FilledButton.icon(
-                onPressed: () => _openInIntervals(context),
-                icon: const Icon(Icons.open_in_new),
-                label: Text(l10n.openInIntervals),
-              ),
-              if (isComparable(activity))
-                OutlinedButton.icon(
-                  key: const ValueKey('compare-action'),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => CompareScreen(initialActivity: activity),
-                    ),
-                  ),
-                  icon: const Icon(Icons.compare_arrows),
-                  label: Text(l10n.cmpCompareWith),
-                ),
-              Tooltip(
-                message: IntervalsSession.instance.isConnected
-                    ? ''
-                    : l10n.feelNotConnectedHint,
-                child: FilledButton.tonalIcon(
-                  key: const ValueKey('feel-action'),
-                  onPressed: IntervalsSession.instance.isConnected
-                      ? () => _openFeelDialog(context)
-                      : null,
-                  icon: const Icon(Icons.mood_outlined),
-                  label: Text(l10n.feelActionLabel),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -399,14 +488,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   static List<(String label, int secs)> _zoneTimes(Activity full) {
     final named = full.icuZoneTimes;
     if (named != null && named.isNotEmpty) {
-      return [
-        for (final zone in named) (zone.id ?? '?', zone.secs ?? 0),
-      ];
+      return [for (final zone in named) (zone.id ?? '?', zone.secs ?? 0)];
     }
     final hr = full.icuHrZoneTimes ?? const [];
-    return [
-      for (var i = 0; i < hr.length; i++) ('Z${i + 1}', hr[i]),
-    ];
+    return [for (var i = 0; i < hr.length; i++) ('Z${i + 1}', hr[i])];
   }
 }
 
@@ -560,7 +645,10 @@ class _ZoneBar extends StatelessWidget {
       children: [
         SizedBox(
           width: 36,
-          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -589,12 +677,122 @@ class _ZoneBar extends StatelessWidget {
           child: Text(
             formatDurationSecs(secs),
             textAlign: TextAlign.end,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+enum _Tab { overview, charts, intervals, map }
+
+/// The pinned tab bar under the summary header.
+class _TabBarHeader extends SliverPersistentHeaderDelegate {
+  _TabBarHeader(this.tabBar, this.background);
+
+  final TabBar tabBar;
+  final Color background;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlaps) =>
+      Material(color: background, child: tabBar);
+
+  @override
+  bool shouldRebuild(_TabBarHeader old) =>
+      old.tabBar != tabBar || old.background != background;
+}
+
+/// Name, sport, date and the key figures — what the session was, before
+/// any detail.
+class _Header extends StatelessWidget {
+  const _Header({required this.activity});
+
+  final LocalActivity activity;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final figures = [
+      if (activity.movingTime != null) formatDurationSecs(activity.movingTime!),
+      if (activity.distance != null && activity.distance! > 0)
+        formatDistanceMeters(activity.distance!),
+      if (activity.trainingLoad != null) '${activity.trainingLoad} TSS',
+    ];
+    return Container(
+      key: const ValueKey('activity-header'),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [scheme.primary, scheme.tertiary],
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              activityTypeIcon(activity.type),
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  activity.name ?? activity.type ?? l10n.activityFallback,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  [
+                    formatIsoDate(activity.date),
+                    if (activity.type != null) activity.type!,
+                  ].join(' · '),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                ),
+                if (figures.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    figures.join('   ·   '),
+                    key: const ValueKey('activity-figures'),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1591,5 +1591,11 @@
   "@workoutDeletedUndoable": {"placeholders": {"name": {"type": "String"}}},
   "moreGroupPlan": "Plan",
   "moreGroupTrainer": "Trainer",
-  "moreGroupData": "Data"
+  "moreGroupData": "Data",
+  "exNoIntervals": "No intervals in this session.",
+  "actTabOverview": "Overview",
+  "actTabCharts": "Charts",
+  "actTabIntervals": "Intervals",
+  "actTabMap": "Map",
+  "actMoreActions": "More actions"
 }

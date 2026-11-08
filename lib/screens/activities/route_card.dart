@@ -58,7 +58,9 @@ class RouteMap extends StatelessWidget {
           padding: EdgeInsets.all(padding),
         ),
         interactionOptions: InteractionOptions(
-          flags: interactive ? InteractiveFlag.all & ~InteractiveFlag.rotate : InteractiveFlag.none,
+          flags: interactive
+              ? InteractiveFlag.all & ~InteractiveFlag.rotate
+              : InteractiveFlag.none,
         ),
       ),
       children: [
@@ -155,7 +157,10 @@ class ActivityRouteCard extends StatefulWidget {
 
 class _ActivityRouteCardState extends State<ActivityRouteCard> {
   late final Future<ActivityRoute?> _future = hasRouteMap(widget.activity)
-      ? widget.routes.load(widget.activity.id).then<ActivityRoute?>((r) => r).catchError((_) => null)
+      ? widget.routes
+            .load(widget.activity.id)
+            .then<ActivityRoute?>((r) => r)
+            .catchError((_) => null)
       : Future<ActivityRoute?>.value(null);
 
   @override

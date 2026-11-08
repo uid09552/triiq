@@ -7075,6 +7075,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Data'**
   String get moreGroupData;
+
+  /// No description provided for @exNoIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'No intervals in this session.'**
+  String get exNoIntervals;
+
+  /// No description provided for @actTabOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get actTabOverview;
+
+  /// No description provided for @actTabCharts.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts'**
+  String get actTabCharts;
+
+  /// No description provided for @actTabIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals'**
+  String get actTabIntervals;
+
+  /// No description provided for @actTabMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get actTabMap;
+
+  /// No description provided for @actMoreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get actMoreActions;
 }
 
 class _AppLocalizationsDelegate

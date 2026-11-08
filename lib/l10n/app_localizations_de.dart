@@ -4323,4 +4323,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get moreGroupData => 'Daten';
+
+  @override
+  String get exNoIntervals => 'Keine Intervalle in dieser Einheit.';
+
+  @override
+  String get actTabOverview => 'Übersicht';
+
+  @override
+  String get actTabCharts => 'Diagramme';
+
+  @override
+  String get actTabIntervals => 'Intervalle';
+
+  @override
+  String get actTabMap => 'Karte';
+
+  @override
+  String get actMoreActions => 'Weitere Aktionen';
 }

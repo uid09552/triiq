@@ -681,6 +681,15 @@ both reading straight from the SQLite cache (no separate network call).
   trailing TSS) carries the same information at a glance. Tapping a row
   pushes `ActivityDetailScreen`.
 - `activity_detail_screen.dart` — `ActivityDetailScreen(activity: LocalActivity)`.
+  Layout: a summary header (name, date, sport, key figures) above a pinned
+  tab bar — **Overview** (verdict against the plan, stat grid, zones, brick,
+  insights), **Charts** (session diagram + effort profile), **Intervals**
+  (the one interval table; tapping a row jumps to Charts zoomed to it — only
+  for run/ride/swim) and **Map** (outdoor runs/rides). Compare sits in the
+  app bar; "How did it feel?" and "Open intervals.icu" in its overflow menu.
+  From 900 px wide the tabs give way to two columns (overview | charts,
+  intervals, map). The chart and the interval table share one
+  `ChartViewport`; the diagram no longer repeats the interval list.
   `LocalActivity` only promotes a handful of fields to SQLite columns (see
   Local storage); this screen needs far more (HR, power, elevation, zone
   times), so it calls `LocalActivity.toActivity()` — `Activity.fromJson(raw)`

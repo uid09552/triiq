@@ -47,10 +47,20 @@ class SessionDiagramCard extends StatefulWidget {
     required this.activity,
     ActivityStreamsRepository? streams,
     this.onCursorSeconds,
+    this.viewport,
+    this.showIntervalList = true,
   }) : streams = streams ?? ActivityStreamsRepository();
 
   final LocalActivity activity;
   final ActivityStreamsRepository streams;
+
+  /// The chart's zoom window, when the owner wants to steer it (the
+  /// activity page zooms to an interval tapped in its interval table).
+  final ChartViewport? viewport;
+
+  /// The collapsible list of work intervals under the chart. Off where the
+  /// page shows the intervals as their own table.
+  final bool showIntervalList;
 
   /// The elapsed seconds under the pointer on the chart.
   final ValueChanged<double>? onCursorSeconds;
@@ -63,14 +73,15 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
   late Future<SessionStreams> _future = _loadStreams();
   SessionStreams? _streams;
   Set<String>? _visible;
-  final _viewport = ChartViewport();
+  late final ChartViewport _viewport = widget.viewport ?? ChartViewport();
 
   /// Rolling-mean window (seconds) for what the chart draws; 0 = raw.
   int _smooth = 0;
 
   @override
   void dispose() {
-    _viewport.dispose();
+    // Only the one it made itself: a viewport handed in belongs to the owner.
+    if (widget.viewport == null) _viewport.dispose();
     super.dispose();
   }
 
@@ -244,7 +255,8 @@ class _SessionDiagramCardState extends State<SessionDiagramCard> {
                 viewport: _viewport,
                 onCursorSeconds: widget.onCursorSeconds,
               ),
-              if (streams.intervals.any((i) => i.isWork))
+              if (widget.showIntervalList &&
+                  streams.intervals.any((i) => i.isWork))
                 // Collapsed until asked for: the diagram comes first, the
                 // list of work intervals opens on a tap.
                 Theme(

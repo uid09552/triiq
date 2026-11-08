@@ -1344,5 +1344,11 @@
   "workoutDeletedUndoable": "„{name}“ gelöscht",
   "moreGroupPlan": "Planung",
   "moreGroupTrainer": "Trainer",
-  "moreGroupData": "Daten"
+  "moreGroupData": "Daten",
+  "exNoIntervals": "Keine Intervalle in dieser Einheit.",
+  "actTabOverview": "Übersicht",
+  "actTabCharts": "Diagramme",
+  "actTabIntervals": "Intervalle",
+  "actTabMap": "Karte",
+  "actMoreActions": "Weitere Aktionen"
 }

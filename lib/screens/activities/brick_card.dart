@@ -11,9 +11,11 @@ import '../season/season_format.dart';
 /// Loads what the brick card needs: the same-day activities and, for the
 /// second leg of a bike→run, its streams (cached after the first look).
 class BrickLoader {
-  BrickLoader({ActivitiesRepository? activities, ActivityStreamsRepository? streams})
-    : _activities = activities ?? ActivitiesRepository(),
-      _streams = streams ?? ActivityStreamsRepository();
+  BrickLoader({
+    ActivitiesRepository? activities,
+    ActivityStreamsRepository? streams,
+  }) : _activities = activities ?? ActivitiesRepository(),
+       _streams = streams ?? ActivityStreamsRepository();
 
   final ActivitiesRepository _activities;
   final ActivityStreamsRepository _streams;
@@ -118,7 +120,9 @@ class _BrickCardState extends State<BrickCard> {
                   Text(l10n.brickSettle(clock(a.settleSeconds!))),
                 if (a.earlySpeedRatio != null)
                   Text(
-                    l10n.brickEarly((a.earlySpeedRatio! * 100).toStringAsFixed(0)),
+                    l10n.brickEarly(
+                      (a.earlySpeedRatio! * 100).toStringAsFixed(0),
+                    ),
                   ),
                 const SizedBox(height: 8),
                 for (final n in a.notes)
