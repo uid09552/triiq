@@ -106,10 +106,10 @@ void main() {
       adapter = _FakeAdapter(
         reply ??
             (_) => _json({
-              'access_token': 'tok-123',
               'token_type': 'Bearer',
-              'scope': 'ACTIVITY:READ',
-              'athlete': {'id': 'i42', 'name': 'Alex'},
+              'access_token': 'tok-123',
+              'scope': 'ACTIVITY:READ,WELLNESS:WRITE',
+              'athlete': {'id': '2049151', 'name': 'Alex'},
             }),
       );
       return IntervalsOAuth(
@@ -142,9 +142,11 @@ void main() {
       expect(q['state'], 'st');
       expect(q['code_challenge'], pkce.challenge);
       expect(q['code_challenge_method'], 'S256');
-      expect(q['scope'], contains('ACTIVITY:READ'));
-      expect(q['scope'], contains('CALENDAR:WRITE'));
-      expect(q['scope']!.contains(' '), isFalse);
+      // WRITE implies READ, so only what the app needs, comma-separated.
+      expect(
+        q['scope'],
+        'ACTIVITY:READ,WELLNESS:WRITE,CALENDAR:WRITE,SETTINGS:WRITE',
+      );
       expect(q.containsKey('client_secret'), isFalse);
     });
 
@@ -164,7 +166,7 @@ void main() {
         final token = await oauth.login();
 
         expect(token.accessToken, 'tok-123');
-        expect(token.athleteId, 'i42');
+        expect(token.athleteId, '2049151');
         expect(token.athleteName, 'Alex');
         expect(source.started, isTrue);
         expect(source.closed, isTrue);
@@ -178,16 +180,15 @@ void main() {
           startsWith('application/x-www-form-urlencoded'),
         );
         final form = Uri.splitQueryString(adapter.bodies.single);
+        // Exactly what Intervals.icu documents for a public client.
+        expect(form.keys.toSet(), {'client_id', 'code', 'code_verifier'});
         expect(form['code'], 'the-code');
         expect(form['client_id'], '1727');
-        expect(form['grant_type'], 'authorization_code');
-        expect(form['redirect_uri'], 'triiq://oauth/callback');
         // The verifier hashes to the challenge sent to the browser.
         expect(
           Pkce.challengeFor(form['code_verifier']!),
           launched.single.queryParameters['code_challenge'],
         );
-        expect(form.containsKey('client_secret'), isFalse);
       },
     );
 
@@ -274,47 +275,41 @@ void main() {
     test('a response without an access token is an error', () async {
       final oauth = make(reply: (_) => _json({'scope': 'x'}));
       await expectLater(
-        oauth.exchangeCode(code: 'c', verifier: 'v', redirect: redirect),
+        oauth.exchangeCode(code: 'c', verifier: 'v'),
         throwsA(isA<OAuthException>()),
       );
     });
 
     test('the athlete in the token response is optional', () async {
       final oauth = make(reply: (_) => _json({'access_token': 'only'}));
-      final t = await oauth.exchangeCode(
-        code: 'c',
-        verifier: 'v',
-        redirect: redirect,
-      );
+      final t = await oauth.exchangeCode(code: 'c', verifier: 'v');
       expect(t.accessToken, 'only');
       expect(t.athleteId, isNull);
     });
   });
 
   group('LoopbackCallbackSource', () {
-    late int port;
-
-    setUp(() async {
-      final probe = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
-      port = probe.port;
-      await probe.close();
-    });
-
-    test('catches the redirect and tells the browser it can close', () async {
+    test('takes any free port, names it, catches the redirect and tells the '
+        'browser it can close', () async {
+      // The registered redirect has no port: Intervals.icu ignores it.
       final source = LoopbackCallbackSource(
-        Uri.parse('http://127.0.0.1:$port/callback'),
+        Uri.parse('http://127.0.0.1/callback'),
       );
       await source.start();
+      final redirect = source.redirectUri;
+      expect(redirect.host, '127.0.0.1');
+      expect(redirect.path, '/callback');
+      expect(redirect.port, greaterThan(1024));
 
       final client = HttpClient();
       final stray = await (await client.getUrl(
-        Uri.parse('http://127.0.0.1:$port/favicon.ico'),
+        redirect.replace(path: '/favicon.ico'),
       )).close();
       expect(stray.statusCode, 404);
       await stray.drain<void>();
 
       final response = await (await client.getUrl(
-        Uri.parse('http://127.0.0.1:$port/callback?code=abc&state=xyz'),
+        redirect.replace(queryParameters: {'code': 'abc', 'state': 'xyz'}),
       )).close();
       final page = await utf8.decodeStream(response);
       expect(response.statusCode, 200);
@@ -324,6 +319,16 @@ void main() {
       expect(back.queryParameters, {'code': 'abc', 'state': 'xyz'});
       client.close();
       await source.close();
+    });
+
+    test('two logins at once do not collide on a port', () async {
+      final a = LoopbackCallbackSource();
+      final b = LoopbackCallbackSource();
+      await a.start();
+      await b.start();
+      expect(a.redirectUri.port, isNot(b.redirectUri.port));
+      await a.close();
+      await b.close();
     });
   });
 }

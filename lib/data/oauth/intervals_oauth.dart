@@ -39,25 +39,28 @@ class IntervalsOAuthConfig {
     'INTERVALS_REDIRECT_URI',
   );
 
-  /// What the app reads and writes: activities and curves, wellness (and the
-  /// fatigue/soreness it writes back), the calendar (planned workouts) and
-  /// the athlete's settings (FTP, zones).
+  /// What the app needs. WRITE implies READ, so each scope is asked for at
+  /// the level the app uses it: activities and power/pace curves are only
+  /// read; wellness takes the fatigue and soreness it writes back; the
+  /// calendar takes planned workouts it creates, moves and deletes; settings
+  /// take the thresholds (FTP, pace, HR) an athlete applies from a
+  /// suggestion.
   static const defaultScopes = [
     'ACTIVITY:READ',
-    'WELLNESS:READ',
     'WELLNESS:WRITE',
-    'CALENDAR:READ',
     'CALENDAR:WRITE',
-    'SETTINGS:READ',
+    'SETTINGS:WRITE',
   ];
 
   /// Android: Intervals.icu sends the browser back to this address and the
   /// manifest hands it to the app.
   static const androidRedirect = 'triiq://oauth/callback';
 
-  /// Windows: the app listens on this loopback address while the login is
-  /// open (RFC 8252 §7.3).
-  static const desktopRedirect = 'http://127.0.0.1:53682/callback';
+  /// Windows: the app listens on a loopback address while the login is open
+  /// (RFC 8252 §7.3). Intervals.icu ignores the port of a registered
+  /// `http://127.0.0.1` redirect, so any free port works: register
+  /// `http://127.0.0.1/callback` once.
+  static const desktopRedirect = 'http://127.0.0.1/callback';
 
   final String clientId;
   final String authorizeUrl;
@@ -112,15 +115,25 @@ abstract class OAuthCallbackSource {
 
 /// Windows: a one-shot HTTP server on the loopback address. It answers the
 /// browser with a short "you can close this tab" page.
+///
+/// With no port in the registered redirect it takes any free one, and
+/// [redirectUri] then names the port it got (read it after [start]).
 class LoopbackCallbackSource implements OAuthCallbackSource {
   LoopbackCallbackSource([Uri? redirect])
-    : redirectUri = redirect ?? Uri.parse(IntervalsOAuthConfig.desktopRedirect);
+    : _registered = redirect ?? Uri.parse(IntervalsOAuthConfig.desktopRedirect);
 
-  @override
-  final Uri redirectUri;
+  final Uri _registered;
 
   HttpServer? _server;
   final _completer = Completer<Uri>();
+
+  @override
+  Uri get redirectUri {
+    final server = _server;
+    return server == null
+        ? _registered
+        : _registered.replace(port: server.port);
+  }
 
   @override
   Future<Uri> get callback => _completer.future;
@@ -129,11 +142,11 @@ class LoopbackCallbackSource implements OAuthCallbackSource {
   Future<void> start() async {
     final server = await HttpServer.bind(
       InternetAddress.loopbackIPv4,
-      redirectUri.port,
+      _registered.hasPort ? _registered.port : 0,
     );
     _server = server;
     server.listen((request) async {
-      if (request.uri.path != redirectUri.path) {
+      if (request.uri.path != _registered.path) {
         request.response
           ..statusCode = HttpStatus.notFound
           ..close();
@@ -292,33 +305,27 @@ class IntervalsOAuth {
       if (code == null || code.isEmpty) {
         throw const OAuthException('Intervals.icu sent no authorization code.');
       }
-      return await exchangeCode(
-        code: code,
-        verifier: pkce.verifier,
-        redirect: source.redirectUri,
-      );
+      return await exchangeCode(code: code, verifier: pkce.verifier);
     } finally {
       await source.close();
     }
   }
 
   /// Trades the one-time [code] for an access token. A public client sends
-  /// the PKCE [verifier] instead of a secret.
+  /// the PKCE [verifier] instead of a secret: form data with `client_id`,
+  /// `code` and `code_verifier`, as Intervals.icu documents it.
   Future<OAuthToken> exchangeCode({
     required String code,
     required String verifier,
-    required Uri redirect,
   }) async {
     final Response<dynamic> response;
     try {
       response = await _dio.post<dynamic>(
         config.tokenUrl,
         data: {
-          'grant_type': 'authorization_code',
           'client_id': config.clientId,
           'code': code,
           'code_verifier': verifier,
-          'redirect_uri': redirect.toString(),
         },
         options: Options(
           contentType: Headers.formUrlEncodedContentType,

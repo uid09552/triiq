@@ -875,23 +875,37 @@ browser just cancels. On the web preview and iOS only the API key is offered.
    apps at Intervals.icu). Profile says which way you are connected.
 
 **How the browser login is wired.** `IntervalsOAuth` builds
-`https://intervals.icu/oauth/authorize?client_id=…&redirect_uri=…&scope=…&state=…&code_challenge=…&code_challenge_method=S256`,
-opens it with `url_launcher`, waits for the redirect, checks `state`, and
-POSTs the code with the PKCE verifier (form-encoded, no secret) to
-`https://intervals.icu/api/oauth/token`; the `access_token` in the answer is
-used as the bearer token (`AccessToken` scheme of the generated client). The
-redirect comes back differently per platform: Android registers
-`triiq://oauth/callback` in the manifest and `MainActivity` passes it to Dart
-over the `triiq/oauth` channel; Windows listens on
-`http://127.0.0.1:53682/callback` while the login is open. **Both redirect
-URIs must be registered for the client at Intervals.icu**, whose id is `1727`.
-A build can use another client or redirect with
-`--dart-define=INTERVALS_CLIENT_ID=…` and `--dart-define=INTERVALS_REDIRECT_URI=…`.
-The token is stored like the API key (Keystore-encrypted storage / Credential
-Manager), is only saved after it has loaded the athlete profile, and is
-dropped when Intervals.icu answers 401/403. Scopes requested:
-`ACTIVITY:READ, WELLNESS:READ, WELLNESS:WRITE, CALENDAR:READ, CALENDAR:WRITE,
-SETTINGS:READ`.
+`https://intervals.icu/oauth/authorize?client_id=…&redirect_uri=…&scope=…&state=…&code_challenge=…&code_challenge_method=S256`
+(the verifier is 64 URL-safe characters, S256 is the only method Intervals.icu
+supports), opens it with `url_launcher`, waits for the redirect
+(`?code=…&state=…`, or `?error=access_denied`), checks `state`, and within two
+minutes POSTs form data `client_id`, `code` and `code_verifier` — no secret, as
+for a public client — to `https://intervals.icu/api/oauth/token`. The answer
+(`token_type`, `access_token`, granted `scope`, `athlete {id, name}`) gives the
+bearer token (`AccessToken` scheme of the generated client); API calls use
+`0` as the athlete id, which means the token's athlete. Disconnect sends
+`DELETE /api/v1/disconnect-app` with the token. The redirect comes back
+differently per platform: Android registers `triiq://oauth/callback` in the
+manifest and `MainActivity` passes it to Dart over the `triiq/oauth` channel;
+Windows listens on `http://127.0.0.1:<free port>/callback` while the login is
+open (Intervals.icu ignores the port of a registered localhost redirect).
+
+**One-time setup at Intervals.icu** (as the athlete who owns the app, on the
+app's management page): the app must be **approved** (it shows "Pending" until
+then and the flow does not work), flagged a **public client**, and have these
+redirect URIs registered exactly: `triiq://oauth/callback` and
+`http://127.0.0.1/callback`. "Require PKCE" can be ticked, since every build
+uses PKCE. The client id is `1727`; a build can use another client or redirect
+with `--dart-define=INTERVALS_CLIENT_ID=…` and
+`--dart-define=INTERVALS_REDIRECT_URI=…`. The token is stored like the API key
+(Keystore-encrypted storage / Credential Manager), is only saved after it has
+loaded the athlete profile, and is dropped when Intervals.icu answers 401/403.
+Scopes requested (WRITE implies READ, so each at the level the app uses it):
+`ACTIVITY:READ` (activities, power and pace curves), `WELLNESS:WRITE` (wellness
+and the fatigue/soreness written back), `CALENDAR:WRITE` (planned workouts and
+events), `SETTINGS:WRITE` (athlete settings, and the thresholds you apply from
+a suggestion). The athlete can untick scopes on Intervals.icu's page; the
+features that need a missing one then fail with a 403.
    In the browser build the key is only kept for that tab: browsers have no
    comparable secure store, so you re-enter it after a reload.
 
