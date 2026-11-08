@@ -8,6 +8,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/agent/llm_settings.dart';
 import 'package:triiq/data/data_eraser.dart';
 import 'package:triiq/data/db/app_database.dart';
+import 'package:triiq/notifications/notification_service.dart';
 import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/privacy_settings.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
@@ -188,6 +189,10 @@ void main() {
         database: database,
         privacy: privacy,
         llm: LlmSettings.forTesting(),
+        notifications: FakeNotifications(),
+        clearHomeWidget: () async {},
+        tempDirectory: () async => null,
+        reloaders: const [],
       ).eraseAll();
 
       final prefs = await SharedPreferences.getInstance();
@@ -297,7 +302,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('erase-confirm')));
       await _settle(tester);
       expect(eraser.calls, 1);
-      expect(find.textContaining('Close and reopen TriIQ'), findsOneWidget);
+      expect(find.textContaining('All data on this device was deleted'), findsOneWidget);
     });
 
     testWidgets('a failed erase says so', (tester) async {
@@ -372,4 +377,19 @@ void main() {
       findsOneWidget,
     );
   });
+}
+
+/// Records the cancellations "Delete all data" asks for.
+class FakeNotifications implements NotificationService {
+  int briefingCancelled = 0;
+  int reminderCancelled = 0;
+
+  @override
+  Future<void> cancelBriefing() async => briefingCancelled++;
+
+  @override
+  Future<void> cancelDailyReminder() async => reminderCancelled++;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

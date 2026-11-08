@@ -16,6 +16,17 @@ class LlmNotConfiguredException implements Exception {
   String toString() => message;
 }
 
+/// The athlete has not agreed to their data being sent to the AI provider
+/// (Settings → Privacy & data). Every path to a provider stops here: the
+/// consent is enforced where requests are made, not only in the UI.
+class AiConsentRequiredException extends LlmNotConfiguredException {
+  const AiConsentRequiredException()
+    : super(
+        'The AI trainer needs your consent before your data can be sent to '
+        'the provider. Allow it in Settings → Privacy & data.',
+      );
+}
+
 /// Builds the LangChain chat model for the athlete's current provider
 /// choice, with [tools] bound as its default options.
 ///
@@ -30,6 +41,7 @@ BaseChatModel createChatModel(
   LlmSettings settings, {
   List<ToolSpec> tools = const [],
 }) {
+  if (settings.needsConsent) throw const AiConsentRequiredException();
   switch (settings.provider) {
     case LlmProvider.claude:
       final apiKey = settings.claudeApiKey;

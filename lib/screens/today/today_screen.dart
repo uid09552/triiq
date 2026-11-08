@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/pending_deletes.dart';
 import '../../agent/llm_settings.dart';
 import '../../agent/plan_proposals.dart';
 import '../../data/intervals_session.dart';
@@ -150,6 +151,7 @@ class _TodayScreenState extends State<TodayScreen> {
     YearGoalsSettings.instance.addListener(_onLayoutChanged);
     AutoSyncService.instance.addListener(_onCacheChanged);
     PlanChanges.instance.addListener(_onCacheChanged);
+    PendingDeletes.instance.addListener(_onCacheChanged);
     SyncSettings.instance.addListener(_onCacheChanged);
     _load();
   }
@@ -162,6 +164,7 @@ class _TodayScreenState extends State<TodayScreen> {
     YearGoalsSettings.instance.removeListener(_onLayoutChanged);
     AutoSyncService.instance.removeListener(_onCacheChanged);
     PlanChanges.instance.removeListener(_onCacheChanged);
+    PendingDeletes.instance.removeListener(_onCacheChanged);
     SyncSettings.instance.removeListener(_onCacheChanged);
     super.dispose();
   }

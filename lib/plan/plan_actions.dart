@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../data/intervals_session.dart';
 import '../data/intervals_workout_service.dart';
 import '../data/pending_writes.dart';
+import '../data/planned_items.dart';
 import '../data/models/local_event.dart';
 import '../data/repositories/activities_repository.dart';
 import '../data/repositories/events_repository.dart';
@@ -33,6 +34,30 @@ enum ReplaceOutcome {
   /// Intervals.icu was unreachable: the change is made locally and the
   /// upstream replace is queued for when it is back.
   queued,
+}
+
+/// What a replace did: the [outcome], and what now stands in the old
+/// session's place — the plan session ([planSessionId]) and/or the new
+/// Intervals.icu event ([eventId]) — for an exact undo.
+class ReplaceResult {
+  const ReplaceResult({
+    required this.outcome,
+    required this.draft,
+    this.planSessionId,
+    this.eventId,
+  });
+
+  final ReplaceOutcome outcome;
+  final PlannedWorkoutDraft draft;
+  final int? planSessionId;
+  final String? eventId;
+
+  /// Undo makes sense only when the old session is gone and the new one is
+  /// known: not when both exist, and not while the swap waits offline.
+  bool get canUndo =>
+      (outcome == ReplaceOutcome.replaced ||
+          outcome == ReplaceOutcome.replacedLocally) &&
+      (planSessionId != null || eventId != null);
 }
 
 /// Replacing was refused before anything changed.
@@ -122,6 +147,14 @@ class PlanActions {
   Future<ReplaceOutcome> replaceSession(
     LocalEvent planned,
     PlannedWorkoutDraft draft,
+  ) async => (await replaceSessionTracked(planned, draft)).outcome;
+
+  /// [replaceSession], also saying exactly what now stands in the old
+  /// session's place — the plan session and/or the new Intervals.icu event —
+  /// so [undoReplace] can find that one and nothing else.
+  Future<ReplaceResult> replaceSessionTracked(
+    LocalEvent planned,
+    PlannedWorkoutDraft draft,
   ) async {
     // A plan session that was sent to Intervals.icu shows up as the event
     // itself, not as the plan session. Swapping only the event would leave
@@ -131,6 +164,10 @@ class PlanActions {
     final linked = planned.isPlanSession
         ? null
         : await _sessionOfEvent(planned.id);
+    final sessionId = planned.isPlanSession
+        ? planned.planSessionId
+        : linked?.id;
+    _createdEventId = null;
     final outcome = planned.isPlanSession
         ? await _replacePlanSession(planned.planSessionId!, draft)
         : linked?.id != null
@@ -138,7 +175,58 @@ class PlanActions {
         : await _replaceEvent(planned, draft);
     PlanChanges.instance.notify();
     AutoSyncService.instance.notifyCacheChanged();
-    return outcome;
+    return ReplaceResult(
+      outcome: outcome,
+      draft: draft,
+      planSessionId: sessionId,
+      eventId: _createdEventId,
+    );
+  }
+
+  /// Set by the replace paths to the id of the event they created.
+  String? _createdEventId;
+
+  /// Puts [original] back where [result]'s replacement is: the plan session
+  /// it changed, or the event it created — matched by id, never by name.
+  /// The original goes back as complete as the cache knew it (steps,
+  /// duration, load, tags, external id, time of day; a plan session keeps
+  /// its own plan tags). Throws [ReplaceRefusedException] when the
+  /// replacement can no longer be found.
+  Future<ReplaceOutcome> undoReplace(
+    ReplaceResult result,
+    LocalEvent original,
+  ) async {
+    final back = PlannedWorkoutDraft.fromEvent(original);
+    final LocalEvent current;
+    final sessionId = result.planSessionId;
+    if (sessionId != null) {
+      final session = await _plans.getSession(sessionId);
+      if (session == null) {
+        throw const ReplaceRefusedException(ReplaceRefusal.missing);
+      }
+      current = PlannedItemsRepository.toLocalEvent(session);
+    } else {
+      final eventId = result.eventId;
+      if (eventId == null) {
+        throw const ReplaceRefusedException(ReplaceRefusal.missing);
+      }
+      final d = result.draft;
+      current = LocalEvent(
+        id: eventId,
+        date: isoDate(d.date),
+        category: 'WORKOUT',
+        type: d.sport,
+        name: d.name,
+        description: d.description,
+        plannedLoad: d.load,
+        plannedTime: d.durationSeconds,
+        plannedDistance: null,
+        indoor: d.indoor,
+        raw: const {},
+        syncedAt: _clock(),
+      );
+    }
+    return replaceSession(current, back);
   }
 
   /// The current plan's session that was created as Intervals.icu event
@@ -215,6 +303,7 @@ class PlanActions {
     if (_connected()) {
       try {
         final created = await _workouts.createPlannedWorkout(sendDraft);
+        _createdEventId = created.id?.toString();
         // The new event is the session from here on, whatever the delete
         // does.
         await store(created.id?.toString(), PlanSessionStatus.created);
@@ -249,7 +338,8 @@ class PlanActions {
   ) async {
     if (_connected()) {
       try {
-        await _workouts.createPlannedWorkout(draft);
+        final created = await _workouts.createPlannedWorkout(draft);
+        _createdEventId = created.id?.toString();
         final deleted = await _deleteUpstream(planned.id);
         if (deleted) await _events.deleteById(planned.id);
         await _safeResync(draft.date);

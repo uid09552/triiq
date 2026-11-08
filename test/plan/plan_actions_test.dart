@@ -279,6 +279,92 @@ void main() {
     );
   });
 
+  group('undo replace (#42)', () {
+    LocalEvent tagged() => LocalEvent(
+      id: '501',
+      date: isoDate(day),
+      category: 'WORKOUT',
+      type: 'Ride',
+      name: 'Coach ride',
+      description: '- 60m 65%',
+      plannedLoad: 60,
+      plannedTime: 3600,
+      plannedDistance: null,
+      indoor: true,
+      raw: {
+        'start_date_local': '${isoDate(day)}T07:30:00',
+        'tags': ['coach'],
+        'external_id': 'coach-42',
+      },
+      syncedAt: day,
+    );
+
+    test('restores by id, not by name, and keeps tags, id and time', () async {
+      // Another session on the day already carries the replacement's name.
+      final twin = LocalEvent(
+        id: '777',
+        date: isoDate(day),
+        category: 'WORKOUT',
+        type: 'Run',
+        name: 'Easy run',
+        description: '- 30m',
+        plannedLoad: 25,
+        plannedTime: 1800,
+        plannedDistance: null,
+        indoor: false,
+        raw: const {},
+        syncedAt: day,
+      );
+      await events.replaceRange(isoDate(day), isoDate(day), [tagged(), twin]);
+
+      final result = await actions().replaceSessionTracked(
+        tagged(),
+        alternative(),
+      );
+      expect(result.outcome, ReplaceOutcome.replaced);
+      expect(result.eventId, '901');
+      expect(result.canUndo, isTrue);
+
+      await actions().undoReplace(result, tagged());
+
+      // The replacement (901) went, the same-named twin (777) stayed.
+      expect(workouts.deleted, ['501', '901']);
+      final back = workouts.created.last;
+      expect(back.name, 'Coach ride');
+      expect(back.tags, ['coach']);
+      expect(back.externalId, 'coach-42');
+      expect(back.startsAt?.hour, 7);
+      expect(back.startsAt?.minute, 30);
+      expect(back.indoor, isTrue);
+      expect(back.startDateLocal, '${isoDate(day)}T07:30:00');
+    });
+
+    test('a plan session goes back by its session id', () async {
+      final session = await planSession();
+      final planned = PlannedItemsRepository.toLocalEvent(session);
+      final result = await actions().replaceSessionTracked(
+        planned,
+        alternative(),
+      );
+      expect(result.planSessionId, session.id);
+
+      await actions().undoReplace(result, planned);
+      final after = (await plans.getSession(session.id!))!;
+      expect(after.name, session.name);
+      expect(after.sport, session.sport);
+      expect(after.minutes, session.minutes);
+    });
+
+    test('no undo when both still exist or the swap is queued', () {
+      for (final o in [ReplaceOutcome.bothExist, ReplaceOutcome.queued]) {
+        expect(
+          ReplaceResult(outcome: o, draft: alternative(), eventId: '1').canUndo,
+          isFalse,
+        );
+      }
+    });
+  });
+
   group('an Intervals.icu event', () {
     test(
       'new workout created, old deleted upstream and from the cache',

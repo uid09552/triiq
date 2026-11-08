@@ -1562,7 +1562,7 @@
   "pvEraseConfirmTitle": "Delete all data?",
   "pvEraseConfirmBody": "Everything TriIQ stores on this device will be removed and the app disconnected. Export a backup first if you want to keep it. This cannot be undone.",
   "pvEraseConfirm": "Delete everything",
-  "pvEraseDone": "All data on this device was deleted. Close and reopen TriIQ.",
+  "pvEraseDone": "All data on this device was deleted.",
   "pvEraseFailed": "Could not delete everything: {error}",
   "@pvEraseFailed": {"placeholders": {"error": {"type": "String"}}},
   "pvOpenWeb": "Read the full privacy notice",
@@ -1601,7 +1601,6 @@
   "@couldNotUndo": {"placeholders": {"error": {"type": "String"}}},
   "workoutReplacedUndoable": "{name} replaces the session",
   "@workoutReplacedUndoable": {"placeholders": {"name": {"type": "String"}}},
-  "undoNotFound": "the new session is no longer on the calendar",
   "workoutDeletedUndoable": "“{name}” deleted",
   "@workoutDeletedUndoable": {"placeholders": {"name": {"type": "String"}}}
 }

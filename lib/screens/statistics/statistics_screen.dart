@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../data/pending_deletes.dart';
 import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/planned_items.dart';
@@ -71,6 +72,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _session.addListener(_load);
     AutoSyncService.instance.addListener(_load);
     PlanChanges.instance.addListener(_load);
+    PendingDeletes.instance.addListener(_load);
     SyncSettings.instance.addListener(_load);
     _load();
   }
@@ -80,6 +82,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _session.removeListener(_load);
     AutoSyncService.instance.removeListener(_load);
     PlanChanges.instance.removeListener(_load);
+    PendingDeletes.instance.removeListener(_load);
     SyncSettings.instance.removeListener(_load);
     super.dispose();
   }
@@ -228,8 +231,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         children: [
           Row(
             children: [
-              SyncStatusChip(),
-              const Spacer(),
+              // Bounded, so a long status (German, many waiting writes)
+              // ellipsizes instead of pushing the range button off screen.
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SyncStatusChip(),
+                ),
+              ),
+              const SizedBox(width: 8),
               ChartOptionsButton(
                 summary: _days == 365
                     ? l10n.rangeOneYear

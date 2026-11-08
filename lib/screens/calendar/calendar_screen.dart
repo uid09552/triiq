@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../data/pending_deletes.dart';
 import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
@@ -84,6 +85,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // A taken/changed plan and the copy switch change what is planned
     // without any sync happening.
     PlanChanges.instance.addListener(_load);
+    PendingDeletes.instance.addListener(_load);
     SyncSettings.instance.addListener(_load);
     MainNavigation.instance.addListener(_onNavigate);
     _onNavigate(load: false);
@@ -118,6 +120,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _session.removeListener(_load);
     AutoSyncService.instance.removeListener(_load);
     PlanChanges.instance.removeListener(_load);
+    PendingDeletes.instance.removeListener(_load);
     SyncSettings.instance.removeListener(_load);
     MainNavigation.instance.removeListener(_onNavigate);
     super.dispose();

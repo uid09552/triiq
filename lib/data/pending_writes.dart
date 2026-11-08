@@ -215,6 +215,7 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
     'indoor': d.indoor,
     'tags': d.tags,
     'external_id': d.externalId,
+    if (d.startsAt != null) 'starts_at': d.startsAt!.toIso8601String(),
   };
 
   static PlannedWorkoutDraft draftFromJson(Map<String, dynamic> j) =>
@@ -228,6 +229,7 @@ class QueuedWorkoutWriter implements PlannedWorkoutWriter {
         indoor: j['indoor'] == true,
         tags: (j['tags'] as List?)?.cast<String>(),
         externalId: j['external_id'] as String?,
+        startsAt: DateTime.tryParse('${j['starts_at'] ?? ''}'),
       );
 }
 

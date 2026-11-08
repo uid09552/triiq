@@ -6941,7 +6941,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvEraseDone.
   ///
   /// In en, this message translates to:
-  /// **'All data on this device was deleted. Close and reopen TriIQ.'**
+  /// **'All data on this device was deleted.'**
   String get pvEraseDone;
 
   /// No description provided for @pvEraseFailed.
@@ -7099,12 +7099,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} replaces the session'**
   String workoutReplacedUndoable(String name);
-
-  /// No description provided for @undoNotFound.
-  ///
-  /// In en, this message translates to:
-  /// **'the new session is no longer on the calendar'**
-  String get undoNotFound;
 
   /// No description provided for @workoutDeletedUndoable.
   ///

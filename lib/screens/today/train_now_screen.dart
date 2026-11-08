@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../data/pending_deletes.dart';
 import '../../agent/chat_model_factory.dart';
 import '../../agent/llm_settings.dart';
 import '../../agent/training_agent.dart';
@@ -211,6 +212,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   void initState() {
     super.initState();
     PlanChanges.instance.addListener(_loadTodays);
+    PendingDeletes.instance.addListener(_loadTodays);
     AutoSyncService.instance.addListener(_loadTodays);
     SyncSettings.instance.addListener(_loadTodays);
     _loadTodays();
@@ -219,6 +221,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   @override
   void dispose() {
     PlanChanges.instance.removeListener(_loadTodays);
+    PendingDeletes.instance.removeListener(_loadTodays);
     AutoSyncService.instance.removeListener(_loadTodays);
     SyncSettings.instance.removeListener(_loadTodays);
     _subscription?.cancel();
@@ -227,7 +230,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   }
 
   void _propose() {
-    if (_isBusy) return;
+    // The button is hidden without a consented provider; this is the guard
+    // for every other way in.
+    if (_isBusy || !_settings.isConfigured) return;
     setState(() {
       _requested = true;
       _reply = '';
@@ -478,39 +483,36 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   }
 
   /// Puts [draft] in [reference]'s place via [PlanActions], and says how
-  /// that went — with **Undo** whenever the old session is gone, which puts
-  /// it back.
+  /// that went — with **Undo** whenever the old session is gone and the new
+  /// one is known, which puts the old one back exactly.
   Future<void> _replace(LocalEvent reference, PlannedWorkoutDraft draft) async {
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _publishing = true);
     try {
-      final outcome = await _planActions.replaceSession(reference, draft);
+      final result = await _planActions.replaceSessionTracked(reference, draft);
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(switch (outcome) {
+          content: Text(switch (result.outcome) {
             ReplaceOutcome.replaced => l10n.workoutReplaced(draft.name),
             ReplaceOutcome.replacedLocally => l10n.workoutReplacedLocal,
             ReplaceOutcome.bothExist => l10n.replaceBothExist,
             ReplaceOutcome.queued => l10n.replaceQueuedOffline,
           }),
-          // Both sessions exist: there is nothing to restore.
-          duration: Duration(
-            seconds: outcome == ReplaceOutcome.bothExist ? 10 : 8,
-          ),
+          duration: Duration(seconds: result.canUndo ? 8 : 10),
           persist: false,
-          action: outcome == ReplaceOutcome.bothExist
-              ? null
-              : SnackBarAction(
+          action: result.canUndo
+              ? SnackBarAction(
                   label: l10n.undoButton,
                   onPressed: () => _undoReplace(
+                    result,
                     reference,
-                    draft,
                     messenger: messenger,
                     l10n: l10n,
                   ),
-                ),
+                )
+              : null,
         ),
       );
       await _loadTodays();
@@ -524,36 +526,21 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     }
   }
 
-  /// Swaps the replacement back for the session it replaced: finds the new
-  /// session on its day and replaces it with the old one's content. Goes
-  /// through the same [PlanActions.replaceSession], so Intervals.icu gets the
-  /// old workout back and loses the new one (or the swap is queued offline).
+  /// Swaps the replacement in [result] back for [old], by id.
   Future<void> _undoReplace(
-    LocalEvent old,
-    PlannedWorkoutDraft replaced, {
+    ReplaceResult result,
+    LocalEvent old, {
     required ScaffoldMessengerState messenger,
     required AppLocalizations l10n,
   }) async {
     try {
-      final today = await _plannedItems.getByDate(isoDate(replaced.date));
-      final current = today
-          .where((e) => e.isTraining && e.name == replaced.name)
-          .firstOrNull;
-      if (current == null) {
-        throw StateError(l10n.undoNotFound);
-      }
-      final back = PlannedWorkoutDraft(
-        name: old.name ?? old.type ?? replaced.sport,
-        sport: old.type ?? replaced.sport,
-        description: old.description ?? '',
-        date: replaced.date,
-        durationSeconds: old.plannedTime,
-        load: old.plannedLoad,
-        indoor: old.indoor,
-      );
-      await _planActions.replaceSession(current, back);
+      await _planActions.undoReplace(result, old);
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.replaceUndone(back.name))),
+        SnackBar(
+          content: Text(
+            l10n.replaceUndone(old.name ?? old.type ?? result.draft.sport),
+          ),
+        ),
       );
       if (mounted) await _loadTodays();
     } on ReplaceRefusedException catch (error) {

@@ -20,6 +20,7 @@ class PlannedItemsRepository {
     EventsRepository? events,
     PlansRepository? plans,
     Future<bool> Function()? copyEvents,
+    this.hidePendingDeletes = true,
   }) : _events = events ?? EventsRepository(),
        _plans = plans ?? PlansRepository(),
        _copyEvents = copyEvents ?? _copyEventsSetting;
@@ -27,6 +28,11 @@ class PlannedItemsRepository {
   final EventsRepository _events;
   final PlansRepository _plans;
   final Future<bool> Function() _copyEvents;
+
+  /// Whether entries inside their undo window are left out — yes for the
+  /// screens, no for what leaves the app (home widget, morning briefing):
+  /// until the delete really happens the session is still planned.
+  final bool hidePendingDeletes;
 
   static Future<bool> _copyEventsSetting() async {
     final settings = SyncSettings.instance;
@@ -48,7 +54,7 @@ class PlannedItemsRepository {
     ];
     // Entries just deleted and still inside their undo window.
     final pending = PendingDeletes.instance;
-    return pending.isEmpty
+    return !hidePendingDeletes || pending.isEmpty
         ? all
         : [
             for (final e in all)

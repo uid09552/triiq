@@ -94,13 +94,14 @@ Future<bool> deletePlannedWorkoutWithUndo(
   final hidden = pendingDeletes ?? PendingDeletes.instance;
   final name = plannedWorkoutTitle(l10n, event);
 
-  void refreshLists() {
-    PlanChanges.instance.notify();
-    AutoSyncService.instance.notifyCacheChanged();
-  }
+  // Inside the undo window only the on-screen lists react (they listen to
+  // [PendingDeletes]). The home widget, the morning briefing and the sync
+  // throttle follow the app-wide change notifications, which fire only once
+  // the delete has really happened.
+  // (The real delete itself notifies [PlanChanges].)
+  void announceRealChange() => AutoSyncService.instance.notifyCacheChanged();
 
   hidden.hide(event.id);
-  refreshLists();
 
   final controller = messenger.showSnackBar(
     SnackBar(
@@ -117,7 +118,6 @@ Future<bool> deletePlannedWorkoutWithUndo(
     controller.closed.then((reason) async {
       if (reason == SnackBarClosedReason.action) {
         hidden.restore(event.id);
-        refreshLists();
         return;
       }
       try {
@@ -130,10 +130,9 @@ Future<bool> deletePlannedWorkoutWithUndo(
         await _syncDay(event.date);
         // Gone for real: the hide is no longer needed.
         hidden.restore(event.id);
-        refreshLists();
+        announceRealChange();
       } catch (error) {
         hidden.restore(event.id);
-        refreshLists();
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.couldNotDeleteWorkout('$error'))),
         );

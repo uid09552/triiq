@@ -4,10 +4,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../data/models/local_activity.dart';
-import '../../data/privacy_settings.dart';
 import '../../evaluation/activity_route.dart';
 import '../../evaluation/session_evaluator.dart' show sportFamily;
 import '../../l10n/app_localizations.dart';
+import '../../widgets/osm_layers.dart';
 import '../../widgets/section_card.dart';
 
 /// Whether the activity can have a GPS track worth a map: outdoor running
@@ -21,8 +21,6 @@ bool hasRouteMap(LocalActivity a) {
   if (a.raw['trainer'] == true) return false;
   return true;
 }
-
-const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 /// The track drawn on a map: the route in the theme's colour, a green start
 /// and a red finish marker, OpenStreetMap tiles with attribution.
@@ -53,9 +51,6 @@ class RouteMap extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final points = [for (final p in route.points) LatLng(p.lat, p.lng)];
-    // OpenStreetMap sees the IP address and the area: only with the athlete's
-    // say-so (Settings → Privacy & data).
-    final tiles = showTiles && PrivacySettings.instance.mapTiles;
     return FlutterMap(
       options: MapOptions(
         initialCameraFit: CameraFit.coordinates(
@@ -67,11 +62,9 @@ class RouteMap extends StatelessWidget {
         ),
       ),
       children: [
-        if (tiles)
-          TileLayer(
-            urlTemplate: _tileUrl,
-            userAgentPackageName: 'com.triiq.triiq',
-          ),
+        // Only with the athlete's say-so (Settings → Privacy & data),
+        // and not before that choice has been read.
+        OsmTileLayer(showTiles: showTiles),
         PolylineLayer(
           polylines: [
             Polyline(
@@ -117,10 +110,7 @@ class RouteMap extends StatelessWidget {
               );
             },
           ),
-        if (tiles)
-          const SimpleAttributionWidget(
-            source: Text('© OpenStreetMap contributors'),
-          ),
+        OsmAttribution(showTiles: showTiles),
       ],
     );
   }

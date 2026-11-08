@@ -1328,7 +1328,7 @@
   "pvEraseConfirmTitle": "Alle Daten löschen?",
   "pvEraseConfirmBody": "Alles, was TriIQ auf diesem Gerät speichert, wird entfernt und die App getrennt. Exportiere vorher ein Backup, wenn du es behalten möchtest. Das lässt sich nicht rückgängig machen.",
   "pvEraseConfirm": "Alles löschen",
-  "pvEraseDone": "Alle Daten auf diesem Gerät wurden gelöscht. Schließe TriIQ und öffne es neu.",
+  "pvEraseDone": "Alle Daten auf diesem Gerät wurden gelöscht.",
   "pvEraseFailed": "Es konnte nicht alles gelöscht werden: {error}",
   "pvOpenWeb": "Vollständige Datenschutzerklärung lesen",
   "pvContact": "Fragen oder Anliegen: Eröffne ein Issue auf github.com/uid09552/triiq.",
@@ -1355,6 +1355,5 @@
   "replaceUndone": "Zurück zu „{name}“",
   "couldNotUndo": "Rückgängig nicht möglich: {error}",
   "workoutReplacedUndoable": "{name} ersetzt die Einheit",
-  "undoNotFound": "die neue Einheit steht nicht mehr im Kalender",
   "workoutDeletedUndoable": "„{name}“ gelöscht"
 }

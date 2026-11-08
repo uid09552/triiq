@@ -109,7 +109,7 @@ class MorningBriefingScheduler {
     AppLocalizations Function()? l10n,
   }) : _settings = settings ?? NotificationSettings.instance,
        _notifications = notifications ?? NotificationService.instance,
-       _planned = planned ?? PlannedItemsRepository(),
+       _planned = planned ?? PlannedItemsRepository(hidePendingDeletes: false),
        _readiness = readiness ?? ReadinessService(),
        _fatigue = fatigue ?? FatigueWarningService(),
        _wellness = wellness ?? WellnessRepository(),

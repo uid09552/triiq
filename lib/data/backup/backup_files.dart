@@ -16,6 +16,10 @@ class BackupFiles {
 
   static bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
+  /// Whether [name] is one of the backup files TriIQ writes.
+  static bool isBackupName(String name) =>
+      RegExp(r'^triiq-backup-\d{8}-\d{4}\.json$').hasMatch(name);
+
   static String fileName(DateTime now) {
     String two(int v) => v.toString().padLeft(2, '0');
     return 'triiq-backup-${now.year}${two(now.month)}${two(now.day)}-'

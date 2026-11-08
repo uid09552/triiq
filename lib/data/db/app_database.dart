@@ -58,6 +58,15 @@ class AppDatabase {
         await txn.delete('"${t['name']}"');
       }
     });
+    // DELETE only marks pages free: the old rows stay readable in the file
+    // (and in the write-ahead log) until reused. Flush the log and rebuild
+    // the file so erased data is really gone.
+    try {
+      await db.rawQuery('PRAGMA wal_checkpoint(TRUNCATE)');
+    } catch (_) {
+      // Not in WAL mode: nothing to flush.
+    }
+    await db.execute('VACUUM');
     return tables.length;
   }
 

@@ -4197,8 +4197,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pvEraseConfirm => 'Delete everything';
 
   @override
-  String get pvEraseDone =>
-      'All data on this device was deleted. Close and reopen TriIQ.';
+  String get pvEraseDone => 'All data on this device was deleted.';
 
   @override
   String pvEraseFailed(String error) {
@@ -4302,9 +4301,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String workoutReplacedUndoable(String name) {
     return '$name replaces the session';
   }
-
-  @override
-  String get undoNotFound => 'the new session is no longer on the calendar';
 
   @override
   String workoutDeletedUndoable(String name) {

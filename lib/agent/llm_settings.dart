@@ -141,6 +141,18 @@ class LlmSettings extends ChangeNotifier {
   bool get needsConsent =>
       requireConsent && hasProvider && !PrivacySettings.instance.aiConsent;
 
+  /// Back to a fresh install (after "Delete all data"): default provider and
+  /// models, no keys in memory. The stored keys are removed separately.
+  void resetInMemory() {
+    _provider = LlmProvider.claude;
+    _claudeModel = defaultClaudeModel;
+    _ollamaBaseUrl = defaultOllamaBaseUrl;
+    _ollamaModel = defaultOllamaModel;
+    _claudeApiKey = null;
+    _ollamaApiKey = null;
+    notifyListeners();
+  }
+
   /// Reads stored settings. Safe to call more than once; never throws.
   Future<void> load() async {
     try {

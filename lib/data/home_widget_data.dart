@@ -159,7 +159,7 @@ class HomeWidgetUpdater {
     WeeklyTargetsSettings? targets,
     DateTime Function()? clock,
   }) : _targets = targets ?? WeeklyTargetsSettings.instance,
-       _planned = planned ?? PlannedItemsRepository(),
+       _planned = planned ?? PlannedItemsRepository(hidePendingDeletes: false),
        _activities = activities ?? ActivitiesRepository(),
        _wellness = wellness ?? WellnessRepository(),
        _clock = clock ?? DateTime.now;
