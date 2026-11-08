@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'wind_rose.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,50 +17,24 @@ part 'wind_rose.g.dart';
 )
 class WindRose {
   /// Returns a new [WindRose] instance.
-  WindRose({
+  WindRose({this.avgSpeed, this.count});
 
-     this.avgSpeed,
-
-     this.count,
-  });
-
-  @JsonKey(
-    
-    name: r'avg_speed',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'avg_speed', required: false, includeIfNull: false)
   final List<double>? avgSpeed;
 
-
-
-  @JsonKey(
-    
-    name: r'count',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'count', required: false, includeIfNull: false)
   final List<int>? count;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WindRose && other.avgSpeed == avgSpeed && other.count == count;
 
+  @override
+  int get hashCode => avgSpeed.hashCode + count.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is WindRose &&
-      other.avgSpeed == avgSpeed &&
-      other.count == count;
-
-    @override
-    int get hashCode =>
-        avgSpeed.hashCode +
-        count.hashCode;
-
-  factory WindRose.fromJson(Map<String, dynamic> json) => _$WindRoseFromJson(json);
+  factory WindRose.fromJson(Map<String, dynamic> json) =>
+      _$WindRoseFromJson(json);
 
   Map<String, dynamic> toJson() => _$WindRoseToJson(this);
 
@@ -69,6 +42,4 @@ class WindRose {
   String toString() {
     return toJson().toString();
   }
-
 }
-

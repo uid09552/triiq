@@ -362,11 +362,7 @@ const _candidateWindow = Duration(days: 90);
 /// Drops [point] when its activity is known and older than
 /// [_candidateWindow]. A point with no matching [CurveActivity] (its date
 /// is unknown) is kept rather than penalised for missing metadata.
-CurvePoint? _recent(
-  PerformanceCurves curves,
-  CurvePoint? point,
-  DateTime now,
-) {
+CurvePoint? _recent(PerformanceCurves curves, CurvePoint? point, DateTime now) {
   if (point == null) return null;
   final dateStr = curves.activities[point.activityId]?.date;
   if (dateStr == null) return point;

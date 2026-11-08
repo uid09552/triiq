@@ -11,8 +11,9 @@ import 'package:triiq/evaluation/threshold_suggestions.dart';
 /// A fake Intervals.icu backend recording every PUT body as decoded JSON,
 /// and answering with [respondWith] (or an echo of the sent fields) so the
 /// generated client's response deserialization has something to parse.
-({IntervallsClient client, List<Map<String, dynamic>> putBodies})
-_fakeClient({int? failStatus}) {
+({IntervallsClient client, List<Map<String, dynamic>> putBodies}) _fakeClient({
+  int? failStatus,
+}) {
   final bodies = <Map<String, dynamic>>[];
   final dio = Dio(BaseOptions(baseUrl: 'https://intervals.test'));
   dio.interceptors.add(
@@ -49,7 +50,10 @@ _fakeClient({int? failStatus}) {
       },
     ),
   );
-  return (client: IntervallsClient(dio: dio, interceptors: const []), putBodies: bodies);
+  return (
+    client: IntervallsClient(dio: dio, interceptors: const []),
+    putBodies: bodies,
+  );
 }
 
 IntervalsSession _sessionWithRideSettings(

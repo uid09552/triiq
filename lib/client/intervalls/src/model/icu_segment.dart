@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'icu_segment.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,113 +18,59 @@ part 'icu_segment.g.dart';
 class IcuSegment {
   /// Returns a new [IcuSegment] instance.
   IcuSegment({
+    this.id,
 
-     this.id,
+    this.startIndex,
 
-     this.startIndex,
+    this.endIndex,
 
-     this.endIndex,
+    this.name,
 
-     this.name,
+    this.segmentId,
 
-     this.segmentId,
-
-     this.starred,
+    this.starred,
   });
 
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final int? id;
 
-
-
-  @JsonKey(
-    
-    name: r'start_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_index', required: false, includeIfNull: false)
   final int? startIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'end_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'end_index', required: false, includeIfNull: false)
   final int? endIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'name',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'name', required: false, includeIfNull: false)
   final String? name;
 
-
-
-  @JsonKey(
-    
-    name: r'segment_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'segment_id', required: false, includeIfNull: false)
   final int? segmentId;
 
-
-
-  @JsonKey(
-    
-    name: r'starred',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'starred', required: false, includeIfNull: false)
   final bool? starred;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IcuSegment &&
+          other.id == id &&
+          other.startIndex == startIndex &&
+          other.endIndex == endIndex &&
+          other.name == name &&
+          other.segmentId == segmentId &&
+          other.starred == starred;
 
+  @override
+  int get hashCode =>
+      id.hashCode +
+      startIndex.hashCode +
+      endIndex.hashCode +
+      name.hashCode +
+      segmentId.hashCode +
+      starred.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is IcuSegment &&
-      other.id == id &&
-      other.startIndex == startIndex &&
-      other.endIndex == endIndex &&
-      other.name == name &&
-      other.segmentId == segmentId &&
-      other.starred == starred;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        startIndex.hashCode +
-        endIndex.hashCode +
-        name.hashCode +
-        segmentId.hashCode +
-        starred.hashCode;
-
-  factory IcuSegment.fromJson(Map<String, dynamic> json) => _$IcuSegmentFromJson(json);
+  factory IcuSegment.fromJson(Map<String, dynamic> json) =>
+      _$IcuSegmentFromJson(json);
 
   Map<String, dynamic> toJson() => _$IcuSegmentToJson(this);
 
@@ -133,6 +78,4 @@ class IcuSegment {
   String toString() {
     return toJson().toString();
   }
-
 }
-

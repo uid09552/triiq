@@ -39,17 +39,16 @@ import 'package:triiq/client/intervalls/src/model/update_streams_result.dart';
 import 'package:triiq/client/intervalls/src/model/upload_response.dart';
 
 class AktivittenApi {
-
   final Dio _dio;
 
   const AktivittenApi(this._dio);
 
   /// Create a manual activity
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [activity] 
+  /// * [id]
+  /// * [activity]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -59,7 +58,7 @@ class AktivittenApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Activity] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Activity>> createManualActivity({ 
+  Future<Response<Activity>> createManualActivity({
     required String id,
     required Activity activity,
     CancelToken? cancelToken,
@@ -69,23 +68,19 @@ class AktivittenApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities/manual'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities/manual'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -97,13 +92,9 @@ class AktivittenApi {
 
     try {
       _bodyData = jsonEncode(activity);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -122,9 +113,14 @@ class AktivittenApi {
     Activity? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData, 'Activity', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Activity, Activity>(
+              rawData,
+              'Activity',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -151,8 +147,8 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
   /// Existing activities with matching external_id, created by the same OAuth application are updated. Activities created/updated are returned. Activities with no external_id are always created.
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [activity] 
+  /// * [id]
+  /// * [activity]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -162,7 +158,7 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
   ///
   /// Returns a [Future] containing a [Response] with a [List<Activity>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Activity>>> createMultipleManualActivities({ 
+  Future<Response<List<Activity>>> createMultipleManualActivities({
     required String id,
     required List<Activity> activity,
     CancelToken? cancelToken,
@@ -172,23 +168,19 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities/manual/bulk'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities/manual/bulk'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -200,13 +192,9 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
 
     try {
       _bodyData = jsonEncode(activity);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -225,9 +213,14 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
     List<Activity>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(rawData, 'List<Activity>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Activity>, Activity>(
+              rawData,
+              'List<Activity>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -251,10 +244,10 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   }
 
   /// Delete an activity
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -264,7 +257,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   ///
   /// Returns a [Future] containing a [Response] with a [ActivityId] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ActivityId>> deleteActivity({ 
+  Future<Response<ActivityId>> deleteActivity({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -273,23 +266,19 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'DELETE',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -307,9 +296,14 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ActivityId? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<ActivityId, ActivityId>(rawData, 'ActivityId', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<ActivityId, ActivityId>(
+              rawData,
+              'ActivityId',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -333,11 +327,11 @@ _responseData = rawData == null ? null : deserialize<ActivityId, ActivityId>(raw
   }
 
   /// Delete intervals
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [interval] 
+  /// * [id]
+  /// * [interval]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -347,7 +341,7 @@ _responseData = rawData == null ? null : deserialize<ActivityId, ActivityId>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [IntervalsDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<IntervalsDTO>> deleteIntervals({ 
+  Future<Response<IntervalsDTO>> deleteIntervals({
     required String id,
     required List<Interval> interval,
     CancelToken? cancelToken,
@@ -357,23 +351,19 @@ _responseData = rawData == null ? null : deserialize<ActivityId, ActivityId>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/delete-intervals'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/delete-intervals'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -385,13 +375,9 @@ _responseData = rawData == null ? null : deserialize<ActivityId, ActivityId>(raw
 
     try {
       _bodyData = jsonEncode(interval);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -410,9 +396,14 @@ _responseData = rawData == null ? null : deserialize<ActivityId, ActivityId>(raw
     IntervalsDTO? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>(rawData, 'IntervalsDTO', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IntervalsDTO, IntervalsDTO>(
+              rawData,
+              'IntervalsDTO',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -436,10 +427,10 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   }
 
   /// Delete an activity tombstone
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -449,7 +440,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> deleteTombstone({ 
+  Future<Response<void>> deleteTombstone({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -458,23 +449,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/tombstone'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/tombstone'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'DELETE',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -493,10 +480,10 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   }
 
   /// Download activities as CSV
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -506,7 +493,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> downloadActivitiesAsCSV({ 
+  Future<Response<void>> downloadActivitiesAsCSV({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -515,23 +502,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities.csv'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities.csv'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -550,10 +533,10 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   }
 
   /// Download original activity file, Strava activities not supported
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -563,7 +546,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> downloadActivityFile({ 
+  Future<Response<void>> downloadActivityFile({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -572,23 +555,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/file'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/file'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -610,7 +589,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   /// Not supported for Strava activities
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [power] - Include power data
   /// * [hr] - Include heart rate data
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -622,7 +601,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> downloadActivityFitFile({ 
+  Future<Response<void>> downloadActivityFitFile({
     required String id,
     bool? power = true,
     bool? hr = true,
@@ -633,23 +612,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/fit-file'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/fit-file'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -677,7 +652,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   /// Strava activities are not included
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [ids] - Activity id's to download
   /// * [power] - Include power data
   /// * [hr] - Include heart rate data
@@ -690,7 +665,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> downloadActivityFitFiles({ 
+  Future<Response<void>> downloadActivityFitFiles({
     required String id,
     required List<String> ids,
     bool? power = true,
@@ -702,23 +677,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/download-fit-files'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/download-fit-files'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -747,7 +718,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   /// Not supported for Strava activities and activities without GPS data
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [power] - Include power data
   /// * [hr] - Include heart rate data
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -759,7 +730,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> downloadActivityGpxFile({ 
+  Future<Response<void>> downloadActivityGpxFile({
     required String id,
     bool? power = true,
     bool? hr = true,
@@ -770,23 +741,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/gpx-file'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/gpx-file'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -814,7 +781,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   /// One of duration or distance is required
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [stream] - Stream to search
   /// * [duration] - Duration of each effort in seconds
   /// * [distance] - Distance of each effort in meters
@@ -832,7 +799,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future] containing a [Response] with a [BestEfforts] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BestEfforts>> findBestEfforts({ 
+  Future<Response<BestEfforts>> findBestEfforts({
     required String id,
     required String stream,
     int? duration,
@@ -849,23 +816,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/best-efforts'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/best-efforts'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -895,9 +858,14 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     BestEfforts? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<BestEfforts, BestEfforts>(rawData, 'BestEfforts', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<BestEfforts, BestEfforts>(
+              rawData,
+              'BestEfforts',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -924,8 +892,8 @@ _responseData = rawData == null ? null : deserialize<BestEfforts, BestEfforts>(r
   /// Strava activities are returned as empty stubs
   ///
   /// Parameters:
-  /// * [athleteId] 
-  /// * [ids] 
+  /// * [athleteId]
+  /// * [ids]
   /// * [intervals] - Include interval data (icu_intervals and icu_groups fields)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -936,7 +904,7 @@ _responseData = rawData == null ? null : deserialize<BestEfforts, BestEfforts>(r
   ///
   /// Returns a [Future] containing a [Response] with a [List<Activity>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Activity>>> getActivities({ 
+  Future<Response<List<Activity>>> getActivities({
     required String athleteId,
     required List<String> ids,
     bool? intervals,
@@ -947,23 +915,26 @@ _responseData = rawData == null ? null : deserialize<BestEfforts, BestEfforts>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{athleteId}/activities/{ids}'.replaceAll('{' r'athleteId' '}', athleteId.toString()).replaceAll('{' r'ids' '}', ids.toString());
+    final _path = r'/api/v1/athlete/{athleteId}/activities/{ids}'
+        .replaceAll(
+          '{'
+          r'athleteId'
+          '}',
+          athleteId.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ids'
+          '}',
+          ids.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -986,9 +957,14 @@ _responseData = rawData == null ? null : deserialize<BestEfforts, BestEfforts>(r
     List<Activity>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(rawData, 'List<Activity>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Activity>, Activity>(
+              rawData,
+              'List<Activity>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1015,7 +991,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   /// An empty stub object is returned for Strava activities
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [intervals] - Include interval data
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -1026,7 +1002,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   ///
   /// Returns a [Future] containing a [Response] with a [GetActivityDefaultResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GetActivityDefaultResponse>> getActivity({ 
+  Future<Response<GetActivityDefaultResponse>> getActivity({
     required String id,
     bool? intervals,
     CancelToken? cancelToken,
@@ -1036,23 +1012,19 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1075,9 +1047,14 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     GetActivityDefaultResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<GetActivityDefaultResponse, GetActivityDefaultResponse>(rawData, 'GetActivityDefaultResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<GetActivityDefaultResponse, GetActivityDefaultResponse>(
+              rawData,
+              'GetActivityDefaultResponse',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1101,11 +1078,11 @@ _responseData = rawData == null ? null : deserialize<GetActivityDefaultResponse,
   }
 
   /// Get activity heart rate curve in JSON or CSV (use .csv ext) format
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1115,7 +1092,7 @@ _responseData = rawData == null ? null : deserialize<GetActivityDefaultResponse,
   ///
   /// Returns a [Future] containing a [Response] with a [HRCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HRCurve>> getActivityHRCurve({ 
+  Future<Response<HRCurve>> getActivityHRCurve({
     required String id,
     required String ext,
     CancelToken? cancelToken,
@@ -1125,23 +1102,26 @@ _responseData = rawData == null ? null : deserialize<GetActivityDefaultResponse,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/hr-curve{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/activity/{id}/hr-curve{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1159,9 +1139,10 @@ _responseData = rawData == null ? null : deserialize<GetActivityDefaultResponse,
     HRCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<HRCurve, HRCurve>(rawData, 'HRCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<HRCurve, HRCurve>(rawData, 'HRCurve', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1185,10 +1166,10 @@ _responseData = rawData == null ? null : deserialize<HRCurve, HRCurve>(rawData, 
   }
 
   /// Get activity map data
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [bounds] - Optional comma separated bounding box (left, top, right, bottom) to limit points returned
   /// * [boundsOnly] - Only return the map bounds, not the latlngs
   /// * [weather] - Include weather points if available
@@ -1201,7 +1182,7 @@ _responseData = rawData == null ? null : deserialize<HRCurve, HRCurve>(rawData, 
   ///
   /// Returns a [Future] containing a [Response] with a [MapData] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<MapData>> getActivityMap({ 
+  Future<Response<MapData>> getActivityMap({
     required String id,
     List<double>? bounds,
     bool? boundsOnly = false,
@@ -1213,23 +1194,19 @@ _responseData = rawData == null ? null : deserialize<HRCurve, HRCurve>(rawData, 
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/map'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/map'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1254,9 +1231,10 @@ _responseData = rawData == null ? null : deserialize<HRCurve, HRCurve>(rawData, 
     MapData? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<MapData, MapData>(rawData, 'MapData', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<MapData, MapData>(rawData, 'MapData', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1280,12 +1258,12 @@ _responseData = rawData == null ? null : deserialize<MapData, MapData>(rawData, 
   }
 
   /// Get activity pace curve in JSON or CSV (use .csv ext) format
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
-  /// * [gap] 
+  /// * [id]
+  /// * [ext]
+  /// * [gap]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1295,7 +1273,7 @@ _responseData = rawData == null ? null : deserialize<MapData, MapData>(rawData, 
   ///
   /// Returns a [Future] containing a [Response] with a [PaceCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<PaceCurve>> getActivityPaceCurve({ 
+  Future<Response<PaceCurve>> getActivityPaceCurve({
     required String id,
     required String ext,
     bool? gap = false,
@@ -1306,32 +1284,33 @@ _responseData = rawData == null ? null : deserialize<MapData, MapData>(rawData, 
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/pace-curve{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/activity/{id}/pace-curve{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      if (gap != null) r'gap': gap,
-    };
+    final _queryParameters = <String, dynamic>{if (gap != null) r'gap': gap};
 
     final _response = await _dio.request<Object>(
       _path,
@@ -1345,9 +1324,14 @@ _responseData = rawData == null ? null : deserialize<MapData, MapData>(rawData, 
     PaceCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<PaceCurve, PaceCurve>(rawData, 'PaceCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PaceCurve, PaceCurve>(
+              rawData,
+              'PaceCurve',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1371,11 +1355,11 @@ _responseData = rawData == null ? null : deserialize<PaceCurve, PaceCurve>(rawDa
   }
 
   /// Get activity power curve in JSON or CSV (use .csv ext) format
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [fatigue] - Use kj0 or kj1 to get one of the athlete's predefined fatigued power curves
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -1386,7 +1370,7 @@ _responseData = rawData == null ? null : deserialize<PaceCurve, PaceCurve>(rawDa
   ///
   /// Returns a [Future] containing a [Response] with a [PowerCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<PowerCurve>> getActivityPowerCurve({ 
+  Future<Response<PowerCurve>> getActivityPowerCurve({
     required String id,
     required String ext,
     String? fatigue,
@@ -1397,23 +1381,26 @@ _responseData = rawData == null ? null : deserialize<PaceCurve, PaceCurve>(rawDa
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/power-curve{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/activity/{id}/power-curve{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1436,9 +1423,14 @@ _responseData = rawData == null ? null : deserialize<PaceCurve, PaceCurve>(rawDa
     PowerCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<PowerCurve, PowerCurve>(rawData, 'PowerCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PowerCurve, PowerCurve>(
+              rawData,
+              'PowerCurve',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1462,10 +1454,10 @@ _responseData = rawData == null ? null : deserialize<PowerCurve, PowerCurve>(raw
   }
 
   /// Get activity power spike detection model
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1475,7 +1467,7 @@ _responseData = rawData == null ? null : deserialize<PowerCurve, PowerCurve>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [PowerModel] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<PowerModel>> getActivityPowerSpikeModel({ 
+  Future<Response<PowerModel>> getActivityPowerSpikeModel({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -1484,23 +1476,19 @@ _responseData = rawData == null ? null : deserialize<PowerCurve, PowerCurve>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/power-spike-model'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/power-spike-model'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1518,9 +1506,14 @@ _responseData = rawData == null ? null : deserialize<PowerCurve, PowerCurve>(raw
     PowerModel? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(rawData, 'PowerModel', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PowerModel, PowerModel>(
+              rawData,
+              'PowerModel',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1544,10 +1537,10 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
   }
 
   /// Get activity segments
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1557,7 +1550,7 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [List<IcuSegment>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<IcuSegment>>> getActivitySegments({ 
+  Future<Response<List<IcuSegment>>> getActivitySegments({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -1566,23 +1559,19 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/segments'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/segments'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1600,9 +1589,14 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
     List<IcuSegment>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<IcuSegment>, IcuSegment>(rawData, 'List<IcuSegment>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<IcuSegment>, IcuSegment>(
+              rawData,
+              'List<IcuSegment>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1629,8 +1623,8 @@ _responseData = rawData == null ? null : deserialize<List<IcuSegment>, IcuSegmen
   /// Note that this endpoint will return &#39;fixed_watts&#39; as &#39;watts&#39;. If &#39;raw_watts&#39; is asked for or types is null then the &#39;watts&#39; stream is renamed to &#39;raw_watts&#39;. If ext is .csv then CSV data is returned instead of JSON
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [types] - Streams required
   /// * [includeDefaults] - Include default streams in addition to any specified in types
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -1642,7 +1636,7 @@ _responseData = rawData == null ? null : deserialize<List<IcuSegment>, IcuSegmen
   ///
   /// Returns a [Future] containing a [Response] with a [List<ActivityStream>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<ActivityStream>>> getActivityStreams({ 
+  Future<Response<List<ActivityStream>>> getActivityStreams({
     required String id,
     required String ext,
     List<String>? types,
@@ -1654,23 +1648,26 @@ _responseData = rawData == null ? null : deserialize<List<IcuSegment>, IcuSegmen
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/streams{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/activity/{id}/streams{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1694,9 +1691,14 @@ _responseData = rawData == null ? null : deserialize<List<IcuSegment>, IcuSegmen
     List<ActivityStream>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<ActivityStream>, ActivityStream>(rawData, 'List<ActivityStream>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<ActivityStream>, ActivityStream>(
+              rawData,
+              'List<ActivityStream>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1720,10 +1722,10 @@ _responseData = rawData == null ? null : deserialize<List<ActivityStream>, Activ
   }
 
   /// Get activity weather summary information
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [startIndex] - Optional index of first point in activity to use
   /// * [endIndex] - Optional index of last point in activity to use (exclusive)
   /// * [descrConfig] - Optional JSON-encoded configuration for description field
@@ -1736,7 +1738,7 @@ _responseData = rawData == null ? null : deserialize<List<ActivityStream>, Activ
   ///
   /// Returns a [Future] containing a [Response] with a [ActivityWeatherSummary] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ActivityWeatherSummary>> getActivityWeatherSummary({ 
+  Future<Response<ActivityWeatherSummary>> getActivityWeatherSummary({
     required String id,
     int? startIndex = 0,
     int? endIndex = 0,
@@ -1748,23 +1750,19 @@ _responseData = rawData == null ? null : deserialize<List<ActivityStream>, Activ
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/weather-summary'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/weather-summary'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1789,9 +1787,14 @@ _responseData = rawData == null ? null : deserialize<List<ActivityStream>, Activ
     ActivityWeatherSummary? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<ActivityWeatherSummary, ActivityWeatherSummary>(rawData, 'ActivityWeatherSummary', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<ActivityWeatherSummary, ActivityWeatherSummary>(
+              rawData,
+              'ActivityWeatherSummary',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1815,11 +1818,11 @@ _responseData = rawData == null ? null : deserialize<ActivityWeatherSummary, Act
   }
 
   /// Get the power model used to resolve %MMP steps in workouts for the athlete
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [type] 
+  /// * [id]
+  /// * [type]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1829,7 +1832,7 @@ _responseData = rawData == null ? null : deserialize<ActivityWeatherSummary, Act
   ///
   /// Returns a [Future] containing a [Response] with a [PowerModel] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<PowerModel>> getAthleteMMPModel({ 
+  Future<Response<PowerModel>> getAthleteMMPModel({
     required String id,
     required String type,
     CancelToken? cancelToken,
@@ -1839,32 +1842,26 @@ _responseData = rawData == null ? null : deserialize<ActivityWeatherSummary, Act
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/mmp-model'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/mmp-model'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      r'type': type,
-    };
+    final _queryParameters = <String, dynamic>{r'type': type};
 
     final _response = await _dio.request<Object>(
       _path,
@@ -1878,9 +1875,14 @@ _responseData = rawData == null ? null : deserialize<ActivityWeatherSummary, Act
     PowerModel? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(rawData, 'PowerModel', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PowerModel, PowerModel>(
+              rawData,
+              'PowerModel',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1904,10 +1906,10 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
   }
 
   /// Get activity gradient adjusted pace histogram
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1917,7 +1919,7 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [List<Bucket>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Bucket>>> getGapHistogram({ 
+  Future<Response<List<Bucket>>> getGapHistogram({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -1926,23 +1928,19 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/gap-histogram'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/gap-histogram'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -1960,9 +1958,14 @@ _responseData = rawData == null ? null : deserialize<PowerModel, PowerModel>(raw
     List<Bucket>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawData, 'List<Bucket>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Bucket>, Bucket>(
+              rawData,
+              'List<Bucket>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -1986,10 +1989,10 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   }
 
   /// Get activity heart rate histogram
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [bucketSize] - Beats per bucket (default 5)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -2000,7 +2003,7 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   ///
   /// Returns a [Future] containing a [Response] with a [List<Bucket>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Bucket>>> getHRHistogram({ 
+  Future<Response<List<Bucket>>> getHRHistogram({
     required String id,
     int? bucketSize,
     CancelToken? cancelToken,
@@ -2010,23 +2013,19 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/hr-histogram'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/hr-histogram'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2049,9 +2048,14 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     List<Bucket>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawData, 'List<Bucket>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Bucket>, Bucket>(
+              rawData,
+              'List<Bucket>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2075,10 +2079,10 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   }
 
   /// Get activity heart rate training load model
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2088,7 +2092,7 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   ///
   /// Returns a [Future] containing a [Response] with a [HRLoadModel] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HRLoadModel>> getHRTrainingLoadModel({ 
+  Future<Response<HRLoadModel>> getHRTrainingLoadModel({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -2097,23 +2101,19 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/hr-load-model'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/hr-load-model'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2131,9 +2131,14 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     HRLoadModel? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<HRLoadModel, HRLoadModel>(rawData, 'HRLoadModel', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<HRLoadModel, HRLoadModel>(
+              rawData,
+              'HRLoadModel',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2157,12 +2162,12 @@ _responseData = rawData == null ? null : deserialize<HRLoadModel, HRLoadModel>(r
   }
 
   /// Return interval like stats for part of the activity
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [startIndex] 
-  /// * [endIndex] 
+  /// * [id]
+  /// * [startIndex]
+  /// * [endIndex]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2172,7 +2177,7 @@ _responseData = rawData == null ? null : deserialize<HRLoadModel, HRLoadModel>(r
   ///
   /// Returns a [Future] containing a [Response] with a [Interval] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Interval>> getIntervalStats({ 
+  Future<Response<Interval>> getIntervalStats({
     required String id,
     required int startIndex,
     required int endIndex,
@@ -2183,23 +2188,19 @@ _responseData = rawData == null ? null : deserialize<HRLoadModel, HRLoadModel>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/interval-stats'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/interval-stats'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2223,9 +2224,14 @@ _responseData = rawData == null ? null : deserialize<HRLoadModel, HRLoadModel>(r
     Interval? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Interval, Interval>(rawData, 'Interval', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Interval, Interval>(
+              rawData,
+              'Interval',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2249,10 +2255,10 @@ _responseData = rawData == null ? null : deserialize<Interval, Interval>(rawData
   }
 
   /// Get activity intervals
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2262,7 +2268,7 @@ _responseData = rawData == null ? null : deserialize<Interval, Interval>(rawData
   ///
   /// Returns a [Future] containing a [Response] with a [IntervalsDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<IntervalsDTO>> getIntervals({ 
+  Future<Response<IntervalsDTO>> getIntervals({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -2271,23 +2277,19 @@ _responseData = rawData == null ? null : deserialize<Interval, Interval>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/intervals'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/intervals'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2305,9 +2307,14 @@ _responseData = rawData == null ? null : deserialize<Interval, Interval>(rawData
     IntervalsDTO? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>(rawData, 'IntervalsDTO', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IntervalsDTO, IntervalsDTO>(
+              rawData,
+              'IntervalsDTO',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2331,10 +2338,10 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   }
 
   /// Get activity pace histogram
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2344,7 +2351,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future] containing a [Response] with a [List<Bucket>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Bucket>>> getPaceHistogram({ 
+  Future<Response<List<Bucket>>> getPaceHistogram({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -2353,23 +2360,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/pace-histogram'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/pace-histogram'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2387,9 +2390,14 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     List<Bucket>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawData, 'List<Bucket>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Bucket>, Bucket>(
+              rawData,
+              'List<Bucket>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2413,10 +2421,10 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   }
 
   /// Get the athlete&#39;s power vs heart rate curve for a date range
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [start] - Starting local date (ISO-8601)
   /// * [end] - Ending local date (ISO-8601), inclusive
   /// * [type] - The sport (Ride, Run etc.). If filters is not provided or is blank or does not contain a type filter then activities for the types of the sport matching this parameter are included
@@ -2430,7 +2438,7 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   ///
   /// Returns a [Future] containing a [Response] with a [PowerHRCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<PowerHRCurve>> getPowerHRCurve({ 
+  Future<Response<PowerHRCurve>> getPowerHRCurve({
     required String id,
     required String start,
     required String end,
@@ -2443,23 +2451,19 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/power-hr-curve'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/power-hr-curve'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2485,9 +2489,14 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     PowerHRCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<PowerHRCurve, PowerHRCurve>(rawData, 'PowerHRCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PowerHRCurve, PowerHRCurve>(
+              rawData,
+              'PowerHRCurve',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2511,10 +2520,10 @@ _responseData = rawData == null ? null : deserialize<PowerHRCurve, PowerHRCurve>
   }
 
   /// Get activity power histogram
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [bucketSize] - Watts per bucket (default 25)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -2525,7 +2534,7 @@ _responseData = rawData == null ? null : deserialize<PowerHRCurve, PowerHRCurve>
   ///
   /// Returns a [Future] containing a [Response] with a [List<Bucket>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Bucket>>> getPowerHistogram({ 
+  Future<Response<List<Bucket>>> getPowerHistogram({
     required String id,
     int? bucketSize,
     CancelToken? cancelToken,
@@ -2535,23 +2544,19 @@ _responseData = rawData == null ? null : deserialize<PowerHRCurve, PowerHRCurve>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/power-histogram'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/power-histogram'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2574,9 +2579,14 @@ _responseData = rawData == null ? null : deserialize<PowerHRCurve, PowerHRCurve>
     List<Bucket>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawData, 'List<Bucket>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Bucket>, Bucket>(
+              rawData,
+              'List<Bucket>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2600,11 +2610,11 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   }
 
   /// Get activity power vs heart rate data in JSON or CSV (use .csv ext) format
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2614,7 +2624,7 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
   ///
   /// Returns a [Future] containing a [Response] with a [PowerVsHRPlot] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<PowerVsHRPlot>> getPowerVsHR({ 
+  Future<Response<PowerVsHRPlot>> getPowerVsHR({
     required String id,
     required String ext,
     CancelToken? cancelToken,
@@ -2624,23 +2634,26 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/power-vs-hr{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/activity/{id}/power-vs-hr{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2658,9 +2671,14 @@ _responseData = rawData == null ? null : deserialize<List<Bucket>, Bucket>(rawDa
     PowerVsHRPlot? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<PowerVsHRPlot, PowerVsHRPlot>(rawData, 'PowerVsHRPlot', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<PowerVsHRPlot, PowerVsHRPlot>(
+              rawData,
+              'PowerVsHRPlot',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2684,10 +2702,10 @@ _responseData = rawData == null ? null : deserialize<PowerVsHRPlot, PowerVsHRPlo
   }
 
   /// Get activity time at heart rate data
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -2697,7 +2715,7 @@ _responseData = rawData == null ? null : deserialize<PowerVsHRPlot, PowerVsHRPlo
   ///
   /// Returns a [Future] containing a [Response] with a [Plot] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Plot>> getTimeAtHR({ 
+  Future<Response<Plot>> getTimeAtHR({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -2706,23 +2724,19 @@ _responseData = rawData == null ? null : deserialize<PowerVsHRPlot, PowerVsHRPlo
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/time-at-hr'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/time-at-hr'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2740,9 +2754,10 @@ _responseData = rawData == null ? null : deserialize<PowerVsHRPlot, PowerVsHRPlo
     Plot? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Plot, Plot>(rawData, 'Plot', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Plot, Plot>(rawData, 'Plot', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2769,7 +2784,7 @@ _responseData = rawData == null ? null : deserialize<Plot, Plot>(rawData, 'Plot'
   /// An empty stub object is returned for Strava activities
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [oldest] - Local ISO-8601 date or date and time e.g. 2019-07-22T16:18:49 or 2019-07-22
   /// * [newest] - Local ISO-8601 date or date and time, defaults to now
   /// * [routeId] - Only return activities on this route
@@ -2784,7 +2799,7 @@ _responseData = rawData == null ? null : deserialize<Plot, Plot>(rawData, 'Plot'
   ///
   /// Returns a [Future] containing a [Response] with a [List<Activity>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Activity>>> listActivities({ 
+  Future<Response<List<Activity>>> listActivities({
     required String id,
     required String oldest,
     String? newest,
@@ -2798,23 +2813,19 @@ _responseData = rawData == null ? null : deserialize<Plot, Plot>(rawData, 'Plot'
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2841,9 +2852,14 @@ _responseData = rawData == null ? null : deserialize<Plot, Plot>(rawData, 'Plot'
     List<Activity>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(rawData, 'List<Activity>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Activity>, Activity>(
+              rawData,
+              'List<Activity>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2870,7 +2886,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   /// An empty stub object is returned for Strava activities
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [activityId] - The activity at the center (not returned in the data set)
   /// * [routeId] - Only return activities on this route (activityId must have this route_id)
   /// * [limit] - Return at most this many activities (default 30)
@@ -2883,7 +2899,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   ///
   /// Returns a [Future] containing a [Response] with a [List<Activity>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Activity>>> listActivitiesAround({ 
+  Future<Response<List<Activity>>> listActivitiesAround({
     required String id,
     required String activityId,
     int? routeId,
@@ -2895,23 +2911,19 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities-around'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities-around'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -2936,9 +2948,14 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     List<Activity>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(rawData, 'List<Activity>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Activity>, Activity>(
+              rawData,
+              'List<Activity>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -2965,8 +2982,8 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   /// Use ext of .csv to get results in CSV format
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [oldest] - Local ISO-8601 date or date and time e.g. 2019-07-22T16:18:49 or 2019-07-22
   /// * [newest] - Local ISO-8601 date or date and time (inclusive)
   /// * [filters] - Only return activities matching all the filters in this list
@@ -2981,7 +2998,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   ///
   /// Returns a [Future] containing a [Response] with a [ActivityHRCurvePayload] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ActivityHRCurvePayload>> listActivityHRCurves({ 
+  Future<Response<ActivityHRCurvePayload>> listActivityHRCurves({
     required String id,
     required String ext,
     required String oldest,
@@ -2996,23 +3013,26 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activity-hr-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/activity-hr-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3039,9 +3059,14 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ActivityHRCurvePayload? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, ActivityHRCurvePayload>(rawData, 'ActivityHRCurvePayload', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<ActivityHRCurvePayload, ActivityHRCurvePayload>(
+              rawData,
+              'ActivityHRCurvePayload',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3068,8 +3093,8 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
   /// Use ext of .csv to get results in CSV format
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [oldest] - Local ISO-8601 date or date and time e.g. 2019-07-22T16:18:49 or 2019-07-22
   /// * [newest] - Local ISO-8601 date or date and time (inclusive)
   /// * [type] - The sport (Ride, Run etc.). If filters is not provided or is blank or does not contain a type filter then activities for the types of the sport matching this parameter are included
@@ -3085,7 +3110,7 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> listActivityPaceCurves({ 
+  Future<Response<void>> listActivityPaceCurves({
     required String id,
     required String ext,
     required String oldest,
@@ -3101,23 +3126,26 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activity-pace-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/activity-pace-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3149,8 +3177,8 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
   /// Use ext of .csv to get results in CSV format
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [oldest] - Local ISO-8601 date or date and time e.g. 2019-07-22T16:18:49 or 2019-07-22
   /// * [newest] - Local ISO-8601 date or date and time (inclusive)
   /// * [filters] - Only return activities matching all the filters in this list
@@ -3166,7 +3194,7 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
   ///
   /// Returns a [Future] containing a [Response] with a [ActivityPowerCurvePayload] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<ActivityPowerCurvePayload>> listActivityPowerCurves({ 
+  Future<Response<ActivityPowerCurvePayload>> listActivityPowerCurves({
     required String id,
     required String ext,
     required String oldest,
@@ -3182,23 +3210,26 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activity-power-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/activity-power-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3226,9 +3257,14 @@ _responseData = rawData == null ? null : deserialize<ActivityHRCurvePayload, Act
     ActivityPowerCurvePayload? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<ActivityPowerCurvePayload, ActivityPowerCurvePayload>(rawData, 'ActivityPowerCurvePayload', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<ActivityPowerCurvePayload, ActivityPowerCurvePayload>(
+              rawData,
+              'ActivityPowerCurvePayload',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3252,11 +3288,11 @@ _responseData = rawData == null ? null : deserialize<ActivityPowerCurvePayload, 
   }
 
   /// Get activity power curves for one or more streams in JSON or CSV (use .csv ext) format
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [types] - Comma separated list of streams required (default is watts)
   /// * [fatigue] - Comma separated list of normal, kj0 or kj1 to return normal and/or fatigued curves
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -3268,7 +3304,7 @@ _responseData = rawData == null ? null : deserialize<ActivityPowerCurvePayload, 
   ///
   /// Returns a [Future] containing a [Response] with a [List<PowerCurve>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<PowerCurve>>> listActivityPowerCurves1({ 
+  Future<Response<List<PowerCurve>>> listActivityPowerCurves1({
     required String id,
     required String ext,
     List<String>? types,
@@ -3280,23 +3316,26 @@ _responseData = rawData == null ? null : deserialize<ActivityPowerCurvePayload, 
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/power-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/activity/{id}/power-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3320,9 +3359,14 @@ _responseData = rawData == null ? null : deserialize<ActivityPowerCurvePayload, 
     List<PowerCurve>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<PowerCurve>, PowerCurve>(rawData, 'List<PowerCurve>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<PowerCurve>, PowerCurve>(
+              rawData,
+              'List<PowerCurve>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3349,15 +3393,15 @@ _responseData = rawData == null ? null : deserialize<List<PowerCurve>, PowerCurv
   /// Curves are specified as follows: 1y (past year), 2y (past 2 years) etc., 42d (past 42 days) etc., s0 (current season), s1 (previous season) etc., all (all time), r.2023-10-01.2023-10-31 (date range). If several of the f1, f2 and f3 filter parameters are specified then each curve is returned once for each filter, for comparing curves.
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [f1] - If set each curve is returned with these filters applied to compare curves
   /// * [f2] - If set each curve is returned with these filters applied to compare curves
   /// * [f3] - If set each curve is returned with these filters applied to compare curves
-  /// * [newest] 
+  /// * [newest]
   /// * [curves] - Comma separated list of curves to return (default last year)
   /// * [type] - The sport (Ride, Run etc.). If filters is not provided or is blank or does not contain a type filter then activities for the types of the sport matching this parameter are included
-  /// * [subMaxEfforts] 
+  /// * [subMaxEfforts]
   /// * [now] - Current local date (ISO-8601)
   /// * [filters] - Only consider activities matching all the filters in this list
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -3369,7 +3413,7 @@ _responseData = rawData == null ? null : deserialize<List<PowerCurve>, PowerCurv
   ///
   /// Returns a [Future] containing a [Response] with a [DataCurveSetHRCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<DataCurveSetHRCurve>> listAthleteHRCurves({ 
+  Future<Response<DataCurveSetHRCurve>> listAthleteHRCurves({
     required String id,
     required String ext,
     required List<ActivityFilter> f1,
@@ -3388,23 +3432,26 @@ _responseData = rawData == null ? null : deserialize<List<PowerCurve>, PowerCurv
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/hr-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/hr-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3435,9 +3482,14 @@ _responseData = rawData == null ? null : deserialize<List<PowerCurve>, PowerCurv
     DataCurveSetHRCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<DataCurveSetHRCurve, DataCurveSetHRCurve>(rawData, 'DataCurveSetHRCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<DataCurveSetHRCurve, DataCurveSetHRCurve>(
+              rawData,
+              'DataCurveSetHRCurve',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3464,19 +3516,19 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetHRCurve, DataCu
   /// Curves are specified as follows: 1y (past year), 2y (past 2 years) etc., 42d (past 42 days) etc., s0 (current season), s1 (previous season) etc., all (all time), r.2023-10-01.2023-10-31 (date range). If several of f1, f2 and f3 filter parameters are specified then each curve is returned once for each filter, for comparing curves.
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [f1] - If set each curve is returned with these filters applied to compare curves
   /// * [f2] - If set each curve is returned with these filters applied to compare curves
   /// * [f3] - If set each curve is returned with these filters applied to compare curves
-  /// * [newest] 
+  /// * [newest]
   /// * [curves] - Comma separated list of curves to return (default last year)
   /// * [type] - The sport (Ride, Run etc.). If filters is not provided or is blank or does not contain a type filter then activities for the types of the sport matching this parameter are included
-  /// * [includeRanks] 
-  /// * [subMaxEfforts] 
+  /// * [includeRanks]
+  /// * [subMaxEfforts]
   /// * [now] - Current local date (ISO-8601)
   /// * [gap] - Return gradient adjusted pace curves
-  /// * [pmType] 
+  /// * [pmType]
   /// * [filters] - Only consider activities matching all the filters in this list
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -3487,7 +3539,7 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetHRCurve, DataCu
   ///
   /// Returns a [Future] containing a [Response] with a [DataCurveSetPaceCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<DataCurveSetPaceCurve>> listAthletePaceCurves({ 
+  Future<Response<DataCurveSetPaceCurve>> listAthletePaceCurves({
     required String id,
     required String ext,
     required List<ActivityFilter> f1,
@@ -3509,23 +3561,26 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetHRCurve, DataCu
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/pace-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/pace-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3559,9 +3614,14 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetHRCurve, DataCu
     DataCurveSetPaceCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<DataCurveSetPaceCurve, DataCurveSetPaceCurve>(rawData, 'DataCurveSetPaceCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<DataCurveSetPaceCurve, DataCurveSetPaceCurve>(
+              rawData,
+              'DataCurveSetPaceCurve',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3588,18 +3648,18 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPaceCurve, Data
   /// Curves are specified as follows: 1y (past year), 2y (past 2 years) etc., 42d (past 42 days) etc., s0 (current season), s1 (previous season) etc., all (all time), r.2023-10-01.2023-10-31 (date range). Curves can also have a -kj0 or -kj1 suffix to return fatigued curves. If several of f1, f2 and f3 filter parameters are specified then each curve is returned once for each filter, for comparing curves.
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [type] - The sport (Ride, Run etc.). If filters is not provided or is blank or does not contain a type filter then activities for the types of the sport matching this parameter are included
   /// * [f1] - If set each curve is returned with these filters applied to compare curves
   /// * [f2] - If set each curve is returned with these filters applied to compare curves
   /// * [f3] - If set each curve is returned with these filters applied to compare curves
-  /// * [newest] 
+  /// * [newest]
   /// * [curves] - Comma separated list of curves to return (default last year)
-  /// * [includeRanks] 
-  /// * [subMaxEfforts] 
+  /// * [includeRanks]
+  /// * [subMaxEfforts]
   /// * [now] - Current local date (ISO-8601)
-  /// * [pmType] 
+  /// * [pmType]
   /// * [filters] - Only consider activities matching all the filters in this list
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -3610,7 +3670,7 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPaceCurve, Data
   ///
   /// Returns a [Future] containing a [Response] with a [DataCurveSetPowerCurve] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<DataCurveSetPowerCurve>> listAthletePowerCurves({ 
+  Future<Response<DataCurveSetPowerCurve>> listAthletePowerCurves({
     required String id,
     required String ext,
     required String type,
@@ -3631,23 +3691,26 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPaceCurve, Data
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/power-curves{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/power-curves{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3680,9 +3743,14 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPaceCurve, Data
     DataCurveSetPowerCurve? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<DataCurveSetPowerCurve, DataCurveSetPowerCurve>(rawData, 'DataCurveSetPowerCurve', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<DataCurveSetPowerCurve, DataCurveSetPowerCurve>(
+              rawData,
+              'DataCurveSetPowerCurve',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3706,10 +3774,10 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPowerCurve, Dat
   }
 
   /// List all tags that have been applied to the athlete&#39;s activities
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -3719,7 +3787,7 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPowerCurve, Dat
   ///
   /// Returns a [Future] containing a [Response] with a [List<String>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<String>>> listTags2({ 
+  Future<Response<List<String>>> listTags2({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -3728,23 +3796,19 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPowerCurve, Dat
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activity-tags'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activity-tags'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3762,9 +3826,14 @@ _responseData = rawData == null ? null : deserialize<DataCurveSetPowerCurve, Dat
     List<String>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<String>, String>(rawData, 'List<String>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<String>, String>(
+              rawData,
+              'List<String>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3788,12 +3857,12 @@ _responseData = rawData == null ? null : deserialize<List<String>, String>(rawDa
   }
 
   /// Search for activities by name or tag, returns summary info
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [q] - Search query, case insensitive name search or exact tag search if it starts with #
-  /// * [limit] 
+  /// * [limit]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -3803,7 +3872,7 @@ _responseData = rawData == null ? null : deserialize<List<String>, String>(rawDa
   ///
   /// Returns a [Future] containing a [Response] with a [List<ActivitySearchResult>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<ActivitySearchResult>>> searchForActivities({ 
+  Future<Response<List<ActivitySearchResult>>> searchForActivities({
     required String id,
     required String q,
     int? limit,
@@ -3814,23 +3883,19 @@ _responseData = rawData == null ? null : deserialize<List<String>, String>(rawDa
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities/search'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities/search'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3854,9 +3919,14 @@ _responseData = rawData == null ? null : deserialize<List<String>, String>(rawDa
     List<ActivitySearchResult>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<ActivitySearchResult>, ActivitySearchResult>(rawData, 'List<ActivitySearchResult>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<ActivitySearchResult>, ActivitySearchResult>(
+              rawData,
+              'List<ActivitySearchResult>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3880,12 +3950,12 @@ _responseData = rawData == null ? null : deserialize<List<ActivitySearchResult>,
   }
 
   /// Search for activities by name or tag, returns full activities
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [q] - Search query, case insensitive name search or exact tag search if it starts with #
-  /// * [limit] 
+  /// * [limit]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -3895,7 +3965,7 @@ _responseData = rawData == null ? null : deserialize<List<ActivitySearchResult>,
   ///
   /// Returns a [Future] containing a [Response] with a [List<Activity>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Activity>>> searchForActivitiesFull({ 
+  Future<Response<List<Activity>>> searchForActivitiesFull({
     required String id,
     required String q,
     int? limit,
@@ -3906,23 +3976,19 @@ _responseData = rawData == null ? null : deserialize<List<ActivitySearchResult>,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities/search-full'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities/search-full'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -3946,9 +4012,14 @@ _responseData = rawData == null ? null : deserialize<List<ActivitySearchResult>,
     List<Activity>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(rawData, 'List<Activity>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Activity>, Activity>(
+              rawData,
+              'List<Activity>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -3975,7 +4046,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   /// Activities returned most recent first
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [minSecs] - Min time in seconds
   /// * [maxSecs] - Max time in seconds
   /// * [minIntensity] - Min intensity percentage
@@ -3993,7 +4064,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   ///
   /// Returns a [Future] containing a [Response] with a [List<Activity>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Activity>>> searchForIntervals({ 
+  Future<Response<List<Activity>>> searchForIntervals({
     required String id,
     required int minSecs,
     required int maxSecs,
@@ -4010,23 +4081,19 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities/interval-search'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities/interval-search'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4056,9 +4123,14 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     List<Activity>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(rawData, 'List<Activity>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Activity>, Activity>(
+              rawData,
+              'List<Activity>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4082,10 +4154,10 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   }
 
   /// Split an interval
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [splitAt] - Index to split interval at
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -4096,7 +4168,7 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
   ///
   /// Returns a [Future] containing a [Response] with a [IntervalsDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<IntervalsDTO>> splitInterval({ 
+  Future<Response<IntervalsDTO>> splitInterval({
     required String id,
     required int splitAt,
     CancelToken? cancelToken,
@@ -4106,32 +4178,26 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/split-interval'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/split-interval'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      r'splitAt': splitAt,
-    };
+    final _queryParameters = <String, dynamic>{r'splitAt': splitAt};
 
     final _response = await _dio.request<Object>(
       _path,
@@ -4145,9 +4211,14 @@ _responseData = rawData == null ? null : deserialize<List<Activity>, Activity>(r
     IntervalsDTO? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>(rawData, 'IntervalsDTO', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IntervalsDTO, IntervalsDTO>(
+              rawData,
+              'IntervalsDTO',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4174,8 +4245,8 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   /// Strava activities cannot be updated
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [activity] 
+  /// * [id]
+  /// * [activity]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -4185,7 +4256,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future] containing a [Response] with a [Activity] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Activity>> updateActivity({ 
+  Future<Response<Activity>> updateActivity({
     required String id,
     required Activity activity,
     CancelToken? cancelToken,
@@ -4195,23 +4266,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4223,13 +4290,9 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
 
     try {
       _bodyData = jsonEncode(activity);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -4248,9 +4311,14 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     Activity? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData, 'Activity', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Activity, Activity>(
+              rawData,
+              'Activity',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4274,11 +4342,11 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
   }
 
   /// Update streams for the activity from JSON
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [activityStream] 
+  /// * [id]
+  /// * [activityStream]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -4290,7 +4358,7 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
   /// Throws [DioException] if API call or serialization fails
   /// Forum post
   /// Also see [Update streams for the activity from JSON Documentation](https://forum.intervals.icu/t/download-and-upload-activity-streams-csv/114377)
-  Future<Response<UpdateStreamsResult>> updateActivityStreams({ 
+  Future<Response<UpdateStreamsResult>> updateActivityStreams({
     required String id,
     required List<ActivityStream> activityStream,
     CancelToken? cancelToken,
@@ -4300,23 +4368,19 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/streams'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/streams'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4328,13 +4392,9 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
 
     try {
       _bodyData = jsonEncode(activityStream);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -4353,9 +4413,14 @@ _responseData = rawData == null ? null : deserialize<Activity, Activity>(rawData
     UpdateStreamsResult? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<UpdateStreamsResult, UpdateStreamsResult>(rawData, 'UpdateStreamsResult', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<UpdateStreamsResult, UpdateStreamsResult>(
+              rawData,
+              'UpdateStreamsResult',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4379,12 +4444,12 @@ _responseData = rawData == null ? null : deserialize<UpdateStreamsResult, Update
   }
 
   /// Update/create an interval
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [intervalId] 
-  /// * [interval] 
+  /// * [id]
+  /// * [intervalId]
+  /// * [interval]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -4394,7 +4459,7 @@ _responseData = rawData == null ? null : deserialize<UpdateStreamsResult, Update
   ///
   /// Returns a [Future] containing a [Response] with a [IntervalsDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<IntervalsDTO>> updateInterval({ 
+  Future<Response<IntervalsDTO>> updateInterval({
     required String id,
     required int intervalId,
     required Interval interval,
@@ -4405,23 +4470,26 @@ _responseData = rawData == null ? null : deserialize<UpdateStreamsResult, Update
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/intervals/{intervalId}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'intervalId' '}', intervalId.toString());
+    final _path = r'/api/v1/activity/{id}/intervals/{intervalId}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'intervalId'
+          '}',
+          intervalId.toString(),
+        );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4433,13 +4501,9 @@ _responseData = rawData == null ? null : deserialize<UpdateStreamsResult, Update
 
     try {
       _bodyData = jsonEncode(interval);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -4458,9 +4522,14 @@ _responseData = rawData == null ? null : deserialize<UpdateStreamsResult, Update
     IntervalsDTO? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>(rawData, 'IntervalsDTO', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IntervalsDTO, IntervalsDTO>(
+              rawData,
+              'IntervalsDTO',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4484,11 +4553,11 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   }
 
   /// Update intervals for an activity
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [interval] 
+  /// * [id]
+  /// * [interval]
   /// * [all] - Any existing intervals are replaced, otherwise a merge is done
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -4499,7 +4568,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future] containing a [Response] with a [IntervalsDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<IntervalsDTO>> updateIntervals({ 
+  Future<Response<IntervalsDTO>> updateIntervals({
     required String id,
     required List<Interval> interval,
     bool? all = true,
@@ -4510,23 +4579,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/intervals'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/intervals'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4534,18 +4599,15 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      if (all != null) r'all': all,
-    };
+    final _queryParameters = <String, dynamic>{if (all != null) r'all': all};
 
     dynamic _bodyData;
 
     try {
       _bodyData = jsonEncode(interval);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
           queryParameters: _queryParameters,
@@ -4569,9 +4631,14 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     IntervalsDTO? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>(rawData, 'IntervalsDTO', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<IntervalsDTO, IntervalsDTO>(
+              rawData,
+              'IntervalsDTO',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4598,7 +4665,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   /// Use the &#39;file&#39; form parameter to supply the uploaded file. Multisport files are split into multiple activities. Activities are de-duped using a hash of the file. Response code is 201 if at least one new activity was created and 200 otherwise (all dups).
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [name] - Activity name
   /// * [description] - Activity description
   /// * [deviceName] - Device the activity was created on e.g. Garmin Edge 540
@@ -4613,7 +4680,7 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
   ///
   /// Returns a [Future] containing a [Response] with a [UploadResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<UploadResponse>> uploadActivity({ 
+  Future<Response<UploadResponse>> uploadActivity({
     required String id,
     String? name,
     String? description,
@@ -4627,23 +4694,19 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/activities'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/activities'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4671,9 +4734,14 @@ _responseData = rawData == null ? null : deserialize<IntervalsDTO, IntervalsDTO>
     UploadResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<UploadResponse, UploadResponse>(rawData, 'UploadResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<UploadResponse, UploadResponse>(
+              rawData,
+              'UploadResponse',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4700,7 +4768,7 @@ _responseData = rawData == null ? null : deserialize<UploadResponse, UploadRespo
   /// Column headers for streams to be updated must match those returned from the /streams.csv endpoint
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -4712,7 +4780,7 @@ _responseData = rawData == null ? null : deserialize<UploadResponse, UploadRespo
   /// Throws [DioException] if API call or serialization fails
   /// Forum post
   /// Also see [Update streams for the activity from CSV Documentation](https://forum.intervals.icu/t/download-and-upload-activity-streams-csv/114377)
-  Future<Response<UpdateStreamsResult>> uploadActivityStreamsCSV({ 
+  Future<Response<UpdateStreamsResult>> uploadActivityStreamsCSV({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -4721,23 +4789,19 @@ _responseData = rawData == null ? null : deserialize<UploadResponse, UploadRespo
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/streams.csv'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/streams.csv'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -4756,9 +4820,14 @@ _responseData = rawData == null ? null : deserialize<UploadResponse, UploadRespo
     UpdateStreamsResult? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<UpdateStreamsResult, UpdateStreamsResult>(rawData, 'UpdateStreamsResult', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<UpdateStreamsResult, UpdateStreamsResult>(
+              rawData,
+              'UpdateStreamsResult',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -4780,5 +4849,4 @@ _responseData = rawData == null ? null : deserialize<UpdateStreamsResult, Update
       extra: _response.extra,
     );
   }
-
 }

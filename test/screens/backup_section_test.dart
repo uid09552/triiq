@@ -53,9 +53,13 @@ Widget wrap(Widget w) => MaterialApp(
 );
 
 void main() {
-  testWidgets('export passes the caches switch and reports the path', (t) async {
+  testWidgets('export passes the caches switch and reports the path', (
+    t,
+  ) async {
     final files = _Files();
-    await t.pumpWidget(wrap(BackupSettingsSection(files: files, service: _Service())));
+    await t.pumpWidget(
+      wrap(BackupSettingsSection(files: files, service: _Service())),
+    );
     await t.tap(find.byKey(const ValueKey('backup-caches')));
     await t.tap(find.byKey(const ValueKey('backup-export')));
     await t.pumpAndSettle();
@@ -67,7 +71,12 @@ void main() {
     final service = _Service();
     final json = {'format': 'triiq-backup'};
     await t.pumpWidget(
-      wrap(BackupSettingsSection(files: _Files(picked: json), service: service)),
+      wrap(
+        BackupSettingsSection(
+          files: _Files(picked: json),
+          service: service,
+        ),
+      ),
     );
     await t.tap(find.byKey(const ValueKey('backup-restore')));
     await t.pumpAndSettle();
@@ -81,7 +90,9 @@ void main() {
 
   testWidgets('cancelling the picker does nothing', (t) async {
     final service = _Service();
-    await t.pumpWidget(wrap(BackupSettingsSection(files: _Files(), service: service)));
+    await t.pumpWidget(
+      wrap(BackupSettingsSection(files: _Files(), service: service)),
+    );
     await t.tap(find.byKey(const ValueKey('backup-restore')));
     await t.pumpAndSettle();
     expect(service.restored, isNull);

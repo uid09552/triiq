@@ -34,8 +34,10 @@ class PendingChangesCard extends StatelessWidget {
                   if (service.pending > 0) ...[
                     Row(
                       children: [
-                        Icon(Icons.cloud_off_outlined,
-                            color: scheme.onSecondaryContainer),
+                        Icon(
+                          Icons.cloud_off_outlined,
+                          color: scheme.onSecondaryContainer,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -63,7 +65,9 @@ class PendingChangesCard extends StatelessWidget {
                       children: [
                         Icon(Icons.error_outline, color: scheme.error),
                         const SizedBox(width: 8),
-                        Expanded(child: Text(l10n.pendingFailedTitle(service.failed))),
+                        Expanded(
+                          child: Text(l10n.pendingFailedTitle(service.failed)),
+                        ),
                         TextButton(
                           key: const ValueKey('pending-retry'),
                           onPressed: service.retryFailed,

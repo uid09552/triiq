@@ -9,11 +9,18 @@ import 'package:triiq/screens/activities/session_analysis.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/screens/activities/route_card.dart';
 
-LocalActivity act(String type, {Map<String, dynamic> raw = const {}}) => LocalActivity(
-  id: 'a1', date: '2026-11-04', type: type, name: 'Morning $type',
-  movingTime: 3600, distance: 10000, trainingLoad: 50, raw: raw,
-  syncedAt: DateTime(2026),
-);
+LocalActivity act(String type, {Map<String, dynamic> raw = const {}}) =>
+    LocalActivity(
+      id: 'a1',
+      date: '2026-11-04',
+      type: type,
+      name: 'Morning $type',
+      movingTime: 3600,
+      distance: 10000,
+      trainingLoad: 50,
+      raw: raw,
+      syncedAt: DateTime(2026),
+    );
 
 ActivityRoute track(int n) => ActivityRoute([
   for (var i = 0; i < n; i++) RoutePoint(48.0 + i * 0.001, 11.0 + i * 0.001),
@@ -66,7 +73,11 @@ void main() {
       expect(r.times, [0, 2, 3]);
       final lat = [for (var i = 0; i < 20000; i++) 48.0 + i * 1e-5];
       final lng = [for (var i = 0; i < 20000; i++) 11.0 + i * 1e-5];
-      final big = ActivityRoute.fromSamples(lat, lng, time: [for (var i = 0; i < 20000; i++) i]);
+      final big = ActivityRoute.fromSamples(
+        lat,
+        lng,
+        time: [for (var i = 0; i < 20000; i++) i],
+      );
       expect(big.times.length, big.points.length);
       expect(big.times.first, 0);
       expect(big.times.last, 19999);
@@ -83,7 +94,10 @@ void main() {
       expect(r.pointAt(19)!.lat, 2);
       expect(r.pointAt(21)!.lat, 3);
       expect(r.pointAt(999)!.lat, 3);
-      expect(ActivityRoute([RoutePoint(1, 1), RoutePoint(2, 2)]).pointAt(5), isNull);
+      expect(
+        ActivityRoute([RoutePoint(1, 1), RoutePoint(2, 2)]).pointAt(5),
+        isNull,
+      );
     });
 
     test('one fix or none is an empty route; JSON round-trips', () {
@@ -99,7 +113,10 @@ void main() {
       expect(timed.times, [0, 5, 9]);
       expect(timed.timesKnown, isTrue);
       expect(
-        ActivityRoute.fromJson({'lat': [1.0, 2.0], 'lng': [1.0, 2.0]}).timesKnown,
+        ActivityRoute.fromJson({
+          'lat': [1.0, 2.0],
+          'lng': [1.0, 2.0],
+        }).timesKnown,
         isFalse,
       );
     });
@@ -119,20 +136,25 @@ void main() {
   });
 
   group('map cursor', () {
-    testWidgets('marks where the activity was at the diagram cursor', (t) async {
+    testWidgets('marks where the activity was at the diagram cursor', (
+      t,
+    ) async {
       final cursor = ValueNotifier<double?>(null);
       final route = ActivityRoute(
         track(10).points,
         times: [for (var i = 0; i < 10; i++) i * 60.0],
       );
-      await t.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 300, height: 300,
-            child: RouteMap(route: route, showTiles: false, cursor: cursor),
+      await t.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 300,
+              height: 300,
+              child: RouteMap(route: route, showTiles: false, cursor: cursor),
+            ),
           ),
         ),
-      ));
+      );
       expect(find.byKey(const ValueKey('route-cursor')), findsNothing);
       cursor.value = 250;
       await t.pump();
@@ -144,20 +166,28 @@ void main() {
 
     testWidgets('a track without times shows no cursor', (t) async {
       final cursor = ValueNotifier<double?>(120);
-      await t.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 300, height: 300,
-            child: RouteMap(route: track(10), showTiles: false, cursor: cursor),
+      await t.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 300,
+              height: 300,
+              child: RouteMap(
+                route: track(10),
+                showTiles: false,
+                cursor: cursor,
+              ),
+            ),
           ),
         ),
-      ));
+      );
       expect(find.byKey(const ValueKey('route-cursor')), findsNothing);
     });
   });
 
-  testWidgets('hovering the session diagram moves the marker on the map',
-      (t) async {
+  testWidgets('hovering the session diagram moves the marker on the map', (
+    t,
+  ) async {
     t.view.physicalSize = const Size(900, 2600);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.reset);
@@ -172,37 +202,48 @@ void main() {
       ),
     );
     final run = act('Run');
-    await t.pumpWidget(MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('en'),
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(children: [
-            SessionDiagramCard(
-              activity: run,
-              streams: streams,
-              onCursorSeconds: (s) => cursor.value = s,
+    await t.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                SessionDiagramCard(
+                  activity: run,
+                  streams: streams,
+                  onCursorSeconds: (s) => cursor.value = s,
+                ),
+                ActivityRouteCard(
+                  activity: run,
+                  routes: _Repo(
+                    ActivityRoute(
+                      track(30).points,
+                      times: [for (var i = 0; i < 30; i++) i * 20.0],
+                    ),
+                  ),
+                  showTiles: false,
+                  cursor: cursor,
+                ),
+              ],
             ),
-            ActivityRouteCard(
-              activity: run,
-              routes: _Repo(ActivityRoute(
-                track(30).points,
-                times: [for (var i = 0; i < 30; i++) i * 20.0],
-              )),
-              showTiles: false,
-              cursor: cursor,
-            ),
-          ]),
+          ),
         ),
       ),
-    ));
+    );
     // The streams come through SQLite, which needs real time.
     for (var i = 0; i < 60; i++) {
-      if (find.byKey(const ValueKey('stream-chart-paint')).evaluate().isNotEmpty) {
+      if (find
+          .byKey(const ValueKey('stream-chart-paint'))
+          .evaluate()
+          .isNotEmpty) {
         break;
       }
-      await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await t.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
       await t.pump();
     }
     await t.pump();
@@ -226,47 +267,83 @@ void main() {
       home: Scaffold(body: SingleChildScrollView(child: w)),
     );
 
-    testWidgets('a run with a track shows the map; tapping opens it full screen',
-        (t) async {
-      final repo = _Repo(track(30));
-      await t.pumpWidget(wrap(ActivityRouteCard(
-        activity: act('Run'), routes: repo, showTiles: false,
-      )));
-      await t.pumpAndSettle();
-      expect(find.byKey(const ValueKey('route-card')), findsOneWidget);
-      expect(find.byType(FlutterMap), findsOneWidget);
-      expect(find.byType(PolylineLayer), findsOneWidget);
+    testWidgets(
+      'a run with a track shows the map; tapping opens it full screen',
+      (t) async {
+        final repo = _Repo(track(30));
+        await t.pumpWidget(
+          wrap(
+            ActivityRouteCard(
+              activity: act('Run'),
+              routes: repo,
+              showTiles: false,
+            ),
+          ),
+        );
+        await t.pumpAndSettle();
+        expect(find.byKey(const ValueKey('route-card')), findsOneWidget);
+        expect(find.byType(FlutterMap), findsOneWidget);
+        expect(find.byType(PolylineLayer), findsOneWidget);
 
-      await t.tap(find.byKey(const ValueKey('route-open')));
-      await t.pumpAndSettle();
-      expect(find.byKey(const ValueKey('route-full')), findsOneWidget);
-      expect(find.text('Morning Run'), findsOneWidget);
-    });
+        await t.tap(find.byKey(const ValueKey('route-open')));
+        await t.pumpAndSettle();
+        expect(find.byKey(const ValueKey('route-full')), findsOneWidget);
+        expect(find.text('Morning Run'), findsOneWidget);
+      },
+    );
 
-    testWidgets('no map for a swim or a trainer ride, and nothing is fetched',
-        (t) async {
+    testWidgets('no map for a swim or a trainer ride, and nothing is fetched', (
+      t,
+    ) async {
       final repo = _Repo(track(30));
-      await t.pumpWidget(wrap(Column(children: [
-        ActivityRouteCard(activity: act('Swim'), routes: repo, showTiles: false),
-        ActivityRouteCard(activity: act('VirtualRide'), routes: repo, showTiles: false),
-      ])));
+      await t.pumpWidget(
+        wrap(
+          Column(
+            children: [
+              ActivityRouteCard(
+                activity: act('Swim'),
+                routes: repo,
+                showTiles: false,
+              ),
+              ActivityRouteCard(
+                activity: act('VirtualRide'),
+                routes: repo,
+                showTiles: false,
+              ),
+            ],
+          ),
+        ),
+      );
       await t.pumpAndSettle();
       expect(find.byKey(const ValueKey('route-card')), findsNothing);
       expect(repo.loads, 0);
     });
 
-    testWidgets('an activity without GPS, or a failed fetch, draws nothing',
-        (t) async {
-      await t.pumpWidget(wrap(ActivityRouteCard(
-        activity: act('Run'), routes: _Repo(const ActivityRoute([])), showTiles: false,
-      )));
+    testWidgets('an activity without GPS, or a failed fetch, draws nothing', (
+      t,
+    ) async {
+      await t.pumpWidget(
+        wrap(
+          ActivityRouteCard(
+            activity: act('Run'),
+            routes: _Repo(const ActivityRoute([])),
+            showTiles: false,
+          ),
+        ),
+      );
       await t.pumpAndSettle();
       expect(find.byKey(const ValueKey('route-card')), findsNothing);
 
-      await t.pumpWidget(wrap(ActivityRouteCard(
-        key: const ValueKey('second'),
-        activity: act('Run'), routes: _Repo(track(10), fail: true), showTiles: false,
-      )));
+      await t.pumpWidget(
+        wrap(
+          ActivityRouteCard(
+            key: const ValueKey('second'),
+            activity: act('Run'),
+            routes: _Repo(track(10), fail: true),
+            showTiles: false,
+          ),
+        ),
+      );
       await t.pumpAndSettle();
       expect(find.byKey(const ValueKey('route-card')), findsNothing);
       expect(t.takeException(), isNull);

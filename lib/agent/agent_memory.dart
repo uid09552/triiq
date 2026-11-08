@@ -58,7 +58,8 @@ class MemoryFullException implements Exception {
 /// every turn. Visible and editable under More → Trainer memory; the
 /// trainer can add and remove items through tools, never silently.
 class AgentMemoryStore extends ChangeNotifier {
-  AgentMemoryStore({DateTime Function()? clock}) : _clock = clock ?? DateTime.now;
+  AgentMemoryStore({DateTime Function()? clock})
+    : _clock = clock ?? DateTime.now;
 
   static final AgentMemoryStore instance = AgentMemoryStore();
 
@@ -117,7 +118,12 @@ class AgentMemoryStore extends ChangeNotifier {
     while (items.any((i) => i.id == id)) {
       id = '${int.parse(id) + 1}';
     }
-    final item = MemoryItem(id: id, text: t, createdAt: now, fromAgent: fromAgent);
+    final item = MemoryItem(
+      id: id,
+      text: t,
+      createdAt: now,
+      fromAgent: fromAgent,
+    );
     await _save([...items, item]);
     return item;
   }
@@ -125,7 +131,10 @@ class AgentMemoryStore extends ChangeNotifier {
   /// Removes the item with [id]; whether there was one.
   Future<bool> remove(String id) async {
     final items = await load();
-    final kept = [for (final i in items) if (i.id != id) i];
+    final kept = [
+      for (final i in items)
+        if (i.id != id) i,
+    ];
     if (kept.length == items.length) return false;
     await _save(kept);
     return true;

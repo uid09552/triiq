@@ -10,8 +10,9 @@ void main() {
     MainNavigation.instance.debugReset();
   });
 
-  testWidgets('openCalendar selects the Calendar tab and shows the date',
-      (tester) async {
+  testWidgets('openCalendar selects the Calendar tab and shows the date', (
+    tester,
+  ) async {
     await tester.pumpWidget(const TriiqApp());
     await tester.pump();
 

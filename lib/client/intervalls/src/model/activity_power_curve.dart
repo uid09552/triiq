@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_power_curve.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,82 +17,35 @@ part 'activity_power_curve.g.dart';
 )
 class ActivityPowerCurve {
   /// Returns a new [ActivityPowerCurve] instance.
-  ActivityPowerCurve({
+  ActivityPowerCurve({this.id, this.startDateLocal, this.weight, this.watts});
 
-     this.id,
-
-     this.startDateLocal,
-
-     this.weight,
-
-     this.watts,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'start_date_local',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_date_local', required: false, includeIfNull: false)
   final String? startDateLocal;
 
-
-
-  @JsonKey(
-    
-    name: r'weight',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'weight', required: false, includeIfNull: false)
   final double? weight;
 
-
-
-  @JsonKey(
-    
-    name: r'watts',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'watts', required: false, includeIfNull: false)
   final List<int>? watts;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityPowerCurve &&
+          other.id == id &&
+          other.startDateLocal == startDateLocal &&
+          other.weight == weight &&
+          other.watts == watts;
 
+  @override
+  int get hashCode =>
+      id.hashCode + startDateLocal.hashCode + weight.hashCode + watts.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityPowerCurve &&
-      other.id == id &&
-      other.startDateLocal == startDateLocal &&
-      other.weight == weight &&
-      other.watts == watts;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        startDateLocal.hashCode +
-        weight.hashCode +
-        watts.hashCode;
-
-  factory ActivityPowerCurve.fromJson(Map<String, dynamic> json) => _$ActivityPowerCurveFromJson(json);
+  factory ActivityPowerCurve.fromJson(Map<String, dynamic> json) =>
+      _$ActivityPowerCurveFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityPowerCurveToJson(this);
 
@@ -101,6 +53,4 @@ class ActivityPowerCurve {
   String toString() {
     return toJson().toString();
   }
-
 }
-

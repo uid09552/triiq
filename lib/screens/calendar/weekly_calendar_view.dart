@@ -154,7 +154,10 @@ class WeeklyCalendarView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.chevron_right,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ],
               ),
             ),

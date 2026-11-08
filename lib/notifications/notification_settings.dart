@@ -55,8 +55,7 @@ class NotificationSettings extends ChangeNotifier {
       dailyReminderTime = TimeOfDay(
         hour: prefs.getInt(_dailyReminderHourKey) ?? defaultReminderTime.hour,
         minute:
-            prefs.getInt(_dailyReminderMinuteKey) ??
-            defaultReminderTime.minute,
+            prefs.getInt(_dailyReminderMinuteKey) ?? defaultReminderTime.minute,
       );
     } catch (error) {
       debugPrint('NotificationSettings: cannot read stored settings: $error');

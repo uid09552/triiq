@@ -18,8 +18,7 @@ enum AnalysisMetric {
 
   /// Metrics derived from activities (summed per bucket, zero when nothing
   /// was done) as opposed to wellness records (averaged, gap when missing).
-  bool get fromActivities =>
-      this == tss || this == hours || this == distance;
+  bool get fromActivities => this == tss || this == hours || this == distance;
 
   /// Crosses zero meaningfully.
   bool get hasZeroLine => this == form || this == rampRate;

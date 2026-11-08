@@ -79,7 +79,10 @@ class _HealthCardState extends State<HealthCard> {
   String _describe(AppLocalizations l10n, ReturnChange c) {
     final what = switch (c.action) {
       ReturnAction.rest => l10n.healthChangeRest,
-      ReturnAction.easier => l10n.healthChangeEasier(c.minutes ?? 0, c.load ?? 0),
+      ReturnAction.easier => l10n.healthChangeEasier(
+        c.minutes ?? 0,
+        c.load ?? 0,
+      ),
       ReturnAction.crossTrain => l10n.healthChangeCross(
         c.toSport ?? '',
         c.minutes ?? 0,
@@ -106,9 +109,9 @@ class _HealthCardState extends State<HealthCard> {
         leading: const Icon(Icons.healing_outlined),
         title: Text(l10n.healthLogButton),
         subtitle: Text(l10n.healthLogHint),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const EventsScreen()),
-        ),
+        onTap: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const EventsScreen())),
       );
     }
     final issue = status.issue;
@@ -120,9 +123,9 @@ class _HealthCardState extends State<HealthCard> {
         : l10n.healthInjuredTitle;
     final subtitle = returning
         ? l10n.healthReturnSubtitle(
-            DateFormat.MMMd(Localizations.localeOf(context).toString()).format(
-              issue.backToNormal(widget.today)!,
-            ),
+            DateFormat.MMMd(
+              Localizations.localeOf(context).toString(),
+            ).format(issue.backToNormal(widget.today)!),
           )
         : issue.kind == HealthKind.sick
         ? l10n.healthSickSubtitle(issue.daysUntil(widget.today))
@@ -246,4 +249,3 @@ class _HealthBannerState extends State<HealthBanner> {
     );
   }
 }
-

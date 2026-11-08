@@ -149,8 +149,9 @@ void main() {
     expect(find.text('Dismissed'), findsOneWidget);
   });
 
-  testWidgets('a change since the proposal shows it is out of date',
-      (tester) async {
+  testWidgets('a change since the proposal shows it is out of date', (
+    tester,
+  ) async {
     final p = curve();
     fingerprint = 'v2';
     await pump(tester, p);
@@ -187,8 +188,9 @@ void main() {
     expect(find.text('Retry'), findsOneWidget);
   });
 
-  testWidgets('a plan proposal opens the preview; cancel keeps it pending',
-      (tester) async {
+  testWidgets('a plan proposal opens the preview; cancel keeps it pending', (
+    tester,
+  ) async {
     final service = PlanService(
       knowledge: KnowledgeRepository(
         loadAsset: () async => File('docs/okf.md').readAsStringSync(),
@@ -228,7 +230,11 @@ void main() {
     );
 
     await tester.tap(find.text('Apply'));
-    for (var i = 0; i < 20 && find.text('Review your plan').evaluate().isEmpty; i++) {
+    for (
+      var i = 0;
+      i < 20 && find.text('Review your plan').evaluate().isEmpty;
+      i++
+    ) {
       await realWait(tester);
     }
     await tester.pump(const Duration(seconds: 1));

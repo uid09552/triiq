@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'weather_config.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,34 +18,21 @@ part 'weather_config.g.dart';
 )
 class WeatherConfig {
   /// Returns a new [WeatherConfig] instance.
-  WeatherConfig({
+  WeatherConfig({this.forecasts});
 
-     this.forecasts,
-  });
-
-  @JsonKey(
-    
-    name: r'forecasts',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'forecasts', required: false, includeIfNull: false)
   final List<Forecast>? forecasts;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WeatherConfig && other.forecasts == forecasts;
 
+  @override
+  int get hashCode => forecasts.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is WeatherConfig &&
-      other.forecasts == forecasts;
-
-    @override
-    int get hashCode =>
-        forecasts.hashCode;
-
-  factory WeatherConfig.fromJson(Map<String, dynamic> json) => _$WeatherConfigFromJson(json);
+  factory WeatherConfig.fromJson(Map<String, dynamic> json) =>
+      _$WeatherConfigFromJson(json);
 
   Map<String, dynamic> toJson() => _$WeatherConfigToJson(this);
 
@@ -54,6 +40,4 @@ class WeatherConfig {
   String toString() {
     return toJson().toString();
   }
-
 }
-

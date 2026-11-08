@@ -32,11 +32,8 @@ class _FakeFileSelector extends FileSelectorPlatform
 // cross_file's io.dart variant ignores the `name:` parameter (it's there
 // only to match the web constructor) and derives `.name` from `.path`'s
 // last segment instead — pass [name] as the path too so it round-trips.
-XFile _file(String name, String text) => XFile.fromData(
-  Uint8List.fromList(text.codeUnits),
-  name: name,
-  path: name,
-);
+XFile _file(String name, String text) =>
+    XFile.fromData(Uint8List.fromList(text.codeUnits), name: name, path: name);
 
 void main() {
   late Directory dir;
@@ -84,18 +81,23 @@ void main() {
     await realWait(tester);
   }
 
-  testWidgets('empty state explains what imported knowledge is used for',
-      (tester) async {
+  testWidgets('empty state explains what imported knowledge is used for', (
+    tester,
+  ) async {
     await pump(tester);
 
     expect(find.text('No documents yet'), findsOneWidget);
     expect(find.textContaining('chat agent searches them'), findsOneWidget);
   });
 
-  testWidgets('importing a file lists it with its section count',
-      (tester) async {
+  testWidgets('importing a file lists it with its section count', (
+    tester,
+  ) async {
     FileSelectorPlatform.instance = _FakeFileSelector([
-      _file('swim-css.md', '# CSS test\n\nBody one.\n\n# Drills\n\nBody two.\n'),
+      _file(
+        'swim-css.md',
+        '# CSS test\n\nBody one.\n\n# Drills\n\nBody two.\n',
+      ),
     ]);
     await pump(tester);
 
@@ -151,8 +153,9 @@ void main() {
     expect(docs!.single.enabled, isFalse);
   });
 
-  testWidgets('deleting asks for confirmation then removes the document',
-      (tester) async {
+  testWidgets('deleting asks for confirmation then removes the document', (
+    tester,
+  ) async {
     await tester.runAsync(
       () => repository.import(
         fileName: 'notes.md',
@@ -173,32 +176,31 @@ void main() {
     expect(docs, isEmpty);
   });
 
-  testWidgets(
-    're-importing the same file name offers replace or keep both',
-    (tester) async {
-      await tester.runAsync(
-        () => repository.import(
-          fileName: 'notes.md',
-          bytes: '# A\n\nBody.'.codeUnits,
-        ),
-      );
-      FileSelectorPlatform.instance = _FakeFileSelector([
-        _file('notes.md', '# B\n\nOther body.'),
-      ]);
-      await pump(tester);
+  testWidgets('re-importing the same file name offers replace or keep both', (
+    tester,
+  ) async {
+    await tester.runAsync(
+      () => repository.import(
+        fileName: 'notes.md',
+        bytes: '# A\n\nBody.'.codeUnits,
+      ),
+    );
+    FileSelectorPlatform.instance = _FakeFileSelector([
+      _file('notes.md', '# B\n\nOther body.'),
+    ]);
+    await pump(tester);
 
-      await tester.tap(
-        find.byKey(const ValueKey('knowledge-import-appbar-button')),
-      );
-      await realWait(tester);
-      expect(find.text('Already imported'), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('knowledge-import-appbar-button')),
+    );
+    await realWait(tester);
+    expect(find.text('Already imported'), findsOneWidget);
 
-      await tester.tap(find.text('Replace'));
-      await realWait(tester);
+    await tester.tap(find.text('Replace'));
+    await realWait(tester);
 
-      final docs = await tester.runAsync(() => repository.list());
-      expect(docs, hasLength(1));
-      expect(docs!.single.title, 'B');
-    },
-  );
+    final docs = await tester.runAsync(() => repository.list());
+    expect(docs, hasLength(1));
+    expect(docs!.single.title, 'B');
+  });
 }

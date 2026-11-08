@@ -40,20 +40,23 @@ void main() {
       'connection', (tester) async {
     final plans = PlansRepository(database: database);
     final monday = startOfWeek(DateTime.now());
-    final draft = PlanEngine(
-      TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
-    ).generate(
-      goal: const Goal(
-        targetType: 'long_distance',
-        weekdays: {1, 2, 3, 4, 5, 6, 7},
-        weeklyHours: 8,
-        baselineWeeklyLoad: 300,
-        weeks: 2,
-      ),
-      startDate: monday,
-      recentWeeklyLoads: null,
-      today: monday,
-    ).plan!;
+    final draft =
+        PlanEngine(
+              TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
+            )
+            .generate(
+              goal: const Goal(
+                targetType: 'long_distance',
+                weekdays: {1, 2, 3, 4, 5, 6, 7},
+                weeklyHours: 8,
+                baselineWeeklyLoad: 300,
+                weeks: 2,
+              ),
+              startDate: monday,
+              recentWeeklyLoads: null,
+              today: monday,
+            )
+            .plan!;
     final saved = await tester.runAsync(
       () => plans.save(draft.copyWith(status: PlanStatus.active)),
     );
@@ -99,8 +102,9 @@ void main() {
     }
   });
 
-  testWidgets('long-pressing "nothing planned" offers Train now for today',
-      (tester) async {
+  testWidgets('long-pressing "nothing planned" offers Train now for today', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

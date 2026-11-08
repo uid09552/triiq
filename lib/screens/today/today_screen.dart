@@ -65,6 +65,9 @@ import 'weekly_targets_row.dart';
 /// Pull-to-refresh always refetches, scoped to just today so the gesture
 /// stays fast. Display always reads from SQLite, so the screen works
 /// offline once synced.
+/// From this content width Today lays its sections out in two columns.
+const todayTwoColumnWidth = 900.0;
+
 class TodayScreen extends StatefulWidget {
   const TodayScreen({
     super.key,
@@ -363,65 +366,66 @@ class _TodayScreenState extends State<TodayScreen> {
 
     List<Widget> sectionWidgets(TodaySection section) => switch (section) {
       TodaySection.readiness => [
+        const SizedBox(height: 16),
+        PendingChangesCard(),
+        const HealthBanner(),
+        if (_readiness case final readiness?) ...[
           const SizedBox(height: 16),
-          PendingChangesCard(),
-          const HealthBanner(),
-          if (_readiness case final readiness?) ...[
-            const SizedBox(height: 16),
-            ReadinessCard(report: readiness),
-            const FatigueWarningBanner(),
-            if (ReadinessHint.hardSessionFor(
-                  readiness.readiness,
-                  _todaysPlan,
-                ) !=
-                null) ...[
-              const SizedBox(height: 12),
-              ReadinessHint(
-                readiness: readiness.readiness,
-                todaysPlan: _todaysPlan,
-              ),
-            ],
-          ],
-      ],
-      TodaySection.adjustments => [
-          if (_adjustments.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            SectionCard(
-              icon: Icons.auto_fix_high_outlined,
-              title: l10n.todayAdjustmentsTitle,
-              child: ListenableBuilder(
-                listenable: PlanProposals.instance,
-                builder: (context, _) => Column(
-                  children: [
-                    for (final p in _adjustments)
-                      if (p.canApply || p.state == ProposalState.applying)
-                        ProposalCard(proposal: p),
-                  ],
-                ),
-              ),
+          ReadinessCard(report: readiness),
+          const FatigueWarningBanner(),
+          if (ReadinessHint.hardSessionFor(readiness.readiness, _todaysPlan) !=
+              null) ...[
+            const SizedBox(height: 12),
+            ReadinessHint(
+              readiness: readiness.readiness,
+              todaysPlan: _todaysPlan,
             ),
           ],
+        ],
+      ],
+      TodaySection.adjustments => [
+        if (_adjustments.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          SectionCard(
+            collapsed: _layout.isCollapsed(TodaySection.adjustments),
+            onToggleCollapsed: () => _toggleFold(TodaySection.adjustments),
+            icon: Icons.auto_fix_high_outlined,
+            title: l10n.todayAdjustmentsTitle,
+            child: ListenableBuilder(
+              listenable: PlanProposals.instance,
+              builder: (context, _) => Column(
+                children: [
+                  for (final p in _adjustments)
+                    if (p.canApply || p.state == ProposalState.applying)
+                      ProposalCard(proposal: p),
+                ],
+              ),
+            ),
+          ),
+        ],
       ],
       TodaySection.metrics => [
-          const SizedBox(height: 16),
-          _MetricTiles(
-            todaysLoad: todaysLoad,
-            todaysPlannedLoad: todaysPlannedLoad,
-            weekLoad: _weekLoad,
-            weekPlannedLoad: _weekPlannedLoad,
-            wellness: _wellness,
-            wellnessWeekAgo: _wellnessWeekAgo,
-            sparkLoader: widget.sparkLoader,
-          ),
+        const SizedBox(height: 16),
+        _MetricTiles(
+          todaysLoad: todaysLoad,
+          todaysPlannedLoad: todaysPlannedLoad,
+          weekLoad: _weekLoad,
+          weekPlannedLoad: _weekPlannedLoad,
+          wellness: _wellness,
+          wellnessWeekAgo: _wellnessWeekAgo,
+          sparkLoader: widget.sparkLoader,
+        ),
       ],
       TodaySection.weeklyTargets => [
-          WeeklyTargetsRow(weekActivities: _weekActivities),
+        WeeklyTargetsRow(weekActivities: _weekActivities),
       ],
       TodaySection.yearGoals => [
         if (YearGoalsSettings.instance.showOnToday &&
             YearGoalsSettings.instance.hasAnyGoal) ...[
           const SizedBox(height: 16),
           SectionCard(
+            collapsed: _layout.isCollapsed(TodaySection.yearGoals),
+            onToggleCollapsed: () => _toggleFold(TodaySection.yearGoals),
             key: const ValueKey('today-year-goals'),
             icon: Icons.flag_outlined,
             title: l10n.yearGoalsTitle,
@@ -430,195 +434,251 @@ class _TodayScreenState extends State<TodayScreen> {
         ],
       ],
       TodaySection.thresholds => [
-          ThresholdSuggestionsSection(
-            key: const ValueKey('threshold-suggestions'),
-          ),
+        ThresholdSuggestionsSection(
+          key: const ValueKey('threshold-suggestions'),
+        ),
       ],
       TodaySection.activities => [
-          if (_activities.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            SectionCard(
-              icon: Icons.check_circle_outline,
-              title: l10n.todaysActivities,
-              child: _TodayActivities(activities: _activities),
-            ),
-          ],
+        if (_activities.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          SectionCard(
+            collapsed: _layout.isCollapsed(TodaySection.activities),
+            onToggleCollapsed: () => _toggleFold(TodaySection.activities),
+            icon: Icons.check_circle_outline,
+            title: l10n.todaysActivities,
+            child: _TodayActivities(activities: _activities),
+          ),
+        ],
       ],
       TodaySection.todaysTraining => [
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.event_available_outlined,
-            title: l10n.todaysTraining,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // What today's session (or rest day) means for the week's
-                // plan as a whole — the "am I still on track" line the
-                // planned-vs-completed numbers alone don't spell out.
-                // Shown without a connection too: a TriIQ plan is local.
-                if (_weekPlannedLoad > 0) ...[
-                  _WeeklyGoalProgress(
-                    completed: _weekLoad,
-                    planned: _weekPlannedLoad,
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                _PlannedTraining(
-                  onLongPress: _todaysPlan.any(canDeletePlannedWorkout)
-                      ? () => confirmAndDeleteDaysWorkouts(context, _todaysPlan)
-                      : null,
-                  events: _todaysPlan,
-                  // Nothing planned: a long press offers Train now.
-                  onEmptyLongPress: () => showDayActions(
-                    context,
-                    DateTime.now(),
-                    const [],
-                  ),
-                  emptyLabel: connected
-                      ? l10n.nothingPlannedToday
-                      : l10n.connectToSeePlan,
+        const SizedBox(height: 16),
+        SectionCard(
+          collapsed: _layout.isCollapsed(TodaySection.todaysTraining),
+          onToggleCollapsed: () => _toggleFold(TodaySection.todaysTraining),
+          icon: Icons.event_available_outlined,
+          title: l10n.todaysTraining,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // What today's session (or rest day) means for the week's
+              // plan as a whole — the "am I still on track" line the
+              // planned-vs-completed numbers alone don't spell out.
+              // Shown without a connection too: a TriIQ plan is local.
+              if (_weekPlannedLoad > 0) ...[
+                _WeeklyGoalProgress(
+                  completed: _weekLoad,
+                  planned: _weekPlannedLoad,
                 ),
+                const SizedBox(height: 12),
               ],
-            ),
+              _PlannedTraining(
+                onLongPress: _todaysPlan.any(canDeletePlannedWorkout)
+                    ? () => confirmAndDeleteDaysWorkouts(context, _todaysPlan)
+                    : null,
+                events: _todaysPlan,
+                // Nothing planned: a long press offers Train now.
+                onEmptyLongPress: () =>
+                    showDayActions(context, DateTime.now(), const []),
+                emptyLabel: connected
+                    ? l10n.nothingPlannedToday
+                    : l10n.connectToSeePlan,
+              ),
+            ],
           ),
+        ),
       ],
       TodaySection.tomorrowsTraining => [
-          const SizedBox(height: 12),
-          SectionCard(
-            icon: Icons.event_outlined,
-            title: l10n.tomorrowsTraining,
-            child: _PlannedTraining(
-              onLongPress: _tomorrowsPlan.any(canDeletePlannedWorkout)
-                  ? () =>
-                        confirmAndDeleteDaysWorkouts(context, _tomorrowsPlan)
-                  : null,
-              events: _tomorrowsPlan,
-              onEmptyLongPress: () => showDayActions(
-                context,
-                DateTime.now().add(const Duration(days: 1)),
-                const [],
-              ),
-              emptyLabel: connected
-                  ? l10n.nothingPlannedTomorrow
-                  : l10n.connectToSeePlan,
+        const SizedBox(height: 12),
+        SectionCard(
+          collapsed: _layout.isCollapsed(TodaySection.tomorrowsTraining),
+          onToggleCollapsed: () => _toggleFold(TodaySection.tomorrowsTraining),
+          icon: Icons.event_outlined,
+          title: l10n.tomorrowsTraining,
+          child: _PlannedTraining(
+            onLongPress: _tomorrowsPlan.any(canDeletePlannedWorkout)
+                ? () => confirmAndDeleteDaysWorkouts(context, _tomorrowsPlan)
+                : null,
+            events: _tomorrowsPlan,
+            onEmptyLongPress: () => showDayActions(
+              context,
+              DateTime.now().add(const Duration(days: 1)),
+              const [],
             ),
+            emptyLabel: connected
+                ? l10n.nothingPlannedTomorrow
+                : l10n.connectToSeePlan,
           ),
+        ),
       ],
       TodaySection.athlete => [
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.person_outline,
-            title: l10n.titleAthlete,
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: connected
-                  ? const AthleteAvatar(size: 44, onSurface: true)
-                  : const Icon(Icons.link_off),
-              title: Text(
-                connected
-                    ? (_session.athleteName ?? l10n.connectedLabel)
-                    : l10n.notConnected,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                connected ? _describeAthlete(l10n) : l10n.connectInProfile,
-              ),
-              trailing: connected ? const Icon(Icons.chevron_right) : null,
-              onTap: connected
-                  ? () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AthleteDetailScreen(),
-                      ),
-                    )
-                  : null,
+        const SizedBox(height: 16),
+        SectionCard(
+          collapsed: _layout.isCollapsed(TodaySection.athlete),
+          onToggleCollapsed: () => _toggleFold(TodaySection.athlete),
+          icon: Icons.person_outline,
+          title: l10n.titleAthlete,
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: connected
+                ? const AthleteAvatar(size: 44, onSurface: true)
+                : const Icon(Icons.link_off),
+            title: Text(
+              connected
+                  ? (_session.athleteName ?? l10n.connectedLabel)
+                  : l10n.notConnected,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
+            subtitle: Text(
+              connected ? _describeAthlete(l10n) : l10n.connectInProfile,
+            ),
+            trailing: connected ? const Icon(Icons.chevron_right) : null,
+            onTap: connected
+                ? () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AthleteDetailScreen(),
+                    ),
+                  )
+                : null,
           ),
+        ),
       ],
     };
 
-    return RefreshIndicator(
-      onRefresh: _refreshFromGesture,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TodayHeader(
-            date: DateTime.now(),
-            title: _heroTitle(l10n),
-            titleColor: _heroTitleColor(context),
-            statusChip: SyncStatusChip(),
-            subtitle: _describeStatus(context, connected),
-            loading: _loading,
-            onRefresh: _refreshFromGesture,
-            onTrainNow: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const TrainNowScreen())),
-            onFeel: _logFeel,
-            onCustomize: () => showCustomizeTodaySheet(context, _layout),
-            onOpenIntervals: connected
-                ? () => openInIntervals(context, 'calendar')
-                : null,
-            doneTss: todaysLoad ?? 0,
-            plannedTss: todaysPlannedLoad,
-            doneSeconds: _activities.fold<int>(
-              0,
-              (sum, a) => sum + (a.movingTime ?? 0),
-            ),
-            sessions: _activities.length,
-          ),
-          if (_raceDays case final days?) ...[
-            const SizedBox(height: 12),
-            Row(
-              key: const ValueKey('race-countdown'),
-              children: [
-                Icon(Icons.flag_outlined, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  days == 0 ? l10n.todayRaceDay : l10n.todayRaceCountdown(days),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+    final visible = [
+      for (final section in _layout.order)
+        if (_layout.isVisible(section)) section,
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final twoColumns = constraints.maxWidth >= todayTwoColumnWidth;
+        return RefreshIndicator(
+          onRefresh: _refreshFromGesture,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              TodayHeader(
+                date: DateTime.now(),
+                title: _heroTitle(l10n),
+                titleColor: _heroTitleColor(context),
+                statusChip: SyncStatusChip(),
+                subtitle: _describeStatus(context, connected),
+                loading: _loading,
+                onRefresh: _refreshFromGesture,
+                onTrainNow: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const TrainNowScreen()),
+                ),
+                onFeel: _logFeel,
+                onCustomize: () => showCustomizeTodaySheet(context, _layout),
+                onOpenIntervals: connected
+                    ? () => openInIntervals(context, 'calendar')
+                    : null,
+                doneTss: todaysLoad ?? 0,
+                plannedTss: todaysPlannedLoad,
+                doneSeconds: _activities.fold<int>(
+                  0,
+                  (sum, a) => sum + (a.movingTime ?? 0),
+                ),
+                sessions: _activities.length,
+              ),
+              if (_raceDays case final days?) ...[
+                const SizedBox(height: 12),
+                Row(
+                  key: const ValueKey('race-countdown'),
+                  children: [
+                    Icon(Icons.flag_outlined, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      days == 0
+                          ? l10n.todayRaceDay
+                          : l10n.todayRaceCountdown(days),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const TrainNowScreen()),
+                  ),
+                  icon: const Icon(Icons.fitness_center),
+                  label: Text(l10n.titleTrainNow),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _SetupBanner(connected: connected),
+              if (_error != null) ...[
+                const SizedBox(height: 16),
+                SectionCard(
+                  icon: Icons.error_outline,
+                  title: l10n.syncFailed,
+                  child: Text(
+                    _error!,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
               ],
-            ),
-          ],
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const TrainNowScreen())),
-              icon: const Icon(Icons.fitness_center),
-              label: Text(l10n.titleTrainNow),
-            ),
-          ),
-          const SizedBox(height: 16),
-          _SetupBanner(connected: connected),
-          if (_error != null) ...[
-            const SizedBox(height: 16),
-            SectionCard(
-              icon: Icons.error_outline,
-              title: l10n.syncFailed,
-              child: Text(
-                _error!,
-                style: Theme.of(context).textTheme.bodySmall,
+              if (twoColumns)
+                Row(
+                  key: const ValueKey('today-two-columns'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final section in visible)
+                            if (_primaryColumn.contains(section))
+                              ...sectionWidgets(section),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final section in visible)
+                            if (!_primaryColumn.contains(section))
+                              ...sectionWidgets(section),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              else
+                for (final section in visible) ...sectionWidgets(section),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => showCustomizeTodaySheet(context, _layout),
+                  icon: const Icon(Icons.tune),
+                  label: Text(l10n.customizeTodayTitle),
+                ),
               ),
-            ),
-          ],
-          for (final section in _layout.order)
-            if (_layout.isVisible(section)) ...sectionWidgets(section),
-          const SizedBox(height: 8),
-          Center(
-            child: TextButton.icon(
-              onPressed: () => showCustomizeTodaySheet(context, _layout),
-              icon: const Icon(Icons.tune),
-              label: Text(l10n.customizeTodayTitle),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
+
+  /// What to do today stays on the left on a wide window; figures, targets
+  /// and the rest go on the right.
+  static const _primaryColumn = {
+    TodaySection.readiness,
+    TodaySection.todaysTraining,
+    TodaySection.adjustments,
+    TodaySection.tomorrowsTraining,
+  };
+
+  void _toggleFold(TodaySection section) =>
+      _layout.setCollapsed(section, !_layout.isCollapsed(section));
 
   /// FTP and threshold pace say more on the athlete row than "synced with
   /// Intervals.icu" does; fall back to that when nothing is loaded yet.
@@ -850,7 +910,8 @@ class _MetricTilesState extends State<_MetricTiles> {
                 value: _format(ctl),
                 color: colorScheme.tertiary,
                 intervalsPath: 'fitness',
-                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
+                onShowHistory: () =>
+                    open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
               ),
             ),
             StatTile(
@@ -875,7 +936,8 @@ class _MetricTilesState extends State<_MetricTiles> {
                 value: _format(atl),
                 color: colorScheme.secondary,
                 intervalsPath: 'fitness',
-                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.atl)),
+                onShowHistory: () =>
+                    open(const MetricHistoryScreen(metric: LoadMetric.atl)),
               ),
             ),
           ],
@@ -905,7 +967,8 @@ class _MetricTilesState extends State<_MetricTiles> {
                 value: _format(form),
                 color: colorScheme.primary,
                 intervalsPath: 'fitness',
-                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.form)),
+                onShowHistory: () =>
+                    open(const MetricHistoryScreen(metric: LoadMetric.form)),
               ),
             ),
             StatTile(
@@ -930,7 +993,9 @@ class _MetricTilesState extends State<_MetricTiles> {
                 value: _format(wellness?.rampRate),
                 color: colorScheme.secondary,
                 intervalsPath: 'fitness',
-                onShowHistory: () => open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
+                onShowHistory: () => open(
+                  const MetricHistoryScreen(metric: LoadMetric.rampRate),
+                ),
               ),
             ),
           ],

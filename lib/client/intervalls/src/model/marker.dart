@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'marker.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,111 +18,56 @@ part 'marker.g.dart';
 class Marker {
   /// Returns a new [Marker] instance.
   Marker({
+    this.lat,
 
-     this.lat,
+    this.lng,
 
-     this.lng,
+    this.name,
 
-     this.name,
+    this.description,
 
-     this.description,
+    this.icon,
 
-     this.icon,
-
-     this.color,
+    this.color,
   });
 
-  @JsonKey(
-    
-    name: r'lat',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'lat', required: false, includeIfNull: false)
   final double? lat;
 
-
-
-  @JsonKey(
-    
-    name: r'lng',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'lng', required: false, includeIfNull: false)
   final double? lng;
 
-
-
-  @JsonKey(
-    
-    name: r'name',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'name', required: false, includeIfNull: false)
   final String? name;
 
-
-
-  @JsonKey(
-    
-    name: r'description',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'description', required: false, includeIfNull: false)
   final String? description;
 
-
-
-  @JsonKey(
-    
-    name: r'icon',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'icon', required: false, includeIfNull: false)
   final String? icon;
 
-
-
-  @JsonKey(
-    
-    name: r'color',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'color', required: false, includeIfNull: false)
   final String? color;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Marker &&
+          other.lat == lat &&
+          other.lng == lng &&
+          other.name == name &&
+          other.description == description &&
+          other.icon == icon &&
+          other.color == color;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Marker &&
-      other.lat == lat &&
-      other.lng == lng &&
-      other.name == name &&
-      other.description == description &&
-      other.icon == icon &&
-      other.color == color;
-
-    @override
-    int get hashCode =>
-        lat.hashCode +
-        lng.hashCode +
-        name.hashCode +
-        description.hashCode +
-        icon.hashCode +
-        color.hashCode;
+  @override
+  int get hashCode =>
+      lat.hashCode +
+      lng.hashCode +
+      name.hashCode +
+      description.hashCode +
+      icon.hashCode +
+      color.hashCode;
 
   factory Marker.fromJson(Map<String, dynamic> json) => _$MarkerFromJson(json);
 
@@ -133,6 +77,4 @@ class Marker {
   String toString() {
     return toJson().toString();
   }
-
 }
-

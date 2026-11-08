@@ -63,28 +63,25 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test(
-      'no recent hard efforts: season below settings but 42d has no fit '
-      '-> no decrease',
-      () {
-        final result = rideFtpSuggestions(
-          settings: SportSettings(ftp: 252),
-          curves: curves(
-            sport: CurveSport.ride,
-            metric: CurveMetric.power,
-            season: const CurvePeriod(
-              id: 's0',
-              points: [],
-              model: CurveModel(ftp: 240),
-            ),
-            recent: const CurvePeriod(id: '42d', points: []),
+    test('no recent hard efforts: season below settings but 42d has no fit '
+        '-> no decrease', () {
+      final result = rideFtpSuggestions(
+        settings: SportSettings(ftp: 252),
+        curves: curves(
+          sport: CurveSport.ride,
+          metric: CurveMetric.power,
+          season: const CurvePeriod(
+            id: 's0',
+            points: [],
+            model: CurveModel(ftp: 240),
           ),
-          now: now,
-        );
+          recent: const CurvePeriod(id: '42d', points: []),
+        ),
+        now: now,
+      );
 
-        expect(result, isEmpty);
-      },
-    );
+      expect(result, isEmpty);
+    });
 
     test('decrease: 42d model fit at least 5% below settings', () {
       final result = rideFtpSuggestions(
@@ -106,8 +103,7 @@ void main() {
       expect(result.single.candidateValue, 230);
     });
 
-    test('dismissal suppresses a candidate that has not moved 3% further',
-        () {
+    test('dismissal suppresses a candidate that has not moved 3% further', () {
       final result = rideFtpSuggestions(
         settings: SportSettings(ftp: 252),
         curves: curves(
@@ -129,8 +125,7 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('dismissed then exceeded by a further 3% shows a new suggestion',
-        () {
+    test('dismissed then exceeded by a further 3% shows a new suggestion', () {
       final result = rideFtpSuggestions(
         settings: SportSettings(ftp: 252),
         curves: curves(

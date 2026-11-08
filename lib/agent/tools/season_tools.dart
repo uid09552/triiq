@@ -123,7 +123,8 @@ class SeasonTools {
     final spec = RaceSpec.byId('${args['race'] ?? ''}');
     if (spec == null) {
       return {
-        'error': 'Unknown race. Use one of: '
+        'error':
+            'Unknown race. Use one of: '
             '${RaceSpec.presets.map((p) => p.id).join(', ')}',
       };
     }

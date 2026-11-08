@@ -144,7 +144,9 @@ void main() {
     );
   });
 
-  testWidgets('model card: figures as tiles across the card width', (tester) async {
+  testWidgets('model card: figures as tiles across the card width', (
+    tester,
+  ) async {
     final repo = _FakeCurves({(CurveSport.ride, CurveMetric.power): _ride()});
     await pump(tester, repo);
 
@@ -161,13 +163,15 @@ void main() {
     final gapBox = tester.getRect(find.byKey(const ValueKey('model-gap')));
     final lastTile = [
       for (final k in ['model-FTP', 'model-CP', "model-W'", 'model-Pmax'])
-        if (tester.any(find.byKey(ValueKey(k)))) tester.getRect(find.byKey(ValueKey(k))),
+        if (tester.any(find.byKey(ValueKey(k))))
+          tester.getRect(find.byKey(ValueKey(k))),
     ].map((r) => r.right).reduce((a, b) => a > b ? a : b);
     expect(lastTile, greaterThan(gapBox.left + gapBox.width * 0.6));
   });
 
-  testWidgets('on a very wide window the content stays centred and capped',
-      (tester) async {
+  testWidgets('on a very wide window the content stays centred and capped', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(2000, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

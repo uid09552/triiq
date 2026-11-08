@@ -10,7 +10,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'data_curve_set_pace_curve.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,50 +19,26 @@ part 'data_curve_set_pace_curve.g.dart';
 )
 class DataCurveSetPaceCurve {
   /// Returns a new [DataCurveSetPaceCurve] instance.
-  DataCurveSetPaceCurve({
+  DataCurveSetPaceCurve({this.list, this.activities});
 
-     this.list,
-
-     this.activities,
-  });
-
-  @JsonKey(
-    
-    name: r'list',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'list', required: false, includeIfNull: false)
   final List<DataCurve>? list;
 
-
-
-  @JsonKey(
-    
-    name: r'activities',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'activities', required: false, includeIfNull: false)
   final Map<String, Activity>? activities;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DataCurveSetPaceCurve &&
+          other.list == list &&
+          other.activities == activities;
 
+  @override
+  int get hashCode => list.hashCode + activities.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DataCurveSetPaceCurve &&
-      other.list == list &&
-      other.activities == activities;
-
-    @override
-    int get hashCode =>
-        list.hashCode +
-        activities.hashCode;
-
-  factory DataCurveSetPaceCurve.fromJson(Map<String, dynamic> json) => _$DataCurveSetPaceCurveFromJson(json);
+  factory DataCurveSetPaceCurve.fromJson(Map<String, dynamic> json) =>
+      _$DataCurveSetPaceCurveFromJson(json);
 
   Map<String, dynamic> toJson() => _$DataCurveSetPaceCurveToJson(this);
 
@@ -71,6 +46,4 @@ class DataCurveSetPaceCurve {
   String toString() {
     return toJson().toString();
   }
-
 }
-

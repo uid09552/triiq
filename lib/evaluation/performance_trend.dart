@@ -26,14 +26,13 @@ PerformanceTrend? performanceTrend(
   if (day == null) return null;
   final earliest = day.subtract(Duration(days: windowDays));
 
-  final prior =
-      history.where((a) {
-        if (a.id == activity.id || a.type != activity.type) return false;
-        final d = DateTime.tryParse(a.date);
-        if (d == null || d.isBefore(earliest)) return false;
-        // Strictly earlier days only (same-day sessions aren't "before").
-        return d.isBefore(day) && _ef(a) != null;
-      }).toList()..sort((a, b) => b.date.compareTo(a.date));
+  final prior = history.where((a) {
+    if (a.id == activity.id || a.type != activity.type) return false;
+    final d = DateTime.tryParse(a.date);
+    if (d == null || d.isBefore(earliest)) return false;
+    // Strictly earlier days only (same-day sessions aren't "before").
+    return d.isBefore(day) && _ef(a) != null;
+  }).toList()..sort((a, b) => b.date.compareTo(a.date));
 
   final recent = prior.take(maxBaseline).toList();
   if (recent.length < minBaseline) return null;

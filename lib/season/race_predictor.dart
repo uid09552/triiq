@@ -19,33 +19,71 @@ class RaceSpec {
   final int t1;
   final int t2;
 
-  bool get isTriathlon =>
-      [swimM, rideM, runM].where((d) => d > 0).length >= 2;
+  bool get isTriathlon => [swimM, rideM, runM].where((d) => d > 0).length >= 2;
 
   static const run5k = RaceSpec(id: 'run5k', swimM: 0, rideM: 0, runM: 5000);
   static const run10k = RaceSpec(id: 'run10k', swimM: 0, rideM: 0, runM: 10000);
-  static const halfMarathon =
-      RaceSpec(id: 'halfMarathon', swimM: 0, rideM: 0, runM: 21097.5);
-  static const marathon =
-      RaceSpec(id: 'marathon', swimM: 0, rideM: 0, runM: 42195);
-  static const ride100k =
-      RaceSpec(id: 'ride100k', swimM: 0, rideM: 100000, runM: 0);
+  static const halfMarathon = RaceSpec(
+    id: 'halfMarathon',
+    swimM: 0,
+    rideM: 0,
+    runM: 21097.5,
+  );
+  static const marathon = RaceSpec(
+    id: 'marathon',
+    swimM: 0,
+    rideM: 0,
+    runM: 42195,
+  );
+  static const ride100k = RaceSpec(
+    id: 'ride100k',
+    swimM: 0,
+    rideM: 100000,
+    runM: 0,
+  );
   static const sprint = RaceSpec(
-    id: 'sprint', swimM: 750, rideM: 20000, runM: 5000, t1: 90, t2: 60,
+    id: 'sprint',
+    swimM: 750,
+    rideM: 20000,
+    runM: 5000,
+    t1: 90,
+    t2: 60,
   );
   static const olympic = RaceSpec(
-    id: 'olympic', swimM: 1500, rideM: 40000, runM: 10000, t1: 120, t2: 75,
+    id: 'olympic',
+    swimM: 1500,
+    rideM: 40000,
+    runM: 10000,
+    t1: 120,
+    t2: 75,
   );
   static const half70 = RaceSpec(
-    id: 'half70', swimM: 1900, rideM: 90000, runM: 21097.5, t1: 180, t2: 120,
+    id: 'half70',
+    swimM: 1900,
+    rideM: 90000,
+    runM: 21097.5,
+    t1: 180,
+    t2: 120,
   );
   static const full140 = RaceSpec(
-    id: 'full140', swimM: 3800, rideM: 180000, runM: 42195, t1: 300, t2: 180,
+    id: 'full140',
+    swimM: 3800,
+    rideM: 180000,
+    runM: 42195,
+    t1: 300,
+    t2: 180,
   );
 
   static const presets = [
-    run5k, run10k, halfMarathon, marathon, ride100k,
-    sprint, olympic, half70, full140,
+    run5k,
+    run10k,
+    halfMarathon,
+    marathon,
+    ride100k,
+    sprint,
+    olympic,
+    half70,
+    full140,
   ];
 
   static RaceSpec? byId(String id) {
@@ -202,8 +240,7 @@ class RacePrediction {
   /// Legs the data couldn't predict (`Swim`, `Ride`, `Run`).
   final List<String> missing;
 
-  double get totalSeconds =>
-      legs.fold(0.0, (s, l) => s + l.seconds) + t1 + t2;
+  double get totalSeconds => legs.fold(0.0, (s, l) => s + l.seconds) + t1 + t2;
   bool get complete => missing.isEmpty && legs.isNotEmpty;
 }
 
@@ -247,7 +284,8 @@ double? powerAt(List<({double seconds, double watts})> curve, double seconds) {
     if (seconds <= pts[i].seconds) {
       final a = pts[i - 1];
       final b = pts[i];
-      final f = (math.log(seconds) - math.log(a.seconds)) /
+      final f =
+          (math.log(seconds) - math.log(a.seconds)) /
           (math.log(b.seconds) - math.log(a.seconds));
       return a.watts + (b.watts - a.watts) * f;
     }
@@ -442,16 +480,21 @@ List<PacingStep> _runSteps(double metres, double pace) {
   final negative = metres <= 12000;
   return [
     PacingStep(
-      fromM: 0, toM: first, note: PacingNote.startControlled,
+      fromM: 0,
+      toM: first,
+      note: PacingNote.startControlled,
       paceSecPerKm: pace * 1.03,
     ),
     PacingStep(
-      fromM: first, toM: metres - last,
+      fromM: first,
+      toM: metres - last,
       note: negative ? PacingNote.negativeSplit : PacingNote.holdSteady,
       paceSecPerKm: pace,
     ),
     PacingStep(
-      fromM: metres - last, toM: metres, note: PacingNote.finishStrong,
+      fromM: metres - last,
+      toM: metres,
+      note: PacingNote.finishStrong,
       paceSecPerKm: pace * 0.98,
     ),
   ];
@@ -461,11 +504,15 @@ List<PacingStep> _rideSteps(double metres, double watts) {
   final first = math.min(metres * 0.08, 8000.0);
   return [
     PacingStep(
-      fromM: 0, toM: first, note: PacingNote.startControlled,
+      fromM: 0,
+      toM: first,
+      note: PacingNote.startControlled,
       watts: (watts * 0.95).round(),
     ),
     PacingStep(
-      fromM: first, toM: metres, note: PacingNote.holdSteady,
+      fromM: first,
+      toM: metres,
+      note: PacingNote.holdSteady,
       watts: watts.round(),
     ),
   ];
@@ -487,10 +534,14 @@ RacePrediction predictRace(RaceSpec spec, RaceInputs inputs) {
       final pace = secs / (spec.swimM / 100);
       legs.add(
         LegPrediction(
-          sport: 'Swim', metres: spec.swimM, seconds: secs,
+          sport: 'Swim',
+          metres: spec.swimM,
+          seconds: secs,
           steps: [
             PacingStep(
-              fromM: 0, toM: spec.swimM, note: PacingNote.holdSteady,
+              fromM: 0,
+              toM: spec.swimM,
+              note: PacingNote.holdSteady,
               pacePer100m: pace,
             ),
           ],
@@ -508,9 +559,12 @@ RacePrediction predictRace(RaceSpec spec, RaceInputs inputs) {
           : null;
       legs.add(
         LegPrediction(
-          sport: 'Ride', metres: spec.rideM, seconds: r.seconds,
+          sport: 'Ride',
+          metres: spec.rideM,
+          seconds: r.seconds,
           steps: _rideSteps(spec.rideM, r.watts),
-          watts: r.watts.round(), intensityFactor: ifx,
+          watts: r.watts.round(),
+          intensityFactor: ifx,
         ),
       );
     }
@@ -524,7 +578,9 @@ RacePrediction predictRace(RaceSpec spec, RaceInputs inputs) {
       final pace = secs / (spec.runM / 1000);
       legs.add(
         LegPrediction(
-          sport: 'Run', metres: spec.runM, seconds: secs,
+          sport: 'Run',
+          metres: spec.runM,
+          seconds: secs,
           steps: _runSteps(spec.runM, pace),
         ),
       );
@@ -547,9 +603,15 @@ RacePrediction predictRace(RaceSpec spec, RaceInputs inputs) {
         steps: [
           for (final s in l.steps)
             PacingStep(
-              fromM: s.fromM, toM: s.toM, note: s.note,
-              watts: s.watts == null ? null : (s.watts! / _wattDiv(l, slow)).round(),
-              paceSecPerKm: s.paceSecPerKm == null ? null : s.paceSecPerKm! * slow,
+              fromM: s.fromM,
+              toM: s.toM,
+              note: s.note,
+              watts: s.watts == null
+                  ? null
+                  : (s.watts! / _wattDiv(l, slow)).round(),
+              paceSecPerKm: s.paceSecPerKm == null
+                  ? null
+                  : s.paceSecPerKm! * slow,
               pacePer100m: s.pacePer100m == null ? null : s.pacePer100m! * slow,
             ),
         ],

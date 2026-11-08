@@ -5,7 +5,16 @@ import 'package:triiq/evaluation/session_streams.dart';
 void main() {
   group('histogram', () {
     test('time per band, zeros kept apart', () {
-      final h = histogramOf([0, 0, 110, 120, 130, 130, 260, null], binWidth: 25);
+      final h = histogramOf([
+        0,
+        0,
+        110,
+        120,
+        130,
+        130,
+        260,
+        null,
+      ], binWidth: 25);
       expect(h.zeroSeconds, 3); // two zeros and a gap
       expect(h.totalSeconds, 8);
       expect(h.bins.map((b) => b.lo), [100, 125, 250]);
@@ -26,11 +35,15 @@ void main() {
 
   group('variability index', () {
     test('a perfectly even effort is 1.0', () {
-      expect(variabilityIndex(List<double?>.filled(120, 200)), closeTo(1, 1e-9));
+      expect(
+        variabilityIndex(List<double?>.filled(120, 200)),
+        closeTo(1, 1e-9),
+      );
     });
     test('alternating hard and easy blocks raise it', () {
       final surges = <double?>[
-        for (var b = 0; b < 8; b++) ...List<double?>.filled(60, b.isEven ? 350 : 100),
+        for (var b = 0; b < 8; b++)
+          ...List<double?>.filled(60, b.isEven ? 350 : 100),
       ];
       final vi = variabilityIndex(surges)!;
       expect(vi, greaterThan(1.15));

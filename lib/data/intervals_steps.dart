@@ -48,7 +48,8 @@ double estimateStepMinutes(String description) {
     final m = _timeToken.firstMatch(text.trimLeft());
     if (m == null || m.start != 0) continue;
     final value = double.parse(m.group(1)!);
-    total += times *
+    total +=
+        times *
         switch (m.group(2)!) {
           'h' => value * 60,
           's' => value / 60,

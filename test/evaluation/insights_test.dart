@@ -21,11 +21,7 @@ LocalActivity act(
   movingTime: 3600,
   distance: null,
   trainingLoad: 50,
-  raw: {
-    'icu_hr_zone_times': hrZones,
-    'icu_efficiency_factor': ?ef,
-    ...extra,
-  },
+  raw: {'icu_hr_zone_times': hrZones, 'icu_efficiency_factor': ?ef, ...extra},
   syncedAt: DateTime(2026, 11, 3),
 );
 
@@ -56,7 +52,10 @@ void main() {
 
       expect(bests, hasLength(2));
       expect(bests[0].kind, BestEffortKind.power);
-      expect((bests[0].seconds, bests[0].value, bests[0].previous), (300, 310.0, 298.0));
+      expect(
+        (bests[0].seconds, bests[0].value, bests[0].previous),
+        (300, 310.0, 298.0),
+      );
       expect(bests[1].kind, BestEffortKind.time);
       expect(bests[1].distance, 5000);
     });
@@ -81,7 +80,11 @@ void main() {
   group('efficiencyTrend', () {
     final history = [
       for (var i = 0; i < 5; i++)
-        act('h$i', '2026-10-${(10 + i * 3).toString().padLeft(2, '0')}', ef: 1.48 + i * 0.01),
+        act(
+          'h$i',
+          '2026-10-${(10 + i * 3).toString().padLeft(2, '0')}',
+          ef: 1.48 + i * 0.01,
+        ),
     ];
 
     test('an easy session against the 6-week median', () {
@@ -102,10 +105,18 @@ void main() {
     });
 
     test('hard or other-sport sessions are not compared', () {
-      final hard = act('now', '2026-11-03', ef: 1.56, hrZones: [600, 600, 1200, 1200, 0]);
+      final hard = act(
+        'now',
+        '2026-11-03',
+        ef: 1.56,
+        hrZones: [600, 600, 1200, 1200, 0],
+      );
       expect(efficiencyTrend(hard, history), isNull);
 
-      final run = efficiencyTrend(act('r', '2026-11-03', type: 'Run', ef: 1.2), history)!;
+      final run = efficiencyTrend(
+        act('r', '2026-11-03', type: 'Run', ef: 1.2),
+        history,
+      )!;
       expect(run.median, isNull, reason: 'the rides are not runs');
     });
   });

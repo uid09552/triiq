@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'duplicate_workouts_dto.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,66 +17,31 @@ part 'duplicate_workouts_dto.g.dart';
 )
 class DuplicateWorkoutsDTO {
   /// Returns a new [DuplicateWorkoutsDTO] instance.
-  DuplicateWorkoutsDTO({
+  DuplicateWorkoutsDTO({this.numCopies, this.weeksBetween, this.workoutIds});
 
-     this.numCopies,
-
-     this.weeksBetween,
-
-     this.workoutIds,
-  });
-
-  @JsonKey(
-    
-    name: r'numCopies',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'numCopies', required: false, includeIfNull: false)
   final int? numCopies;
 
-
-
-  @JsonKey(
-    
-    name: r'weeksBetween',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'weeksBetween', required: false, includeIfNull: false)
   final int? weeksBetween;
 
-
-
-  @JsonKey(
-    
-    name: r'workoutIds',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'workoutIds', required: false, includeIfNull: false)
   final List<int>? workoutIds;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DuplicateWorkoutsDTO &&
+          other.numCopies == numCopies &&
+          other.weeksBetween == weeksBetween &&
+          other.workoutIds == workoutIds;
 
+  @override
+  int get hashCode =>
+      numCopies.hashCode + weeksBetween.hashCode + workoutIds.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DuplicateWorkoutsDTO &&
-      other.numCopies == numCopies &&
-      other.weeksBetween == weeksBetween &&
-      other.workoutIds == workoutIds;
-
-    @override
-    int get hashCode =>
-        numCopies.hashCode +
-        weeksBetween.hashCode +
-        workoutIds.hashCode;
-
-  factory DuplicateWorkoutsDTO.fromJson(Map<String, dynamic> json) => _$DuplicateWorkoutsDTOFromJson(json);
+  factory DuplicateWorkoutsDTO.fromJson(Map<String, dynamic> json) =>
+      _$DuplicateWorkoutsDTOFromJson(json);
 
   Map<String, dynamic> toJson() => _$DuplicateWorkoutsDTOToJson(this);
 
@@ -85,6 +49,4 @@ class DuplicateWorkoutsDTO {
   String toString() {
     return toJson().toString();
   }
-
 }
-

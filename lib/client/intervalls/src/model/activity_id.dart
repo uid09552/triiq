@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_id.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,50 +17,26 @@ part 'activity_id.g.dart';
 )
 class ActivityId {
   /// Returns a new [ActivityId] instance.
-  ActivityId({
+  ActivityId({this.icuAthleteId, this.id});
 
-     this.icuAthleteId,
-
-     this.id,
-  });
-
-  @JsonKey(
-    
-    name: r'icu_athlete_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'icu_athlete_id', required: false, includeIfNull: false)
   final String? icuAthleteId;
 
-
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityId &&
+          other.icuAthleteId == icuAthleteId &&
+          other.id == id;
 
+  @override
+  int get hashCode => icuAthleteId.hashCode + id.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityId &&
-      other.icuAthleteId == icuAthleteId &&
-      other.id == id;
-
-    @override
-    int get hashCode =>
-        icuAthleteId.hashCode +
-        id.hashCode;
-
-  factory ActivityId.fromJson(Map<String, dynamic> json) => _$ActivityIdFromJson(json);
+  factory ActivityId.fromJson(Map<String, dynamic> json) =>
+      _$ActivityIdFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityIdToJson(this);
 
@@ -69,6 +44,4 @@ class ActivityId {
   String toString() {
     return toJson().toString();
   }
-
 }
-

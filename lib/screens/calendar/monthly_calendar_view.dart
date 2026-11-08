@@ -218,7 +218,11 @@ class _DayCell extends StatelessWidget {
                     color: eventCategoryColor(e.category, colorScheme),
                   ),
                 for (final marker in shown)
-                  CalendarDayMarker(type: marker.$1, color: marker.$2, size: 12),
+                  CalendarDayMarker(
+                    type: marker.$1,
+                    color: marker.$2,
+                    size: 12,
+                  ),
                 if (overflow)
                   Text(
                     '+${markers.length - _maxMarkersPerCell}',

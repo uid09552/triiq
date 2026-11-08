@@ -31,7 +31,9 @@ void main() {
     tempDir = await Directory.systemTemp.createTemp('triiq_memory');
     database = AppDatabase.atPath(p.join(tempDir.path, 'triiq.db'));
     var n = 1000;
-    store = AgentMemoryStore(clock: () => DateTime.fromMillisecondsSinceEpoch(n++));
+    store = AgentMemoryStore(
+      clock: () => DateTime.fromMillisecondsSinceEpoch(n++),
+    );
   });
 
   tearDown(() async {
@@ -64,7 +66,10 @@ void main() {
       for (var i = 1; i < AgentMemoryStore.maxItems; i++) {
         await store.add('pref $i');
       }
-      expect(() => store.add('one too many'), throwsA(isA<MemoryFullException>()));
+      expect(
+        () => store.add('one too many'),
+        throwsA(isA<MemoryFullException>()),
+      );
     });
 
     test('remove and clear', () async {
@@ -86,7 +91,9 @@ void main() {
     });
 
     test('a corrupt value reads as empty, not a crash', () async {
-      SharedPreferences.setMockInitialValues({AgentMemoryStore.prefsKey: '{oops'});
+      SharedPreferences.setMockInitialValues({
+        AgentMemoryStore.prefsKey: '{oops',
+      });
       expect(await store.load(), isEmpty);
     });
   });
@@ -94,11 +101,15 @@ void main() {
   group('tools', () {
     Future<dynamic> run(String name, Map<String, dynamic> args) async {
       final tool = tools().build().firstWhere((t) => t.name == name);
-      return jsonDecode(await tool.invoke(tool.getInputFromJson(args)) as String);
+      return jsonDecode(
+        await tool.invoke(tool.getInputFromJson(args)) as String,
+      );
     }
 
     test('remember_preference saves it as the trainer\'s', () async {
-      final out = await run('remember_preference', {'text': 'No hard sessions on Fridays'});
+      final out = await run('remember_preference', {
+        'text': 'No hard sessions on Fridays',
+      });
       expect(out['saved'], isTrue);
       final item = (await store.load()).single;
       expect(item.fromAgent, isTrue);
@@ -108,15 +119,20 @@ void main() {
     test('forget_preference removes by id and reports unknown ids', () async {
       final a = (await store.add('x'))!;
       expect((await run('forget_preference', {'id': a.id}))['removed'], isTrue);
-      expect((await run('forget_preference', {'id': a.id}))['error'], isNotNull);
+      expect(
+        (await run('forget_preference', {'id': a.id}))['error'],
+        isNotNull,
+      );
     });
 
     test('a full memory comes back as an error string', () async {
       for (var i = 0; i < AgentMemoryStore.maxItems; i++) {
         await store.add('p$i');
       }
-      expect((await run('remember_preference', {'text': 'more'}))['error'],
-          contains('memory is full'));
+      expect(
+        (await run('remember_preference', {'text': 'more'}))['error'],
+        contains('memory is full'),
+      );
     });
   });
 
@@ -131,7 +147,10 @@ void main() {
       chatModelFactory: (_, _) => model,
     );
     await agent.send('Plan my week').toList();
-    final system = model.prompts.first.whereType<SystemChatMessage>().map((m) => m.content).join('\n');
+    final system = model.prompts.first
+        .whereType<SystemChatMessage>()
+        .map((m) => m.content)
+        .join('\n');
     expect(system, contains('No hard sessions on Fridays'));
   });
 
@@ -149,7 +168,10 @@ void main() {
       expect(find.text('Right knee: no downhill running'), findsOneWidget);
       expect(find.text('saved by the trainer'), findsOneWidget);
 
-      await t.enterText(find.byKey(const ValueKey('memory-input')), 'Swim only in the mornings');
+      await t.enterText(
+        find.byKey(const ValueKey('memory-input')),
+        'Swim only in the mornings',
+      );
       await t.tap(find.byKey(const ValueKey('memory-add')));
       await t.pumpAndSettle();
       expect(find.text('Swim only in the mornings'), findsOneWidget);
@@ -169,7 +191,7 @@ void main() {
 
 class _ScriptedChatModel extends BaseChatModel<FakeChatModelOptions> {
   _ScriptedChatModel(this.turns)
-      : super(defaultOptions: const FakeChatModelOptions());
+    : super(defaultOptions: const FakeChatModelOptions());
 
   final List<AIChatMessage> turns;
   final prompts = <List<ChatMessage>>[];

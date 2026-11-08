@@ -145,8 +145,9 @@ void main() {
     expect(find.text('Weekly load'), findsNothing);
   });
 
-  testWidgets('shows the current block with the current week highlighted',
-      (tester) async {
+  testWidgets('shows the current block with the current week highlighted', (
+    tester,
+  ) async {
     final monday = startOfWeek(DateTime.now());
     final plan = PlanEngine(knowledge)
         .generate(
@@ -175,8 +176,9 @@ void main() {
     expect(find.text('110% of proposal'), findsOneWidget);
   });
 
-  testWidgets('a goal shows the load graph; a drag is saved into the goal',
-      (tester) async {
+  testWidgets('a goal shows the load graph; a drag is saved into the goal', (
+    tester,
+  ) async {
     await tester.runAsync(() => service.goals.save(runGoal));
     await open(tester);
 
@@ -233,8 +235,9 @@ void main() {
     }
   }
 
-  testWidgets('take as plan with sending on: saved, Calendar opened, sent',
-      (tester) async {
+  testWidgets('take as plan with sending on: saved, Calendar opened, sent', (
+    tester,
+  ) async {
     IntervalsSession.instance.debugSetConnected(true);
     MainNavigation.instance.debugReset();
     await tester.runAsync(
@@ -243,9 +246,7 @@ void main() {
 
     await takePlan(tester, SyncSettings.forTesting());
     // Sending runs in the background after the screen moved on.
-    for (var i = 0;
-        i < 60 && find.byType(SnackBar).evaluate().isEmpty;
-        i++) {
+    for (var i = 0; i < 60 && find.byType(SnackBar).evaluate().isEmpty; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 50)),
       );
@@ -268,8 +269,9 @@ void main() {
     expect(find.text('12 sessions created'), findsOneWidget);
   });
 
-  testWidgets('take as plan with sending off keeps the plan local',
-      (tester) async {
+  testWidgets('take as plan with sending off keeps the plan local', (
+    tester,
+  ) async {
     IntervalsSession.instance.debugSetConnected(true);
     MainNavigation.instance.debugReset();
     await tester.runAsync(() => service.goals.save(runGoal));
@@ -286,8 +288,9 @@ void main() {
     expect(find.text('Plan saved in TriIQ.'), findsOneWidget);
   });
 
-  testWidgets('a plan can be taken without an Intervals.icu connection',
-      (tester) async {
+  testWidgets('a plan can be taken without an Intervals.icu connection', (
+    tester,
+  ) async {
     MainNavigation.instance.debugReset();
     await tester.runAsync(() => service.goals.save(runGoal));
 
@@ -295,11 +298,15 @@ void main() {
 
     expect(workouts.created, isEmpty);
     expect(await tester.runAsync(plans.getCurrent), isNotNull);
-    expect(find.textContaining('Connect Intervals.icu to send it'), findsOneWidget);
+    expect(
+      find.textContaining('Connect Intervals.icu to send it'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('a week-grid session offers Change Training into Train Now',
-      (tester) async {
+  testWidgets('a week-grid session offers Change Training into Train Now', (
+    tester,
+  ) async {
     final monday = startOfWeek(DateTime.now());
     final plan = PlanEngine(knowledge)
         .generate(
@@ -337,8 +344,9 @@ void main() {
 
   // Also opened for a session in a week other than the current one — the
   // Plan screen's week grid does not restrict Change Training to "this week".
-  testWidgets('Change Training is offered for a future week too',
-      (tester) async {
+  testWidgets('Change Training is offered for a future week too', (
+    tester,
+  ) async {
     final monday = startOfWeek(DateTime.now());
     final plan = PlanEngine(knowledge)
         .generate(
@@ -372,8 +380,9 @@ void main() {
     expect(find.byKey(const ValueKey('change-training')), findsOneWidget);
   });
 
-  testWidgets('a triathlon plan shows sport tiles and load per sport',
-      (tester) async {
+  testWidgets('a triathlon plan shows sport tiles and load per sport', (
+    tester,
+  ) async {
     final monday = startOfWeek(DateTime.now());
     final plan = PlanEngine(knowledge)
         .generate(
@@ -411,8 +420,9 @@ void main() {
     expect(find.byIcon(Icons.pool_outlined), findsWidgets);
   });
 
-  testWidgets('goal editor: a triathlon mix that is not 100% blocks save',
-      (tester) async {
+  testWidgets('goal editor: a triathlon mix that is not 100% blocks save', (
+    tester,
+  ) async {
     Goal? popped;
     await open(
       tester,
@@ -454,16 +464,18 @@ void main() {
     expect(popped, isNull);
   });
 
-  testWidgets('ramp slider and hold switch reshape the proposal and save',
-      (tester) async {
+  testWidgets('ramp slider and hold switch reshape the proposal and save', (
+    tester,
+  ) async {
     await tester.runAsync(
-      () => service.goals.save(
-        runGoal.copyWith(weeks: 4, loadFactors: [1, 0.9]),
-      ),
+      () =>
+          service.goals.save(runGoal.copyWith(weeks: 4, loadFactors: [1, 0.9])),
     );
     await open(tester);
 
-    final slider = tester.widget<Slider>(find.byKey(const ValueKey('curve-ramp')));
+    final slider = tester.widget<Slider>(
+      find.byKey(const ValueKey('curve-ramp')),
+    );
     expect(slider.value, 10);
     expect(find.text('Weekly increase: 10%'), findsOneWidget);
 

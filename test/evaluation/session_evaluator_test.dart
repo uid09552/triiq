@@ -19,10 +19,7 @@ LocalActivity activity({
   movingTime: minutes * 60,
   distance: null,
   trainingLoad: load,
-  raw: {
-    'icu_hr_zone_times': ?hrZones,
-    'decoupling': ?decoupling,
-  },
+  raw: {'icu_hr_zone_times': ?hrZones, 'decoupling': ?decoupling},
   syncedAt: DateTime(2026, 11, 3),
 );
 
@@ -52,8 +49,13 @@ void main() {
   const evaluator = SessionEvaluator();
 
   // 5 HR zones: low = Z1+Z2, moderate = Z3+Z4, high = Z5.
-  List<int> zones(int low, int moderate, int high) =>
-      [low ~/ 2, low - low ~/ 2, moderate ~/ 2, moderate - moderate ~/ 2, high];
+  List<int> zones(int low, int moderate, int high) => [
+    low ~/ 2,
+    low - low ~/ 2,
+    moderate ~/ 2,
+    moderate - moderate ~/ 2,
+    high,
+  ];
 
   test('an easy session that drifted is too hard, with its split', () {
     final e = evaluator.evaluate(

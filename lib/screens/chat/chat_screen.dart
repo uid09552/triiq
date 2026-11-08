@@ -237,7 +237,8 @@ class _ChatScreenState extends State<ChatScreen> {
         'get_training_guidance' => l10n.chatToolGuidance,
         'sync_from_intervals' => l10n.chatToolSyncing,
         'get_training_plan' => l10n.chatToolPlanRead,
-        'propose_load_curve' || 'propose_session_change' ||
+        'propose_load_curve' ||
+        'propose_session_change' ||
         'generate_training_plan' => l10n.chatToolProposing,
         _ => l10n.toolRunningGeneric(name),
       };
@@ -286,9 +287,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   controller: _scrollController,
                   padding: const EdgeInsets.all(16),
                   itemCount: _messages.length,
-                  itemBuilder: (context, index) => _MessageWithProposals(
-                    message: _messages[index],
-                  ),
+                  itemBuilder: (context, index) =>
+                      _MessageWithProposals(message: _messages[index]),
                 ),
         ),
         if (_activity != null) _ActivityLine(label: _activity!),
@@ -387,9 +387,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              configured
-                  ? l10n.askAboutTraining
-                  : l10n.pickLlmProviderToChat,
+              configured ? l10n.askAboutTraining : l10n.pickLlmProviderToChat,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),

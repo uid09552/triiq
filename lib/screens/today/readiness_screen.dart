@@ -281,9 +281,7 @@ class _Trend extends StatelessWidget {
             child: TextButton.icon(
               key: const ValueKey('longer-trends'),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => WellnessTrendsScreen(),
-                ),
+                MaterialPageRoute<void>(builder: (_) => WellnessTrendsScreen()),
               ),
               icon: const Icon(Icons.timeline),
               label: Text(l10n.wtLongerTrends),

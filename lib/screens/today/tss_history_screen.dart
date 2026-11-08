@@ -152,8 +152,7 @@ class _TssHistoryScreenState extends State<TssHistoryScreen> {
                           bars: [
                             for (final day in _days)
                               ChartBar(
-                                label:
-                                    '${day.date.day}/${day.date.month}',
+                                label: '${day.date.day}/${day.date.month}',
                                 value: day.tss.toDouble(),
                                 target: day.planned > 0
                                     ? day.planned.toDouble()
@@ -176,9 +175,7 @@ class _TssHistoryScreenState extends State<TssHistoryScreen> {
   }
 
   static String _formatDate(BuildContext context, DateTime date) =>
-      DateFormat.MMMd(
-        Localizations.localeOf(context).toString(),
-      ).format(date);
+      DateFormat.MMMd(Localizations.localeOf(context).toString()).format(date);
 }
 
 class _SummaryTile extends StatelessWidget {

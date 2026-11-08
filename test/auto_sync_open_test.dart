@@ -61,21 +61,24 @@ void main() {
     expect(sync.scopes, contains(SyncScope.month));
   });
 
-  test('does nothing offline from the session, and survives a failure', () async {
-    session.debugSetConnected(false);
-    await service.syncToday();
-    expect(sync.scopes, isEmpty);
+  test(
+    'does nothing offline from the session, and survives a failure',
+    () async {
+      session.debugSetConnected(false);
+      await service.syncToday();
+      expect(sync.scopes, isEmpty);
 
-    session.debugSetConnected(true);
-    sync.failWith = StateError('no network');
-    await service.syncToday();
-    expect(sync.scopes, [SyncScope.today]);
+      session.debugSetConnected(true);
+      sync.failWith = StateError('no network');
+      await service.syncToday();
+      expect(sync.scopes, [SyncScope.today]);
 
-    // The failure must not wedge later attempts.
-    sync.failWith = null;
-    await service.syncToday();
-    expect(sync.scopes, [SyncScope.today, SyncScope.today]);
-  });
+      // The failure must not wedge later attempts.
+      sync.failWith = null;
+      await service.syncToday();
+      expect(sync.scopes, [SyncScope.today, SyncScope.today]);
+    },
+  );
 
   test('a notification is sent so open screens reload', () async {
     var notified = 0;

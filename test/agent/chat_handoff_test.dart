@@ -13,31 +13,37 @@ import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/screens/chat/chat_screen.dart';
 
 void main() {
-  test('an attached session goes to the system context, not the message',
-      () async {
-    final model = _ScriptedChatModel([AIChatMessage.text('It was cut short.')]);
-    final agent = TrainingAgent(
-      settings: LlmSettings.forTesting(),
-      tools: TrainingDataTools(
-        syncStateRepository: _EmptySyncState(),
-        loadTrainingGuidance: () async => '# 1. Topic\n\nBody.\n',
+  test(
+    'an attached session goes to the system context, not the message',
+    () async {
+      final model = _ScriptedChatModel([
+        AIChatMessage.text('It was cut short.'),
+      ]);
+      final agent = TrainingAgent(
+        settings: LlmSettings.forTesting(),
+        tools: TrainingDataTools(
+          syncStateRepository: _EmptySyncState(),
+          loadTrainingGuidance: () async => '# 1. Topic\n\nBody.\n',
+          clock: () => DateTime(2026, 11, 3),
+        ),
         clock: () => DateTime(2026, 11, 3),
-      ),
-      clock: () => DateTime(2026, 11, 3),
-      chatModelFactory: (_, _) => model,
-    )..attachedContext = '{"verdict":"cutShort"}';
+        chatModelFactory: (_, _) => model,
+      )..attachedContext = '{"verdict":"cutShort"}';
 
-    await agent.send('Why?').toList();
+      await agent.send('Why?').toList();
 
-    final prompt = model.prompts.single;
-    final system = prompt.whereType<SystemChatMessage>().map((m) => m.content);
-    expect(system.any((c) => c.contains('{"verdict":"cutShort"}')), isTrue);
-    final human = prompt.whereType<HumanChatMessage>().single.contentAsString;
-    expect(human, 'Why?');
+      final prompt = model.prompts.single;
+      final system = prompt.whereType<SystemChatMessage>().map(
+        (m) => m.content,
+      );
+      expect(system.any((c) => c.contains('{"verdict":"cutShort"}')), isTrue);
+      final human = prompt.whereType<HumanChatMessage>().single.contentAsString;
+      expect(human, 'Why?');
 
-    agent.reset();
-    expect(agent.attachedContext, isNull);
-  });
+      agent.reset();
+      expect(agent.attachedContext, isNull);
+    },
+  );
 
   testWidgets('Chat shows the topic as a chip, not a message', (tester) async {
     SharedPreferences.setMockInitialValues({});

@@ -17,6 +17,7 @@ import '../../util/intervals_links.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/chart_options.dart';
+import '../../widgets/responsive.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/sync_status_chip.dart';
@@ -275,174 +276,180 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           // the charts below start on the first screen.
           const InsightsGrid(),
           const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.show_chart,
-            title: l10n.fitnessTrendTitle,
-            child: _loading
-                ? const _ChartPlaceholder()
-                : !hasFitness
-                ? _EmptyChart(
-                    message: _session.isConnected
-                        ? l10n.noDataCachedForRange
-                        : l10n.statsNotConnected,
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 190,
-                        child: MetricLineChart(
-                          series: series,
-                          labels: [
-                            for (final point in _fitness)
-                              DateFormat.MMMd(locale).format(point.date),
-                          ],
-                          labelEvery: (_fitness.length / 4).ceil(),
-                        ),
+          ResponsiveColumns(
+            children: [
+              SectionCard(
+                icon: Icons.show_chart,
+                title: l10n.fitnessTrendTitle,
+                child: _loading
+                    ? const _ChartPlaceholder()
+                    : !hasFitness
+                    ? _EmptyChart(
+                        message: _session.isConnected
+                            ? l10n.noDataCachedForRange
+                            : l10n.statsNotConnected,
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 190,
+                            child: MetricLineChart(
+                              series: series,
+                              labels: [
+                                for (final point in _fitness)
+                                  DateFormat.MMMd(locale).format(point.date),
+                              ],
+                              labelEvery: (_fitness.length / 4).ceil(),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ChartLegend(series: series),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      ChartLegend(series: series),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.bar_chart_outlined,
-            title: l10n.completedVsPlanned,
-            child: _loading
-                ? const _ChartPlaceholder()
-                : !hasWeeks
-                ? _EmptyChart(
-                    message: _session.isConnected
-                        ? l10n.noDataCachedForRange
-                        : l10n.statsNotConnected,
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _selectedWeek >= 0
-                            ? l10n.selectedWeekLoad(
-                                DateFormat.MMMd(
-                                  locale,
-                                ).format(_weeks[_selectedWeek].start),
-                                _weeks[_selectedWeek].completed,
-                                _weeks[_selectedWeek].planned,
-                              )
-                            : l10n.tapBarForWeek,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        height: 180,
-                        child: SimpleBarChart(
-                          bars: [
-                            for (final week in _weeks)
-                              ChartBar(
-                                label: DateFormat.Md(locale).format(week.start),
-                                value: week.completed.toDouble(),
-                                target: week.planned > 0
-                                    ? week.planned.toDouble()
-                                    : null,
-                                highlighted: week == _weeks.last,
+              ),
+              SectionCard(
+                icon: Icons.bar_chart_outlined,
+                title: l10n.completedVsPlanned,
+                child: _loading
+                    ? const _ChartPlaceholder()
+                    : !hasWeeks
+                    ? _EmptyChart(
+                        message: _session.isConnected
+                            ? l10n.noDataCachedForRange
+                            : l10n.statsNotConnected,
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _selectedWeek >= 0
+                                ? l10n.selectedWeekLoad(
+                                    DateFormat.MMMd(
+                                      locale,
+                                    ).format(_weeks[_selectedWeek].start),
+                                    _weeks[_selectedWeek].completed,
+                                    _weeks[_selectedWeek].planned,
+                                  )
+                                : l10n.tapBarForWeek,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 180,
+                            child: SimpleBarChart(
+                              bars: [
+                                for (final week in _weeks)
+                                  ChartBar(
+                                    label: DateFormat.Md(
+                                      locale,
+                                    ).format(week.start),
+                                    value: week.completed.toDouble(),
+                                    target: week.planned > 0
+                                        ? week.planned.toDouble()
+                                        : null,
+                                    highlighted: week == _weeks.last,
+                                  ),
+                              ],
+                              selectedIndex: _selectedWeek < 0
+                                  ? null
+                                  : _selectedWeek,
+                              onSelect: (index) =>
+                                  setState(() => _selectedWeek = index),
+                              labelEvery: (_weeks.length / 6).ceil().clamp(
+                                1,
+                                12,
                               ),
-                          ],
-                          selectedIndex: _selectedWeek < 0
-                              ? null
-                              : _selectedWeek,
-                          onSelect: (index) =>
-                              setState(() => _selectedWeek = index),
-                          labelEvery: (_weeks.length / 6).ceil().clamp(1, 12),
-                        ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.route_outlined,
-            title: l10n.volumeTitle,
-            child: Column(
-              children: [
-                Row(
+              ),
+              SectionCard(
+                icon: Icons.route_outlined,
+                title: l10n.volumeTitle,
+                child: Column(
                   children: [
-                    Expanded(
-                      child: StatTile(
-                        label: l10n.thisWeek,
-                        value: _week.distanceLabel,
-                        subtitle: _week.timeLabel,
-                        icon: Icons.calendar_view_week,
-                        color: colorScheme.primary,
-                        onLongPress: () => showOpenInIntervalsSheet(
-                          context,
-                          label: l10n.thisWeek,
-                          path: 'activities',
+                    Row(
+                      children: [
+                        Expanded(
+                          child: StatTile(
+                            label: l10n.thisWeek,
+                            value: _week.distanceLabel,
+                            subtitle: _week.timeLabel,
+                            icon: Icons.calendar_view_week,
+                            color: colorScheme.primary,
+                            onLongPress: () => showOpenInIntervalsSheet(
+                              context,
+                              label: l10n.thisWeek,
+                              path: 'activities',
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: StatTile(
-                        label: l10n.thisMonth,
-                        value: _month.distanceLabel,
-                        subtitle: _month.timeLabel,
-                        icon: Icons.calendar_view_month,
-                        color: colorScheme.tertiary,
-                        onLongPress: () => showOpenInIntervalsSheet(
-                          context,
-                          label: l10n.thisMonth,
-                          path: 'activities',
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: StatTile(
+                            label: l10n.thisMonth,
+                            value: _month.distanceLabel,
+                            subtitle: _month.timeLabel,
+                            icon: Icons.calendar_view_month,
+                            color: colorScheme.tertiary,
+                            onLongPress: () => showOpenInIntervalsSheet(
+                              context,
+                              label: l10n.thisMonth,
+                              path: 'activities',
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: StatTile(
-                        label: l10n.thisYear,
-                        value: _year.distanceLabel,
-                        subtitle: _year.timeLabel,
-                        icon: Icons.calendar_today_outlined,
-                        color: colorScheme.secondary,
-                        onLongPress: () => showOpenInIntervalsSheet(
-                          context,
-                          label: l10n.thisYear,
-                          path: 'activities',
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: StatTile(
+                            label: l10n.thisYear,
+                            value: _year.distanceLabel,
+                            subtitle: _year.timeLabel,
+                            icon: Icons.calendar_today_outlined,
+                            color: colorScheme.secondary,
+                            onLongPress: () => showOpenInIntervalsSheet(
+                              context,
+                              label: l10n.thisYear,
+                              path: 'activities',
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            icon: Icons.pie_chart_outline,
-            title: l10n.bySportTitle,
-            child: _sports.isEmpty
-                ? Text(
-                    _session.isConnected
-                        ? l10n.noDataCachedForRange
-                        : l10n.statsNotConnected,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  )
-                : Column(
-                    children: [
-                      for (final sport in _sports)
-                        _SportRow(
-                          totals: sport,
-                          // Share of time, not of load: load isn't
-                          // comparable across sports.
-                          shareOfTime: totalSeconds == 0
-                              ? 0
-                              : sport.seconds / totalSeconds,
+              ),
+              SectionCard(
+                icon: Icons.pie_chart_outline,
+                title: l10n.bySportTitle,
+                child: _sports.isEmpty
+                    ? Text(
+                        _session.isConnected
+                            ? l10n.noDataCachedForRange
+                            : l10n.statsNotConnected,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
-                    ],
-                  ),
+                      )
+                    : Column(
+                        children: [
+                          for (final sport in _sports)
+                            _SportRow(
+                              totals: sport,
+                              // Share of time, not of load: load isn't
+                              // comparable across sports.
+                              shareOfTime: totalSeconds == 0
+                                  ? 0
+                                  : sport.seconds / totalSeconds,
+                            ),
+                        ],
+                      ),
+              ),
+            ],
           ),
         ],
       ),

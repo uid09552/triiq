@@ -86,9 +86,7 @@ Future<void> showDayActions(
         openTrainNow(context, day);
       } else {
         await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => TrainNowScreen(today: () => day),
-          ),
+          MaterialPageRoute(builder: (_) => TrainNowScreen(today: () => day)),
         );
       }
     case 'delete':
@@ -118,7 +116,10 @@ Future<void> showDayActions(
                     key: ValueKey('event-kind-$c'),
                     leading: Icon(
                       eventCategoryIcon(c),
-                      color: eventCategoryColor(c, Theme.of(context).colorScheme),
+                      color: eventCategoryColor(
+                        c,
+                        Theme.of(context).colorScheme,
+                      ),
                     ),
                     title: Text(eventCategoryLabel(l10n, c)),
                     onTap: () => Navigator.of(context).pop(c),

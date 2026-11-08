@@ -157,21 +157,34 @@ class SessionEvaluator {
       final aLoad = plan.actualLoad;
 
       final cutShort =
-          pMin != null && aMin != null && pMin > 0 && aMin < pMin * cutShortRatio;
+          pMin != null &&
+          aMin != null &&
+          pMin > 0 &&
+          aMin < pMin * cutShortRatio;
       final overLoad =
-          pLoad != null && aLoad != null && pLoad > 0 && aLoad > pLoad * overLoadRatio;
+          pLoad != null &&
+          aLoad != null &&
+          pLoad > 0 &&
+          aLoad > pLoad * overLoadRatio;
       final underLoad =
-          pLoad != null && aLoad != null && pLoad > 0 && aLoad < pLoad * underLoadRatio;
-      final tooIntense = intent == SessionIntent.easy &&
+          pLoad != null &&
+          aLoad != null &&
+          pLoad > 0 &&
+          aLoad < pLoad * underLoadRatio;
+      final tooIntense =
+          intent == SessionIntent.easy &&
           hardShare != null &&
           hardShare > easyHardShareLimit;
-      final notIntense = intent == SessionIntent.hard &&
+      final notIntense =
+          intent == SessionIntent.hard &&
           hardShare != null &&
           hardShare < hardMinimumShare;
 
       if (cutShort) reasons.add(ShortReason(aMin, pMin));
-      if (tooIntense) reasons.add(TooIntenseReason(hardShare, easyHardShareLimit));
-      if (notIntense) reasons.add(NotIntenseReason(hardShare, hardMinimumShare));
+      if (tooIntense)
+        reasons.add(TooIntenseReason(hardShare, easyHardShareLimit));
+      if (notIntense)
+        reasons.add(NotIntenseReason(hardShare, hardMinimumShare));
       if (overLoad || (intent == SessionIntent.hard && underLoad)) {
         reasons.add(LoadReason(aLoad, pLoad));
       }
@@ -207,7 +220,14 @@ class SessionEvaluator {
     }
     final name = '${planned.name ?? ''} ${planned.description ?? ''}'
         .toLowerCase();
-    const hard = ['interval', 'threshold', 'vo2', 'tempo', 'sweet spot', 'race'];
+    const hard = [
+      'interval',
+      'threshold',
+      'vo2',
+      'tempo',
+      'sweet spot',
+      'race',
+    ];
     const easy = ['z2', 'zone 2', 'endurance', 'easy', 'recovery', 'aerobic'];
     if (hard.any(name.contains)) return SessionIntent.hard;
     if (easy.any(name.contains)) return SessionIntent.easy;

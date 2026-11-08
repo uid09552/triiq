@@ -10,7 +10,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'send_response.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,66 +19,30 @@ part 'send_response.g.dart';
 )
 class SendResponse {
   /// Returns a new [SendResponse] instance.
-  SendResponse({
+  SendResponse({this.id, this.message, this.newChat});
 
-     this.id,
-
-     this.message,
-
-     this.newChat,
-  });
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final int? id;
 
-
-
-  @JsonKey(
-    
-    name: r'message',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'message', required: false, includeIfNull: false)
   final Message? message;
 
-
-
-  @JsonKey(
-    
-    name: r'new_chat',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'new_chat', required: false, includeIfNull: false)
   final Chat? newChat;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SendResponse &&
+          other.id == id &&
+          other.message == message &&
+          other.newChat == newChat;
 
+  @override
+  int get hashCode => id.hashCode + message.hashCode + newChat.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is SendResponse &&
-      other.id == id &&
-      other.message == message &&
-      other.newChat == newChat;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        message.hashCode +
-        newChat.hashCode;
-
-  factory SendResponse.fromJson(Map<String, dynamic> json) => _$SendResponseFromJson(json);
+  factory SendResponse.fromJson(Map<String, dynamic> json) =>
+      _$SendResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$SendResponseToJson(this);
 
@@ -87,6 +50,4 @@ class SendResponse {
   String toString() {
     return toJson().toString();
   }
-
 }
-

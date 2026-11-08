@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'best_efforts.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,34 +18,21 @@ part 'best_efforts.g.dart';
 )
 class BestEfforts {
   /// Returns a new [BestEfforts] instance.
-  BestEfforts({
+  BestEfforts({this.efforts});
 
-     this.efforts,
-  });
-
-  @JsonKey(
-    
-    name: r'efforts',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'efforts', required: false, includeIfNull: false)
   final List<Effort>? efforts;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BestEfforts && other.efforts == efforts;
 
+  @override
+  int get hashCode => efforts.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is BestEfforts &&
-      other.efforts == efforts;
-
-    @override
-    int get hashCode =>
-        efforts.hashCode;
-
-  factory BestEfforts.fromJson(Map<String, dynamic> json) => _$BestEffortsFromJson(json);
+  factory BestEfforts.fromJson(Map<String, dynamic> json) =>
+      _$BestEffortsFromJson(json);
 
   Map<String, dynamic> toJson() => _$BestEffortsToJson(this);
 
@@ -54,6 +40,4 @@ class BestEfforts {
   String toString() {
     return toJson().toString();
   }
-
 }
-

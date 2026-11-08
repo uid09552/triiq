@@ -45,20 +45,23 @@ void main() {
   );
 
   Future<TrainingPlan> savePlan() {
-    final draft = PlanEngine(
-      TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
-    ).generate(
-      goal: const Goal(
-        targetType: 'long_distance',
-        weekdays: {2, 4, 6},
-        weeklyHours: 6,
-        baselineWeeklyLoad: 250,
-        weeks: 2,
-      ),
-      startDate: monday,
-      recentWeeklyLoads: null,
-      today: DateTime(2026, 10, 31),
-    ).plan!;
+    final draft =
+        PlanEngine(
+              TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
+            )
+            .generate(
+              goal: const Goal(
+                targetType: 'long_distance',
+                weekdays: {2, 4, 6},
+                weeklyHours: 6,
+                baselineWeeklyLoad: 250,
+                weeks: 2,
+              ),
+              startDate: monday,
+              recentWeeklyLoads: null,
+              today: DateTime(2026, 10, 31),
+            )
+            .plan!;
     return plans.save(draft.copyWith(status: PlanStatus.active));
   }
 
@@ -106,8 +109,15 @@ void main() {
 
     final items = await repo().getRange(isoDate(monday), weekEnd);
 
-    expect(items.where((e) => e.name == sent.name && e.date == isoDate(sent.date)
-        && e.isPlanSession), isEmpty);
+    expect(
+      items.where(
+        (e) =>
+            e.name == sent.name &&
+            e.date == isoDate(sent.date) &&
+            e.isPlanSession,
+      ),
+      isEmpty,
+    );
     expect(items.where((e) => e.id == '501'), hasLength(1));
     expect(items.firstWhere((e) => e.id == '501').date, moved);
     expect(items, hasLength(plan.weeks[0].sessions.length));
@@ -128,7 +138,10 @@ void main() {
 
     copy = true;
     expect(
-      (await repo().getRange(isoDate(monday), weekEnd)).any((e) => e.id == '900'),
+      (await repo().getRange(
+        isoDate(monday),
+        weekEnd,
+      )).any((e) => e.id == '900'),
       isTrue,
     );
   });

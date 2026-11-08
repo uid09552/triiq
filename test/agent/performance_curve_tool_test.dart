@@ -13,8 +13,10 @@ class _FakeCurves implements PerformanceCurvesRepository {
   int loads = 0;
 
   @override
-  Future<PerformanceCurves?> cached(CurveSport sport, CurveMetric metric) async =>
-      hasCache ? PerformanceCurves.fromJson(sport, metric, json) : null;
+  Future<PerformanceCurves?> cached(
+    CurveSport sport,
+    CurveMetric metric,
+  ) async => hasCache ? PerformanceCurves.fromJson(sport, metric, json) : null;
 
   @override
   Future<bool> isStale(CurveSport sport, CurveMetric metric) async => false;
@@ -52,7 +54,11 @@ void main() {
       },
     ],
     'activities': {
-      'i3': {'id': 'i3', 'start_date_local': '2026-10-12T07:00:00', 'name': 'VO2'},
+      'i3': {
+        'id': 'i3',
+        'start_date_local': '2026-10-12T07:00:00',
+        'name': 'VO2',
+      },
     },
   };
 
@@ -97,8 +103,9 @@ void main() {
       }),
     );
     final result = await call(tools, {'sport': 'Run', 'metric': 'pace'});
-    final point = ((result['periods'] as List).first['key_points'] as List)
-        .first as Map<String, dynamic>;
+    final point =
+        ((result['periods'] as List).first['key_points'] as List).first
+            as Map<String, dynamic>;
     expect(point['distance_m'], 1000);
     expect(point['time_s'], 210);
     expect(point['pace'], '3:30');
@@ -106,18 +113,18 @@ void main() {
 
   test('falls back to the cache when a fetch fails', () async {
     final repo = _FakeCurves(ride)..fail = true;
-    final result = await call(
-      TrainingDataTools(performanceCurves: repo),
-      {'sport': 'Ride', 'metric': 'power'},
-    );
+    final result = await call(TrainingDataTools(performanceCurves: repo), {
+      'sport': 'Ride',
+      'metric': 'power',
+    });
     expect(result['note'], contains('cached'));
     expect(result['periods'], isNotEmpty);
 
     repo.hasCache = false;
-    final none = await call(
-      TrainingDataTools(performanceCurves: repo),
-      {'sport': 'Ride', 'metric': 'power'},
-    );
+    final none = await call(TrainingDataTools(performanceCurves: repo), {
+      'sport': 'Ride',
+      'metric': 'power',
+    });
     expect(none['error'], contains('Could not fetch'));
   });
 

@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'forecast.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,129 +18,66 @@ part 'forecast.g.dart';
 class Forecast {
   /// Returns a new [Forecast] instance.
   Forecast({
+    this.id,
 
-     this.id,
+    this.provider,
 
-     this.provider,
+    this.location,
 
-     this.location,
+    this.label,
 
-     this.label,
+    this.lat,
 
-     this.lat,
+    this.lon,
 
-     this.lon,
-
-     this.enabled,
+    this.enabled,
   });
 
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final int? id;
 
-
-
-  @JsonKey(
-    
-    name: r'provider',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'provider', required: false, includeIfNull: false)
   final ForecastProviderEnum? provider;
 
-
-
-  @JsonKey(
-    
-    name: r'location',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'location', required: false, includeIfNull: false)
   final String? location;
 
-
-
-  @JsonKey(
-    
-    name: r'label',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'label', required: false, includeIfNull: false)
   final String? label;
 
-
-
-  @JsonKey(
-    
-    name: r'lat',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'lat', required: false, includeIfNull: false)
   final double? lat;
 
-
-
-  @JsonKey(
-    
-    name: r'lon',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'lon', required: false, includeIfNull: false)
   final double? lon;
 
-
-
-  @JsonKey(
-    
-    name: r'enabled',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'enabled', required: false, includeIfNull: false)
   final bool? enabled;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Forecast &&
+          other.id == id &&
+          other.provider == provider &&
+          other.location == location &&
+          other.label == label &&
+          other.lat == lat &&
+          other.lon == lon &&
+          other.enabled == enabled;
 
+  @override
+  int get hashCode =>
+      id.hashCode +
+      provider.hashCode +
+      location.hashCode +
+      label.hashCode +
+      lat.hashCode +
+      lon.hashCode +
+      enabled.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Forecast &&
-      other.id == id &&
-      other.provider == provider &&
-      other.location == location &&
-      other.label == label &&
-      other.lat == lat &&
-      other.lon == lon &&
-      other.enabled == enabled;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        provider.hashCode +
-        location.hashCode +
-        label.hashCode +
-        lat.hashCode +
-        lon.hashCode +
-        enabled.hashCode;
-
-  factory Forecast.fromJson(Map<String, dynamic> json) => _$ForecastFromJson(json);
+  factory Forecast.fromJson(Map<String, dynamic> json) =>
+      _$ForecastFromJson(json);
 
   Map<String, dynamic> toJson() => _$ForecastToJson(this);
 
@@ -149,19 +85,16 @@ class Forecast {
   String toString() {
     return toJson().toString();
   }
-
 }
 
 enum ForecastProviderEnum {
-@JsonValue(r'OPEN_WEATHER')
-OPEN_WEATHER(r'OPEN_WEATHER');
+  @JsonValue(r'OPEN_WEATHER')
+  OPEN_WEATHER(r'OPEN_WEATHER');
 
-const ForecastProviderEnum(this.value);
+  const ForecastProviderEnum(this.value);
 
-final String value;
+  final String value;
 
-@override
-String toString() => value;
+  @override
+  String toString() => value;
 }
-
-

@@ -79,28 +79,31 @@ void main() {
       _act('2026-10-29', 'Run', 40),
     ];
 
-    test('daily: sums activity metrics, zero on rest days, filters by sport', () {
-      final all = buildAnalysisSeries(
-        from: DateTime(2026, 10, 26),
-        to: DateTime(2026, 10, 30),
-        wellness: [_well('2026-10-27', 50, 60)],
-        activities: activities,
-      );
-      expect(all.length, 5);
-      expect(all.values[AnalysisMetric.tss], [130, 0, 0, 40, 0]);
-      expect(all.values[AnalysisMetric.form]![1], -10);
-      expect(all.values[AnalysisMetric.form]![0], isNull);
-      expect(all.values[AnalysisMetric.hrv]![1], 60);
+    test(
+      'daily: sums activity metrics, zero on rest days, filters by sport',
+      () {
+        final all = buildAnalysisSeries(
+          from: DateTime(2026, 10, 26),
+          to: DateTime(2026, 10, 30),
+          wellness: [_well('2026-10-27', 50, 60)],
+          activities: activities,
+        );
+        expect(all.length, 5);
+        expect(all.values[AnalysisMetric.tss], [130, 0, 0, 40, 0]);
+        expect(all.values[AnalysisMetric.form]![1], -10);
+        expect(all.values[AnalysisMetric.form]![0], isNull);
+        expect(all.values[AnalysisMetric.hrv]![1], 60);
 
-      final run = buildAnalysisSeries(
-        from: DateTime(2026, 10, 26),
-        to: DateTime(2026, 10, 30),
-        wellness: const [],
-        activities: activities,
-        sport: 'run',
-      );
-      expect(run.values[AnalysisMetric.tss], [50, 0, 0, 40, 0]);
-    });
+        final run = buildAnalysisSeries(
+          from: DateTime(2026, 10, 26),
+          to: DateTime(2026, 10, 30),
+          wellness: const [],
+          activities: activities,
+          sport: 'run',
+        );
+        expect(run.values[AnalysisMetric.tss], [50, 0, 0, 40, 0]);
+      },
+    );
 
     test('weekly buckets start on Monday and sum', () {
       final weekly = buildAnalysisSeries(

@@ -50,7 +50,8 @@ class ActivityRoute {
         hi = mid;
       }
     }
-    if (lo > 0 && (seconds - times[lo - 1]).abs() <= (times[lo] - seconds).abs()) {
+    if (lo > 0 &&
+        (seconds - times[lo - 1]).abs() <= (times[lo] - seconds).abs()) {
       lo--;
     }
     return points[lo];
@@ -69,7 +70,8 @@ class ActivityRoute {
     final time = (j['time'] as List? ?? const []).cast<num>();
     return ActivityRoute(
       [
-        for (var i = 0; i < n; i++) RoutePoint(lat[i].toDouble(), lng[i].toDouble()),
+        for (var i = 0; i < n; i++)
+          RoutePoint(lat[i].toDouble(), lng[i].toDouble()),
       ],
       times: time.length == n ? [for (final t in time) t.toDouble()] : const [],
       timesKnown: j.containsKey('time'),
@@ -108,10 +110,9 @@ class ActivityRoute {
     }
     final step = (valid.length - 1) / (maxPoints - 1);
     final picks = [for (var i = 0; i < maxPoints; i++) (i * step).round()];
-    return ActivityRoute(
-      [for (final i in picks) valid[i]],
-      times: withTime ? [for (final i in picks) validTimes[i]] : const [],
-    );
+    return ActivityRoute([
+      for (final i in picks) valid[i],
+    ], times: withTime ? [for (final i in picks) validTimes[i]] : const []);
   }
 }
 

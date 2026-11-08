@@ -13,17 +13,16 @@ import 'package:triiq/client/intervalls/src/model/upload_wellness_request.dart';
 import 'package:triiq/client/intervalls/src/model/wellness.dart';
 
 class WellnessApi {
-
   final Dio _dio;
 
   const WellnessApi(this._dio);
 
   /// Get wellness record for date (local ISO-8601 day)
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [date] 
+  /// * [id]
+  /// * [date]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -33,7 +32,7 @@ class WellnessApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Wellness] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Wellness>> getRecord({ 
+  Future<Response<Wellness>> getRecord({
     required String id,
     required String date,
     CancelToken? cancelToken,
@@ -43,23 +42,26 @@ class WellnessApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/wellness/{date}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'date' '}', date.toString());
+    final _path = r'/api/v1/athlete/{id}/wellness/{date}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'date'
+          '}',
+          date.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -77,9 +79,14 @@ class WellnessApi {
     Wellness? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData, 'Wellness', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Wellness, Wellness>(
+              rawData,
+              'Wellness',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -103,11 +110,11 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   }
 
   /// List wellness records for date range (use .csv for CSV format)
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ext] 
+  /// * [id]
+  /// * [ext]
   /// * [oldest] - Local date of oldest record (ISO-8601)
   /// * [newest] - Local date of newest record (ISO-8601), inclusive
   /// * [cols] - Comma separated list of column names to include in CSV (default is all)
@@ -121,7 +128,7 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   ///
   /// Returns a [Future] containing a [Response] with a [List<Wellness>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Wellness>>> listWellnessRecords({ 
+  Future<Response<List<Wellness>>> listWellnessRecords({
     required String id,
     required String ext,
     String? oldest,
@@ -135,23 +142,26 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/wellness{ext}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'ext' '}', ext.toString());
+    final _path = r'/api/v1/athlete/{id}/wellness{ext}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'ext'
+          '}',
+          ext.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -177,9 +187,14 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     List<Wellness>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Wellness>, Wellness>(rawData, 'List<Wellness>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Wellness>, Wellness>(
+              rawData,
+              'List<Wellness>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -206,9 +221,9 @@ _responseData = rawData == null ? null : deserialize<List<Wellness>, Wellness>(r
   /// Only fields provided are changed
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [date] 
-  /// * [wellness] 
+  /// * [id]
+  /// * [date]
+  /// * [wellness]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -218,7 +233,7 @@ _responseData = rawData == null ? null : deserialize<List<Wellness>, Wellness>(r
   ///
   /// Returns a [Future] containing a [Response] with a [Wellness] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Wellness>> updateWellness({ 
+  Future<Response<Wellness>> updateWellness({
     required String id,
     required String date,
     required Wellness wellness,
@@ -229,23 +244,26 @@ _responseData = rawData == null ? null : deserialize<List<Wellness>, Wellness>(r
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/wellness/{date}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'date' '}', date.toString());
+    final _path = r'/api/v1/athlete/{id}/wellness/{date}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'date'
+          '}',
+          date.toString(),
+        );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -257,13 +275,9 @@ _responseData = rawData == null ? null : deserialize<List<Wellness>, Wellness>(r
 
     try {
       _bodyData = jsonEncode(wellness);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -282,9 +296,14 @@ _responseData = rawData == null ? null : deserialize<List<Wellness>, Wellness>(r
     Wellness? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData, 'Wellness', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Wellness, Wellness>(
+              rawData,
+              'Wellness',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -311,8 +330,8 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   /// Only fields provided are changed
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [wellness] 
+  /// * [id]
+  /// * [wellness]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -322,7 +341,7 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   ///
   /// Returns a [Future] containing a [Response] with a [Wellness] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Wellness>> updateWellness1({ 
+  Future<Response<Wellness>> updateWellness1({
     required String id,
     required Wellness wellness,
     CancelToken? cancelToken,
@@ -332,23 +351,19 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/wellness'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/wellness'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -360,13 +375,9 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
 
     try {
       _bodyData = jsonEncode(wellness);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -385,9 +396,14 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     Wellness? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData, 'Wellness', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Wellness, Wellness>(
+              rawData,
+              'Wellness',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -414,8 +430,8 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   /// The id of each record is the day (ISO-8601). Only fields provided are changed
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [wellness] 
+  /// * [id]
+  /// * [wellness]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -425,7 +441,7 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> updateWellnessBulk({ 
+  Future<Response<void>> updateWellnessBulk({
     required String id,
     required List<Wellness> wellness,
     CancelToken? cancelToken,
@@ -435,23 +451,19 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/wellness-bulk'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/wellness-bulk'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -463,13 +475,9 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
 
     try {
       _bodyData = jsonEncode(wellness);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -489,12 +497,12 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   }
 
   /// Upload wellness records in CSV format as multipart/form-data
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [ignoreMissingFields] 
-  /// * [uploadWellnessRequest] 
+  /// * [id]
+  /// * [ignoreMissingFields]
+  /// * [uploadWellnessRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -504,7 +512,7 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
   ///
   /// Returns a [Future] containing a [Response] with a [Object] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Object>> uploadWellness({ 
+  Future<Response<Object>> uploadWellness({
     required String id,
     bool? ignoreMissingFields = false,
     UploadWellnessRequest? uploadWellnessRequest,
@@ -515,23 +523,19 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/wellness'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/wellness'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -540,17 +544,17 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     );
 
     final _queryParameters = <String, dynamic>{
-      if (ignoreMissingFields != null) r'ignoreMissingFields': ignoreMissingFields,
+      if (ignoreMissingFields != null)
+        r'ignoreMissingFields': ignoreMissingFields,
     };
 
     dynamic _bodyData;
 
     try {
       _bodyData = jsonEncode(uploadWellnessRequest);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
           queryParameters: _queryParameters,
@@ -574,9 +578,10 @@ _responseData = rawData == null ? null : deserialize<Wellness, Wellness>(rawData
     Object? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'Object', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Object, Object>(rawData, 'Object', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -598,5 +603,4 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
       extra: _response.extra,
     );
   }
-
 }

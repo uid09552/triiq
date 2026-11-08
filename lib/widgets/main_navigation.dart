@@ -24,7 +24,10 @@ class MainNavigation extends ChangeNotifier {
 
   void openCalendar(DateTime date) {
     _requestedTab = calendarTab;
-    calendarFocus = (date: DateTime(date.year, date.month, date.day), seq: ++_seq);
+    calendarFocus = (
+      date: DateTime(date.year, date.month, date.day),
+      seq: ++_seq,
+    );
     notifyListeners();
   }
 

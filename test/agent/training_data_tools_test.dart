@@ -92,10 +92,7 @@ void main() {
     // every zone calculation off.
     expect(ride['ftp'], 262);
     expect(ride['as_of'], '2026-08-20');
-    expect(
-      thresholds.firstWhere((t) => t['sport'] == 'Run')['lthr'],
-      168,
-    );
+    expect(thresholds.firstWhere((t) => t['sport'] == 'Run')['lthr'], 168);
   });
 
   test('get_daily_metrics derives TSB and keeps the wellness fields', () async {
@@ -119,16 +116,18 @@ void main() {
     expect(days.last.containsKey('weight_kg'), isFalse);
   });
 
-  test('get_daily_metrics refuses a range longer than it will return',
-      () async {
-    final result = await call('get_daily_metrics', {
-      'start_date': '2020-01-01',
-      'end_date': '2026-08-30',
-    });
+  test(
+    'get_daily_metrics refuses a range longer than it will return',
+    () async {
+      final result = await call('get_daily_metrics', {
+        'start_date': '2020-01-01',
+        'end_date': '2026-08-30',
+      });
 
-    expect(result['error'], contains('shorter range'));
-    expect(result.containsKey('days'), isFalse);
-  });
+      expect(result['error'], contains('shorter range'));
+      expect(result.containsKey('days'), isFalse);
+    },
+  );
 
   test('get_activities filters by sport and truncates newest-first', () async {
     await activitiesRepository.upsertAll([
@@ -158,89 +157,95 @@ void main() {
     expect(activities.first['training_load'], 50);
   });
 
-  test('get_training_summary buckets by week with an intensity split',
-      () async {
-    await activitiesRepository.upsertAll([
-      // Previous week.
-      _activity(
-        id: 'w1',
-        date: '2026-08-19',
-        sport: 'Ride',
-        load: 80,
-        movingTime: 3600,
-        zoneSeconds: [1800, 1200, 300, 200, 100, 0, 0],
-      ),
-      // Current week: one ride with zone data, one run without.
-      _activity(
-        id: 'w2',
-        date: '2026-08-25',
-        sport: 'Ride',
-        load: 120,
-        movingTime: 7200,
-        zoneSeconds: [4000, 2000, 600, 400, 200, 0, 0],
-      ),
-      _activity(
-        id: 'w3',
-        date: '2026-08-27',
-        sport: 'Run',
-        load: 60,
-        movingTime: 2700,
-      ),
-    ]);
-    await eventsRepository.replaceRange('2026-08-24', '2026-08-30', [
-      _event(id: 'e1', date: '2026-08-25', plannedLoad: 130),
-      _event(id: 'e2', date: '2026-08-26', category: 'NOTE', plannedLoad: 999),
-    ]);
-    await wellnessRepository.upsertAll([
-      _wellness(date: '2026-08-24', ctl: 60, atl: 55),
-      _wellness(date: '2026-08-30', ctl: 64, atl: 72),
-    ]);
+  test(
+    'get_training_summary buckets by week with an intensity split',
+    () async {
+      await activitiesRepository.upsertAll([
+        // Previous week.
+        _activity(
+          id: 'w1',
+          date: '2026-08-19',
+          sport: 'Ride',
+          load: 80,
+          movingTime: 3600,
+          zoneSeconds: [1800, 1200, 300, 200, 100, 0, 0],
+        ),
+        // Current week: one ride with zone data, one run without.
+        _activity(
+          id: 'w2',
+          date: '2026-08-25',
+          sport: 'Ride',
+          load: 120,
+          movingTime: 7200,
+          zoneSeconds: [4000, 2000, 600, 400, 200, 0, 0],
+        ),
+        _activity(
+          id: 'w3',
+          date: '2026-08-27',
+          sport: 'Run',
+          load: 60,
+          movingTime: 2700,
+        ),
+      ]);
+      await eventsRepository.replaceRange('2026-08-24', '2026-08-30', [
+        _event(id: 'e1', date: '2026-08-25', plannedLoad: 130),
+        _event(
+          id: 'e2',
+          date: '2026-08-26',
+          category: 'NOTE',
+          plannedLoad: 999,
+        ),
+      ]);
+      await wellnessRepository.upsertAll([
+        _wellness(date: '2026-08-24', ctl: 60, atl: 55),
+        _wellness(date: '2026-08-30', ctl: 64, atl: 72),
+      ]);
 
-    final result = await call('get_training_summary', {
-      'start_date': '2026-08-17',
-      'end_date': '2026-08-30',
-    });
+      final result = await call('get_training_summary', {
+        'start_date': '2026-08-17',
+        'end_date': '2026-08-30',
+      });
 
-    final buckets = (result['buckets'] as List).cast<Map<String, dynamic>>();
-    expect(buckets.map((b) => b['start_date']), ['2026-08-17', '2026-08-24']);
+      final buckets = (result['buckets'] as List).cast<Map<String, dynamic>>();
+      expect(buckets.map((b) => b['start_date']), ['2026-08-17', '2026-08-24']);
 
-    final thisWeek = buckets.last;
-    expect(thisWeek['completed_load'], 180);
-    // The NOTE is not training, so its load must not land in the plan.
-    expect(thisWeek['planned_load'], 130);
-    expect(thisWeek['sessions'], 2);
-    expect(thisWeek['by_sport'], {
-      'Ride': {
-        'sessions': 1,
-        'load': 120,
-        'moving_time_s': 7200,
-        'distance_m': 0,
-      },
-      'Run': {
-        'sessions': 1,
-        'load': 60,
-        'moving_time_s': 2700,
-        'distance_m': 0,
-      },
-    });
+      final thisWeek = buckets.last;
+      expect(thisWeek['completed_load'], 180);
+      // The NOTE is not training, so its load must not land in the plan.
+      expect(thisWeek['planned_load'], 130);
+      expect(thisWeek['sessions'], 2);
+      expect(thisWeek['by_sport'], {
+        'Ride': {
+          'sessions': 1,
+          'load': 120,
+          'moving_time_s': 7200,
+          'distance_m': 0,
+        },
+        'Run': {
+          'sessions': 1,
+          'load': 60,
+          'moving_time_s': 2700,
+          'distance_m': 0,
+        },
+      });
 
-    final intensity = thisWeek['intensity_s'] as Map<String, dynamic>;
-    expect(intensity['low'], 6000);
-    expect(intensity['moderate'], 1000);
-    expect(intensity['high'], 200);
-    expect(intensity['low_percent'], 83);
-    // The run had no zone times; the count says so rather than the split
-    // quietly pretending the run never happened.
-    expect(intensity['sessions_without_zone_data'], 1);
+      final intensity = thisWeek['intensity_s'] as Map<String, dynamic>;
+      expect(intensity['low'], 6000);
+      expect(intensity['moderate'], 1000);
+      expect(intensity['high'], 200);
+      expect(intensity['low_percent'], 83);
+      // The run had no zone times; the count says so rather than the split
+      // quietly pretending the run never happened.
+      expect(intensity['sessions_without_zone_data'], 1);
 
-    expect(thisWeek['ctl_end'], 64);
-    expect(thisWeek['tsb_end'], -8);
-    expect(thisWeek['ctl_change'], 4);
-    expect(result['totals'], containsPair('completed_load', 260));
-  });
+      expect(thisWeek['ctl_end'], 64);
+      expect(thisWeek['tsb_end'], -8);
+      expect(thisWeek['ctl_change'], 4);
+      expect(result['totals'], containsPair('completed_load', 260));
+    },
+  );
 
-  test('get_training_summary flags a range with no zone data at all',
-      () async {
+  test('get_training_summary flags a range with no zone data at all', () async {
     await activitiesRepository.upsertAll([
       _activity(id: 'manual', date: '2026-08-25', sport: 'Swim', load: 40),
     ]);
@@ -262,10 +267,10 @@ void main() {
         .cast<Map<String, dynamic>>();
     expect(documents, hasLength(1));
     expect(documents.single['document'], 'Training reference');
-    expect(
-      (documents.single['sections'] as List).cast<String>(),
-      ['1. The 80/20 Principle', '2. Recovery Weeks'],
-    );
+    expect((documents.single['sections'] as List).cast<String>(), [
+      '1. The 80/20 Principle',
+      '2. Recovery Weeks',
+    ]);
 
     final match = await call('get_training_guidance', {
       'topic': 'recovery week',
@@ -276,28 +281,29 @@ void main() {
     expect(matches.first['document'], 'Training reference');
   });
 
-  test('get_training_guidance merges an imported document into the search',
-      () async {
-    await knowledgeLibrary.import(
-      fileName: 'swim-css.md',
-      bytes: utf8.encode(
-        '# Threshold swim sets\n\n'
-        'Short, repeated efforts at threshold swim pace with equal rest.\n',
-      ),
-    );
+  test(
+    'get_training_guidance merges an imported document into the search',
+    () async {
+      await knowledgeLibrary.import(
+        fileName: 'swim-css.md',
+        bytes: utf8.encode(
+          '# Threshold swim sets\n\n'
+          'Short, repeated efforts at threshold swim pace with equal rest.\n',
+        ),
+      );
 
-    final match = await call('get_training_guidance', {
-      'topic': 'threshold swim sets',
-    });
-    final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
+      final match = await call('get_training_guidance', {
+        'topic': 'threshold swim sets',
+      });
+      final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
 
-    expect(matches, isNotEmpty);
-    expect(matches.first['title'], 'Threshold swim sets');
-    expect(matches.first['document'], 'Threshold swim sets');
-  });
+      expect(matches, isNotEmpty);
+      expect(matches.first['title'], 'Threshold swim sets');
+      expect(matches.first['document'], 'Threshold swim sets');
+    },
+  );
 
-  test('get_training_guidance excludes a disabled imported document',
-      () async {
+  test('get_training_guidance excludes a disabled imported document', () async {
     final imported = await knowledgeLibrary.import(
       fileName: 'swim-css.md',
       bytes: utf8.encode('# Threshold swim sets\n\nBody.\n'),
@@ -328,60 +334,54 @@ void main() {
     expect(matches.first['title'], 'Erholungswoche');
   });
 
-  test(
-    'get_training_guidance returns more_matches beyond the top 3',
-    () async {
-      for (var i = 1; i <= 5; i++) {
-        await knowledgeLibrary.import(
-          fileName: 'doc-$i.md',
-          bytes: utf8.encode('# Recovery topic $i\n\nAbout recovery.\n'),
-        );
-      }
-
-      final match = await call('get_training_guidance', {
-        'topic': 'recovery',
-      });
-      final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
-      final more = (match['more_matches'] as List).cast<Map<String, dynamic>>();
-
-      expect(matches, hasLength(3));
-      expect(more, isNotEmpty);
-    },
-  );
-
-  test(
-    'get_training_guidance reports nothing available with no bundled or '
-    'imported reference',
-    () async {
-      final empty = TrainingDataTools(
-        wellnessRepository: wellnessRepository,
-        activitiesRepository: activitiesRepository,
-        eventsRepository: eventsRepository,
-        plansRepository: PlansRepository(database: database),
-        syncStateRepository: syncStateRepository,
-        clock: () => now,
-        loadTrainingGuidance: () async => throw StateError('no asset'),
-        knowledgeLibraryRepository: knowledgeLibrary,
+  test('get_training_guidance returns more_matches beyond the top 3', () async {
+    for (var i = 1; i <= 5; i++) {
+      await knowledgeLibrary.import(
+        fileName: 'doc-$i.md',
+        bytes: utf8.encode('# Recovery topic $i\n\nAbout recovery.\n'),
       );
-      final tool = empty.build().firstWhere(
-        (t) => t.name == 'get_training_guidance',
-      );
-      final output = await tool.invoke(tool.getInputFromJson(const {}));
-      final result = jsonDecode(output as String) as Map<String, dynamic>;
+    }
 
-      expect(result['error'], contains('More'));
-    },
-  );
+    final match = await call('get_training_guidance', {'topic': 'recovery'});
+    final matches = (match['matches'] as List).cast<Map<String, dynamic>>();
+    final more = (match['more_matches'] as List).cast<Map<String, dynamic>>();
 
-  test('a malformed date comes back as a readable error, not an exception',
-      () async {
-    final result = await call('get_activities', {
-      'start_date': 'last monday',
-      'end_date': '2026-08-30',
-    });
-
-    expect(result['error'], contains('YYYY-MM-DD'));
+    expect(matches, hasLength(3));
+    expect(more, isNotEmpty);
   });
+
+  test('get_training_guidance reports nothing available with no bundled or '
+      'imported reference', () async {
+    final empty = TrainingDataTools(
+      wellnessRepository: wellnessRepository,
+      activitiesRepository: activitiesRepository,
+      eventsRepository: eventsRepository,
+      plansRepository: PlansRepository(database: database),
+      syncStateRepository: syncStateRepository,
+      clock: () => now,
+      loadTrainingGuidance: () async => throw StateError('no asset'),
+      knowledgeLibraryRepository: knowledgeLibrary,
+    );
+    final tool = empty.build().firstWhere(
+      (t) => t.name == 'get_training_guidance',
+    );
+    final output = await tool.invoke(tool.getInputFromJson(const {}));
+    final result = jsonDecode(output as String) as Map<String, dynamic>;
+
+    expect(result['error'], contains('More'));
+  });
+
+  test(
+    'a malformed date comes back as a readable error, not an exception',
+    () async {
+      final result = await call('get_activities', {
+        'start_date': 'last monday',
+        'end_date': '2026-08-30',
+      });
+
+      expect(result['error'], contains('YYYY-MM-DD'));
+    },
+  );
 
   test('sync_from_intervals refuses to run while disconnected', () async {
     final result = await call('sync_from_intervals', {

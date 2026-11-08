@@ -52,10 +52,8 @@ class SeasonSnapshot {
   ForecastDay? onRaceDay(SeasonRace race) => forecastOn(forecast, race.date);
 }
 
-typedef PlannedLoader = Future<List<LocalEvent>> Function(
-  String oldest,
-  String newest,
-);
+typedef PlannedLoader =
+    Future<List<LocalEvent>> Function(String oldest, String newest);
 
 /// Reads the cache and runs the season / forecast / illness rules.
 class SeasonService {
@@ -87,7 +85,8 @@ class SeasonService {
     );
     LocalWellness? last;
     for (final w in wellness) {
-      if (w.ctl != null && w.atl != null &&
+      if (w.ctl != null &&
+          w.atl != null &&
           (last == null || w.date.compareTo(last.date) > 0)) {
         last = w;
       }
@@ -110,9 +109,14 @@ class SeasonService {
         // with a duration but no load counts as easy aerobic work.
         final secs = e.plannedTime ?? 0;
         final load =
-            e.plannedLoad ?? (secs > 0 ? (secs / 3600 * easyLoadPerHour).round() : null);
+            e.plannedLoad ??
+            (secs > 0 ? (secs / 3600 * easyLoadPerHour).round() : null);
         if (load != null) {
-          loadByDate.update(e.date, (v) => v + load, ifAbsent: () => load.toDouble());
+          loadByDate.update(
+            e.date,
+            (v) => v + load,
+            ifAbsent: () => load.toDouble(),
+          );
           if (planEnd == null || day.isAfter(planEnd)) planEnd = dateOnly(day);
         }
       }
@@ -121,14 +125,18 @@ class SeasonService {
     final races = <SeasonRace>[];
     for (final e in events) {
       final r = raceFromEvent(
-        category: e.category, date: e.date, name: e.name, type: e.type,
+        category: e.category,
+        date: e.date,
+        name: e.name,
+        type: e.type,
       );
       if (r != null) races.add(r);
     }
     try {
       final goal = await _goals.load();
       final d = goal?.eventDate;
-      if (d != null && !dateOnly(d).isBefore(today) &&
+      if (d != null &&
+          !dateOnly(d).isBefore(today) &&
           !races.any((r) => isoDate(r.date) == isoDate(d))) {
         races.add(
           SeasonRace(
@@ -151,7 +159,8 @@ class SeasonService {
           if (DateTime.tryParse(e.date) case final s?)
             (
               start: dateOnly(s),
-              end: DateTime.tryParse(e.raw['end_date_local'] as String? ?? '') ??
+              end:
+                  DateTime.tryParse(e.raw['end_date_local'] as String? ?? '') ??
                   today,
             ),
     ];
@@ -180,10 +189,10 @@ class SeasonService {
       forecast: forecast,
       races: races,
       blocks: buildSeason(races, today),
-      conflicts: findConflicts(
-        [for (final r in races) if (!r.date.isBefore(today)) r],
-        illness: windows,
-      ),
+      conflicts: findConflicts([
+        for (final r in races)
+          if (!r.date.isBefore(today)) r,
+      ], illness: windows),
       health: health,
       healthChanges: health == null
           ? const []
@@ -258,8 +267,7 @@ class RaceInputsLoader {
       swimBests: bests(swim),
       powerCurve: [
         if (powerPeriod != null)
-          for (final p in _merge(power))
-            (seconds: p.x, watts: p.value),
+          for (final p in _merge(power)) (seconds: p.x, watts: p.value),
       ],
       ftp: ftp,
       ctl: snapshot.startCtl,

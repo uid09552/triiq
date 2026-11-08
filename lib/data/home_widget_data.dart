@@ -66,15 +66,12 @@ class HomeWidgetData {
 
   /// The widget's storage entries.
   Map<String, String> toEntries() => {
-    for (final sport in const ['swim', 'cycle', 'run'])
-      ..._ringEntries(sport),
+    for (final sport in const ['swim', 'cycle', 'run']) ..._ringEntries(sport),
     'w_session1': sessions.isNotEmpty ? sessions[0] : '',
     'w_session2': sessions.length > 1 ? sessions[1] : '',
     'w_extra': extra > 0 ? '+$extra' : '',
     'w_done': doneLoad > 0 ? '$doneLoad TSS' : '',
-    'w_form': form == null
-        ? ''
-        : '${form! >= 0 ? '+' : ''}${form!.round()}',
+    'w_form': form == null ? '' : '${form! >= 0 ? '+' : ''}${form!.round()}',
     'w_fitness': ctl == null || atl == null
         ? ''
         : 'CTL ${ctl!.round()} · ATL ${atl!.round()}',
@@ -98,7 +95,8 @@ class WidgetRing {
   final double doneHours;
 
   /// Whole percent of the target, not capped (the widget caps the ring).
-  int get percent => targetHours <= 0 ? 0 : (doneHours / targetHours * 100).round();
+  int get percent =>
+      targetHours <= 0 ? 0 : (doneHours / targetHours * 100).round();
 }
 
 /// The rings for the sports that have a weekly target: [targets] maps

@@ -137,8 +137,7 @@ class _WeekActivitiesSheetState extends State<_WeekActivitiesSheet> {
                           Navigator.of(context).pop();
                           Navigator.of(widget.parentContext).push(
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  ActivityDetailScreen(activity: a),
+                              builder: (_) => ActivityDetailScreen(activity: a),
                             ),
                           );
                         },

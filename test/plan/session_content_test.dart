@@ -72,19 +72,21 @@ void main() {
     Future<AIChatMessage> Function(LlmSettings, List<ChatMessage>) chatCall,
   ) => SessionContentGenerator(settings: settings, chatCall: chatCall);
 
-  test('no provider configured: plan is returned unchanged, no call made',
-      () async {
-    var called = false;
-    final g = generator(unconfigured, (settings, messages) async {
-      called = true;
-      return reply('[]');
-    });
+  test(
+    'no provider configured: plan is returned unchanged, no call made',
+    () async {
+      var called = false;
+      final g = generator(unconfigured, (settings, messages) async {
+        called = true;
+        return reply('[]');
+      });
 
-    final result = await g.enrich(plan([session()]));
+      final result = await g.enrich(plan([session()]));
 
-    expect(called, isFalse);
-    expect(result.sessions.single.name, 'Z2 endurance');
-  });
+      expect(called, isFalse);
+      expect(result.sessions.single.name, 'Z2 endurance');
+    },
+  );
 
   test('a valid response rewrites content but never the numbers', () async {
     final original = session();
@@ -128,8 +130,7 @@ void main() {
     expect(result.sessions.single.description, original.description);
   });
 
-  test('a response missing some sessions falls back only for those',
-      () async {
+  test('a response missing some sessions falls back only for those', () async {
     final a = session(weekIndex: 0, sport: 'Run');
     final b = session(weekIndex: 0, sport: 'Ride');
     final g = generator(configured, (settings, messages) async {
@@ -153,8 +154,7 @@ void main() {
     expect(sessions[1].name, b.name, reason: 'kept its deterministic name');
   });
 
-  test('an oversized field is rejected and that session falls back',
-      () async {
+  test('an oversized field is rejected and that session falls back', () async {
     final original = session();
     final g = generator(configured, (settings, messages) async {
       return reply(
@@ -201,8 +201,7 @@ void main() {
     expect(result.sessions.single.name, original.name);
   });
 
-  test('a technique-focus session is included in the prompt facts',
-      () async {
+  test('a technique-focus session is included in the prompt facts', () async {
     final technique = session(sport: 'Swim', techniqueFocus: true);
     String? sentPrompt;
     final g = generator(configured, (settings, messages) async {

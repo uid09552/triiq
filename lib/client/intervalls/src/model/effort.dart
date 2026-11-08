@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'effort.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,95 +18,49 @@ part 'effort.g.dart';
 class Effort {
   /// Returns a new [Effort] instance.
   Effort({
+    this.startIndex,
 
-     this.startIndex,
+    this.endIndex,
 
-     this.endIndex,
+    this.average,
 
-     this.average,
+    this.duration,
 
-     this.duration,
-
-     this.distance,
+    this.distance,
   });
 
-  @JsonKey(
-    
-    name: r'start_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_index', required: false, includeIfNull: false)
   final int? startIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'end_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'end_index', required: false, includeIfNull: false)
   final int? endIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'average',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'average', required: false, includeIfNull: false)
   final double? average;
 
-
-
-  @JsonKey(
-    
-    name: r'duration',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'duration', required: false, includeIfNull: false)
   final int? duration;
 
-
-
-  @JsonKey(
-    
-    name: r'distance',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'distance', required: false, includeIfNull: false)
   final double? distance;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Effort &&
+          other.startIndex == startIndex &&
+          other.endIndex == endIndex &&
+          other.average == average &&
+          other.duration == duration &&
+          other.distance == distance;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Effort &&
-      other.startIndex == startIndex &&
-      other.endIndex == endIndex &&
-      other.average == average &&
-      other.duration == duration &&
-      other.distance == distance;
-
-    @override
-    int get hashCode =>
-        startIndex.hashCode +
-        endIndex.hashCode +
-        average.hashCode +
-        duration.hashCode +
-        distance.hashCode;
+  @override
+  int get hashCode =>
+      startIndex.hashCode +
+      endIndex.hashCode +
+      average.hashCode +
+      duration.hashCode +
+      distance.hashCode;
 
   factory Effort.fromJson(Map<String, dynamic> json) => _$EffortFromJson(json);
 
@@ -117,6 +70,4 @@ class Effort {
   String toString() {
     return toJson().toString();
   }
-
 }
-

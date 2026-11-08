@@ -8,13 +8,17 @@ String easyDescription(int minutes) => '- ${minutes}m Z2';
 
 /// The draft that replaces [change]'s session: shorter and easy, in the
 /// same sport or the cross-training one.
-PlannedWorkoutDraft draftFor(ReturnChange change, {String Function(String sport, bool cross)? name}) {
+PlannedWorkoutDraft draftFor(
+  ReturnChange change, {
+  String Function(String sport, bool cross)? name,
+}) {
   final e = change.session;
   final cross = change.action == ReturnAction.crossTrain;
   final sport = cross ? (change.toSport ?? 'Ride') : (e.type ?? 'Run');
   final minutes = change.minutes ?? ((e.plannedTime ?? 1800) / 60).round();
   return PlannedWorkoutDraft(
-    name: name?.call(sport, cross) ??
+    name:
+        name?.call(sport, cross) ??
         (cross ? 'Easy $sport (cross-training)' : 'Easy $sport (return)'),
     sport: sport,
     description: easyDescription(minutes),

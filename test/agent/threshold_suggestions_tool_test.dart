@@ -50,9 +50,9 @@ void main() {
       );
 
   Future<Map<String, dynamic>> call(TrainingDataTools t) async {
-    final tool = t
-        .build()
-        .firstWhere((tool) => tool.name == 'get_threshold_suggestions');
+    final tool = t.build().firstWhere(
+      (tool) => tool.name == 'get_threshold_suggestions',
+    );
     final output = await tool.invoke(tool.getInputFromJson(const {}));
     return jsonDecode(output as String) as Map<String, dynamic>;
   }
@@ -71,7 +71,8 @@ void main() {
       ]),
     );
 
-    final suggestions = (result['suggestions'] as List).cast<Map<String, dynamic>>();
+    final suggestions = (result['suggestions'] as List)
+        .cast<Map<String, dynamic>>();
     expect(suggestions, hasLength(1));
     expect(suggestions.single['sport'], 'Ride');
     expect(suggestions.single['current_value'], 252);
@@ -90,10 +91,8 @@ void main() {
   test('the tool list exposes no threshold write tool', () async {
     final names = tools(const []).build().map((t) => t.name);
 
-    expect(
-      names.where((n) => n.contains('threshold')),
-      ['get_threshold_suggestions'],
-      reason: 'only the read tool should exist — no apply/write tool',
-    );
+    expect(names.where((n) => n.contains('threshold')), [
+      'get_threshold_suggestions',
+    ], reason: 'only the read tool should exist — no apply/write tool');
   });
 }

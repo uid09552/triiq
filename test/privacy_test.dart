@@ -302,7 +302,10 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('erase-confirm')));
       await _settle(tester);
       expect(eraser.calls, 1);
-      expect(find.textContaining('All data on this device was deleted'), findsOneWidget);
+      expect(
+        find.textContaining('All data on this device was deleted'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('a failed erase says so', (tester) async {

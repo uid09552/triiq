@@ -111,10 +111,10 @@ void main() {
       await events.replaceRange('2026-10-01', '2026-10-31', [cached()]);
       final paths = <String>[];
 
-      final result = await service(paths, copy: false).syncRange(
-        DateTime(2026, 10, 1),
-        DateTime(2026, 10, 31),
-      );
+      final result = await service(
+        paths,
+        copy: false,
+      ).syncRange(DateTime(2026, 10, 1), DateTime(2026, 10, 31));
 
       expect(paths.any((path) => path.contains('/events')), isFalse);
       expect(paths, hasLength(2), reason: 'wellness and activities only');
@@ -127,10 +127,10 @@ void main() {
       await events.replaceRange('2026-10-01', '2026-10-31', [cached()]);
       final paths = <String>[];
 
-      await service(paths, copy: true).syncRange(
-        DateTime(2026, 10, 1),
-        DateTime(2026, 10, 31),
-      );
+      await service(
+        paths,
+        copy: true,
+      ).syncRange(DateTime(2026, 10, 1), DateTime(2026, 10, 31));
 
       expect(paths.where((path) => path.contains('/events')), hasLength(1));
       expect(await events.getRange('2026-10-01', '2026-10-31'), isEmpty);

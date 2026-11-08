@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'athlete_training_plan_update.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,81 +18,49 @@ part 'athlete_training_plan_update.g.dart';
 class AthleteTrainingPlanUpdate {
   /// Returns a new [AthleteTrainingPlanUpdate] instance.
   AthleteTrainingPlanUpdate({
+    this.id,
 
-     this.id,
+    this.trainingPlanId,
 
-     this.trainingPlanId,
+    this.trainingPlanStartDate,
 
-     this.trainingPlanStartDate,
-
-     this.trainingPlanAlias,
+    this.trainingPlanAlias,
   });
 
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'training_plan_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'training_plan_id', required: false, includeIfNull: false)
   final int? trainingPlanId;
 
-
-
   @JsonKey(
-    
     name: r'training_plan_start_date',
     required: false,
     includeIfNull: false,
   )
-
-
   final String? trainingPlanStartDate;
 
-
-
-  @JsonKey(
-    
-    name: r'training_plan_alias',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'training_plan_alias', required: false, includeIfNull: false)
   final String? trainingPlanAlias;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AthleteTrainingPlanUpdate &&
+          other.id == id &&
+          other.trainingPlanId == trainingPlanId &&
+          other.trainingPlanStartDate == trainingPlanStartDate &&
+          other.trainingPlanAlias == trainingPlanAlias;
 
+  @override
+  int get hashCode =>
+      id.hashCode +
+      trainingPlanId.hashCode +
+      trainingPlanStartDate.hashCode +
+      trainingPlanAlias.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is AthleteTrainingPlanUpdate &&
-      other.id == id &&
-      other.trainingPlanId == trainingPlanId &&
-      other.trainingPlanStartDate == trainingPlanStartDate &&
-      other.trainingPlanAlias == trainingPlanAlias;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        trainingPlanId.hashCode +
-        trainingPlanStartDate.hashCode +
-        trainingPlanAlias.hashCode;
-
-  factory AthleteTrainingPlanUpdate.fromJson(Map<String, dynamic> json) => _$AthleteTrainingPlanUpdateFromJson(json);
+  factory AthleteTrainingPlanUpdate.fromJson(Map<String, dynamic> json) =>
+      _$AthleteTrainingPlanUpdateFromJson(json);
 
   Map<String, dynamic> toJson() => _$AthleteTrainingPlanUpdateToJson(this);
 
@@ -101,6 +68,4 @@ class AthleteTrainingPlanUpdate {
   String toString() {
     return toJson().toString();
   }
-
 }
-

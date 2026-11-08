@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'hr_load_model.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,66 +17,31 @@ part 'hr_load_model.g.dart';
 )
 class HRLoadModel {
   /// Returns a new [HRLoadModel] instance.
-  HRLoadModel({
+  HRLoadModel({this.type, this.icuTrainingLoad, this.trainingDataCount});
 
-     this.type,
-
-     this.icuTrainingLoad,
-
-     this.trainingDataCount,
-  });
-
-  @JsonKey(
-    
-    name: r'type',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'type', required: false, includeIfNull: false)
   final HRLoadModelTypeEnum? type;
 
-
-
-  @JsonKey(
-    
-    name: r'icu_training_load',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'icu_training_load', required: false, includeIfNull: false)
   final int? icuTrainingLoad;
 
-
-
-  @JsonKey(
-    
-    name: r'trainingDataCount',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'trainingDataCount', required: false, includeIfNull: false)
   final int? trainingDataCount;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HRLoadModel &&
+          other.type == type &&
+          other.icuTrainingLoad == icuTrainingLoad &&
+          other.trainingDataCount == trainingDataCount;
 
+  @override
+  int get hashCode =>
+      type.hashCode + icuTrainingLoad.hashCode + trainingDataCount.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is HRLoadModel &&
-      other.type == type &&
-      other.icuTrainingLoad == icuTrainingLoad &&
-      other.trainingDataCount == trainingDataCount;
-
-    @override
-    int get hashCode =>
-        type.hashCode +
-        icuTrainingLoad.hashCode +
-        trainingDataCount.hashCode;
-
-  factory HRLoadModel.fromJson(Map<String, dynamic> json) => _$HRLoadModelFromJson(json);
+  factory HRLoadModel.fromJson(Map<String, dynamic> json) =>
+      _$HRLoadModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$HRLoadModelToJson(this);
 
@@ -85,23 +49,20 @@ class HRLoadModel {
   String toString() {
     return toJson().toString();
   }
-
 }
 
 enum HRLoadModelTypeEnum {
-@JsonValue(r'AVG_HR')
-AVG_HR(r'AVG_HR'),
-@JsonValue(r'HR_ZONES')
-HR_ZONES(r'HR_ZONES'),
-@JsonValue(r'HRSS')
-HRSS(r'HRSS');
+  @JsonValue(r'AVG_HR')
+  AVG_HR(r'AVG_HR'),
+  @JsonValue(r'HR_ZONES')
+  HR_ZONES(r'HR_ZONES'),
+  @JsonValue(r'HRSS')
+  HRSS(r'HRSS');
 
-const HRLoadModelTypeEnum(this.value);
+  const HRLoadModelTypeEnum(this.value);
 
-final String value;
+  final String value;
 
-@override
-String toString() => value;
+  @override
+  String toString() => value;
 }
-
-

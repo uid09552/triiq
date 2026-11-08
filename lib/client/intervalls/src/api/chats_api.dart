@@ -17,17 +17,16 @@ import 'package:triiq/client/intervalls/src/model/new_msg.dart';
 import 'package:triiq/client/intervalls/src/model/send_response.dart';
 
 class ChatsApi {
-
   final Dio _dio;
 
   const ChatsApi(this._dio);
 
   /// Delete a message
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [msgId] 
+  /// * [id]
+  /// * [msgId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -37,7 +36,7 @@ class ChatsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Object] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Object>> deleteMessage({ 
+  Future<Response<Object>> deleteMessage({
     required int id,
     required int msgId,
     CancelToken? cancelToken,
@@ -47,23 +46,26 @@ class ChatsApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/chats/{id}/messages/{msgId}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'msgId' '}', msgId.toString());
+    final _path = r'/api/v1/chats/{id}/messages/{msgId}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'msgId'
+          '}',
+          msgId.toString(),
+        );
     final _options = Options(
       method: r'DELETE',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -81,9 +83,10 @@ class ChatsApi {
     Object? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'Object', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Object, Object>(rawData, 'Object', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -107,12 +110,12 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
   }
 
   /// List all messages (comments) for the activity
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [sinceId] 
-  /// * [limit] 
+  /// * [id]
+  /// * [sinceId]
+  /// * [limit]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -122,7 +125,7 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
   ///
   /// Returns a [Future] containing a [Response] with a [List<Message>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Message>>> listActivityMessages({ 
+  Future<Response<List<Message>>> listActivityMessages({
     required String id,
     int? sinceId,
     int? limit = 100,
@@ -133,23 +136,19 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/messages'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/messages'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -173,9 +172,14 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
     List<Message>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Message>, Message>(rawData, 'List<Message>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Message>, Message>(
+              rawData,
+              'List<Message>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -202,7 +206,7 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
   /// Only returns activity chats that have new_msg_count &gt; 0 or that have been updated recently
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -212,7 +216,7 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [List<Chat>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Chat>>> listChats({ 
+  Future<Response<List<Chat>>> listChats({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -221,23 +225,19 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/chats'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/chats'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -255,9 +255,14 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
     List<Chat>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 'List<Chat>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Chat>, Chat>(
+              rawData,
+              'List<Chat>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -281,10 +286,10 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
   }
 
   /// List groups for the athlete in name order
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -294,7 +299,7 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
   ///
   /// Returns a [Future] containing a [Response] with a [List<Chat>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Chat>>> listGroups({ 
+  Future<Response<List<Chat>>> listGroups({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -303,23 +308,19 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/groups'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/groups'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -337,9 +338,14 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
     List<Chat>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 'List<Chat>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Chat>, Chat>(
+              rawData,
+              'List<Chat>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -363,10 +369,10 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
   }
 
   /// List messages for the chat, most recent first
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [beforeId] - Only return messages older than this one
   /// * [limit] - Return up to this many messages (default 30, max 100)
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -378,7 +384,7 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
   ///
   /// Returns a [Future] containing a [Response] with a [List<Message>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<Message>>> listMessages({ 
+  Future<Response<List<Message>>> listMessages({
     required int id,
     int? beforeId,
     int? limit,
@@ -389,23 +395,19 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/chats/{id}/messages'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/chats/{id}/messages'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -429,9 +431,14 @@ _responseData = rawData == null ? null : deserialize<List<Chat>, Chat>(rawData, 
     List<Message>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<Message>, Message>(rawData, 'List<Message>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<Message>, Message>(
+              rawData,
+              'List<Message>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -455,11 +462,11 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
   }
 
   /// Add a message (comment) to an activity
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [newActivityMsg] 
+  /// * [id]
+  /// * [newActivityMsg]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -469,7 +476,7 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [NewMsg] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<NewMsg>> sendActivityMessage({ 
+  Future<Response<NewMsg>> sendActivityMessage({
     required String id,
     required NewActivityMsg newActivityMsg,
     CancelToken? cancelToken,
@@ -479,23 +486,19 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/activity/{id}/messages'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/activity/{id}/messages'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -507,13 +510,9 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
 
     try {
       _bodyData = jsonEncode(newActivityMsg);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -532,9 +531,10 @@ _responseData = rawData == null ? null : deserialize<List<Message>, Message>(raw
     NewMsg? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<NewMsg, NewMsg>(rawData, 'NewMsg', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<NewMsg, NewMsg>(rawData, 'NewMsg', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -561,7 +561,7 @@ _responseData = rawData == null ? null : deserialize<NewMsg, NewMsg>(rawData, 'N
   /// Returns the new message id. If a new chat was created then it is also returned.
   ///
   /// Parameters:
-  /// * [newMessage] 
+  /// * [newMessage]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -571,7 +571,7 @@ _responseData = rawData == null ? null : deserialize<NewMsg, NewMsg>(rawData, 'N
   ///
   /// Returns a [Future] containing a [Response] with a [SendResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<SendResponse>> sendMessage({ 
+  Future<Response<SendResponse>> sendMessage({
     required NewMessage newMessage,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -583,20 +583,11 @@ _responseData = rawData == null ? null : deserialize<NewMsg, NewMsg>(rawData, 'N
     final _path = r'/api/v1/chats/send-message';
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -608,13 +599,9 @@ _responseData = rawData == null ? null : deserialize<NewMsg, NewMsg>(rawData, 'N
 
     try {
       _bodyData = jsonEncode(newMessage);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -633,9 +620,14 @@ _responseData = rawData == null ? null : deserialize<NewMsg, NewMsg>(rawData, 'N
     SendResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<SendResponse, SendResponse>(rawData, 'SendResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<SendResponse, SendResponse>(
+              rawData,
+              'SendResponse',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -659,10 +651,10 @@ _responseData = rawData == null ? null : deserialize<SendResponse, SendResponse>
   }
 
   /// Get a chat by id
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -672,7 +664,7 @@ _responseData = rawData == null ? null : deserialize<SendResponse, SendResponse>
   ///
   /// Returns a [Future] containing a [Response] with a [Chat] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Chat>> showChat({ 
+  Future<Response<Chat>> showChat({
     required int id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -681,23 +673,19 @@ _responseData = rawData == null ? null : deserialize<SendResponse, SendResponse>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/chats/{id}'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/chats/{id}'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -715,9 +703,10 @@ _responseData = rawData == null ? null : deserialize<SendResponse, SendResponse>
     Chat? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Chat, Chat>(rawData, 'Chat', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Chat, Chat>(rawData, 'Chat', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -741,11 +730,11 @@ _responseData = rawData == null ? null : deserialize<Chat, Chat>(rawData, 'Chat'
   }
 
   /// Update last seen message for the chat
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [msgId] 
+  /// * [id]
+  /// * [msgId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -755,7 +744,7 @@ _responseData = rawData == null ? null : deserialize<Chat, Chat>(rawData, 'Chat'
   ///
   /// Returns a [Future] containing a [Response] with a [Object] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Object>> updateLastSeenMessageId({ 
+  Future<Response<Object>> updateLastSeenMessageId({
     required int id,
     required int msgId,
     CancelToken? cancelToken,
@@ -765,23 +754,26 @@ _responseData = rawData == null ? null : deserialize<Chat, Chat>(rawData, 'Chat'
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/chats/{id}/messages/{msgId}/seen'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'msgId' '}', msgId.toString());
+    final _path = r'/api/v1/chats/{id}/messages/{msgId}/seen'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'msgId'
+          '}',
+          msgId.toString(),
+        );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -799,9 +791,10 @@ _responseData = rawData == null ? null : deserialize<Chat, Chat>(rawData, 'Chat'
     Object? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'Object', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Object, Object>(rawData, 'Object', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -828,9 +821,9 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
   /// Only the content or answer can be updated
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [msgId] 
-  /// * [message] 
+  /// * [id]
+  /// * [msgId]
+  /// * [message]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -840,7 +833,7 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
   ///
   /// Returns a [Future] containing a [Response] with a [Object] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Object>> updateMessage({ 
+  Future<Response<Object>> updateMessage({
     required int id,
     required int msgId,
     required Message message,
@@ -851,23 +844,26 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/chats/{id}/messages/{msgId}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'msgId' '}', msgId.toString());
+    final _path = r'/api/v1/chats/{id}/messages/{msgId}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'msgId'
+          '}',
+          msgId.toString(),
+        );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -879,13 +875,9 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
 
     try {
       _bodyData = jsonEncode(message);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -904,9 +896,10 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
     Object? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'Object', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Object, Object>(rawData, 'Object', growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -928,5 +921,4 @@ _responseData = rawData == null ? null : deserialize<Object, Object>(rawData, 'O
       extra: _response.extra,
     );
   }
-
 }

@@ -335,7 +335,12 @@ class _TileSpark extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Icon(icon, key: ValueKey('tile-trend-${trend.name}'), size: 13, color: color),
+          Icon(
+            icon,
+            key: ValueKey('tile-trend-${trend.name}'),
+            size: 13,
+            color: color,
+          ),
           const SizedBox(height: 2),
           SizedBox(
             width: 44,

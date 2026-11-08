@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'bucket.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,111 +18,56 @@ part 'bucket.g.dart';
 class Bucket {
   /// Returns a new [Bucket] instance.
   Bucket({
+    this.start,
 
-     this.start,
+    this.secs,
 
-     this.secs,
+    this.movingSecs,
 
-     this.movingSecs,
+    this.watts,
 
-     this.watts,
+    this.hr,
 
-     this.hr,
-
-     this.cadence,
+    this.cadence,
   });
 
-  @JsonKey(
-    
-    name: r'start',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start', required: false, includeIfNull: false)
   final int? start;
 
-
-
-  @JsonKey(
-    
-    name: r'secs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'secs', required: false, includeIfNull: false)
   final int? secs;
 
-
-
-  @JsonKey(
-    
-    name: r'movingSecs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'movingSecs', required: false, includeIfNull: false)
   final int? movingSecs;
 
-
-
-  @JsonKey(
-    
-    name: r'watts',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'watts', required: false, includeIfNull: false)
   final double? watts;
 
-
-
-  @JsonKey(
-    
-    name: r'hr',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'hr', required: false, includeIfNull: false)
   final double? hr;
 
-
-
-  @JsonKey(
-    
-    name: r'cadence',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'cadence', required: false, includeIfNull: false)
   final int? cadence;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bucket &&
+          other.start == start &&
+          other.secs == secs &&
+          other.movingSecs == movingSecs &&
+          other.watts == watts &&
+          other.hr == hr &&
+          other.cadence == cadence;
 
-
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is Bucket &&
-      other.start == start &&
-      other.secs == secs &&
-      other.movingSecs == movingSecs &&
-      other.watts == watts &&
-      other.hr == hr &&
-      other.cadence == cadence;
-
-    @override
-    int get hashCode =>
-        start.hashCode +
-        secs.hashCode +
-        movingSecs.hashCode +
-        watts.hashCode +
-        hr.hashCode +
-        cadence.hashCode;
+  @override
+  int get hashCode =>
+      start.hashCode +
+      secs.hashCode +
+      movingSecs.hashCode +
+      watts.hashCode +
+      hr.hashCode +
+      cadence.hashCode;
 
   factory Bucket.fromJson(Map<String, dynamic> json) => _$BucketFromJson(json);
 
@@ -133,6 +77,4 @@ class Bucket {
   String toString() {
     return toJson().toString();
   }
-
 }
-

@@ -15,8 +15,7 @@ class KnowledgeLibraryScreen extends StatefulWidget {
   final KnowledgeLibraryRepository repository;
 
   @override
-  State<KnowledgeLibraryScreen> createState() =>
-      _KnowledgeLibraryScreenState();
+  State<KnowledgeLibraryScreen> createState() => _KnowledgeLibraryScreenState();
 }
 
 class _KnowledgeLibraryScreenState extends State<KnowledgeLibraryScreen> {
@@ -73,15 +72,13 @@ class _KnowledgeLibraryScreenState extends State<KnowledgeLibraryScreen> {
               child: Text(l10n.cancelButton),
             ),
             TextButton(
-              onPressed: () => Navigator.of(
-                context,
-              ).pop(KnowledgeDuplicateAction.keepBoth),
+              onPressed: () =>
+                  Navigator.of(context).pop(KnowledgeDuplicateAction.keepBoth),
               child: Text(l10n.knowledgeKeepBothButton),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(
-                context,
-              ).pop(KnowledgeDuplicateAction.replace),
+              onPressed: () =>
+                  Navigator.of(context).pop(KnowledgeDuplicateAction.replace),
               child: Text(l10n.knowledgeReplaceButton),
             ),
           ],

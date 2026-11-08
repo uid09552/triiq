@@ -6,7 +6,9 @@ import 'package:triiq/util/dates.dart';
 final _today = DateTime(2026, 11, 7);
 
 LocalWellness _day(int daysAgo, Map<String, Object?> raw) {
-  final date = isoDate(DateTime(_today.year, _today.month, _today.day - daysAgo));
+  final date = isoDate(
+    DateTime(_today.year, _today.month, _today.day - daysAgo),
+  );
   return LocalWellness(
     date: date,
     ctl: null,
@@ -21,7 +23,12 @@ LocalWellness _day(int daysAgo, Map<String, Object?> raw) {
 
 void main() {
   test('values per metric; zero counts as not measured; sleep in hours', () {
-    final r = _day(0, {'hrv': 55, 'restingHR': 0, 'sleepSecs': 27000, 'weight': 71.4});
+    final r = _day(0, {
+      'hrv': 55,
+      'restingHR': 0,
+      'sleepSecs': 27000,
+      'weight': 71.4,
+    });
     expect(wellnessValue(r, WellnessMetric.hrv), 55);
     expect(wellnessValue(r, WellnessMetric.restingHr), isNull);
     expect(wellnessValue(r, WellnessMetric.sleep), 7.5);
@@ -42,7 +49,9 @@ void main() {
 
   test('baseline band is mean ± one SD, null on too little data', () {
     expect(baselineBand([1, 2, 3]), isNull);
-    final b = baselineBand([for (var i = 0; i < 20; i++) i.isEven ? 60.0 : 70.0])!;
+    final b = baselineBand([
+      for (var i = 0; i < 20; i++) i.isEven ? 60.0 : 70.0,
+    ])!;
     expect(b.mean, 65);
     expect(b.sd, closeTo(5.13, 0.01));
     expect(b.contains(65), isTrue);

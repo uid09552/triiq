@@ -115,25 +115,20 @@ extension $ActivityFilterCopyWith on ActivityFilter {
 // **************************************************************************
 
 ActivityFilter _$ActivityFilterFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      'ActivityFilter',
-      json,
-      ($checkedConvert) {
-        final val = ActivityFilter(
-          id: $checkedConvert('id', (v) => (v as num?)?.toInt()),
-          fieldId: $checkedConvert(
-            'field_id',
-            (v) => $enumDecodeNullable(_$ActivityFilterFieldIdEnumEnumMap, v),
-          ),
-          code: $checkedConvert('code', (v) => v as String?),
-          operator_: $checkedConvert('operator', (v) => v as String?),
-          value: $checkedConvert('value', (v) => v),
-          not: $checkedConvert('not', (v) => v as bool?),
-        );
-        return val;
-      },
-      fieldKeyMap: const {'fieldId': 'field_id', 'operator_': 'operator'},
-    );
+    $checkedCreate('ActivityFilter', json, ($checkedConvert) {
+      final val = ActivityFilter(
+        id: $checkedConvert('id', (v) => (v as num?)?.toInt()),
+        fieldId: $checkedConvert(
+          'field_id',
+          (v) => $enumDecodeNullable(_$ActivityFilterFieldIdEnumEnumMap, v),
+        ),
+        code: $checkedConvert('code', (v) => v as String?),
+        operator_: $checkedConvert('operator', (v) => v as String?),
+        value: $checkedConvert('value', (v) => v),
+        not: $checkedConvert('not', (v) => v as bool?),
+      );
+      return val;
+    }, fieldKeyMap: const {'fieldId': 'field_id', 'operator_': 'operator'});
 
 Map<String, dynamic> _$ActivityFilterToJson(ActivityFilter instance) =>
     <String, dynamic>{

@@ -307,7 +307,9 @@ class DurabilityLoader {
       }
       final result = streams == null
           ? null
-          : (isRide ? analyseRide(streams, levels) : analyseRun(streams, levels));
+          : (isRide
+                ? analyseRide(streams, levels)
+                : analyseRun(streams, levels));
       if (result == null) {
         failed++;
       } else {
@@ -363,16 +365,17 @@ class DurabilityLoader {
     PerformanceCurves? curves;
     try {
       curves =
-          await _curves.cached(sport, metric) ?? await _curves.load(sport, metric);
+          await _curves.cached(sport, metric) ??
+          await _curves.load(sport, metric);
     } catch (_) {
       curves = null;
     }
     final period = curves == null
         ? null
-        : [curves.period('s0'), curves.period('42d')]
-              .whereType<CurvePeriod>()
-              .where((p) => !p.isEmpty)
-              .firstOrNull;
+        : [
+            curves.period('s0'),
+            curves.period('42d'),
+          ].whereType<CurvePeriod>().where((p) => !p.isEmpty).firstOrNull;
     return DurabilityLevel(
       label: '',
       workAfter: 0,

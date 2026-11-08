@@ -78,8 +78,12 @@ Future<void> sendPlanInBackground(
             ? null
             : SnackBarAction(
                 label: l10n.retryButton,
-                onPressed: () =>
-                    sendPlanInBackground(service, outcome.plan, messenger, l10n),
+                onPressed: () => sendPlanInBackground(
+                  service,
+                  outcome.plan,
+                  messenger,
+                  l10n,
+                ),
               ),
       ),
     );

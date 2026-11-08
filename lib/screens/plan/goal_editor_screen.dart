@@ -107,7 +107,8 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     final profile = widget.knowledge.goals[target];
     final result = {
       for (final k in Goal.slotKeys)
-        k: ((profile?.slots[SessionSlot.values.byName(k)]?.share ?? 0) * 20)
+        k:
+            ((profile?.slots[SessionSlot.values.byName(k)]?.share ?? 0) * 20)
                 .round() *
             5,
     };
@@ -192,7 +193,10 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
           SegmentedButton<String>(
             segments: [
               for (final sport in Goal.sports)
-                ButtonSegment(value: sport, label: Text(sportLabel(l10n, sport))),
+                ButtonSegment(
+                  value: sport,
+                  label: Text(sportLabel(l10n, sport)),
+                ),
             ],
             selected: {_sport},
             onSelectionChanged: (s) => setState(() => _sport = s.first),
@@ -211,9 +215,9 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
               for (var day = 1; day <= 7; day++)
                 FilterChip(
                   label: Text(
-                    DateFormat.E(locale).format(
-                      monday.add(Duration(days: day - 1)),
-                    ),
+                    DateFormat.E(
+                      locale,
+                    ).format(monday.add(Duration(days: day - 1))),
                   ),
                   selected: _days.contains(day),
                   onSelected: (on) => _toggleDay(day, on),
@@ -244,9 +248,9 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
                 label: Text(
                   _eventDate == null
                       ? l10n.planGoalEventDate
-                      : MaterialLocalizations.of(context).formatMediumDate(
-                          _eventDate!,
-                        ),
+                      : MaterialLocalizations.of(
+                          context,
+                        ).formatMediumDate(_eventDate!),
                 ),
               ),
               if (_eventDate != null)
@@ -482,8 +486,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     final longSports = _sport == Goal.triathlon
         ? const ['Ride', 'Run']
         : [_sport];
-    final perDay =
-        _perDay ?? (_sport == Goal.triathlon ? 2 : 1);
+    final perDay = _perDay ?? (_sport == Goal.triathlon ? 2 : 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

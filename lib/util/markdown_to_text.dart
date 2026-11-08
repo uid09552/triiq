@@ -16,7 +16,9 @@ String markdownToPlainText(String markdown) {
       continue;
     }
 
-    if (trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.length > 1) {
+    if (trimmed.startsWith('|') &&
+        trimmed.endsWith('|') &&
+        trimmed.length > 1) {
       final cells = trimmed
           .substring(1, trimmed.length - 1)
           .split('|')
@@ -35,10 +37,7 @@ String markdownToPlainText(String markdown) {
 
   // Collapse runs of blank lines the row/heading removal above can leave
   // behind, so the description isn't padded with empty gaps.
-  return out
-      .join('\n')
-      .replaceAll(RegExp(r'\n{3,}'), '\n\n')
-      .trim();
+  return out.join('\n').replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
 }
 
 bool _isTableSeparatorRow(String trimmedLine) =>
@@ -57,7 +56,10 @@ final _bullet = RegExp(r'^[-*+]\s+');
 String _stripInline(String text) => text
     .replaceAllMapped(RegExp(r'\*\*(.+?)\*\*'), (m) => m[1]!)
     .replaceAllMapped(RegExp(r'__(.+?)__'), (m) => m[1]!)
-    .replaceAllMapped(RegExp(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'), (m) => m[1]!)
+    .replaceAllMapped(
+      RegExp(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'),
+      (m) => m[1]!,
+    )
     .replaceAllMapped(RegExp(r'(?<!_)_(?!_)(.+?)(?<!_)_(?!_)'), (m) => m[1]!)
     .replaceAllMapped(RegExp(r'`([^`]+)`'), (m) => m[1]!)
     .replaceAllMapped(

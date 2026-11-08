@@ -16,6 +16,7 @@ import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/plan/plan_models.dart';
 import 'package:triiq/screens/activities/planned_workout_detail_screen.dart';
+import 'package:triiq/screens/today/today_layout_settings.dart';
 import 'package:triiq/screens/today/today_screen.dart';
 import 'package:triiq/util/dates.dart';
 
@@ -139,6 +140,19 @@ void main() {
     "a synced Intervals.icu event on Tomorrow's Training still opens the "
     'full detail screen',
     (tester) async {
+      // Tomorrow is off in the lean default layout: switch it on.
+      await tester.runAsync(
+        () => TodayLayoutSettings.instance.setVisible(
+          TodaySection.tomorrowsTraining,
+          true,
+        ),
+      );
+      addTearDown(
+        () => TodayLayoutSettings.instance.setVisible(
+          TodaySection.tomorrowsTraining,
+          false,
+        ),
+      );
       final tomorrow = DateTime.now().add(const Duration(days: 1));
       final tomorrowIso = isoDate(tomorrow);
       await tester.runAsync(

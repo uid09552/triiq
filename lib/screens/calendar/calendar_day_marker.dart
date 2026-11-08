@@ -22,7 +22,11 @@ class CalendarDayMarker extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      child: Icon(activityTypeIcon(type), size: size * 0.65, color: Colors.white),
+      child: Icon(
+        activityTypeIcon(type),
+        size: size * 0.65,
+        color: Colors.white,
+      ),
     );
   }
 }

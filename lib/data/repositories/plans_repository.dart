@@ -259,8 +259,6 @@ class PlansRepository {
           for (final name in j['warnings'] as List? ?? const [])
             WeekLimit.values.byName(name as String),
         },
-        notes: [
-          for (final n in j['notes'] as List? ?? const []) n as String,
-        ],
+        notes: [for (final n in j['notes'] as List? ?? const []) n as String],
       );
 }

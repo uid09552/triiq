@@ -305,7 +305,9 @@ class _LineChartPainter extends CustomPainter {
     }
 
     canvas.save();
-    canvas.clipRect(Rect.fromLTRB(axisWidth - 1, 0, size.width, plotBottom + 1));
+    canvas.clipRect(
+      Rect.fromLTRB(axisWidth - 1, 0, size.width, plotBottom + 1),
+    );
 
     if (zeroLine && min < 0 && max > 0) {
       canvas.drawLine(
@@ -502,15 +504,26 @@ class _LineChartPainter extends CustomPainter {
         if (selectedIndex >= s.values.length) continue;
         final value = s.values[selectedIndex];
         if (value == null) continue;
-        canvas.drawCircle(Offset(selectionX, y(value)), 5, Paint()..color = surface);
-        canvas.drawCircle(Offset(selectionX, y(value)), 3.5, Paint()..color = s.color);
+        canvas.drawCircle(
+          Offset(selectionX, y(value)),
+          5,
+          Paint()..color = surface,
+        );
+        canvas.drawCircle(
+          Offset(selectionX, y(value)),
+          3.5,
+          Paint()..color = s.color,
+        );
       }
       _bubble(canvas, size, selectionX, selectedIndex);
     }
 
     // X labels: the configured density, thinned out to fit when zoomed in.
     final visibleCount = (hi - lo) + 1;
-    final fit = math.max(1, (visibleCount / math.max(1, plotWidth / 64)).ceil());
+    final fit = math.max(
+      1,
+      (visibleCount / math.max(1, plotWidth / 64)).ceil(),
+    );
     final every = zoomed ? fit : labelEvery;
     for (var i = iLo; i <= iHi && i < labels.length; i++) {
       if (i % every != 0 && !(i == length - 1 && !zoomed)) continue;
@@ -518,7 +531,10 @@ class _LineChartPainter extends CustomPainter {
       painter.paint(
         canvas,
         Offset(
-          (x(i) - painter.width / 2).clamp(axisWidth, size.width - painter.width),
+          (x(i) - painter.width / 2).clamp(
+            axisWidth,
+            size.width - painter.width,
+          ),
           size.height - _labelHeight + 2,
         ),
       );
@@ -541,7 +557,12 @@ class _LineChartPainter extends CustomPainter {
       if (index >= s.values.length || s.values[index] == null) continue;
       if (spans.isNotEmpty) spans.add(const TextSpan(text: '\n'));
       spans
-        ..add(TextSpan(text: '● ', style: labelStyle.copyWith(color: s.color)))
+        ..add(
+          TextSpan(
+            text: '● ',
+            style: labelStyle.copyWith(color: s.color),
+          ),
+        )
         ..add(
           TextSpan(
             text: '${s.label}  ${format(s.values[index]!)}',
@@ -589,7 +610,9 @@ class _LineChartPainter extends CustomPainter {
       return;
     }
     final n = points.length;
-    final dx = [for (var i = 0; i < n - 1; i++) points[i + 1].dx - points[i].dx];
+    final dx = [
+      for (var i = 0; i < n - 1; i++) points[i + 1].dx - points[i].dx,
+    ];
     final slope = [
       for (var i = 0; i < n - 1; i++)
         dx[i].abs() < 1e-9 ? 0.0 : (points[i + 1].dy - points[i].dy) / dx[i],
@@ -627,9 +650,8 @@ class _LineChartPainter extends CustomPainter {
     }
   }
 
-  static String formatAxis(double value) => value.abs() >= 100
-      ? value.toStringAsFixed(0)
-      : value.toStringAsFixed(1);
+  static String formatAxis(double value) =>
+      value.abs() >= 100 ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
 
   void _text(Canvas canvas, String text, Offset offset, TextStyle style) =>
       _textPainter(text, style).paint(canvas, offset);

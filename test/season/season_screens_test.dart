@@ -34,9 +34,16 @@ LocalEvent ev(
   String? end,
   String? name,
 }) => LocalEvent(
-  id: id, date: date, category: category, type: type, name: name ?? id,
-  description: null, plannedLoad: load, plannedTime: minutes * 60,
-  plannedDistance: null, indoor: false,
+  id: id,
+  date: date,
+  category: category,
+  type: type,
+  name: name ?? id,
+  description: null,
+  plannedLoad: load,
+  plannedTime: minutes * 60,
+  plannedDistance: null,
+  indoor: false,
   raw: {if (end != null) 'end_date_local': end},
   syncedAt: DateTime(2026),
 );
@@ -45,8 +52,14 @@ class _FakeWellness implements WellnessRepository {
   @override
   Future<List<LocalWellness>> getRange(String oldest, String newest) async => [
     LocalWellness(
-      date: '2026-05-09', ctl: 60, atl: 70, ctlLoad: null, atlLoad: null,
-      rampRate: null, raw: const {}, syncedAt: DateTime(2026),
+      date: '2026-05-09',
+      ctl: 60,
+      atl: 70,
+      ctlLoad: null,
+      atlLoad: null,
+      rampRate: null,
+      raw: const {},
+      syncedAt: DateTime(2026),
     ),
   ];
 
@@ -116,7 +129,9 @@ void main() {
   });
 
   group('HealthCard', () {
-    testWidgets('sick: lists the sessions and applies after confirming', (t) async {
+    testWidgets('sick: lists the sessions and applies after confirming', (
+      t,
+    ) async {
       final events = [
         ev('s', '2026-05-08', category: 'SICK'),
         ev('w1', '2026-05-11', load: 80),
@@ -154,7 +169,10 @@ void main() {
         wrap(
           Scaffold(
             body: HealthCard(
-              status: null, changes: const [], today: now, showLogButton: true,
+              status: null,
+              changes: const [],
+              today: now,
+              showLogButton: true,
             ),
           ),
         ),
@@ -203,8 +221,13 @@ void main() {
   group('BrickCard', () {
     LocalActivity act(String id, String type, String start, int secs) =>
         LocalActivity(
-          id: id, date: '2026-05-10', type: type, name: id,
-          movingTime: secs, distance: null, trainingLoad: null,
+          id: id,
+          date: '2026-05-10',
+          type: type,
+          name: id,
+          movingTime: secs,
+          distance: null,
+          trainingLoad: null,
           raw: {'start_date_local': start, 'elapsed_time': secs},
           syncedAt: DateTime(2026),
         );
@@ -215,7 +238,11 @@ void main() {
       final brick = findBricks([bike, run]).single;
       final loader = _FakeBrickLoader(analyseBrick(brick, null));
       await t.pumpWidget(
-        wrap(Scaffold(body: BrickCard(activity: run, loader: loader))),
+        wrap(
+          Scaffold(
+            body: BrickCard(activity: run, loader: loader),
+          ),
+        ),
       );
       await t.pumpAndSettle();
       expect(find.text('Brick: bike → run'), findsOneWidget);
@@ -226,7 +253,11 @@ void main() {
     testWidgets('no brick: nothing is drawn', (t) async {
       final run = act('r', 'Run', '2026-05-10T09:04:00', 1800);
       await t.pumpWidget(
-        wrap(Scaffold(body: BrickCard(activity: run, loader: _FakeBrickLoader(null)))),
+        wrap(
+          Scaffold(
+            body: BrickCard(activity: run, loader: _FakeBrickLoader(null)),
+          ),
+        ),
       );
       await t.pumpAndSettle();
       expect(find.byKey(const ValueKey('brick-card')), findsNothing);

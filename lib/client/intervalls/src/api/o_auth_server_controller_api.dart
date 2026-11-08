@@ -9,15 +9,13 @@ import 'dart:convert';
 import 'package:triiq/client/intervalls/src/deserialize.dart';
 import 'package:dio/dio.dart';
 
-
 class OAuthServerControllerApi {
-
   final Dio _dio;
 
   const OAuthServerControllerApi(this._dio);
 
   /// Disconnect the athlete from the app matching the bearer token
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -29,7 +27,7 @@ class OAuthServerControllerApi {
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> disconnectApp({ 
+  Future<Response<void>> disconnectApp({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -40,20 +38,11 @@ class OAuthServerControllerApi {
     final _path = r'/api/v1/disconnect-app';
     final _options = Options(
       method: r'DELETE',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -70,5 +59,4 @@ class OAuthServerControllerApi {
 
     return _response;
   }
-
 }

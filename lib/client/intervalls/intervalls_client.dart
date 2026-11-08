@@ -8,7 +8,6 @@ export 'package:triiq/client/intervalls/src/auth/basic_auth.dart';
 export 'package:triiq/client/intervalls/src/auth/bearer_auth.dart';
 export 'package:triiq/client/intervalls/src/auth/oauth.dart';
 
-
 export 'package:triiq/client/intervalls/src/api/aktivitten_api.dart';
 export 'package:triiq/client/intervalls/src/api/athleten_api.dart';
 export 'package:triiq/client/intervalls/src/api/ausrstung_api.dart';
@@ -136,4 +135,3 @@ export 'package:triiq/client/intervalls/src/model/workout_ex.dart';
 export 'package:triiq/client/intervalls/src/model/zone_info.dart';
 export 'package:triiq/client/intervalls/src/model/zone_set.dart';
 export 'package:triiq/client/intervalls/src/model/zone_time.dart';
-

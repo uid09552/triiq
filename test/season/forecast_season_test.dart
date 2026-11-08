@@ -6,7 +6,8 @@ void main() {
   group('forecastFitness', () {
     test('rest days decay CTL slowly and ATL fast', () {
       final days = forecastFitness(
-        startCtl: 60, startAtl: 80,
+        startCtl: 60,
+        startAtl: 80,
         lastKnownDay: DateTime(2026, 5, 1),
         until: DateTime(2026, 5, 8),
         loadByDate: const {},
@@ -19,7 +20,8 @@ void main() {
 
     test('planned load pushes ATL up faster than CTL', () {
       final days = forecastFitness(
-        startCtl: 50, startAtl: 50,
+        startCtl: 50,
+        startAtl: 50,
         lastKnownDay: DateTime(2026, 5, 1),
         until: DateTime(2026, 5, 4),
         loadByDate: const {'2026-05-02': 150, '2026-05-03': 150},
@@ -29,24 +31,29 @@ void main() {
       expect(days.first.load, 150);
     });
 
-    test('beyond the plan the load is assumed, so CTL does not decay to zero', () {
-      final days = forecastFitness(
-        startCtl: 60, startAtl: 60,
-        lastKnownDay: DateTime(2026, 5, 1),
-        until: DateTime(2026, 10, 1),
-        loadByDate: const {'2026-05-02': 80},
-        assumeFrom: DateTime(2026, 5, 3),
-        assumedLoad: 60,
-      );
-      expect(days.first.assumed, isFalse);
-      expect(days[1].assumed, isTrue);
-      expect(days.last.ctl, closeTo(60, 3));
-      expect(days.last.form.abs(), lessThan(3));
-    });
+    test(
+      'beyond the plan the load is assumed, so CTL does not decay to zero',
+      () {
+        final days = forecastFitness(
+          startCtl: 60,
+          startAtl: 60,
+          lastKnownDay: DateTime(2026, 5, 1),
+          until: DateTime(2026, 10, 1),
+          loadByDate: const {'2026-05-02': 80},
+          assumeFrom: DateTime(2026, 5, 3),
+          assumedLoad: 60,
+        );
+        expect(days.first.assumed, isFalse);
+        expect(days[1].assumed, isTrue);
+        expect(days.last.ctl, closeTo(60, 3));
+        expect(days.last.form.abs(), lessThan(3));
+      },
+    );
 
     test('forecastOn and peakForm find the day', () {
       final days = forecastFitness(
-        startCtl: 70, startAtl: 90,
+        startCtl: 70,
+        startAtl: 90,
         lastKnownDay: DateTime(2026, 5, 1),
         until: DateTime(2026, 5, 20),
         loadByDate: const {},
@@ -56,7 +63,10 @@ void main() {
       final peak = peakForm(days, DateTime(2026, 5, 2), DateTime(2026, 5, 20))!;
       expect(days.every((d) => d.form <= peak.form), isTrue);
       expect(peak.form, greaterThan(0));
-      expect(peakForm(days, DateTime(2026, 7, 1), DateTime(2026, 7, 2)), isNull);
+      expect(
+        peakForm(days, DateTime(2026, 7, 1), DateTime(2026, 7, 2)),
+        isNull,
+      );
     });
 
     test('form bands', () {
@@ -69,18 +79,28 @@ void main() {
 
   group('season', () {
     final a = SeasonRace(
-      date: DateTime(2026, 9, 20), name: 'Ironman', priority: 'A',
+      date: DateTime(2026, 9, 20),
+      name: 'Ironman',
+      priority: 'A',
     );
     final b = SeasonRace(
-      date: DateTime(2026, 7, 5), name: 'Half', priority: 'B',
+      date: DateTime(2026, 7, 5),
+      name: 'Half',
+      priority: 'B',
     );
 
     test('blocks run build → taper → race → recovery per race', () {
       final blocks = buildSeason([a, b], DateTime(2026, 6, 1));
       final kinds = [for (final x in blocks) x.kind];
       expect(kinds, [
-        BlockKind.build, BlockKind.taper, BlockKind.race, BlockKind.recovery,
-        BlockKind.build, BlockKind.taper, BlockKind.race, BlockKind.recovery,
+        BlockKind.build,
+        BlockKind.taper,
+        BlockKind.race,
+        BlockKind.recovery,
+        BlockKind.build,
+        BlockKind.taper,
+        BlockKind.race,
+        BlockKind.recovery,
       ]);
       expect(blocks[1].days, 7); // B taper
       expect(blocks[5].days, 14); // A taper
@@ -104,10 +124,14 @@ void main() {
 
     test('conflicts: two close A races, a C inside an A taper, same day', () {
       final a2 = SeasonRace(
-        date: DateTime(2026, 10, 18), name: 'Marathon', priority: 'A',
+        date: DateTime(2026, 10, 18),
+        name: 'Marathon',
+        priority: 'A',
       );
       final c = SeasonRace(
-        date: DateTime(2026, 9, 10), name: 'Fun run', priority: 'C',
+        date: DateTime(2026, 9, 10),
+        name: 'Fun run',
+        priority: 'C',
       );
       final dup = SeasonRace(date: a.date, name: 'Other', priority: 'B');
       final kinds = [
@@ -120,10 +144,14 @@ void main() {
 
     test('a race after a B race is inside its recovery', () {
       final c = SeasonRace(
-        date: DateTime(2026, 7, 8), name: 'Fun', priority: 'C',
+        date: DateTime(2026, 7, 8),
+        name: 'Fun',
+        priority: 'C',
       );
       expect(
-        [for (final x in findConflicts([b, c])) x.kind],
+        [
+          for (final x in findConflicts([b, c])) x.kind,
+        ],
         [ConflictKind.insideRecovery],
       );
     });
@@ -148,12 +176,20 @@ void main() {
 
     test('raceFromEvent reads the category', () {
       final r = raceFromEvent(
-        category: 'RACE_B', date: '2026-07-05', name: null, type: 'Run',
+        category: 'RACE_B',
+        date: '2026-07-05',
+        name: null,
+        type: 'Run',
       );
       expect(r!.priority, 'B');
       expect(r.name, 'Race B');
       expect(
-        raceFromEvent(category: 'NOTE', date: '2026-07-05', name: 'x', type: null),
+        raceFromEvent(
+          category: 'NOTE',
+          date: '2026-07-05',
+          name: 'x',
+          type: null,
+        ),
         isNull,
       );
     });

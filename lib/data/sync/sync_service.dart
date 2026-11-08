@@ -220,8 +220,9 @@ class SyncService {
     Duration maxAge = const Duration(hours: 1),
   }) async {
     if (!_session.isConnected) return;
-    final last = (await _syncStateRepository.get(_eventsHorizonScope))
-        ?.lastSyncedAt;
+    final last = (await _syncStateRepository.get(
+      _eventsHorizonScope,
+    ))?.lastSyncedAt;
     if (last != null && DateTime.now().difference(last) < maxAge) return;
     await syncEventsHorizon();
   }

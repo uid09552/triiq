@@ -13,8 +13,7 @@ String isoDate(DateTime date) =>
     '${date.day.toString().padLeft(2, '0')}';
 
 /// Midnight local, so day arithmetic isn't skewed by the current time.
-DateTime dateOnly(DateTime date) =>
-    DateTime(date.year, date.month, date.day);
+DateTime dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 
 /// The Monday of [date]'s week — Intervals.icu weeks start on Monday.
 DateTime startOfWeek(DateTime date) =>

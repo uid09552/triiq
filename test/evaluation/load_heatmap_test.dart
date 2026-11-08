@@ -3,17 +3,18 @@ import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/evaluation/load_heatmap.dart';
 import 'package:triiq/evaluation/training_analytics.dart';
 
-LocalActivity act(String date, int tss, {String type = 'Ride'}) => LocalActivity(
-  id: '$date$type$tss',
-  date: date,
-  type: type,
-  name: null,
-  movingTime: 3600,
-  distance: null,
-  trainingLoad: tss,
-  raw: const {},
-  syncedAt: DateTime(2026),
-);
+LocalActivity act(String date, int tss, {String type = 'Ride'}) =>
+    LocalActivity(
+      id: '$date$type$tss',
+      date: date,
+      type: type,
+      name: null,
+      movingTime: 3600,
+      distance: null,
+      trainingLoad: tss,
+      raw: const {},
+      syncedAt: DateTime(2026),
+    );
 
 void main() {
   // 2026-10-05 is a Monday.

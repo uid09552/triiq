@@ -14,17 +14,16 @@ import 'package:triiq/client/intervalls/src/model/new_custom_item.dart';
 import 'package:triiq/client/intervalls/src/model/upload_wellness_request.dart';
 
 class CustomItemsApi {
-
   final Dio _dio;
 
   const CustomItemsApi(this._dio);
 
   /// Create a custom item
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [customItem] 
+  /// * [id]
+  /// * [customItem]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -34,7 +33,7 @@ class CustomItemsApi {
   ///
   /// Returns a [Future] containing a [Response] with a [NewCustomItem] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<NewCustomItem>> createCustomItem({ 
+  Future<Response<NewCustomItem>> createCustomItem({
     required String id,
     required CustomItem customItem,
     CancelToken? cancelToken,
@@ -44,23 +43,19 @@ class CustomItemsApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -72,13 +67,9 @@ class CustomItemsApi {
 
     try {
       _bodyData = jsonEncode(customItem);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -97,9 +88,14 @@ class CustomItemsApi {
     NewCustomItem? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomItem>(rawData, 'NewCustomItem', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<NewCustomItem, NewCustomItem>(
+              rawData,
+              'NewCustomItem',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -123,11 +119,11 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
   }
 
   /// Delete a custom item
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [itemId] 
+  /// * [id]
+  /// * [itemId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -137,7 +133,7 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> deleteCustomItem({ 
+  Future<Response<void>> deleteCustomItem({
     required String id,
     required int itemId,
     CancelToken? cancelToken,
@@ -147,23 +143,26 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'itemId' '}', itemId.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'itemId'
+          '}',
+          itemId.toString(),
+        );
     final _options = Options(
       method: r'DELETE',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -182,11 +181,11 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
   }
 
   /// Get a custom item
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [itemId] 
+  /// * [id]
+  /// * [itemId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -196,7 +195,7 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
   ///
   /// Returns a [Future] containing a [Response] with a [CustomItem] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<CustomItem>> getCustomItem({ 
+  Future<Response<CustomItem>> getCustomItem({
     required String id,
     required int itemId,
     CancelToken? cancelToken,
@@ -206,23 +205,26 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'itemId' '}', itemId.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'itemId'
+          '}',
+          itemId.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -240,9 +242,14 @@ _responseData = rawData == null ? null : deserialize<NewCustomItem, NewCustomIte
     CustomItem? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(rawData, 'CustomItem', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<CustomItem, CustomItem>(
+              rawData,
+              'CustomItem',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -266,10 +273,10 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
   }
 
   /// List custom items (charts, custom fields etc.)
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -279,7 +286,7 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [List<CustomItem>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<CustomItem>>> listCustomItems({ 
+  Future<Response<List<CustomItem>>> listCustomItems({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -288,23 +295,19 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -322,9 +325,14 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
     List<CustomItem>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<CustomItem>, CustomItem>(rawData, 'List<CustomItem>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<CustomItem>, CustomItem>(
+              rawData,
+              'List<CustomItem>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -348,12 +356,12 @@ _responseData = rawData == null ? null : deserialize<List<CustomItem>, CustomIte
   }
 
   /// Update a custom item
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [itemId] 
-  /// * [customItem] 
+  /// * [id]
+  /// * [itemId]
+  /// * [customItem]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -363,7 +371,7 @@ _responseData = rawData == null ? null : deserialize<List<CustomItem>, CustomIte
   ///
   /// Returns a [Future] containing a [Response] with a [CustomItem] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<CustomItem>> updateCustomItem({ 
+  Future<Response<CustomItem>> updateCustomItem({
     required String id,
     required int itemId,
     required CustomItem customItem,
@@ -374,23 +382,26 @@ _responseData = rawData == null ? null : deserialize<List<CustomItem>, CustomIte
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'itemId' '}', itemId.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'itemId'
+          '}',
+          itemId.toString(),
+        );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -402,13 +413,9 @@ _responseData = rawData == null ? null : deserialize<List<CustomItem>, CustomIte
 
     try {
       _bodyData = jsonEncode(customItem);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -427,9 +434,14 @@ _responseData = rawData == null ? null : deserialize<List<CustomItem>, CustomIte
     CustomItem? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(rawData, 'CustomItem', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<CustomItem, CustomItem>(
+              rawData,
+              'CustomItem',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -453,12 +465,12 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
   }
 
   /// Upload a new image for a custom item as multipart/form-data
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [itemId] 
-  /// * [uploadWellnessRequest] 
+  /// * [id]
+  /// * [itemId]
+  /// * [uploadWellnessRequest]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -468,7 +480,7 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [CustomItem] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<CustomItem>> updateCustomItemImage({ 
+  Future<Response<CustomItem>> updateCustomItemImage({
     required String id,
     required int itemId,
     UploadWellnessRequest? uploadWellnessRequest,
@@ -479,23 +491,26 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}/image'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'itemId' '}', itemId.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item/{itemId}/image'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'itemId'
+          '}',
+          itemId.toString(),
+        );
     final _options = Options(
       method: r'POST',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -507,13 +522,9 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
 
     try {
       _bodyData = jsonEncode(uploadWellnessRequest);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -532,9 +543,14 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
     CustomItem? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(rawData, 'CustomItem', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<CustomItem, CustomItem>(
+              rawData,
+              'CustomItem',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -558,11 +574,11 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
   }
 
   /// Re-order custom items
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [customItem] 
+  /// * [id]
+  /// * [customItem]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -572,7 +588,7 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> updateCustomItemIndexes({ 
+  Future<Response<void>> updateCustomItemIndexes({
     required String id,
     required List<CustomItem> customItem,
     CancelToken? cancelToken,
@@ -582,23 +598,19 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/custom-item-indexes'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/custom-item-indexes'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -610,13 +622,9 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
 
     try {
       _bodyData = jsonEncode(customItem);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -634,5 +642,4 @@ _responseData = rawData == null ? null : deserialize<CustomItem, CustomItem>(raw
 
     return _response;
   }
-
 }

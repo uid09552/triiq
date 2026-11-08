@@ -82,37 +82,42 @@ void main() {
     expect(syncCalls, 0);
   });
 
-  test('does nothing, and does not count a failure, without a stored key', () async {
-    final outcome = await runner(connection: RestoreFailure.noKey).run();
+  test(
+    'does nothing, and does not count a failure, without a stored key',
+    () async {
+      final outcome = await runner(connection: RestoreFailure.noKey).run();
 
-    expect(outcome, BackgroundSyncOutcome.notConnected);
-    expect(syncCalls, 0);
-    expect(settings.backgroundFailures, 0);
-  });
+      expect(outcome, BackgroundSyncOutcome.notConnected);
+      expect(syncCalls, 0);
+      expect(settings.backgroundFailures, 0);
+    },
+  );
 
   test('a network error is recorded as a failure without notifying', () async {
-    final outcome = await runner(
-      sync: () async => throw httpError(503),
-    ).run();
+    final outcome = await runner(sync: () async => throw httpError(503)).run();
 
     expect(outcome, BackgroundSyncOutcome.failed);
     expect(settings.backgroundFailures, 1);
     expect(notifications, isEmpty);
   });
 
-  test('notifies once after three failures in a row, then stays quiet', () async {
-    Future<void> fail() => runner(sync: () async => throw httpError(500)).run();
+  test(
+    'notifies once after three failures in a row, then stays quiet',
+    () async {
+      Future<void> fail() =>
+          runner(sync: () async => throw httpError(500)).run();
 
-    await fail();
-    await fail();
-    expect(notifications, isEmpty);
-    await fail();
-    expect(notifications, [false]);
-    await fail();
-    await fail();
-    expect(notifications, [false]);
-    expect(settings.backgroundFailures, 5);
-  });
+      await fail();
+      await fail();
+      expect(notifications, isEmpty);
+      await fail();
+      expect(notifications, [false]);
+      await fail();
+      await fail();
+      expect(notifications, [false]);
+      expect(settings.backgroundFailures, 5);
+    },
+  );
 
   test('a success resets the failure streak', () async {
     Future<void> fail() => runner(sync: () async => throw httpError(500)).run();
@@ -137,20 +142,21 @@ void main() {
   });
 
   test('a 401 during the fetch counts as a rejected key', () async {
-    final outcome = await runner(
-      sync: () async => throw httpError(401),
-    ).run();
+    final outcome = await runner(sync: () async => throw httpError(401)).run();
 
     expect(outcome, BackgroundSyncOutcome.authRejected);
     expect(notifications, [true]);
   });
 
-  test('offline at restore is a retryable failure, not a rejected key', () async {
-    final outcome = await runner(connection: RestoreFailure.network).run();
+  test(
+    'offline at restore is a retryable failure, not a rejected key',
+    () async {
+      final outcome = await runner(connection: RestoreFailure.network).run();
 
-    expect(outcome, BackgroundSyncOutcome.failed);
-    expect(notifications, isEmpty);
-  });
+      expect(outcome, BackgroundSyncOutcome.failed);
+      expect(notifications, isEmpty);
+    },
+  );
 
   group('initialDelayFor', () {
     test('before the window end waits until 05:00 today', () {

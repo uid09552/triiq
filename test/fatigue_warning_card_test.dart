@@ -18,8 +18,18 @@ class _Service implements FatigueWarningService {
     signals: level == FatigueLevel.none
         ? const []
         : const [
-            FatigueSignal(kind: FatigueSignalKind.hrvLow, badDays: 4, dataDays: 5, fires: true),
-            FatigueSignal(kind: FatigueSignalKind.sleepShort, badDays: 3, dataDays: 5, fires: true),
+            FatigueSignal(
+              kind: FatigueSignalKind.hrvLow,
+              badDays: 4,
+              dataDays: 5,
+              fires: true,
+            ),
+            FatigueSignal(
+              kind: FatigueSignalKind.sleepShort,
+              badDays: 3,
+              dataDays: 5,
+              fires: true,
+            ),
           ],
   );
 
@@ -41,23 +51,35 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   testWidgets('nothing for level none', (t) async {
-    await t.pumpWidget(wrap(FatigueWarningBanner(
-      service: _Service(FatigueLevel.none), sync: _Ping(),
-    )));
+    await t.pumpWidget(
+      wrap(
+        FatigueWarningBanner(
+          service: _Service(FatigueLevel.none),
+          sync: _Ping(),
+        ),
+      ),
+    );
     await t.pumpAndSettle();
     expect(find.byKey(const ValueKey('fatigue-card')), findsNothing);
   });
 
-  testWidgets('watch lists the reasons; dismissing hides it for the day', (t) async {
+  testWidgets('watch lists the reasons; dismissing hides it for the day', (
+    t,
+  ) async {
     final clock = DateTime(2026, 5, 20, 8);
     final sync = _Ping();
     final service = _Service(FatigueLevel.watch);
-    await t.pumpWidget(wrap(FatigueWarningBanner(
-      service: service, sync: sync, clock: () => clock,
-    )));
+    await t.pumpWidget(
+      wrap(
+        FatigueWarningBanner(service: service, sync: sync, clock: () => clock),
+      ),
+    );
     await t.pumpAndSettle();
     expect(find.text('Fatigue is building'), findsOneWidget);
-    expect(find.textContaining('HRV below your normal on 4 of the last 5 days'), findsOneWidget);
+    expect(
+      find.textContaining('HRV below your normal on 4 of the last 5 days'),
+      findsOneWidget,
+    );
 
     await t.tap(find.byKey(const ValueKey('fatigue-dismiss')));
     await t.pumpAndSettle();

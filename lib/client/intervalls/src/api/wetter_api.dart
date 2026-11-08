@@ -13,16 +13,15 @@ import 'package:triiq/client/intervalls/src/model/weather_config.dart';
 import 'package:triiq/client/intervalls/src/model/weather_dto.dart';
 
 class WetterApi {
-
   final Dio _dio;
 
   const WetterApi(this._dio);
 
   /// Get weather forecast information
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -32,7 +31,7 @@ class WetterApi {
   ///
   /// Returns a [Future] containing a [Response] with a [WeatherDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<WeatherDTO>> getForecast({ 
+  Future<Response<WeatherDTO>> getForecast({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -41,23 +40,19 @@ class WetterApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/weather-forecast'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/weather-forecast'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -75,9 +70,14 @@ class WetterApi {
     WeatherDTO? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<WeatherDTO, WeatherDTO>(rawData, 'WeatherDTO', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<WeatherDTO, WeatherDTO>(
+              rawData,
+              'WeatherDTO',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -101,10 +101,10 @@ _responseData = rawData == null ? null : deserialize<WeatherDTO, WeatherDTO>(raw
   }
 
   /// Get the athlete&#39;s weather forecast configuration
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -114,7 +114,7 @@ _responseData = rawData == null ? null : deserialize<WeatherDTO, WeatherDTO>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [WeatherConfig] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<WeatherConfig>> getWeatherConfig({ 
+  Future<Response<WeatherConfig>> getWeatherConfig({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -123,23 +123,19 @@ _responseData = rawData == null ? null : deserialize<WeatherDTO, WeatherDTO>(raw
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/weather-config'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/weather-config'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -157,9 +153,14 @@ _responseData = rawData == null ? null : deserialize<WeatherDTO, WeatherDTO>(raw
     WeatherConfig? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfig>(rawData, 'WeatherConfig', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<WeatherConfig, WeatherConfig>(
+              rawData,
+              'WeatherConfig',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -183,11 +184,11 @@ _responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfi
   }
 
   /// Update the athlete&#39;s weather forecast configuration
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [weatherConfig] 
+  /// * [id]
+  /// * [weatherConfig]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -197,7 +198,7 @@ _responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfi
   ///
   /// Returns a [Future] containing a [Response] with a [WeatherConfig] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<WeatherConfig>> updateWeatherConfig({ 
+  Future<Response<WeatherConfig>> updateWeatherConfig({
     required String id,
     required WeatherConfig weatherConfig,
     CancelToken? cancelToken,
@@ -207,23 +208,19 @@ _responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfi
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/weather-config'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/weather-config'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -235,13 +232,9 @@ _responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfi
 
     try {
       _bodyData = jsonEncode(weatherConfig);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -260,9 +253,14 @@ _responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfi
     WeatherConfig? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfig>(rawData, 'WeatherConfig', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<WeatherConfig, WeatherConfig>(
+              rawData,
+              'WeatherConfig',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -284,5 +282,4 @@ _responseData = rawData == null ? null : deserialize<WeatherConfig, WeatherConfi
       extra: _response.extra,
     );
   }
-
 }

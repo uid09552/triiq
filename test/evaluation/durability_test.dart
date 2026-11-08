@@ -108,85 +108,109 @@ void main() {
   });
 
   test('candidates: rides by work, runs by distance, other sports never', () {
-    LocalActivity act(String type, {double? joules, int secs = 3600, double dist = 0}) =>
-        LocalActivity(
-          id: type,
-          date: '2026-10-01',
-          type: type,
-          name: null,
-          movingTime: secs,
-          distance: dist,
-          trainingLoad: 50,
-          raw: {'icu_joules': ?joules},
-          syncedAt: DateTime(2026),
-        );
-    expect(isDurabilityCandidate(act('Ride', joules: 1.2e6), LoadSport.ride), isTrue);
-    expect(isDurabilityCandidate(act('Ride', joules: 8e5), LoadSport.ride), isFalse);
-    expect(isDurabilityCandidate(act('Ride', secs: 6000), LoadSport.ride), isTrue);
-    expect(isDurabilityCandidate(act('Run', dist: 12000), LoadSport.run), isTrue);
-    expect(isDurabilityCandidate(act('Run', dist: 8000), LoadSport.run), isFalse);
-    expect(isDurabilityCandidate(act('Swim', dist: 4000), LoadSport.ride), isFalse);
+    LocalActivity act(
+      String type, {
+      double? joules,
+      int secs = 3600,
+      double dist = 0,
+    }) => LocalActivity(
+      id: type,
+      date: '2026-10-01',
+      type: type,
+      name: null,
+      movingTime: secs,
+      distance: dist,
+      trainingLoad: 50,
+      raw: {'icu_joules': ?joules},
+      syncedAt: DateTime(2026),
+    );
+    expect(
+      isDurabilityCandidate(act('Ride', joules: 1.2e6), LoadSport.ride),
+      isTrue,
+    );
+    expect(
+      isDurabilityCandidate(act('Ride', joules: 8e5), LoadSport.ride),
+      isFalse,
+    );
+    expect(
+      isDurabilityCandidate(act('Ride', secs: 6000), LoadSport.ride),
+      isTrue,
+    );
+    expect(
+      isDurabilityCandidate(act('Run', dist: 12000), LoadSport.run),
+      isTrue,
+    );
+    expect(
+      isDurabilityCandidate(act('Run', dist: 8000), LoadSport.run),
+      isFalse,
+    );
+    expect(
+      isDurabilityCandidate(act('Swim', dist: 4000), LoadSport.ride),
+      isFalse,
+    );
   });
 
-  test('loader keeps the best per level across sessions, fresh from the curve',
-      () async {
-    final now = DateTime(2026, 11, 7);
-    LocalActivity ride(String id, String date) => LocalActivity(
-      id: id,
-      date: date,
-      type: 'Ride',
-      name: id,
-      movingTime: 14400,
-      distance: 100000,
-      trainingLoad: 200,
-      raw: {'icu_joules': 2.5e6},
-      syncedAt: now,
-    );
-    // Ride a: 3 h at 250 W. Ride b: 3 h at 220 W. Both pass 1000 kJ at 4000 s
-    // (a) / 4545 s (b), 2000 kJ at 8000 s / 9090 s; 3000 kJ never.
-    SessionStreams streams(double w) => SessionStreams(
-      series: {
-        'time': [for (var i = 0; i < 10800; i++) i.toDouble()],
-        'watts': List<double?>.filled(10800, w),
-      },
-    );
-    final db = ActivitiesRepository();
-    await db.upsertAll([ride('a', '2026-10-20'), ride('b', '2026-10-25')]);
-
-    final loader = DurabilityLoader(
-      activities: db,
-      streams: ActivityStreamsRepository(
-        fetch: (id) async => streams(id == 'a' ? 250 : 220),
-      ),
-      curves: PerformanceCurvesRepository(
-        fetch: (sport, metric) async => {
-          'list': [
-            {
-              'id': 's0',
-              'secs': [5, 60, 300, 1200, 3600],
-              'values': [900, 500, 380, 310, 270],
-            },
-          ],
+  test(
+    'loader keeps the best per level across sessions, fresh from the curve',
+    () async {
+      final now = DateTime(2026, 11, 7);
+      LocalActivity ride(String id, String date) => LocalActivity(
+        id: id,
+        date: date,
+        type: 'Ride',
+        name: id,
+        movingTime: 14400,
+        distance: 100000,
+        trainingLoad: 200,
+        raw: {'icu_joules': 2.5e6},
+        syncedAt: now,
+      );
+      // Ride a: 3 h at 250 W. Ride b: 3 h at 220 W. Both pass 1000 kJ at 4000 s
+      // (a) / 4545 s (b), 2000 kJ at 8000 s / 9090 s; 3000 kJ never.
+      SessionStreams streams(double w) => SessionStreams(
+        series: {
+          'time': [for (var i = 0; i < 10800; i++) i.toDouble()],
+          'watts': List<double?>.filled(10800, w),
         },
-      ),
-      clock: () => now,
-    );
-    final progress = <int>[];
-    final r = await loader.load(
-      CurveSport.ride,
-      90,
-      onProgress: (done, total) => progress.add(done),
-    );
+      );
+      final db = ActivitiesRepository();
+      await db.upsertAll([ride('a', '2026-10-20'), ride('b', '2026-10-25')]);
 
-    expect(r.candidates, 2);
-    expect(r.analysed, 2);
-    expect(r.fatigued[0].values[1], 250); // after 1000 kJ: the better ride
-    expect(r.fatigued[1].values[1], 250); // after 2000 kJ
-    expect(r.fatigued[2].hasData, isFalse); // nobody did 3000 kJ
-    expect(r.fresh.values[1], 500); // from the season curve
-    expect(r.retained(r.fatigued[0], 1), closeTo(0.5, 1e-9));
-    expect(progress.first, 0);
-    expect(progress.last, 2);
-    expect(isoDate(now), '2026-11-07');
-  });
+      final loader = DurabilityLoader(
+        activities: db,
+        streams: ActivityStreamsRepository(
+          fetch: (id) async => streams(id == 'a' ? 250 : 220),
+        ),
+        curves: PerformanceCurvesRepository(
+          fetch: (sport, metric) async => {
+            'list': [
+              {
+                'id': 's0',
+                'secs': [5, 60, 300, 1200, 3600],
+                'values': [900, 500, 380, 310, 270],
+              },
+            ],
+          },
+        ),
+        clock: () => now,
+      );
+      final progress = <int>[];
+      final r = await loader.load(
+        CurveSport.ride,
+        90,
+        onProgress: (done, total) => progress.add(done),
+      );
+
+      expect(r.candidates, 2);
+      expect(r.analysed, 2);
+      expect(r.fatigued[0].values[1], 250); // after 1000 kJ: the better ride
+      expect(r.fatigued[1].values[1], 250); // after 2000 kJ
+      expect(r.fatigued[2].hasData, isFalse); // nobody did 3000 kJ
+      expect(r.fresh.values[1], 500); // from the season curve
+      expect(r.retained(r.fatigued[0], 1), closeTo(0.5, 1e-9));
+      expect(progress.first, 0);
+      expect(progress.last, 2);
+      expect(isoDate(now), '2026-11-07');
+    },
+  );
 }

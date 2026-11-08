@@ -150,10 +150,7 @@ class _PressableRingState extends State<_PressableRing> {
           borderRadius: BorderRadius.circular(16),
           onLongPress: widget.onLongPress,
           onHighlightChanged: (v) => setState(() => _pressed = v),
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: widget.child,
-          ),
+          child: Padding(padding: const EdgeInsets.all(4), child: widget.child),
         ),
       ),
     );
@@ -186,16 +183,17 @@ class WeeklyHoursBar extends StatelessWidget {
       0,
       (sum, a) => sum + (a.movingTime ?? 0),
     );
-    final otherSeconds = totalSeconds -
-        bySport.values.fold<int>(0, (sum, v) => sum + v);
+    final otherSeconds =
+        totalSeconds - bySport.values.fold<int>(0, (sum, v) => sum + v);
     final hours = totalSeconds / 3600;
     final target = targetHours;
-    final scaleSeconds = (target != null && target > 0
-            ? target * 3600
-            : totalSeconds.toDouble())
-        .clamp(1, double.infinity)
-        .toDouble();
-    final denominator = totalSeconds > scaleSeconds ? totalSeconds : scaleSeconds;
+    final scaleSeconds =
+        (target != null && target > 0 ? target * 3600 : totalSeconds.toDouble())
+            .clamp(1, double.infinity)
+            .toDouble();
+    final denominator = totalSeconds > scaleSeconds
+        ? totalSeconds
+        : scaleSeconds;
 
     Widget segment(int seconds, Color color) => seconds <= 0
         ? const SizedBox.shrink()
@@ -221,17 +219,17 @@ class WeeklyHoursBar extends StatelessWidget {
           children: [
             Text(
               l10n.weeklyHoursLabel,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
             const Spacer(),
             Text(
               text,
               key: const ValueKey('weekly-hours-text'),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),

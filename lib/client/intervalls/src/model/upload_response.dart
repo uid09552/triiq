@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'upload_response.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,66 +18,30 @@ part 'upload_response.g.dart';
 )
 class UploadResponse {
   /// Returns a new [UploadResponse] instance.
-  UploadResponse({
+  UploadResponse({this.icuAthleteId, this.id, this.activities});
 
-     this.icuAthleteId,
-
-     this.id,
-
-     this.activities,
-  });
-
-  @JsonKey(
-    
-    name: r'icu_athlete_id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'icu_athlete_id', required: false, includeIfNull: false)
   final String? icuAthleteId;
 
-
-
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
-  @JsonKey(
-    
-    name: r'activities',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'activities', required: false, includeIfNull: false)
   final List<ActivityId>? activities;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UploadResponse &&
+          other.icuAthleteId == icuAthleteId &&
+          other.id == id &&
+          other.activities == activities;
 
+  @override
+  int get hashCode => icuAthleteId.hashCode + id.hashCode + activities.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is UploadResponse &&
-      other.icuAthleteId == icuAthleteId &&
-      other.id == id &&
-      other.activities == activities;
-
-    @override
-    int get hashCode =>
-        icuAthleteId.hashCode +
-        id.hashCode +
-        activities.hashCode;
-
-  factory UploadResponse.fromJson(Map<String, dynamic> json) => _$UploadResponseFromJson(json);
+  factory UploadResponse.fromJson(Map<String, dynamic> json) =>
+      _$UploadResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$UploadResponseToJson(this);
 
@@ -86,6 +49,4 @@ class UploadResponse {
   String toString() {
     return toJson().toString();
   }
-
 }
-

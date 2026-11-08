@@ -90,7 +90,10 @@ void _keepHomeWidgetFresh() {
   Timer? pending;
   void schedule() {
     pending?.cancel();
-    pending = Timer(const Duration(seconds: 2), () => unawaited(updater.update()));
+    pending = Timer(
+      const Duration(seconds: 2),
+      () => unawaited(updater.update()),
+    );
   }
 
   AutoSyncService.instance.addListener(schedule);
@@ -105,7 +108,10 @@ void _keepBriefingFresh() {
   Timer? pending;
   void schedule() {
     pending?.cancel();
-    pending = Timer(const Duration(seconds: 3), () => unawaited(scheduler.refresh()));
+    pending = Timer(
+      const Duration(seconds: 3),
+      () => unawaited(scheduler.refresh()),
+    );
   }
 
   AutoSyncService.instance.addListener(schedule);

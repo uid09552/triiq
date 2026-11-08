@@ -121,10 +121,7 @@ class _MoreTile extends StatelessWidget {
             color: colorScheme.primary.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: colorScheme.primary,
-          ),
+          child: Icon(icon, color: colorScheme.primary),
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: subtitle != null ? Text(subtitle!) : null,

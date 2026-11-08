@@ -53,7 +53,10 @@ Future<void> showPlanSessionSheet(
             children: [
               Row(
                 children: [
-                  Icon(activityTypeIcon(sport), color: sportColor(sport, scheme)),
+                  Icon(
+                    activityTypeIcon(sport),
+                    color: sportColor(sport, scheme),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -144,10 +147,8 @@ Future<void> showPlanSessionSheetFor(BuildContext context, PlanSession s) =>
       load: s.load,
       description: s.description,
       sent: s.status == PlanSessionStatus.created,
-      onChange: () => openChangeTraining(
-        context,
-        PlannedItemsRepository.toLocalEvent(s),
-      ),
+      onChange: () =>
+          openChangeTraining(context, PlannedItemsRepository.toLocalEvent(s)),
     );
 
 /// [showPlanSessionSheet] for a plan session as the Calendar holds it.

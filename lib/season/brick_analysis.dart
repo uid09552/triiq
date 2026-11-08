@@ -185,7 +185,13 @@ _runMetrics(SessionStreams streams) {
     }
   }
   settle ??= 600;
-  return (early: early, rest: rest, hrEarly: hrEarly, hrRest: hrRest, settle: settle);
+  return (
+    early: early,
+    rest: rest,
+    hrEarly: hrEarly,
+    hrRest: hrRest,
+    settle: settle,
+  );
 }
 
 /// Judges a brick: the transition from the two start times, the run's
@@ -229,7 +235,8 @@ BrickAnalysis analyseBrick(Brick brick, SessionStreams? secondStreams) {
   }
   if (speedRatio < 0.93) notes.add(BrickNote.slowStart);
   if (hrCost != null && hrCost > 1.08) notes.add(BrickNote.highEarlyCost);
-  if (hardFirst && verdict != BrickVerdict.good) notes.add(BrickNote.hardFirstLeg);
+  if (hardFirst && verdict != BrickVerdict.good)
+    notes.add(BrickNote.hardFirstLeg);
 
   return BrickAnalysis(
     brick: brick,

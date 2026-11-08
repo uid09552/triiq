@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'pace_distances_dto.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,50 +17,26 @@ part 'pace_distances_dto.g.dart';
 )
 class PaceDistancesDTO {
   /// Returns a new [PaceDistancesDTO] instance.
-  PaceDistancesDTO({
+  PaceDistancesDTO({this.distances, this.defaults});
 
-     this.distances,
-
-     this.defaults,
-  });
-
-  @JsonKey(
-    
-    name: r'distances',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'distances', required: false, includeIfNull: false)
   final List<double>? distances;
 
-
-
-  @JsonKey(
-    
-    name: r'defaults',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'defaults', required: false, includeIfNull: false)
   final List<double>? defaults;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PaceDistancesDTO &&
+          other.distances == distances &&
+          other.defaults == defaults;
 
+  @override
+  int get hashCode => distances.hashCode + defaults.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is PaceDistancesDTO &&
-      other.distances == distances &&
-      other.defaults == defaults;
-
-    @override
-    int get hashCode =>
-        distances.hashCode +
-        defaults.hashCode;
-
-  factory PaceDistancesDTO.fromJson(Map<String, dynamic> json) => _$PaceDistancesDTOFromJson(json);
+  factory PaceDistancesDTO.fromJson(Map<String, dynamic> json) =>
+      _$PaceDistancesDTOFromJson(json);
 
   Map<String, dynamic> toJson() => _$PaceDistancesDTOToJson(this);
 
@@ -69,6 +44,4 @@ class PaceDistancesDTO {
   String toString() {
     return toJson().toString();
   }
-
 }
-

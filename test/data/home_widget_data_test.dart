@@ -4,16 +4,35 @@ import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/models/local_wellness.dart';
 
-LocalEvent ev(String name, {int? load, int? secs, String category = 'WORKOUT'}) =>
-    LocalEvent(
-      id: name, date: '2026-05-10', category: category, type: 'Run', name: name,
-      description: null, plannedLoad: load, plannedTime: secs,
-      plannedDistance: null, indoor: false, raw: const {}, syncedAt: DateTime(2026),
-    );
+LocalEvent ev(
+  String name, {
+  int? load,
+  int? secs,
+  String category = 'WORKOUT',
+}) => LocalEvent(
+  id: name,
+  date: '2026-05-10',
+  category: category,
+  type: 'Run',
+  name: name,
+  description: null,
+  plannedLoad: load,
+  plannedTime: secs,
+  plannedDistance: null,
+  indoor: false,
+  raw: const {},
+  syncedAt: DateTime(2026),
+);
 
 LocalWellness well(double ctl, double atl) => LocalWellness(
-  date: '2026-05-10', ctl: ctl, atl: atl, ctlLoad: null, atlLoad: null,
-  rampRate: null, raw: const {}, syncedAt: DateTime(2026),
+  date: '2026-05-10',
+  ctl: ctl,
+  atl: atl,
+  ctlLoad: null,
+  atlLoad: null,
+  rampRate: null,
+  raw: const {},
+  syncedAt: DateTime(2026),
 );
 
 void main() {
@@ -43,7 +62,10 @@ void main() {
 
   test('nothing planned or no fitness leaves the entries empty', () {
     final e = buildHomeWidgetData(
-      planned: const [], done: const [], latest: null, now: now,
+      planned: const [],
+      done: const [],
+      latest: null,
+      now: now,
     ).toEntries();
     expect(e['w_session1'], '');
     expect(e['w_form'], '');
@@ -52,11 +74,21 @@ void main() {
 
   test('completed load is shown', () {
     final a = LocalActivity(
-      id: 'a', date: '2026-05-10', type: 'Run', name: 'x', movingTime: 1,
-      distance: null, trainingLoad: 55, raw: const {}, syncedAt: DateTime(2026),
+      id: 'a',
+      date: '2026-05-10',
+      type: 'Run',
+      name: 'x',
+      movingTime: 1,
+      distance: null,
+      trainingLoad: 55,
+      raw: const {},
+      syncedAt: DateTime(2026),
     );
     final e = buildHomeWidgetData(
-      planned: const [], done: [a, a], latest: well(50, 40), now: now,
+      planned: const [],
+      done: [a, a],
+      latest: well(50, 40),
+      now: now,
     ).toEntries();
     expect(e['w_done'], '110 TSS');
     expect(e['w_form'], '+10');
@@ -64,8 +96,14 @@ void main() {
 
   group('weekly target rings', () {
     LocalActivity act(String type, int secs) => LocalActivity(
-      id: type + secs.toString(), date: '2026-05-10', type: type, name: 'x',
-      movingTime: secs, distance: null, trainingLoad: null, raw: const {},
+      id: type + secs.toString(),
+      date: '2026-05-10',
+      type: type,
+      name: 'x',
+      movingTime: secs,
+      distance: null,
+      trainingLoad: null,
+      raw: const {},
       syncedAt: DateTime(2026),
     );
 
@@ -82,7 +120,11 @@ void main() {
       expect(rings.map((r) => r.sport), ['cycle', 'run']);
       expect(rings[0].percent, 58); // 3.5 / 6
       final e = buildHomeWidgetData(
-        planned: const [], done: const [], latest: null, now: now, rings: rings,
+        planned: const [],
+        done: const [],
+        latest: null,
+        now: now,
+        rings: rings,
       ).toEntries();
       expect(e['w_swim_pct'], '');
       expect(e['w_cycle_pct'], '58');
@@ -97,7 +139,10 @@ void main() {
     });
 
     test('no targets at all gives no rings', () {
-      expect(buildWidgetRings({'swim': null, 'cycle': 0.0, 'run': null}, const []), isEmpty);
+      expect(
+        buildWidgetRings({'swim': null, 'cycle': 0.0, 'run': null}, const []),
+        isEmpty,
+      );
     });
   });
 }

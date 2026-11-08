@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'data_curve_pt.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -18,82 +17,35 @@ part 'data_curve_pt.g.dart';
 )
 class DataCurvePt {
   /// Returns a new [DataCurvePt] instance.
-  DataCurvePt({
+  DataCurvePt({this.startIndex, this.endIndex, this.secs, this.value});
 
-     this.startIndex,
-
-     this.endIndex,
-
-     this.secs,
-
-     this.value,
-  });
-
-  @JsonKey(
-    
-    name: r'start_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'start_index', required: false, includeIfNull: false)
   final int? startIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'end_index',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'end_index', required: false, includeIfNull: false)
   final int? endIndex;
 
-
-
-  @JsonKey(
-    
-    name: r'secs',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'secs', required: false, includeIfNull: false)
   final int? secs;
 
-
-
-  @JsonKey(
-    
-    name: r'value',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'value', required: false, includeIfNull: false)
   final int? value;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DataCurvePt &&
+          other.startIndex == startIndex &&
+          other.endIndex == endIndex &&
+          other.secs == secs &&
+          other.value == value;
 
+  @override
+  int get hashCode =>
+      startIndex.hashCode + endIndex.hashCode + secs.hashCode + value.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DataCurvePt &&
-      other.startIndex == startIndex &&
-      other.endIndex == endIndex &&
-      other.secs == secs &&
-      other.value == value;
-
-    @override
-    int get hashCode =>
-        startIndex.hashCode +
-        endIndex.hashCode +
-        secs.hashCode +
-        value.hashCode;
-
-  factory DataCurvePt.fromJson(Map<String, dynamic> json) => _$DataCurvePtFromJson(json);
+  factory DataCurvePt.fromJson(Map<String, dynamic> json) =>
+      _$DataCurvePtFromJson(json);
 
   Map<String, dynamic> toJson() => _$DataCurvePtToJson(this);
 
@@ -101,6 +53,4 @@ class DataCurvePt {
   String toString() {
     return toJson().toString();
   }
-
 }
-

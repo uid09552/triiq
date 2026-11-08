@@ -68,15 +68,12 @@ class SimpleBarChart extends StatelessWidget {
         void handleTap(Offset position) {
           if (bars.isEmpty || onSelect == null) return;
           final barWidth = constraints.maxWidth / bars.length;
-          onSelect!(
-            (position.dx / barWidth).floor().clamp(0, bars.length - 1),
-          );
+          onSelect!((position.dx / barWidth).floor().clamp(0, bars.length - 1));
         }
 
         return GestureDetector(
           onTapDown: (details) => handleTap(details.localPosition),
-          onHorizontalDragUpdate: (details) =>
-              handleTap(details.localPosition),
+          onHorizontalDragUpdate: (details) => handleTap(details.localPosition),
           child: CustomPaint(
             size: Size(constraints.maxWidth, constraints.maxHeight),
             painter: _BarChartPainter(
@@ -84,8 +81,9 @@ class SimpleBarChart extends StatelessWidget {
               selected: selectedIndex,
               barColor: barColor ?? colorScheme.primary,
               selectedBarColor: colorScheme.tertiary,
-              targetColor:
-                  (targetColor ?? colorScheme.tertiary).withValues(alpha: 0.3),
+              targetColor: (targetColor ?? colorScheme.tertiary).withValues(
+                alpha: 0.3,
+              ),
               tickColor: colorScheme.onSurface,
               labelEvery: labelEvery,
               showAverage: showAverage,

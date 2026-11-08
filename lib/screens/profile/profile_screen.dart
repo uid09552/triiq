@@ -44,9 +44,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = AppLocalizations.of(context)!.couldNotConnectGeneric(
-          e.toString(),
-        );
+        _error = AppLocalizations.of(
+          context,
+        )!.couldNotConnectGeneric(e.toString());
         _connecting = false;
       });
     }
@@ -104,11 +104,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : connected
                           ? (_session.athleteName ?? l10n.connectedLabel)
                           : l10n.notConnected,
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -140,9 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ? l10n.apiKeyHelpSecure
                                 : l10n.apiKeyHelpInsecure,
                             style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
                           ),
                           const SizedBox(height: 12),
                           TextField(

@@ -8,7 +8,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'athlete_connections.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -19,353 +18,172 @@ part 'athlete_connections.g.dart';
 class AthleteConnections {
   /// Returns a new [AthleteConnections] instance.
   AthleteConnections({
+    this.id,
 
-     this.id,
+    this.garminHealthConnected,
 
-     this.garminHealthConnected,
+    this.garminTrainingConnected,
 
-     this.garminTrainingConnected,
+    this.polarConnected,
 
-     this.polarConnected,
+    this.suuntoConnected,
 
-     this.suuntoConnected,
+    this.corosConnected,
 
-     this.corosConnected,
+    this.concept2Connected,
 
-     this.concept2Connected,
+    this.zeppConnected,
 
-     this.zeppConnected,
+    this.huaweiConnected,
 
-     this.huaweiConnected,
+    this.wahooConnected,
 
-     this.wahooConnected,
+    this.zwiftConnected,
 
-     this.zwiftConnected,
+    this.ouraConnected,
 
-     this.ouraConnected,
+    this.whoopConnected,
 
-     this.whoopConnected,
+    this.stravaConnected,
 
-     this.stravaConnected,
+    this.dropboxConnected,
 
-     this.dropboxConnected,
+    this.hammerheadConnected,
 
-     this.hammerheadConnected,
+    this.tpVirtualConnected,
 
-     this.tpVirtualConnected,
+    this.rouvyConnected,
 
-     this.rouvyConnected,
+    this.mywhooshConnected,
 
-     this.mywhooshConnected,
+    this.biketerraConnected,
 
-     this.biketerraConnected,
-
-     this.tymewearConnected,
+    this.tymewearConnected,
   });
 
-  @JsonKey(
-    
-    name: r'id',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'id', required: false, includeIfNull: false)
   final String? id;
 
-
-
   @JsonKey(
-    
     name: r'garmin_health_connected',
     required: false,
     includeIfNull: false,
   )
-
-
   final bool? garminHealthConnected;
 
-
-
   @JsonKey(
-    
     name: r'garmin_training_connected',
     required: false,
     includeIfNull: false,
   )
-
-
   final bool? garminTrainingConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'polar_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'polar_connected', required: false, includeIfNull: false)
   final bool? polarConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'suunto_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'suunto_connected', required: false, includeIfNull: false)
   final bool? suuntoConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'coros_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'coros_connected', required: false, includeIfNull: false)
   final bool? corosConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'concept2_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'concept2_connected', required: false, includeIfNull: false)
   final bool? concept2Connected;
 
-
-
-  @JsonKey(
-    
-    name: r'zepp_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'zepp_connected', required: false, includeIfNull: false)
   final bool? zeppConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'huawei_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'huawei_connected', required: false, includeIfNull: false)
   final bool? huaweiConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'wahoo_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'wahoo_connected', required: false, includeIfNull: false)
   final bool? wahooConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'zwift_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'zwift_connected', required: false, includeIfNull: false)
   final bool? zwiftConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'oura_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'oura_connected', required: false, includeIfNull: false)
   final bool? ouraConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'whoop_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'whoop_connected', required: false, includeIfNull: false)
   final bool? whoopConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'strava_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'strava_connected', required: false, includeIfNull: false)
   final bool? stravaConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'dropbox_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'dropbox_connected', required: false, includeIfNull: false)
   final bool? dropboxConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'hammerhead_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'hammerhead_connected', required: false, includeIfNull: false)
   final bool? hammerheadConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'tp_virtual_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'tp_virtual_connected', required: false, includeIfNull: false)
   final bool? tpVirtualConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'rouvy_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'rouvy_connected', required: false, includeIfNull: false)
   final bool? rouvyConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'mywhoosh_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'mywhoosh_connected', required: false, includeIfNull: false)
   final bool? mywhooshConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'biketerra_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'biketerra_connected', required: false, includeIfNull: false)
   final bool? biketerraConnected;
 
-
-
-  @JsonKey(
-    
-    name: r'tymewear_connected',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'tymewear_connected', required: false, includeIfNull: false)
   final bool? tymewearConnected;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AthleteConnections &&
+          other.id == id &&
+          other.garminHealthConnected == garminHealthConnected &&
+          other.garminTrainingConnected == garminTrainingConnected &&
+          other.polarConnected == polarConnected &&
+          other.suuntoConnected == suuntoConnected &&
+          other.corosConnected == corosConnected &&
+          other.concept2Connected == concept2Connected &&
+          other.zeppConnected == zeppConnected &&
+          other.huaweiConnected == huaweiConnected &&
+          other.wahooConnected == wahooConnected &&
+          other.zwiftConnected == zwiftConnected &&
+          other.ouraConnected == ouraConnected &&
+          other.whoopConnected == whoopConnected &&
+          other.stravaConnected == stravaConnected &&
+          other.dropboxConnected == dropboxConnected &&
+          other.hammerheadConnected == hammerheadConnected &&
+          other.tpVirtualConnected == tpVirtualConnected &&
+          other.rouvyConnected == rouvyConnected &&
+          other.mywhooshConnected == mywhooshConnected &&
+          other.biketerraConnected == biketerraConnected &&
+          other.tymewearConnected == tymewearConnected;
 
+  @override
+  int get hashCode =>
+      id.hashCode +
+      garminHealthConnected.hashCode +
+      garminTrainingConnected.hashCode +
+      polarConnected.hashCode +
+      suuntoConnected.hashCode +
+      corosConnected.hashCode +
+      concept2Connected.hashCode +
+      zeppConnected.hashCode +
+      huaweiConnected.hashCode +
+      wahooConnected.hashCode +
+      zwiftConnected.hashCode +
+      ouraConnected.hashCode +
+      whoopConnected.hashCode +
+      stravaConnected.hashCode +
+      dropboxConnected.hashCode +
+      hammerheadConnected.hashCode +
+      tpVirtualConnected.hashCode +
+      rouvyConnected.hashCode +
+      mywhooshConnected.hashCode +
+      biketerraConnected.hashCode +
+      tymewearConnected.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is AthleteConnections &&
-      other.id == id &&
-      other.garminHealthConnected == garminHealthConnected &&
-      other.garminTrainingConnected == garminTrainingConnected &&
-      other.polarConnected == polarConnected &&
-      other.suuntoConnected == suuntoConnected &&
-      other.corosConnected == corosConnected &&
-      other.concept2Connected == concept2Connected &&
-      other.zeppConnected == zeppConnected &&
-      other.huaweiConnected == huaweiConnected &&
-      other.wahooConnected == wahooConnected &&
-      other.zwiftConnected == zwiftConnected &&
-      other.ouraConnected == ouraConnected &&
-      other.whoopConnected == whoopConnected &&
-      other.stravaConnected == stravaConnected &&
-      other.dropboxConnected == dropboxConnected &&
-      other.hammerheadConnected == hammerheadConnected &&
-      other.tpVirtualConnected == tpVirtualConnected &&
-      other.rouvyConnected == rouvyConnected &&
-      other.mywhooshConnected == mywhooshConnected &&
-      other.biketerraConnected == biketerraConnected &&
-      other.tymewearConnected == tymewearConnected;
-
-    @override
-    int get hashCode =>
-        id.hashCode +
-        garminHealthConnected.hashCode +
-        garminTrainingConnected.hashCode +
-        polarConnected.hashCode +
-        suuntoConnected.hashCode +
-        corosConnected.hashCode +
-        concept2Connected.hashCode +
-        zeppConnected.hashCode +
-        huaweiConnected.hashCode +
-        wahooConnected.hashCode +
-        zwiftConnected.hashCode +
-        ouraConnected.hashCode +
-        whoopConnected.hashCode +
-        stravaConnected.hashCode +
-        dropboxConnected.hashCode +
-        hammerheadConnected.hashCode +
-        tpVirtualConnected.hashCode +
-        rouvyConnected.hashCode +
-        mywhooshConnected.hashCode +
-        biketerraConnected.hashCode +
-        tymewearConnected.hashCode;
-
-  factory AthleteConnections.fromJson(Map<String, dynamic> json) => _$AthleteConnectionsFromJson(json);
+  factory AthleteConnections.fromJson(Map<String, dynamic> json) =>
+      _$AthleteConnectionsFromJson(json);
 
   Map<String, dynamic> toJson() => _$AthleteConnectionsToJson(this);
 
@@ -373,6 +191,4 @@ class AthleteConnections {
   String toString() {
     return toJson().toString();
   }
-
 }
-

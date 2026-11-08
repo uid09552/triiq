@@ -40,11 +40,15 @@ void main() {
     ),
   );
 
-  testWidgets('a local plan session is marked and opens its steps',
-      (tester) async {
+  testWidgets('a local plan session is marked and opens its steps', (
+    tester,
+  ) async {
     await pump(tester, session(sent: false));
 
-    expect(find.textContaining('TriIQ plan · 150 min · 145 TSS'), findsOneWidget);
+    expect(
+      find.textContaining('TriIQ plan · 150 min · 145 TSS'),
+      findsOneWidget,
+    );
     expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
     // A session that only lives in TriIQ can always be deleted.
     expect(find.byIcon(Icons.delete_outline), findsOneWidget);

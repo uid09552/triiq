@@ -28,11 +28,28 @@ void main() {
     });
 
     test('Android allows cleartext only outside the services TriIQ uses', () {
-      final manifest = File('android/app/src/main/AndroidManifest.xml').readAsStringSync();
-      expect(manifest, contains('android:networkSecurityConfig="@xml/network_security_config"'));
-      final config = File('android/app/src/main/res/xml/network_security_config.xml').readAsStringSync();
-      expect(config, contains('<domain-config cleartextTrafficPermitted="false">'));
-      for (final d in ['intervals.icu', 'anthropic.com', 'ollama.com', 'openstreetmap.org']) {
+      final manifest = File(
+        'android/app/src/main/AndroidManifest.xml',
+      ).readAsStringSync();
+      expect(
+        manifest,
+        contains(
+          'android:networkSecurityConfig="@xml/network_security_config"',
+        ),
+      );
+      final config = File(
+        'android/app/src/main/res/xml/network_security_config.xml',
+      ).readAsStringSync();
+      expect(
+        config,
+        contains('<domain-config cleartextTrafficPermitted="false">'),
+      );
+      for (final d in [
+        'intervals.icu',
+        'anthropic.com',
+        'ollama.com',
+        'openstreetmap.org',
+      ]) {
         expect(config, contains('>$d<'), reason: d);
       }
     });
@@ -69,17 +86,20 @@ void main() {
       expect(await File('$from-wal').exists(), isFalse);
     });
 
-    test('an existing database at the new place is never overwritten', () async {
-      final from = p.join(dir.path, 'a.db');
-      final to = p.join(dir.path, 'b.db');
-      await File(from).writeAsString('old');
-      await File(to).writeAsString('current');
+    test(
+      'an existing database at the new place is never overwritten',
+      () async {
+        final from = p.join(dir.path, 'a.db');
+        final to = p.join(dir.path, 'b.db');
+        await File(from).writeAsString('old');
+        await File(to).writeAsString('current');
 
-      await AppDatabase.migrateLegacyDatabase(from: from, to: to);
+        await AppDatabase.migrateLegacyDatabase(from: from, to: to);
 
-      expect(await File(to).readAsString(), 'current');
-      expect(await File(from).readAsString(), 'old');
-    });
+        expect(await File(to).readAsString(), 'current');
+        expect(await File(from).readAsString(), 'old');
+      },
+    );
 
     test('nothing to move is a no-op', () async {
       final to = p.join(dir.path, 'b.db');

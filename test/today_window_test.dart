@@ -28,8 +28,9 @@ void main() {
   });
 
   test('ignores the time of day', () {
-    final (oldest, newest) =
-        SyncService.todayWindow(DateTime(2026, 8, 26, 23, 59, 59));
+    final (oldest, newest) = SyncService.todayWindow(
+      DateTime(2026, 8, 26, 23, 59, 59),
+    );
 
     expect(oldest, DateTime(2026, 8, 24));
     expect(newest, DateTime(2026, 8, 30));

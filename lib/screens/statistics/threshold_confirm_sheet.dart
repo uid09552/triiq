@@ -129,7 +129,10 @@ class _ThresholdConfirmSheetState extends State<ThresholdConfirmSheet> {
                       thresholdValueLabel(_s, _s.currentValue),
                     ),
                   ),
-                  Icon(Icons.arrow_forward, color: colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.arrow_forward,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   Expanded(
                     child: _valueTile(
                       context,
@@ -201,7 +204,10 @@ class _ThresholdConfirmSheetState extends State<ThresholdConfirmSheet> {
               if (_applied)
                 Row(
                   children: [
-                    Icon(Icons.check_circle_outline, color: colorScheme.tertiary),
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: colorScheme.tertiary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(child: Text(l10n.thresholdUpdateSuccess)),
                     TextButton(

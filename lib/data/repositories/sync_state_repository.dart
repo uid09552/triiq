@@ -41,10 +41,12 @@ class SyncStateRepository {
     final db = await _database.database;
     final existing = await get(scope);
 
-    final mergedOldest = existing == null || oldest.compareTo(existing.oldest) < 0
+    final mergedOldest =
+        existing == null || oldest.compareTo(existing.oldest) < 0
         ? oldest
         : existing.oldest;
-    final mergedNewest = existing == null || newest.compareTo(existing.newest) > 0
+    final mergedNewest =
+        existing == null || newest.compareTo(existing.newest) > 0
         ? newest
         : existing.newest;
 

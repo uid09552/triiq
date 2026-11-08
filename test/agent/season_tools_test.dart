@@ -11,8 +11,14 @@ class _Wellness implements WellnessRepository {
   @override
   Future<List<LocalWellness>> getRange(String a, String b) async => [
     LocalWellness(
-      date: '2026-05-09', ctl: 60, atl: 70, ctlLoad: null, atlLoad: null,
-      rampRate: null, raw: const {}, syncedAt: DateTime(2026),
+      date: '2026-05-09',
+      ctl: 60,
+      atl: 70,
+      ctlLoad: null,
+      atlLoad: null,
+      rampRate: null,
+      raw: const {},
+      syncedAt: DateTime(2026),
     ),
   ];
 
@@ -25,14 +31,26 @@ class _NoGoal extends GoalStore {
   Future<Goal?> load() async => null;
 }
 
-LocalEvent ev(String id, String date, String category,
-        {String? end, int load = 60}) =>
-    LocalEvent(
-      id: id, date: date, category: category, type: 'Run', name: id,
-      description: null, plannedLoad: load, plannedTime: 3600,
-      plannedDistance: null, indoor: false,
-      raw: {if (end != null) 'end_date_local': end}, syncedAt: DateTime(2026),
-    );
+LocalEvent ev(
+  String id,
+  String date,
+  String category, {
+  String? end,
+  int load = 60,
+}) => LocalEvent(
+  id: id,
+  date: date,
+  category: category,
+  type: 'Run',
+  name: id,
+  description: null,
+  plannedLoad: load,
+  plannedTime: 3600,
+  plannedDistance: null,
+  indoor: false,
+  raw: {if (end != null) 'end_date_local': end},
+  syncedAt: DateTime(2026),
+);
 
 void main() {
   late List<LocalEvent> events;
@@ -60,32 +78,38 @@ void main() {
     final last = (out['weekly'] as List).last as Map;
     expect(last['ctl'], greaterThan(45));
     expect(out['assumed_from'], isNotNull);
-    expect((out['blocks'] as List).map((b) => (b as Map)['kind']),
-        contains('taper'));
+    expect(
+      (out['blocks'] as List).map((b) => (b as Map)['kind']),
+      contains('taper'),
+    );
   });
 
   test('health tool lists proposals and says it cannot apply', () async {
-    events = [
-      ev('s', '2026-05-08', 'SICK'),
-      ev('w', '2026-05-11', 'WORKOUT'),
-    ];
+    events = [ev('s', '2026-05-08', 'SICK'), ev('w', '2026-05-11', 'WORKOUT')];
     final out = await SeasonTools(season: service).healthStatus();
     expect(out['status'], 'affected');
     expect((out['proposed_changes'] as List).single['action'], 'rest');
     expect(out['note'], contains('cannot apply'));
     events = [];
-    expect((await SeasonTools(season: service).healthStatus())['status'], 'healthy');
+    expect(
+      (await SeasonTools(season: service).healthStatus())['status'],
+      'healthy',
+    );
   });
 
   test('race tool rejects an unknown race and names ids', () async {
-    final out = await SeasonTools(season: service).racePrediction({'race': 'x'});
+    final out = await SeasonTools(
+      season: service,
+    ).racePrediction({'race': 'x'});
     expect(out['error'], contains('half70'));
   });
 
   test('race tool predicts from injected inputs', () async {
     final loader = _Loader();
-    final out = await SeasonTools(season: service, raceInputs: loader)
-        .racePrediction({'race': 'run10k'});
+    final out = await SeasonTools(
+      season: service,
+      raceInputs: loader,
+    ).racePrediction({'race': 'run10k'});
     expect(out['complete'], isTrue);
     expect(out['total_seconds'], closeTo(2500, 5));
   });

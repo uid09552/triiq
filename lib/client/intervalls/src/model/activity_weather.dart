@@ -10,7 +10,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'activity_weather.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(
   checked: true,
@@ -20,50 +19,26 @@ part 'activity_weather.g.dart';
 )
 class ActivityWeather {
   /// Returns a new [ActivityWeather] instance.
-  ActivityWeather({
+  ActivityWeather({this.points, this.closestPoints});
 
-     this.points,
-
-     this.closestPoints,
-  });
-
-  @JsonKey(
-    
-    name: r'points',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'points', required: false, includeIfNull: false)
   final List<WeatherPoint>? points;
 
-
-
-  @JsonKey(
-    
-    name: r'closest_points',
-    required: false,
-    includeIfNull: false,
-  )
-
-
+  @JsonKey(name: r'closest_points', required: false, includeIfNull: false)
   final List<Closest>? closestPoints;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityWeather &&
+          other.points == points &&
+          other.closestPoints == closestPoints;
 
+  @override
+  int get hashCode => points.hashCode + closestPoints.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is ActivityWeather &&
-      other.points == points &&
-      other.closestPoints == closestPoints;
-
-    @override
-    int get hashCode =>
-        points.hashCode +
-        closestPoints.hashCode;
-
-  factory ActivityWeather.fromJson(Map<String, dynamic> json) => _$ActivityWeatherFromJson(json);
+  factory ActivityWeather.fromJson(Map<String, dynamic> json) =>
+      _$ActivityWeatherFromJson(json);
 
   Map<String, dynamic> toJson() => _$ActivityWeatherToJson(this);
 
@@ -71,6 +46,4 @@ class ActivityWeather {
   String toString() {
     return toJson().toString();
   }
-
 }
-

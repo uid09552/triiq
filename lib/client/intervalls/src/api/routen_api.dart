@@ -14,7 +14,6 @@ import 'package:triiq/client/intervalls/src/model/route_similarity.dart';
 import 'package:triiq/client/intervalls/src/model/with_count.dart';
 
 class RoutenApi {
-
   final Dio _dio;
 
   const RoutenApi(this._dio);
@@ -23,9 +22,9 @@ class RoutenApi {
   /// Returned routes include path information
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [routeId] 
-  /// * [otherId] 
+  /// * [id]
+  /// * [routeId]
+  /// * [otherId]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -35,7 +34,7 @@ class RoutenApi {
   ///
   /// Returns a [Future] containing a [Response] with a [RouteSimilarity] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<RouteSimilarity>> checkMerge({ 
+  Future<Response<RouteSimilarity>> checkMerge({
     required String id,
     required int routeId,
     required int otherId,
@@ -46,23 +45,33 @@ class RoutenApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/routes/{route_id}/similarity/{other_id}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'route_id' '}', routeId.toString()).replaceAll('{' r'other_id' '}', otherId.toString());
+    final _path =
+        r'/api/v1/athlete/{id}/routes/{route_id}/similarity/{other_id}'
+            .replaceAll(
+              '{'
+              r'id'
+              '}',
+              id.toString(),
+            )
+            .replaceAll(
+              '{'
+              r'route_id'
+              '}',
+              routeId.toString(),
+            )
+            .replaceAll(
+              '{'
+              r'other_id'
+              '}',
+              otherId.toString(),
+            );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -80,9 +89,14 @@ class RoutenApi {
     RouteSimilarity? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<RouteSimilarity, RouteSimilarity>(rawData, 'RouteSimilarity', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<RouteSimilarity, RouteSimilarity>(
+              rawData,
+              'RouteSimilarity',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -106,11 +120,11 @@ _responseData = rawData == null ? null : deserialize<RouteSimilarity, RouteSimil
   }
 
   /// Get a route for an athlete
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [routeId] 
+  /// * [id]
+  /// * [routeId]
   /// * [includePath] - Include latlngs for the route GPS path
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -121,7 +135,7 @@ _responseData = rawData == null ? null : deserialize<RouteSimilarity, RouteSimil
   ///
   /// Returns a [Future] containing a [Response] with a [AthleteRoute] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<AthleteRoute>> getAthleteRoute({ 
+  Future<Response<AthleteRoute>> getAthleteRoute({
     required String id,
     required int routeId,
     bool? includePath = false,
@@ -132,23 +146,26 @@ _responseData = rawData == null ? null : deserialize<RouteSimilarity, RouteSimil
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/routes/{route_id}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'route_id' '}', routeId.toString());
+    final _path = r'/api/v1/athlete/{id}/routes/{route_id}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'route_id'
+          '}',
+          routeId.toString(),
+        );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -171,9 +188,14 @@ _responseData = rawData == null ? null : deserialize<RouteSimilarity, RouteSimil
     AthleteRoute? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>(rawData, 'AthleteRoute', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<AthleteRoute, AthleteRoute>(
+              rawData,
+              'AthleteRoute',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -200,7 +222,7 @@ _responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>
   /// The path (latlngs) is not included
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [id]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -210,7 +232,7 @@ _responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>
   ///
   /// Returns a [Future] containing a [Response] with a [List<WithCount>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<List<WithCount>>> listAthleteRoutes({ 
+  Future<Response<List<WithCount>>> listAthleteRoutes({
     required String id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -219,23 +241,19 @@ _responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/routes'.replaceAll('{' r'id' '}', id.toString());
+    final _path = r'/api/v1/athlete/{id}/routes'.replaceAll(
+      '{'
+      r'id'
+      '}',
+      id.toString(),
+    );
     final _options = Options(
       method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -253,9 +271,14 @@ _responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>
     List<WithCount>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<List<WithCount>, WithCount>(rawData, 'List<WithCount>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<List<WithCount>, WithCount>(
+              rawData,
+              'List<WithCount>',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -279,12 +302,12 @@ _responseData = rawData == null ? null : deserialize<List<WithCount>, WithCount>
   }
 
   /// Update a route for an athlete
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [id] 
-  /// * [routeId] 
-  /// * [athleteRoute] 
+  /// * [id]
+  /// * [routeId]
+  /// * [athleteRoute]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -294,7 +317,7 @@ _responseData = rawData == null ? null : deserialize<List<WithCount>, WithCount>
   ///
   /// Returns a [Future] containing a [Response] with a [AthleteRoute] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<AthleteRoute>> updateAthleteRoute({ 
+  Future<Response<AthleteRoute>> updateAthleteRoute({
     required String id,
     required int routeId,
     required AthleteRoute athleteRoute,
@@ -305,23 +328,26 @@ _responseData = rawData == null ? null : deserialize<List<WithCount>, WithCount>
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/v1/athlete/{id}/routes/{route_id}'.replaceAll('{' r'id' '}', id.toString()).replaceAll('{' r'route_id' '}', routeId.toString());
+    final _path = r'/api/v1/athlete/{id}/routes/{route_id}'
+        .replaceAll(
+          '{'
+          r'id'
+          '}',
+          id.toString(),
+        )
+        .replaceAll(
+          '{'
+          r'route_id'
+          '}',
+          routeId.toString(),
+        );
     final _options = Options(
       method: r'PUT',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
+      headers: <String, dynamic>{...?headers},
       extra: <String, dynamic>{
         'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'basic',
-            'name': 'APIKey',
-          },{
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'AccessToken',
-          },
+          {'type': 'http', 'scheme': 'basic', 'name': 'APIKey'},
+          {'type': 'http', 'scheme': 'bearer', 'name': 'AccessToken'},
         ],
         ...?extra,
       },
@@ -333,13 +359,9 @@ _responseData = rawData == null ? null : deserialize<List<WithCount>, WithCount>
 
     try {
       _bodyData = jsonEncode(athleteRoute);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
+        requestOptions: _options.compose(_dio.options, _path),
         type: DioExceptionType.unknown,
         error: error,
         stackTrace: stackTrace,
@@ -358,9 +380,14 @@ _responseData = rawData == null ? null : deserialize<List<WithCount>, WithCount>
     AthleteRoute? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>(rawData, 'AthleteRoute', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<AthleteRoute, AthleteRoute>(
+              rawData,
+              'AthleteRoute',
+              growable: true,
+            );
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -382,5 +409,4 @@ _responseData = rawData == null ? null : deserialize<AthleteRoute, AthleteRoute>
       extra: _response.extra,
     );
   }
-
 }

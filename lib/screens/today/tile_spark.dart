@@ -75,7 +75,10 @@ class TileSparkLoader {
     final out = <TileMetric, TileSpark>{};
 
     final lineStart = today.subtract(const Duration(days: lineDays - 1));
-    final records = await _wellness.getRange(isoDate(lineStart), isoDate(today));
+    final records = await _wellness.getRange(
+      isoDate(lineStart),
+      isoDate(today),
+    );
     final byDate = {for (final r in records) r.date: r};
     List<double?> series(double? Function(dynamic r) read) => [
       for (var i = 0; i < lineDays; i++)
@@ -85,7 +88,8 @@ class TileSparkLoader {
       final s = series(read);
       final trend = lineTrend(s);
       final values = s.whereType<double>().toList();
-      if (trend != null && values.length >= 2) out[m] = TileSpark(values, trend);
+      if (trend != null && values.length >= 2)
+        out[m] = TileSpark(values, trend);
     }
 
     line(TileMetric.ctl, (r) => r?.ctl as double?);
@@ -98,9 +102,14 @@ class TileSparkLoader {
           : null,
     );
 
-    final weekStart = startOfWeek(today).subtract(const Duration(days: 7 * (weeks - 1)));
+    final weekStart = startOfWeek(
+      today,
+    ).subtract(const Duration(days: 7 * (weeks - 1)));
     final from = weekStart.isBefore(lineStart) ? weekStart : lineStart;
-    final activities = await _activities.getRange(isoDate(from), isoDate(today));
+    final activities = await _activities.getRange(
+      isoDate(from),
+      isoDate(today),
+    );
     final daily = List<double>.filled(lineDays, 0);
     final weekly = List<double>.filled(weeks, 0);
     for (final a in activities) {

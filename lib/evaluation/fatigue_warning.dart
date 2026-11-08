@@ -48,7 +48,14 @@ class FatigueRules {
   final int subjectiveDays;
 }
 
-enum FatigueSignalKind { hrvLow, restingHrHigh, sleepShort, formLow, rampHigh, subjective }
+enum FatigueSignalKind {
+  hrvLow,
+  restingHrHigh,
+  sleepShort,
+  formLow,
+  rampHigh,
+  subjective,
+}
 
 class FatigueSignal {
   const FatigueSignal({
@@ -64,7 +71,8 @@ class FatigueSignal {
   final bool fires;
 
   bool get physiological =>
-      kind == FatigueSignalKind.hrvLow || kind == FatigueSignalKind.restingHrHigh;
+      kind == FatigueSignalKind.hrvLow ||
+      kind == FatigueSignalKind.restingHrHigh;
   bool get load =>
       kind == FatigueSignalKind.formLow || kind == FatigueSignalKind.rampHigh;
 }
@@ -72,7 +80,11 @@ class FatigueSignal {
 enum FatigueLevel { none, watch, warning }
 
 class FatigueWarning {
-  const FatigueWarning({required this.level, required this.signals, required this.window});
+  const FatigueWarning({
+    required this.level,
+    required this.signals,
+    required this.window,
+  });
 
   final FatigueLevel level;
 
@@ -80,7 +92,10 @@ class FatigueWarning {
   final List<FatigueSignal> signals;
   final int window;
 
-  List<FatigueSignal> get firing => [for (final s in signals) if (s.fires) s];
+  List<FatigueSignal> get firing => [
+    for (final s in signals)
+      if (s.fires) s,
+  ];
 
   Map<String, dynamic> toJson() => {
     'level': level.name,
@@ -239,13 +254,14 @@ FatigueWarning evaluateFatigue(
   final firing = signals.where((s) => s.fires).toList();
   final physio = firing.where((s) => s.physiological).toList();
   final other = firing.where((s) => !s.physiological).toList();
-  final loadOrFeel = other.any((s) => s.load || s.kind == FatigueSignalKind.subjective);
+  final loadOrFeel = other.any(
+    (s) => s.load || s.kind == FatigueSignalKind.subjective,
+  );
 
   FatigueLevel level;
   if (firing.length >= 3 || (physio.isNotEmpty && loadOrFeel)) {
     level = FatigueLevel.warning;
-  } else if (firing.length >= 2 ||
-      physio.any((s) => s.badDays >= 4)) {
+  } else if (firing.length >= 2 || physio.any((s) => s.badDays >= 4)) {
     level = FatigueLevel.watch;
   } else {
     level = FatigueLevel.none;

@@ -134,10 +134,15 @@ the single read path for the UI.
   Intervals.icu profile picture once connected, their initial otherwise —
   pushes `ProfileScreen` (connect/disconnect Intervals.icu, link to
   Settings);
-- a bottom `NavigationBar` with five destinations, kept alive via
-  `IndexedStack`: **Today**, **Calendar**, **Chat**, **Statistics**, **More**.
-- **More** is the submenu: Profile, Settings, **Sync**, **Training plan**, plus a disabled
-  placeholder for gear.
+- five destinations, kept alive via `IndexedStack`: **Today**, **Calendar**,
+  **Chat**, **Insights**, **More** — a bottom `NavigationBar` on phones, a
+  `NavigationRail` from 840 px wide (`railBreakpoint`), extended with labels
+  from 1,200 px (Windows, tablets);
+- wide windows: Today goes two columns from 900 px (what to do today on the
+  left, figures and the rest on the right), Insights lays its charts out two
+  by two (`ResponsiveColumns`, `lib/widgets/responsive.dart`), Chat and More
+  are capped in width (`ContentWidth`);
+- **More** is grouped into Plan, Trainer and Data.
 
 ### Session & sync
 
@@ -952,7 +957,13 @@ explanation, the zoomable graph, "Show history" and "Open in Intervals.icu".
 sheet (`customize_today_sheet.dart`) to drag the sections below the hero
 (readiness, adjustments, load tiles, weekly targets, threshold suggestions,
 activities, today's/tomorrow's training, athlete) into any order and switch
-each off; stored by `TodayLayoutSettings` (`shared_preferences`). Long-pressing
+each off; stored by `TodayLayoutSettings` (`shared_preferences`). A new
+install (and "Reset layout") starts lean: readiness, today's training,
+adjustments, load tiles and today's activities; weekly targets, year goals,
+thresholds, tomorrow and athlete are off. An existing install that never
+customized keeps every section (detected by other stored preferences, then
+saved). Cards with a header fold on a tap; the folded state is stored too.
+Long-pressing
 today's planned training — or the selected day's card in the Calendar —
 offers to delete all of that day's Intervals.icu planned sessions
 (`confirmAndDeleteDaysWorkouts`); TriIQ plan sessions are left to the Plan

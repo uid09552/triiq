@@ -111,9 +111,9 @@ void main() {
         sqfliteFfiInit();
         databaseFactory = databaseFactoryFfi;
         // Real I/O has to run outside the test's fake-async zone.
-      final dir = (await tester.runAsync(
-        () => Directory.systemTemp.createTemp('triiq_chip'),
-      ))!;
+        final dir = (await tester.runAsync(
+          () => Directory.systemTemp.createTemp('triiq_chip'),
+        ))!;
         final db = AppDatabase.atPath(p.join(dir.path, 'triiq.db'));
         addTearDown(() async {
           await db.close();
@@ -296,11 +296,11 @@ void main() {
         expect(writer.deleted, isEmpty); // nothing written yet
 
         // Let the snackbar finish sliding in before pressing its action.
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.tap(find.text('Undo'));
-      for (var i = 0; i < 3; i++) {
-        await tester.pump(const Duration(milliseconds: 400));
-      }
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.tap(find.text('Undo'));
+        for (var i = 0; i < 3; i++) {
+          await tester.pump(const Duration(milliseconds: 400));
+        }
         expect(hidden.isHidden('501'), isFalse);
         expect(writer.deleted, isEmpty);
         expect(

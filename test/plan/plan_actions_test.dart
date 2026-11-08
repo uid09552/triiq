@@ -500,71 +500,84 @@ void main() {
       expect(await events.getByDate(isoDate(day)), isEmpty);
     });
 
-    test('offline with no known account: refused, nothing changes locally',
-        () async {
-      final session = await planSession(eventId: '300');
-      connected = false;
-      final noAccount = PlanActions(
-        workouts: workouts,
-        plans: plans,
-        events: events,
-        sendEnabled: () => send,
-        connected: () => connected,
-        queue: PendingWritesService(
-          athleteId: () async => null,
-          connectedAthleteId: () => null,
-          repository: PendingWritesRepository(database: database),
-          writer: workouts,
+    test(
+      'offline with no known account: refused, nothing changes locally',
+      () async {
+        final session = await planSession(eventId: '300');
+        connected = false;
+        final noAccount = PlanActions(
+          workouts: workouts,
           plans: plans,
           events: events,
-        ),
-        resync: (_) async {},
-        goals: GoalStore(),
-        clock: () => DateTime(2026, 11, 2, 9),
-      );
-      await expectLater(
-        noAccount.replaceSession(
+          sendEnabled: () => send,
+          connected: () => connected,
+          queue: PendingWritesService(
+            athleteId: () async => null,
+            connectedAthleteId: () => null,
+            repository: PendingWritesRepository(database: database),
+            writer: workouts,
+            plans: plans,
+            events: events,
+          ),
+          resync: (_) async {},
+          goals: GoalStore(),
+          clock: () => DateTime(2026, 11, 2, 9),
+        );
+        await expectLater(
+          noAccount.replaceSession(
+            PlannedItemsRepository.toLocalEvent(session),
+            alternative(),
+          ),
+          throwsA(isA<ReplaceRefusedException>()),
+        );
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.name, session.name);
+        expect(after.intervalsEventId, '300');
+      },
+    );
+
+    test(
+      'a sent plan session replaced offline shows the new content at once',
+      () async {
+        final session = await planSession(eventId: '300');
+        await events.upsert(
+          LocalEvent(
+            id: '300',
+            date: isoDate(day),
+            category: 'WORKOUT',
+            type: 'Run',
+            name: 'old',
+            description: '',
+            plannedLoad: 50,
+            plannedTime: 3600,
+            plannedDistance: null,
+            indoor: false,
+            raw: const {},
+            syncedAt: day,
+          ),
+        );
+        connected = false;
+
+        final outcome = await actions().replaceSession(
           PlannedItemsRepository.toLocalEvent(session),
           alternative(),
-        ),
-        throwsA(isA<ReplaceRefusedException>()),
-      );
-      final after = (await plans.getSession(session.id!))!;
-      expect(after.name, session.name);
-      expect(after.intervalsEventId, '300');
-    });
+        );
 
-    test('a sent plan session replaced offline shows the new content at once',
-        () async {
-      final session = await planSession(eventId: '300');
-      await events.upsert(
-        LocalEvent(
-          id: '300', date: isoDate(day), category: 'WORKOUT', type: 'Run',
-          name: 'old', description: '', plannedLoad: 50, plannedTime: 3600,
-          plannedDistance: null, indoor: false, raw: const {}, syncedAt: day,
-        ),
-      );
-      connected = false;
+        expect(outcome, ReplaceOutcome.queued);
+        final local = (await plans.getSession(session.id!))!;
+        expect(local.name, 'Easy run');
+        expect(local.intervalsEventId, isNull);
+        expect(await events.getByDate(isoDate(day)), isEmpty); // old one hidden
+        expect(queue.pending, 1);
 
-      final outcome = await actions().replaceSession(
-        PlannedItemsRepository.toLocalEvent(session),
-        alternative(),
-      );
-
-      expect(outcome, ReplaceOutcome.queued);
-      final local = (await plans.getSession(session.id!))!;
-      expect(local.name, 'Easy run');
-      expect(local.intervalsEventId, isNull);
-      expect(await events.getByDate(isoDate(day)), isEmpty); // old one hidden
-      expect(queue.pending, 1);
-
-      connected = true;
-      await queue.flush();
-      final after = (await plans.getSession(session.id!))!;
-      expect(after.intervalsEventId, '901');
-      expect(after.status, PlanSessionStatus.created);
-      expect(workouts.deleted, ['300']);
-    });
+        connected = true;
+        await queue.flush();
+        final after = (await plans.getSession(session.id!))!;
+        expect(after.intervalsEventId, '901');
+        expect(after.status, PlanSessionStatus.created);
+        expect(workouts.deleted, ['300']);
+      },
+    );
 
     test('a failed delete after the create does not create twice', () async {
       final session = await planSession(eventId: '300');
