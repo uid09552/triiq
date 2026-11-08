@@ -1097,7 +1097,15 @@ rated signals and half the weakest one, so a single signal that is off — a big
 session today, a low HRV — shows in the number instead of being averaged away;
 it never reads better than the status (at most 79 on Caution, 59 on Back off).
 The morning figures (HRV, resting HR, sleep) can't see a session you do later in
-the day; Load can.
+the day; Load can. **Hold a pill** on the readiness row (the same press-and-hold peek as
+the Insights tiles, `ReadinessPeek` in `readiness_peek.dart`) to see what is
+behind it while you hold: the signal's name and rating, what it measures, its
+last 30 days as a small chart (HRV and resting HR against your normal band;
+sleep, load and fatigue/soreness as daily bars; form around zero), today's
+figure and the normal range in words; the Fitness pill shows CTL over time and
+its change against a week ago. Letting go hides it; a tap on a pill still opens
+the detail screen, and a long press elsewhere on the card still opens the
+signal options.
 Without a wearable you get "No wellness data" (and a status from form
 alone); before today's data has arrived, "Waiting for today's data". Tap the
 row for each signal's value, normal range and rating and a 30-day HRV /

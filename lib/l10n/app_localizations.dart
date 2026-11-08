@@ -7963,6 +7963,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Week before'**
   String get insPeekWeekBefore;
+
+  /// No description provided for @readinessPeekFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.'**
+  String get readinessPeekFitness;
+
+  /// No description provided for @readinessPeekToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get readinessPeekToday;
+
+  /// No description provided for @readinessPeekWeekChange.
+  ///
+  /// In en, this message translates to:
+  /// **'vs a week ago'**
+  String get readinessPeekWeekChange;
 }
 
 class _AppLocalizationsDelegate

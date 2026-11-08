@@ -9,9 +9,11 @@ import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/hold_preview.dart';
 import '../../widgets/gauge_ring.dart';
 import '../../widgets/main_navigation.dart';
 import 'readiness_options.dart';
+import 'readiness_peek.dart';
 import 'readiness_screen.dart';
 
 String readinessLevelLabel(AppLocalizations l10n, ReadinessLevel level) =>
@@ -262,23 +264,27 @@ class _SignalPills extends StatelessWidget {
         // The device's own figure is a bonus signal: no pill without one.
         if (!(s.kind == ReadinessSignalKind.device &&
             s.rating == SignalRating.missing))
-          _Pill(
-            key: ValueKey('pill-${s.kind.name}'),
-            label: readinessSignalLabel(l10n, s.kind),
-            value: valueOf(s) ?? '–',
-            color: tint(s.rating),
-            icon: switch (s.rating) {
-              SignalRating.ok => Icons.check_circle,
-              SignalRating.caution => Icons.warning_amber_rounded,
-              SignalRating.backOff => Icons.error,
-              _ => Icons.remove_circle_outline,
-            },
-            rating: switch (s.rating) {
-              SignalRating.ok => l10n.a11ySignalOk,
-              SignalRating.caution => l10n.a11ySignalCaution,
-              SignalRating.backOff => l10n.a11ySignalBackOff,
-              _ => l10n.a11ySignalNone,
-            },
+          // Hold a pill to peek at the signal behind it.
+          HoldPreview(
+            preview: (_) => ReadinessPeek.signal(signal: s, report: report),
+            child: _Pill(
+              key: ValueKey('pill-${s.kind.name}'),
+              label: readinessSignalLabel(l10n, s.kind),
+              value: valueOf(s) ?? '–',
+              color: tint(s.rating),
+              icon: switch (s.rating) {
+                SignalRating.ok => Icons.check_circle,
+                SignalRating.caution => Icons.warning_amber_rounded,
+                SignalRating.backOff => Icons.error,
+                _ => Icons.remove_circle_outline,
+              },
+              rating: switch (s.rating) {
+                SignalRating.ok => l10n.a11ySignalOk,
+                SignalRating.caution => l10n.a11ySignalCaution,
+                SignalRating.backOff => l10n.a11ySignalBackOff,
+                _ => l10n.a11ySignalNone,
+              },
+            ),
           ),
     ];
 
@@ -300,19 +306,22 @@ class _SignalPills extends StatelessWidget {
       }
       final delta = before == null ? null : last.ctl! - before;
       pills.add(
-        _Pill(
-          key: const ValueKey('pill-fitness'),
-          label: l10n.readinessFitness,
-          value:
-              '${_num(last.ctl!)}'
-              '${delta == null
-                  ? ''
-                  : delta > 0.5
-                  ? ' ↗'
-                  : delta < -0.5
-                  ? ' ↘'
-                  : ' →'}',
-          color: scheme.primary,
+        HoldPreview(
+          preview: (_) => ReadinessPeek.fitness(report: report),
+          child: _Pill(
+            key: const ValueKey('pill-fitness'),
+            label: l10n.readinessFitness,
+            value:
+                '${_num(last.ctl!)}'
+                '${delta == null
+                    ? ''
+                    : delta > 0.5
+                    ? ' ↗'
+                    : delta < -0.5
+                    ? ' ↘'
+                    : ' →'}',
+            color: scheme.primary,
+          ),
         ),
       );
     }

@@ -4830,4 +4830,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get insPeekWeekBefore => 'Woche davor';
+
+  @override
+  String get readinessPeekFitness =>
+      'Chronische Trainingsbelastung (CTL): deine über die letzten Wochen aufgebaute Fitness. Der Pfeil vergleicht sie mit vor einer Woche.';
+
+  @override
+  String get readinessPeekToday => 'Heute';
+
+  @override
+  String get readinessPeekWeekChange => 'zu vor einer Woche';
 }
