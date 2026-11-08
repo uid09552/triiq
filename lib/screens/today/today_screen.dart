@@ -1080,7 +1080,10 @@ class _SetupBanner extends StatelessWidget {
                   text: l10n.setupLlmPrompt,
                   buttonLabel: l10n.openSettingsButton,
                   onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const SettingsGroupScreen(group: SettingsGroup.ai),
+                    ),
                   ),
                 ),
             ],

@@ -17,24 +17,34 @@ import 'calendar_settings_section.dart';
 import 'ai_consent.dart';
 import 'feel_settings_section.dart';
 import 'privacy_screen.dart';
+import 'settings_hub.dart';
 import 'weekly_targets_section.dart';
 import 'year_goals_section.dart';
 
-/// App settings: appearance and the LLM provider the chat agent talks to.
+export 'settings_hub.dart';
+
+/// One group of settings (Training, AI trainer, Data & privacy, App), opened
+/// from the [SettingsScreen] hub or a search result there.
 ///
 /// Intervals.icu connection lives on the Profile screen (it's a login, not
 /// a setting). Everything here is persisted by [LlmSettings] — the Claude
 /// and Ollama Cloud keys to the OS credential vault, the rest to shared
 /// preferences.
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+class SettingsGroupScreen extends StatefulWidget {
+  const SettingsGroupScreen({super.key, required this.group, this.focus});
+
+  final SettingsGroup group;
+
+  /// Scrolled into view on arrival (a search result).
+  final SettingsSection? focus;
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  State<SettingsGroupScreen> createState() => _SettingsGroupScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
   final _settings = LlmSettings.instance;
+  final _keys = {for (final s in SettingsSection.values) s: GlobalKey()};
 
   late final TextEditingController _claudeKeyController;
   late final TextEditingController _claudeModelController;
@@ -65,6 +75,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // stored values up when they land.
     _settings.addListener(_adoptStoredValues);
     _adoptStoredValues();
+    if (widget.focus case final focus?) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final target = _keys[focus]!.currentContext;
+        if (target != null && target.mounted) {
+          Scrollable.ensureVisible(
+            target,
+            duration: const Duration(milliseconds: 250),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -103,13 +124,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.titleSettings)),
+      appBar: AppBar(title: Text(widget.group.title(l10n))),
       body: ListenableBuilder(
         listenable: _settings,
-        builder: (context, _) => ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            SectionCard(
+        builder: (context, _) {
+          final cards = <SettingsSection, Widget>{
+            SettingsSection.appearance: SectionCard(
               icon: Icons.brightness_6_outlined,
               title: l10n.appearanceTitle,
               child: ListenableBuilder(
@@ -143,56 +163,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.language: SectionCard(
               icon: Icons.language_outlined,
               title: l10n.languageTitle,
               child: const _LanguageSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.notifications: SectionCard(
               icon: Icons.notifications_outlined,
               title: l10n.notificationsTitle,
               child: const _NotificationsSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.sync: SectionCard(
               icon: Icons.sync_outlined,
               title: l10n.syncSectionTitle,
               child: const _AutoSyncSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.calendar: SectionCard(
               icon: Icons.calendar_month_outlined,
               title: l10n.calendarSettingsTitle,
               child: CalendarSettingsSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.backup: SectionCard(
               icon: Icons.backup_outlined,
               title: l10n.backupTitle,
               child: const BackupSettingsSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.feel: SectionCard(
               icon: Icons.mood_outlined,
               title: l10n.feelSettingsTitle,
               child: FeelSettingsSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.weeklyTargets: SectionCard(
               icon: Icons.track_changes_outlined,
               title: l10n.weeklyTargetsSectionTitle,
               child: WeeklyTargetsSection(),
             ),
-            const SizedBox(height: 16),
-            SectionCard(
+            SettingsSection.yearGoals: SectionCard(
               icon: Icons.flag_outlined,
               title: l10n.yearGoalsTitle,
               child: YearGoalsSection(),
             ),
-            const SizedBox(height: 16),
-            Card(
+            SettingsSection.privacy: Card(
               child: ListTile(
                 key: const ValueKey('settings-privacy'),
                 leading: const Icon(Icons.privacy_tip_outlined),
@@ -206,50 +217,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Goes away the moment the athlete agrees.
-            ListenableBuilder(
-              listenable: _settings,
-              builder: (context, _) => _settings.needsConsent
-                  ? const Padding(
-                      padding: EdgeInsets.only(bottom: 16),
-                      child: AiConsentCard(),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            SectionCard(
-              icon: Icons.auto_awesome_outlined,
-              title: l10n.llmProviderTitle,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SegmentedButton<LlmProvider>(
-                    segments: [
-                      ButtonSegment(
-                        value: LlmProvider.claude,
-                        label: Text(l10n.claudeLabel),
-                        icon: const Icon(Icons.bolt_outlined),
+            SettingsSection.ai: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Goes away the moment the athlete agrees.
+                ListenableBuilder(
+                  listenable: _settings,
+                  builder: (context, _) => _settings.needsConsent
+                      ? const Padding(
+                          padding: EdgeInsets.only(bottom: 16),
+                          child: AiConsentCard(),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                SectionCard(
+                  icon: Icons.auto_awesome_outlined,
+                  title: l10n.llmProviderTitle,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SegmentedButton<LlmProvider>(
+                        segments: [
+                          ButtonSegment(
+                            value: LlmProvider.claude,
+                            label: Text(l10n.claudeLabel),
+                            icon: const Icon(Icons.bolt_outlined),
+                          ),
+                          ButtonSegment(
+                            value: LlmProvider.ollama,
+                            label: Text(l10n.ollamaLabel),
+                            icon: const Icon(Icons.dns_outlined),
+                          ),
+                        ],
+                        selected: {_settings.provider},
+                        onSelectionChanged: (selection) =>
+                            _settings.setProvider(selection.first),
                       ),
-                      ButtonSegment(
-                        value: LlmProvider.ollama,
-                        label: Text(l10n.ollamaLabel),
-                        icon: const Icon(Icons.dns_outlined),
-                      ),
+                      const SizedBox(height: 14),
+                      if (_settings.provider == LlmProvider.claude)
+                        ..._claudeFields(context)
+                      else
+                        ..._ollamaFields(context),
                     ],
-                    selected: {_settings.provider},
-                    onSelectionChanged: (selection) =>
-                        _settings.setProvider(selection.first),
                   ),
-                  const SizedBox(height: 14),
-                  if (_settings.provider == LlmProvider.claude)
-                    ..._claudeFields(context)
-                  else
-                    ..._ollamaFields(context),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          };
+          final sections = widget.group.sections;
+          // Built in full (a group is a few cards), so a search result's
+          // section exists to scroll to.
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < sections.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 16),
+                  KeyedSubtree(
+                    key: _keys[sections[i]],
+                    child: cards[sections[i]]!,
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }

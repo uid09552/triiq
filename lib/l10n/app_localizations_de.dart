@@ -2552,7 +2552,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get yearGoalsHelp =>
-      'Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Sync für ein vollständiges Bild.';
+      'Ein Distanzziel pro Sportart für dieses Kalenderjahr. Ein leeres Feld bedeutet kein Ziel. Der Fortschritt zählt die auf diesem Gerät gespeicherten Aktivitäten – synchronisiere das Jahr unter Einstellungen → Daten & Datenschutz → Synchronisierung für ein vollständiges Bild.';
 
   @override
   String yearGoalKmLabel(String sport) {
@@ -4160,7 +4160,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pvRightsBody =>
-      '• Auskunft und Übertragbarkeit: Einstellungen → Backup exportiert alles hier Gespeicherte als eine Datei.\n• Berichtigung: Korrigiere deine Daten in Intervals.icu; die nächste Synchronisierung aktualisiert dieses Gerät.\n• Löschung: Nutze unten „Alle Daten löschen“. Um deine Daten bei Intervals.icu oder einem KI-Anbieter zu entfernen, nutze deren Kontofunktionen.\n• Einwilligung widerrufen oder widersprechen: Schalte die KI unten aus oder trenne Intervals.icu im Profil.\n• Beschwerde: Du kannst dich bei deiner Datenschutzbehörde beschweren.';
+      '• Auskunft und Übertragbarkeit: Einstellungen → Daten & Datenschutz → Datensicherung exportiert alles hier Gespeicherte als eine Datei.\n• Berichtigung: Korrigiere deine Daten in Intervals.icu; die nächste Synchronisierung aktualisiert dieses Gerät.\n• Löschung: Nutze unten „Alle Daten löschen“. Um deine Daten bei Intervals.icu oder einem KI-Anbieter zu entfernen, nutze deren Kontofunktionen.\n• Einwilligung widerrufen oder widersprechen: Schalte die KI unten aus oder trenne Intervals.icu im Profil.\n• Beschwerde: Du kannst dich bei deiner Datenschutzbehörde beschweren.';
 
   @override
   String get pvControlsTitle => 'Deine Optionen';
@@ -4224,7 +4224,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pvConsentDialogBody(String provider) {
-    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. $provider verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Datenschutz & Daten widerrufen.';
+    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. $provider verarbeitet sie möglicherweise außerhalb der EU/des EWR. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Datenschutz & Daten widerrufen.';
   }
 
   @override
@@ -4418,4 +4418,37 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get actAny => 'Beliebig';
+
+  @override
+  String get setGroupTraining => 'Training';
+
+  @override
+  String get setGroupTrainingSub => 'Wochenziele, Jahresziele, Befinden';
+
+  @override
+  String get setGroupAi => 'KI-Trainer';
+
+  @override
+  String get setGroupAiSub => 'Anbieter, Modell, KI-Einwilligung';
+
+  @override
+  String get setGroupData => 'Daten & Datenschutz';
+
+  @override
+  String get setGroupDataSub =>
+      'Synchronisierung, Kalender, Sicherung, Datenschutz';
+
+  @override
+  String get setGroupApp => 'App';
+
+  @override
+  String get setGroupAppSub => 'Erscheinungsbild, Sprache, Benachrichtigungen';
+
+  @override
+  String get setSearchHint => 'Einstellungen durchsuchen';
+
+  @override
+  String setNoResults(String query) {
+    return 'Keine Einstellung passt zu „$query“.';
+  }
 }

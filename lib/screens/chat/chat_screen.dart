@@ -400,7 +400,10 @@ class _EmptyState extends StatelessWidget {
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const SettingsGroupScreen(group: SettingsGroup.ai),
+                  ),
                 ),
                 child: Text(l10n.openSettingsButton),
               ),

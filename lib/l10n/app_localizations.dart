@@ -4187,7 +4187,7 @@ abstract class AppLocalizations {
   /// No description provided for @yearGoalsHelp.
   ///
   /// In en, this message translates to:
-  /// **'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.'**
+  /// **'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Data & privacy → Sync for the full picture.'**
   String get yearGoalsHelp;
 
   /// No description provided for @yearGoalKmLabel.
@@ -6815,7 +6815,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvRightsBody.
   ///
   /// In en, this message translates to:
-  /// **'• Access and portability: Settings → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.'**
+  /// **'• Access and portability: Settings → Data & privacy → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.'**
   String get pvRightsBody;
 
   /// No description provided for @pvControlsTitle.
@@ -6923,7 +6923,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvConsentDialogBody.
   ///
   /// In en, this message translates to:
-  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Privacy & data.'**
+  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. {provider} may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Privacy & data.'**
   String pvConsentDialogBody(String provider);
 
   /// No description provided for @pvConsentAllow.
@@ -7249,6 +7249,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Any'**
   String get actAny;
+
+  /// No description provided for @setGroupTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get setGroupTraining;
+
+  /// No description provided for @setGroupTrainingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly targets, year goals, how you feel'**
+  String get setGroupTrainingSub;
+
+  /// No description provided for @setGroupAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI trainer'**
+  String get setGroupAi;
+
+  /// No description provided for @setGroupAiSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider, model, AI consent'**
+  String get setGroupAiSub;
+
+  /// No description provided for @setGroupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data & privacy'**
+  String get setGroupData;
+
+  /// No description provided for @setGroupDataSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync, calendar, backup, privacy'**
+  String get setGroupDataSub;
+
+  /// No description provided for @setGroupApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get setGroupApp;
+
+  /// No description provided for @setGroupAppSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance, language, notifications'**
+  String get setGroupAppSub;
+
+  /// No description provided for @setSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get setSearchHint;
+
+  /// No description provided for @setNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No setting matches “{query}”.'**
+  String setNoResults(String query);
 }
 
 class _AppLocalizationsDelegate

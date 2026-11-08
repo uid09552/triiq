@@ -2524,7 +2524,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yearGoalsHelp =>
-      'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Sync for the full picture.';
+      'A distance goal per sport for this calendar year. Leave a field blank for no goal. Progress counts the activities cached on this device — sync the year in Settings → Data & privacy → Sync for the full picture.';
 
   @override
   String yearGoalKmLabel(String sport) {
@@ -4123,7 +4123,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pvRightsBody =>
-      '• Access and portability: Settings → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.';
+      '• Access and portability: Settings → Data & privacy → Backup exports everything stored here as one file.\n• Rectification: correct your data in Intervals.icu; the next sync updates this device.\n• Erasure: use \"Delete all data\" below. To remove your data at Intervals.icu or an AI provider, use their account tools.\n• Withdraw consent or object: switch the AI off below, or disconnect Intervals.icu in Profile.\n• Complaint: you can complain to your data protection authority.';
 
   @override
   String get pvControlsTitle => 'Your choices';
@@ -4187,7 +4187,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pvConsentDialogBody(String provider) {
-    return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. $provider may process it outside the EU/EEA. You can withdraw this at any time in Settings → Privacy & data.';
+    return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. $provider may process it outside the EU/EEA. You can withdraw this at any time in Settings → Data & privacy → Privacy & data.';
   }
 
   @override
@@ -4381,4 +4381,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actAny => 'Any';
+
+  @override
+  String get setGroupTraining => 'Training';
+
+  @override
+  String get setGroupTrainingSub => 'Weekly targets, year goals, how you feel';
+
+  @override
+  String get setGroupAi => 'AI trainer';
+
+  @override
+  String get setGroupAiSub => 'Provider, model, AI consent';
+
+  @override
+  String get setGroupData => 'Data & privacy';
+
+  @override
+  String get setGroupDataSub => 'Sync, calendar, backup, privacy';
+
+  @override
+  String get setGroupApp => 'App';
+
+  @override
+  String get setGroupAppSub => 'Appearance, language, notifications';
+
+  @override
+  String get setSearchHint => 'Search settings';
+
+  @override
+  String setNoResults(String query) {
+    return 'No setting matches “$query”.';
+  }
 }

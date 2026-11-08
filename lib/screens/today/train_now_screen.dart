@@ -742,9 +742,12 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
             ),
             const SizedBox(height: 8),
             OutlinedButton(
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const SettingsGroupScreen(group: SettingsGroup.ai),
+                ),
+              ),
               child: Text(l10n.openSettingsButton),
             ),
           ] else

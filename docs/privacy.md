@@ -2,7 +2,7 @@
 
 TriIQ is built so that **you** keep control: no backend, no account, no
 tracking. This page is the app's privacy notice; the same information is in the
-app under **Settings → Privacy & data**, next to the switches that apply it.
+app under **Settings → Data & privacy → Privacy & data**, next to the switches that apply it.
 
 ## Who is responsible
 
@@ -55,13 +55,13 @@ Nothing else — no analytics, no crash reporting, no TriIQ server.
   and use the app for that purpose.
 - **Sending data to an AI provider** happens **only with your explicit
   consent** (GDPR Art. 6(1)(a) and, for health data, Art. 9(2)(a)). The AI
-  trainer stays off until you agree — in **Settings → Privacy & data**, or
+  trainer stays off until you agree — in **Settings → Data & privacy → Privacy & data**, or
   when TriIQ asks the first time you use it — and you can **withdraw consent
   at any time** with the same switch; the AI features then switch off at
   once. The date you agreed is kept on the device.
 - **Map tiles** are fetched only to show the route map you opened. They are
   requested from OpenStreetMap, which sees your IP address and the area
-  shown. **Settings → Privacy & data → Load map tiles** switches that off;
+  shown. **Settings → Data & privacy → Privacy & data → Load map tiles** switches that off;
   routes are then drawn without a map.
 
 ## Transfers outside the EU/EEA
@@ -73,7 +73,7 @@ A self-hosted Ollama server on your own network keeps the data with you.
 ## How long data is kept
 
 On your device, until **you** delete it: with **Delete all data** in
-Settings → Privacy & data, by restoring a backup over it, or by uninstalling
+Settings → Data & privacy → Privacy & data, by restoring a backup over it, or by uninstalling
 the app. Data already sent to Intervals.icu or an AI provider is kept by them
 under their own rules; TriIQ cannot delete it for you.
 
@@ -81,9 +81,9 @@ under their own rules; TriIQ cannot delete it for you.
 
 | Right | How |
 |---|---|
-| Access and portability | **Settings → Backup** exports everything stored on the device as one JSON file |
+| Access and portability | **Settings → Data & privacy → Backup** exports everything stored on the device as one JSON file |
 | Rectification | Correct the data in Intervals.icu; the next sync updates the device |
-| Erasure | **Settings → Privacy & data → Delete all data** removes the local database, all saved keys and every setting, and disconnects Intervals.icu. To remove your data at Intervals.icu or an AI provider, use their account tools |
+| Erasure | **Settings → Data & privacy → Privacy & data → Delete all data** removes the local database, all saved keys and every setting, and disconnects Intervals.icu. To remove your data at Intervals.icu or an AI provider, use their account tools |
 | Withdraw consent / object | Switch **Send my data to the AI provider** off; disconnect Intervals.icu in Profile; switch map tiles off |
 | Complaint | You can complain to your data protection supervisory authority |
 
@@ -105,7 +105,7 @@ release notes.
 
 ## Backup and restore
 
-**Settings → Backup** writes one JSON file with your synced data, plans,
+**Settings → Data & privacy → Backup** writes one JSON file with your synced data, plans,
 knowledge library and settings (share sheet on Android, save dialog on
 Windows). **Restore** replaces the local data after you confirm, in one
 transaction. Keys and the LLM connection settings are never part of a backup,

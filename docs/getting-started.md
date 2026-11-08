@@ -33,7 +33,7 @@ background while it is open, and (Android) every night.
 
 ## 3. Choose an LLM for the AI trainer
 
-Open the profile icon (top-right) → **Settings → LLM provider**.
+Open the profile icon (top-right) → **Settings → AI trainer → LLM provider**.
 
 | Provider | What you need | Notes |
 |---|---|---|
@@ -50,7 +50,7 @@ need one.
 - **Today** shows readiness, load and today's training. Long-press the header
   tile for quick actions (sync, Train now, log fatigue & soreness, …).
 - **More → Training plan** builds a plan; **Take as plan** puts it in the
-  calendar (sending it to Intervals.icu is optional, Settings → Calendar).
+  calendar (sending it to Intervals.icu is optional, Settings → Data & privacy → Calendar).
 - **Chat** answers questions about your own data.
-- **Settings → Notifications** turns on the morning briefing.
-- **Settings → Backup** exports everything to a JSON file.
+- **Settings → App → Notifications** turns on the morning briefing.
+- **Settings → Data & privacy → Backup** exports everything to a JSON file.
