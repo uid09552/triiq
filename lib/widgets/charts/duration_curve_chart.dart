@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'chart_theme.dart';
 import '../../evaluation/performance_curves.dart';
 
 /// One period's curve on a [DurationCurveChart].
@@ -58,9 +59,9 @@ class DurationCurveChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final chart = ChartTheme.of(context);
     final labelStyle = theme.textTheme.labelSmall!.copyWith(
-      color: colorScheme.onSurfaceVariant,
+      color: chart.mutedText,
     );
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -73,8 +74,8 @@ class DurationCurveChart extends StatelessWidget {
           xTitle: xTitle,
           yTitle: yTitle,
           selectedX: selectedX,
-          gridColor: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          selectionColor: colorScheme.onSurface,
+          gridColor: chart.grid.withValues(alpha: 0.5),
+          selectionColor: chart.text,
           labelStyle: labelStyle,
         );
         void select(Offset position) {

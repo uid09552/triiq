@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../plan/load_curve.dart';
 import '../../plan/load_curve_controller.dart';
 import '../../plan/plan_models.dart';
+import 'chart_theme.dart';
 
 /// The load graph: one column per plan week on a TSS axis. Each week has a
 /// shaded band (80-120% of its proposed TSS) and the proposal is a dashed
@@ -203,20 +204,21 @@ class _LoadCurveEditorState extends State<LoadCurveEditor> {
     final selected = _c.selected;
     final axis = _dragAxis ?? _TssAxis.of(_c);
 
+    final chart = ChartTheme.of(context);
     final colors = _CurveColors(
-      line: scheme.primary,
-      point: scheme.primary,
-      warning: scheme.error,
-      recovery: scheme.tertiary,
-      grid: scheme.outlineVariant,
-      proposal: scheme.outline,
-      band: scheme.primary.withValues(alpha: 0.07),
-      label: scheme.onSurfaceVariant,
-      strongLabel: scheme.onSurface,
+      line: chart.primary,
+      point: chart.primary,
+      warning: chart.warning,
+      recovery: chart.highlight,
+      grid: chart.grid,
+      proposal: chart.axis,
+      band: chart.primary.withValues(alpha: 0.07),
+      label: chart.mutedText,
+      strongLabel: chart.text,
       bubble: scheme.inverseSurface,
       bubbleText: scheme.onInverseSurface,
-      selection: scheme.primary.withValues(alpha: 0.08),
-      highlight: scheme.tertiary.withValues(alpha: 0.14),
+      selection: chart.primary.withValues(alpha: 0.08),
+      highlight: chart.highlight.withValues(alpha: 0.14),
     );
 
     final graph = LayoutBuilder(

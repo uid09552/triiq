@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../evaluation/session_streams.dart';
+import 'chart_theme.dart';
 import 'chart_viewport.dart';
 
 /// Min-max downsampling: [values] split into [buckets] runs, each kept as
@@ -253,6 +254,7 @@ class _StreamChartState extends State<StreamChart> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final chart = ChartTheme.of(context);
     final vp = _vp;
     final types = [
       for (final t in widget.streams.drawable)
@@ -388,14 +390,11 @@ class _StreamChartState extends State<StreamChart> {
                           format: widget.format,
                           leftAxis: leftW,
                           rightAxis: rightW,
-                          band: scheme.primary.withValues(alpha: 0.09),
-                          grid: scheme.outlineVariant,
-                          cursor: scheme.onSurface,
-                          surface: scheme.surface,
-                          labelStyle: TextStyle(
-                            fontSize: 10,
-                            color: scheme.onSurfaceVariant,
-                          ),
+                          band: chart.primary.withValues(alpha: 0.09),
+                          grid: chart.grid,
+                          cursor: chart.text,
+                          surface: chart.surface,
+                          labelStyle: chart.labelStyle,
                         ),
                       );
                     },
@@ -419,8 +418,8 @@ class _StreamChartState extends State<StreamChart> {
                     viewport: vp,
                     points: downsample(_drawn[types.first]!, 240),
                     color: streamColor(types.first, scheme),
-                    track: scheme.surfaceContainerHighest,
-                    window: scheme.primary,
+                    track: chart.track,
+                    window: chart.brush,
                   ),
                 )
               : const SizedBox.shrink(),

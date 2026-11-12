@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'chart_theme.dart';
 import 'line_chart.dart' show chartL10n;
 
 /// One column of a [StackedBarChart]: segment values, bottom to top, in the
@@ -110,7 +111,7 @@ class StackedBarChart extends StatelessWidget {
                                     bars[i].label,
                                     maxLines: 1,
                                     style: theme.textTheme.labelSmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                      color: ChartTheme.of(context).mutedText,
                                     ),
                                   ),
                                 )

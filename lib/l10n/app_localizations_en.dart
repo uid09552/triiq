@@ -433,12 +433,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get backgroundSyncTitle =>
-      'Keep syncing in background';
+  String get backgroundSyncTitle => 'Keep syncing in background';
 
   @override
   String get backgroundSyncDescription =>
-      "Refresh the current week and your planned sessions even when the app is closed — only with a network connection and when the battery isn't low.";
+      'Refresh the current week and your planned sessions even when the app is closed — only with a network connection and when the battery isn\'t low.';
 
   @override
   String get backgroundSyncNoRun => 'No background run yet.';
@@ -459,8 +458,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'key rejected, reconnect in Profile';
 
   @override
-  String get backgroundResultFailed =>
-      'failed, will retry at the next run';
+  String get backgroundResultFailed => 'failed, will retry at the next run';
 
   @override
   String get backgroundResultNotConnected => 'not connected';
@@ -470,24 +468,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Syncing while the app is closed is not available on this platform — it cannot wake a closed app. Data refreshes while the app is open.';
 
   @override
-  String get backgroundSyncIntervalLabel =>
-      'How often';
+  String get backgroundSyncIntervalLabel => 'How often';
 
   @override
-  String get backgroundInterval15Min =>
-      'Every 15 min';
+  String get backgroundInterval15Min => 'Every 15 min';
 
   @override
-  String get backgroundIntervalHourly =>
-      'Hourly';
+  String get backgroundIntervalHourly => 'Hourly';
 
   @override
-  String get backgroundInterval6Hours =>
-      'Every 6 h';
+  String get backgroundInterval6Hours => 'Every 6 h';
 
   @override
-  String get backgroundIntervalNightly =>
-      'Nightly';
+  String get backgroundIntervalNightly => 'Nightly';
 
   @override
   String get backgroundSyncNotifyHint =>
@@ -495,11 +488,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backgroundSyncBatteryHint =>
-      'Android may delay or skip background runs to save battery. If runs are missed, set TriIQ\'s battery usage to "Unrestricted" in the system settings (Apps → TriIQ → Battery).';
+      'Android may delay or skip background runs to save battery. If runs are missed, set TriIQ\'s battery usage to \"Unrestricted\" in the system settings (Apps → TriIQ → Battery).';
 
   @override
-  String get backgroundUpdateTitle =>
-      'New in TriIQ';
+  String get backgroundUpdateTitle => 'New in TriIQ';
 
   @override
   String backgroundUpdateActivities(int count) {
@@ -4852,4 +4844,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessPeekWeekChange => 'vs a week ago';
+
+  @override
+  String get chartOverview => 'Overview: drag to choose the range shown';
+
+  @override
+  String a11yChartRange(String from, String to) {
+    return 'Showing $from to $to';
+  }
+
+  @override
+  String chartSeriesShown(String series) {
+    return '$series: shown. Tap to hide.';
+  }
+
+  @override
+  String chartSeriesHidden(String series) {
+    return '$series: hidden. Tap to show.';
+  }
+
+  @override
+  String get hmStyle => 'Layout';
+
+  @override
+  String get hmStyleGrid => 'Year grid';
+
+  @override
+  String get hmStyleMonths => 'Months';
+
+  @override
+  String get hmStyleMatrix => 'Week table';
+
+  @override
+  String get hmScale => 'Colours';
+
+  @override
+  String get hmScaleTheme => 'Theme';
+
+  @override
+  String get hmScaleViridis => 'Viridis';
+
+  @override
+  String get hmWeekCol => 'Week';
+
+  @override
+  String a11yHeatmapMatrix(String day, int tss) {
+    return 'Busiest weekday: $day, $tss TSS in total.';
+  }
 }

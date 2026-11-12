@@ -72,7 +72,7 @@ athlete can:
 | Durability (Insights → Durability, rides and runs) | ✅ Implemented — how much of your fresh power or pace is left after a lot of work. Intervals.icu only serves two predefined fatigued curves, so the levels are computed in `lib/evaluation/durability.dart` from the sessions' own streams: for rides the best 5 s / 1 min / 5 min / 20 min / 1 h power of efforts that *started after* 1,000 / 2,000 / 3,000 kJ of work, for runs the fastest 1 / 3 / 5 / 10 km after 10 / 20 / 30 km already run, taken across the most recent long sessions (rides ≥ 1,000 kJ or 1.5 h, runs ≥ 10 km; last 90/180/365 days, at most 40 sessions, streams fetched once and cached). The fresh reference is the season curve (else last 42 days) from the Performance curves; the screen plots all levels, shows the value and the share kept per point, and says how many sessions it was based on |
 | Wellness trends (Insights → Wellness trends, or "Longer trends" on the readiness screen) | ✅ Implemented — HRV, resting HR, sleep (hours) and weight over 30/90/180/365 days from the wellness cache (`lib/evaluation/wellness_trends.dart`): the daily values, a 7-day trailing average that carries through missing days, a shaded band of the usual range (mean ± 1 SD over the period, needs 14 values), and latest / 7-day average / change against a week earlier with a below / within / above-range note. Metrics can be hidden in the options sheet; a metric with no data has no card |
 | Best efforts (Insights → Best efforts, rides and runs) | ✅ Implemented — the best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 / 10 km (runs) of every session over the last year, from Intervals.icu's per-activity curves (`activity-power-curves` / `activity-pace-curves`, `lib/evaluation/best_efforts.dart`; cached 6 h in SQLite, the last copy used offline). One line of the best per 30-day window (12 windows) with a second line of the best of the 90 days up to each, for the effort chosen in the options sheet, and a table of the last 30 days against the best of the 90 days before them with the change (green better, red worse; for pace a lower time is better). The pace response is not documented, so it is parsed defensively and not yet checked against the live API |
-| Load heatmap (Insights → Load heatmap) | ✅ Implemented — a calendar grid of daily TSS (one square per day, a column per week, Monday first, scrolled to the latest week), coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`); last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
+| Load heatmap (Insights → Load heatmap) | ✅ Implemented — daily TSS, one square per day, coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`). Three layouts, chosen under the options button and remembered (shared_preferences `heatmap.style`): **Year grid** — the contribution graph, Monday first, cells sized from the available width so a year fits without sideways scrolling; on a narrow phone (360 dp) it turns into weeks-as-rows (seven columns, month labels on the left), and only a tiny width or very large text falls back to scrolling (`HeatmapGridLayout.fit`); **Months** — a small calendar per month, 2–4 across; **Week table** — weeks × weekdays with each week's total (over a bar of its share of the busiest week) and each weekday's total. Colour scale: theme colour or **Viridis** (`heatmap.scale`; ordered so more load always stands out further from the background, in light and dark). Views in `lib/screens/statistics/heatmap_views.dart`. Last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
 | Consent & your rights (Settings → Data & privacy → Consent & your rights) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
 | Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (under the header figures) and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
@@ -89,7 +89,7 @@ athlete can:
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
-| Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak), the readiness gauge ("Readiness 72 of 100") and the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
+| Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak, the layout, and the busiest weekday in the week table), the chart overview strip (the range shown) and tappable legend entries (toggle buttons: "CTL: shown. Tap to hide."), the readiness gauge ("Readiness 72 of 100") and the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
 | Error and empty states | ✅ Implemented — one `StatusMessage` (`lib/widgets/status_message.dart`): icon, short title, plain reason, one action. `describeError` maps failures to text you can act on — offline (no response, socket, timeout) → "You're offline" + Retry; HTTP 401/403 → "Intervals.icu refused the request" + Open Profile; not connected → Open Profile; 429 / 5xx → wait and retry; SQLite → local data; else "Something went wrong". The exception text only behind an expandable **Details**. Empty states (`StatusMessage.needsSync`) say what is missing and offer Open Sync. Used on Insights, Performance curves, Durability, Best efforts, Compare periods, Wellness trends, the load heatmap, Weekly review, Activities and the activity page's chart |
 | First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key or Ollama server, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
 | Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Each opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
@@ -821,8 +821,32 @@ There is no charting package. The shapes the app needs all live in
   faster sits higher and labelled back as min/km or min/100 m. Points are
   thinned to ~200 log-spaced buckets (`downsampleLog`) before painting.
 
+- `ChartTheme` (`chart_theme.dart`) — the **one chart theme object**: every
+  chart above (and the stream chart, load curve editor and heatmap) takes
+  its grid, axis, label style, tooltip, brush, categorical and heat-ramp
+  colours from `ChartTheme.of(context)`, derived from the active
+  `ColorScheme` plus the text theme's font (so the Developer theme's
+  monospace reaches the axis labels) and the platform's reduce-motion flag.
+  `HeatScale.theme` / `HeatScale.viridis` are its heat ramps.
+- `ChartOverview` (`chart_overview.dart`) — the D3 focus + context strip: the
+  whole series as a thin line with the visible window over it; horizontal
+  drag brushes a new window, drag inside moves it, tap centres it. Built on
+  `ChartViewport`.
+
+`MetricLineChart` extras (all opt-in or invisible to existing callers):
+mouse hover shows a crosshair — vertical rule, a dot per series, a
+multi-series tooltip and the x value as a chip on the axis — without
+changing the selection; `overview: true` adds the context strip;
+`brushZoom: true` lets hold-and-drag on the plot brush a range to zoom to
+(`ChartInteraction.brushable`; off by default because some cards open their
+options on a hold); `hiddenSeries` + `ChartLegend(hidden:, onToggle:)` make
+the legend toggle series; series draw in left to right one after another on
+first show (`animate`, skipped under reduced motion), with averages and
+extremes fading in after. Training analytics' per-sport fitness chart uses
+the overview and the toggling legend.
+
 A package would be a dependency, a theme to fight and a licence to check for
-something that is a few dozen lines of `CustomPainter` either way. Both take
+something that is a few dozen lines of `CustomPainter` either way. All take
 their colours from the active `ColorScheme`, so they follow the app theme
 (and dark mode) without a second palette to maintain. The older
 `_ZoneTimeChart` on the activity detail screen predates these and stays
@@ -949,6 +973,18 @@ scrubs a tooltip and pans once zoomed, and a button resets. Every series gets
 a dashed **Ø average** line over the visible window (streams also show their
 averages above the chart); curves are monotone-smoothed. Bar charts draw a
 dashed Ø line at the mean. The shared zoom/pan logic is `chart_viewport.dart`.
+
+With a mouse, hovering a line chart shows a crosshair with every series'
+value at that point. Under the per-sport fitness chart (Training analytics) a
+small **overview** shows the whole range: drag across it to zoom to that
+stretch, drag the window to move it, tap to jump. Tap a legend entry to hide
+or show that series. Lines draw in briefly when a chart first appears, unless
+the system asks for reduced motion.
+
+**Load heatmap layouts.** Options → *Layout*: *Year grid* (fits the screen:
+weeks as columns on a wide window, as rows on a phone), *Months* (a small
+calendar per month) or *Week table* (weekdays across, a total per week and
+per weekday). *Colours*: theme or Viridis. Both are remembered.
 
 **Activity chart.** The session diagram on an activity (`StreamChart`) has
 labelled axes: the first selected stream on the left, the second on the
@@ -1812,6 +1848,12 @@ Each run shows how many wellness/activity records were synced, and the
 card at the top shows the currently cached date range.
 
 ## 4. Known gaps / next steps
+
+- Chart follow-ups left out of the D3-style pass (issue #65): a radial
+  (ring) load view, a sankey of sport → zone time, scatter and violin plots,
+  and exporting a chart as PNG. Brush-to-zoom on the plot itself is wired
+  nowhere yet (only the overview strip brushes), since hold already opens
+  options on several cards.
 
 - Persist the Appearance choice (the LLM settings now persist; this one
   still resets to System on restart).

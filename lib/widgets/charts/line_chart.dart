@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 
+import 'chart_overview.dart';
+import 'chart_theme.dart';
 import 'chart_viewport.dart';
 
 /// One line on a [MetricLineChart]. `null` entries are gaps — a day with no
@@ -64,6 +67,14 @@ class ChartBand {
 /// once zoomed. Each series gets a dashed average line over the visible
 /// window, and curves are smoothed monotonically so they never overshoot.
 ///
+/// D3-style extras: a mouse over the chart shows a crosshair with every
+/// series' value at that point (without changing the selection); with
+/// [overview] a small context chart underneath brushes the visible window;
+/// with [brushZoom] hold-and-drag on the plot brushes a range to zoom to;
+/// series draw in one after another on first show ([animate], skipped when
+/// the platform asks for reduced motion); [hiddenSeries] hides series by
+/// label, e.g. from a tappable [ChartLegend].
+///
 /// All series share one y-scale, so they must be commensurable (CTL/ATL/TSB
 /// are; CTL and heart rate are not — give those separate charts).
 class MetricLineChart extends StatefulWidget {
@@ -82,7 +93,23 @@ class MetricLineChart extends StatefulWidget {
     this.viewport,
     this.band,
     this.semanticsLabel,
+    this.overview = false,
+    this.brushZoom = false,
+    this.animate = true,
+    this.hiddenSeries = const {},
   });
+
+  /// Show a small context chart under the plot to brush the visible window.
+  final bool overview;
+
+  /// Hold and drag on the plot to brush a range to zoom to.
+  final bool brushZoom;
+
+  /// Staggered entry animation on first show (never with reduced motion).
+  final bool animate;
+
+  /// Labels of series not to draw (and not to scale to).
+  final Set<String> hiddenSeries;
 
   /// What a screen reader says; a summary of each series by default.
   final String? semanticsLabel;
@@ -120,9 +147,18 @@ class MetricLineChart extends StatefulWidget {
   State<MetricLineChart> createState() => _MetricLineChartState();
 }
 
-class _MetricLineChartState extends State<MetricLineChart> {
+class _MetricLineChartState extends State<MetricLineChart>
+    with SingleTickerProviderStateMixin {
   final _ownViewport = ChartViewport();
+  late final AnimationController _entry = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 750),
+  );
+  bool _entryStarted = false;
   int? _selected;
+
+  /// Where the mouse is, for the hover crosshair; null when it isn't over.
+  int? _hover;
 
   ChartViewport get _viewport => widget.viewport ?? _ownViewport;
 
@@ -144,83 +180,134 @@ class _MetricLineChartState extends State<MetricLineChart> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_entryStarted) return;
+    _entryStarted = true;
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (!widget.animate || reduce) {
+      _entry.value = 1;
+    } else {
+      _entry.forward();
+    }
+  }
+
+  @override
   void dispose() {
+    _entry.dispose();
     _ownViewport.dispose();
     super.dispose();
   }
 
+  void _hoverAt(PointerEvent e, double width) {
+    if (e.kind != PointerDeviceKind.mouse || _length == 0) return;
+    final plot = width - _LineChartPainter.axisWidth;
+    if (plot <= 0) return;
+    final fraction = (e.localPosition.dx - _LineChartPainter.axisWidth) / plot;
+    final index = _viewport.indexAt(fraction).round().clamp(0, _length - 1);
+    if (index != _hover) setState(() => _hover = index);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final chart = ChartTheme.of(context);
     final l10n = chartL10n(context);
     final format = widget.formatValue ?? _LineChartPainter.formatAxis;
     final selected = widget.selectedIndex ?? _selected;
+    final visible = [
+      for (final s in widget.series)
+        if (!widget.hiddenSeries.contains(s.label)) s,
+    ];
 
-    return Semantics(
+    final plot = Semantics(
       container: true,
-      label:
-          widget.semanticsLabel ??
-          lineChartSummary(l10n, widget.series, format),
+      label: widget.semanticsLabel ?? lineChartSummary(l10n, visible, format),
       value: selected == null || selected >= widget.labels.length
           ? null
           : l10n.a11yChartSelected(
               widget.labels[selected],
               [
-                for (final s in widget.series)
+                for (final s in visible)
                   if (selected < s.values.length && s.values[selected] != null)
                     '${s.label} ${format(s.values[selected]!)}',
               ].join(', '),
             ),
       liveRegion: selected != null,
-      child: ChartInteraction(
-        viewport: _viewport,
-        plotLeft: _LineChartPainter.axisWidth,
-        zoomable: widget.zoomable,
-        onSelectAt: (index) {
-          setState(() => _selected = index);
-          widget.onSelect?.call(index);
-        },
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ListenableBuilder(
-              listenable: _viewport,
-              builder: (context, _) => CustomPaint(
-                painter: _LineChartPainter(
-                  series: widget.series,
-                  labels: widget.labels,
-                  selected: widget.selectedIndex ?? _selected,
-                  labelEvery: widget.labelEvery,
-                  zeroLine: widget.zeroLine,
-                  showAverage: widget.showAverage,
-                  smooth: widget.smooth,
-                  lo: _viewport.lo,
-                  hi: _viewport.hi,
-                  zoomed: _viewport.isZoomed,
-                  band: widget.band,
-                  format: widget.formatValue ?? _LineChartPainter.formatAxis,
-                  gridColor: colorScheme.outlineVariant,
-                  selectionColor: colorScheme.onSurfaceVariant,
-                  bubbleColor: colorScheme.surfaceContainerHighest,
-                  bubbleBorder: colorScheme.outlineVariant,
-                  textColor: colorScheme.onSurface,
-                  surface: colorScheme.surface,
-                  labelStyle: TextStyle(
-                    fontSize: 10,
-                    color: colorScheme.onSurfaceVariant,
+      child: LayoutBuilder(
+        builder: (context, constraints) => MouseRegion(
+          onHover: (e) => _hoverAt(e, constraints.maxWidth),
+          onExit: (_) {
+            if (_hover != null) setState(() => _hover = null);
+          },
+          child: ChartInteraction(
+            viewport: _viewport,
+            plotLeft: _LineChartPainter.axisWidth,
+            zoomable: widget.zoomable,
+            brushable: widget.brushZoom,
+            onSelectAt: (index) {
+              setState(() => _selected = index);
+              widget.onSelect?.call(index);
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ListenableBuilder(
+                  listenable: Listenable.merge([_viewport, _entry]),
+                  builder: (context, _) => CustomPaint(
+                    painter: _LineChartPainter(
+                      series: visible,
+                      labels: widget.labels,
+                      selected: _hover ?? selected,
+                      reveal: _entry.value,
+                      labelEvery: widget.labelEvery,
+                      zeroLine: widget.zeroLine,
+                      showAverage: widget.showAverage,
+                      smooth: widget.smooth,
+                      lo: _viewport.lo,
+                      hi: _viewport.hi,
+                      zoomed: _viewport.isZoomed,
+                      band: widget.band,
+                      format:
+                          widget.formatValue ?? _LineChartPainter.formatAxis,
+                      gridColor: chart.grid,
+                      selectionColor: chart.selection,
+                      bubbleColor: chart.tooltip,
+                      bubbleBorder: chart.tooltipBorder,
+                      textColor: chart.text,
+                      surface: chart.surface,
+                      labelStyle: chart.labelStyle,
+                    ),
                   ),
                 ),
-              ),
+                if (widget.zoomable)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: ZoomResetButton(viewport: _viewport),
+                  ),
+              ],
             ),
-            if (widget.zoomable)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: ZoomResetButton(viewport: _viewport),
-              ),
-          ],
+          ),
         ),
       ),
+    );
+
+    if (!widget.overview || !widget.zoomable) return plot;
+    final lead = visible.isNotEmpty ? visible.first : widget.series.firstOrNull;
+    return Column(
+      children: [
+        Expanded(child: plot),
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(left: _LineChartPainter.axisWidth),
+          child: ChartOverview(
+            viewport: _viewport,
+            values: lead?.values ?? const [],
+            labels: widget.labels,
+            color: lead?.color,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -276,6 +363,7 @@ class _LineChartPainter extends CustomPainter {
     required this.series,
     required this.labels,
     required this.selected,
+    this.reveal = 1,
     required this.labelEvery,
     required this.zeroLine,
     required this.showAverage,
@@ -297,6 +385,10 @@ class _LineChartPainter extends CustomPainter {
   final List<ChartSeries> series;
   final List<String> labels;
   final int? selected;
+
+  /// Entry animation progress, 0..1; series draw in left to right, one
+  /// after another.
+  final double reveal;
   final int labelEvery;
   final bool zeroLine;
   final bool showAverage;
@@ -405,7 +497,19 @@ class _LineChartPainter extends CustomPainter {
       );
     }
 
-    for (final s in series) {
+    for (var si = 0; si < series.length; si++) {
+      final s = series[si];
+      final progress = _seriesProgress(si);
+      if (progress <= 0) continue;
+      canvas.save();
+      canvas.clipRect(
+        Rect.fromLTRB(
+          axisWidth - 1,
+          0,
+          axisWidth + plotWidth * progress + 4,
+          plotBottom + 1,
+        ),
+      );
       // Contiguous runs of known values; a gap ends a run.
       final runs = <List<Offset>>[];
       var current = <Offset>[];
@@ -484,6 +588,16 @@ class _LineChartPainter extends CustomPainter {
           }
         }
       }
+      canvas.restore();
+    }
+
+    // Averages and extremes fade in once the lines are mostly drawn.
+    final fade = ((reveal - 0.6) / 0.4).clamp(0.0, 1.0);
+    if (fade < 1) {
+      canvas.saveLayer(
+        null,
+        Paint()..color = Color.fromRGBO(0, 0, 0, fade.toDouble()),
+      );
     }
 
     if (showAverage) {
@@ -562,6 +676,7 @@ class _LineChartPainter extends CustomPainter {
       }
     }
 
+    if (fade < 1) canvas.restore();
     canvas.restore();
 
     final selectedIndex = selected;
@@ -616,6 +731,45 @@ class _LineChartPainter extends CustomPainter {
         ),
       );
     }
+
+    // The crosshair's x value as a chip on the axis, over the tick labels.
+    if (selectedIndex != null &&
+        selectedIndex < labels.length &&
+        selectedIndex >= lo - 1e-9 &&
+        selectedIndex <= hi + 1e-9) {
+      final chip = _textPainter(
+        labels[selectedIndex],
+        labelStyle.copyWith(color: textColor, fontWeight: FontWeight.w700),
+      );
+      final w = chip.width + 8;
+      final left = (x(selectedIndex) - w / 2)
+          .clamp(axisWidth, math.max(axisWidth, size.width - w))
+          .toDouble();
+      final rect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(left, size.height - _labelHeight + 1, w, chip.height + 1),
+        const Radius.circular(4),
+      );
+      canvas.drawRRect(rect, Paint()..color = bubbleColor);
+      canvas.drawRRect(
+        rect,
+        Paint()
+          ..color = bubbleBorder
+          ..style = PaintingStyle.stroke,
+      );
+      chip.paint(canvas, Offset(left + 4, size.height - _labelHeight + 1.5));
+    }
+  }
+
+  /// How far series [index] has drawn in: each starts a little after the
+  /// one before, all finish by [reveal] = 1.
+  double _seriesProgress(int index) {
+    if (reveal >= 1) return 1;
+    const stagger = 0.35;
+    final start = series.length <= 1
+        ? 0.0
+        : stagger * index / (series.length - 1);
+    final t = ((reveal - start) / (1 - stagger)).clamp(0.0, 1.0).toDouble();
+    return Curves.easeOutCubic.transform(t);
   }
 
   /// A tooltip card: the point's label, then one coloured row per series.
@@ -743,50 +897,99 @@ class _LineChartPainter extends CustomPainter {
 }
 
 /// The colour key under a [MetricLineChart] — a dot and a label per series.
+///
+/// With [onToggle] every entry is a toggle button: tap to hide or show that
+/// series (pass the same set as the chart's `hiddenSeries`); hidden entries
+/// are dimmed and struck through, so the state is not shown by colour alone.
 class ChartLegend extends StatelessWidget {
-  const ChartLegend({super.key, required this.series});
+  const ChartLegend({
+    super.key,
+    required this.series,
+    this.hidden = const {},
+    this.onToggle,
+  });
 
   final List<ChartSeries> series;
+
+  /// Labels of the series currently hidden.
+  final Set<String> hidden;
+
+  /// Called with a series' label when its entry is tapped.
+  final ValueChanged<String>? onToggle;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = chartL10n(context);
+    final toggle = onToggle;
     return Wrap(
-      spacing: 16,
+      spacing: toggle == null ? 16 : 4,
       runSpacing: 4,
       children: [
         for (final s in series)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (s.dashed)
-                // Dashes in the legend too, so it matches the line.
-                Row(
-                  key: const ValueKey('legend-dashed'),
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var i = 0; i < 2; i++)
-                      Container(
-                        width: 6,
-                        height: 3,
-                        margin: const EdgeInsets.only(right: 2),
+          () {
+            final off = hidden.contains(s.label);
+            final entry = Opacity(
+              opacity: off ? 0.4 : 1,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (s.dashed)
+                    // Dashes in the legend too, so it matches the line.
+                    Row(
+                      key: const ValueKey('legend-dashed'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (var i = 0; i < 2; i++)
+                          Container(
+                            width: 6,
+                            height: 3,
+                            margin: const EdgeInsets.only(right: 2),
+                            color: s.color,
+                          ),
+                      ],
+                    )
+                  else
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
                         color: s.color,
+                        shape: BoxShape.circle,
                       ),
-                  ],
-                )
-              else
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: s.color,
-                    shape: BoxShape.circle,
+                    ),
+                  const SizedBox(width: 6),
+                  Text(
+                    s.label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      decoration: off ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                ],
+              ),
+            );
+            if (toggle == null) return entry;
+            return Semantics(
+              button: true,
+              toggled: !off,
+              label: off
+                  ? l10n.chartSeriesHidden(s.label)
+                  : l10n.chartSeriesShown(s.label),
+              excludeSemantics: true,
+              child: InkWell(
+                key: ValueKey('legend-${s.label}'),
+                borderRadius: BorderRadius.circular(16),
+                onTap: () => toggle(s.label),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(widthFactor: 1, child: entry),
                   ),
                 ),
-              const SizedBox(width: 6),
-              Text(s.label, style: theme.textTheme.bodySmall),
-            ],
-          ),
+              ),
+            );
+          }(),
       ],
     );
   }

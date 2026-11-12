@@ -959,7 +959,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundSyncBatteryHint.
   ///
   /// In en, this message translates to:
-  /// **'Android may delay or skip background runs to save battery. If runs are missed, set TriIQ\'s battery usage to "Unrestricted" in the system settings (Apps → TriIQ → Battery).'**
+  /// **'Android may delay or skip background runs to save battery. If runs are missed, set TriIQ\'s battery usage to \"Unrestricted\" in the system settings (Apps → TriIQ → Battery).'**
   String get backgroundSyncBatteryHint;
 
   /// No description provided for @backgroundUpdateTitle.
@@ -8041,6 +8041,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'vs a week ago'**
   String get readinessPeekWeekChange;
+
+  /// No description provided for @chartOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview: drag to choose the range shown'**
+  String get chartOverview;
+
+  /// No description provided for @a11yChartRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {from} to {to}'**
+  String a11yChartRange(String from, String to);
+
+  /// No description provided for @chartSeriesShown.
+  ///
+  /// In en, this message translates to:
+  /// **'{series}: shown. Tap to hide.'**
+  String chartSeriesShown(String series);
+
+  /// No description provided for @chartSeriesHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'{series}: hidden. Tap to show.'**
+  String chartSeriesHidden(String series);
+
+  /// No description provided for @hmStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get hmStyle;
+
+  /// No description provided for @hmStyleGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Year grid'**
+  String get hmStyleGrid;
+
+  /// No description provided for @hmStyleMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get hmStyleMonths;
+
+  /// No description provided for @hmStyleMatrix.
+  ///
+  /// In en, this message translates to:
+  /// **'Week table'**
+  String get hmStyleMatrix;
+
+  /// No description provided for @hmScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours'**
+  String get hmScale;
+
+  /// No description provided for @hmScaleTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get hmScaleTheme;
+
+  /// No description provided for @hmScaleViridis.
+  ///
+  /// In en, this message translates to:
+  /// **'Viridis'**
+  String get hmScaleViridis;
+
+  /// No description provided for @hmWeekCol.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get hmWeekCol;
+
+  /// No description provided for @a11yHeatmapMatrix.
+  ///
+  /// In en, this message translates to:
+  /// **'Busiest weekday: {day}, {tss} TSS in total.'**
+  String a11yHeatmapMatrix(String day, int tss);
 }
 
 class _AppLocalizationsDelegate
