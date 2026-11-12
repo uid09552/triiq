@@ -176,8 +176,8 @@
   "@autoSyncHours": {
     "placeholders": { "hours": { "type": "int" } }
   },
-  "backgroundSyncTitle": "Nightly background sync",
-  "backgroundSyncDescription": "Refresh the current week overnight even when the app is closed. It runs about once a day, only with a network connection and when the battery isn't low.",
+  "backgroundSyncTitle": "Keep syncing in background",
+  "backgroundSyncDescription": "Refresh the current week and your planned sessions even when the app is closed — only with a network connection and when the battery isn't low.",
   "backgroundSyncNoRun": "No background run yet.",
   "backgroundSyncLastRun": "Last run: {when} \u2013 {result}",
   "@backgroundSyncLastRun": {
@@ -186,9 +186,25 @@
   "backgroundResultSuccess": "synced",
   "backgroundResultSkippedFresh": "skipped, data was fresh",
   "backgroundResultAuthRejected": "key rejected, reconnect in Profile",
-  "backgroundResultFailed": "failed, will retry tomorrow",
+  "backgroundResultFailed": "failed, will retry at the next run",
   "backgroundResultNotConnected": "not connected",
-  "backgroundSyncUnsupported": "Background sync is not available on this platform. Data refreshes while the app is open.",
+  "backgroundSyncUnsupported": "Syncing while the app is closed is not available on this platform — it cannot wake a closed app. Data refreshes while the app is open.",
+  "backgroundSyncIntervalLabel": "How often",
+  "backgroundInterval15Min": "Every 15 min",
+  "backgroundIntervalHourly": "Hourly",
+  "backgroundInterval6Hours": "Every 6 h",
+  "backgroundIntervalNightly": "Nightly",
+  "backgroundSyncNotifyHint": "With notifications on, you get a notification when new activities or new or changed planned sessions arrive.",
+  "backgroundSyncBatteryHint": "Android may delay or skip background runs to save battery. If runs are missed, set TriIQ's battery usage to \"Unrestricted\" in the system settings (Apps → TriIQ → Battery).",
+  "backgroundUpdateTitle": "New in TriIQ",
+  "backgroundUpdateActivities": "{count, plural, =1{1 new activity.} other{{count} new activities.}}",
+  "@backgroundUpdateActivities": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "backgroundUpdateSessions": "{count, plural, =1{1 new or changed planned session.} other{{count} new or changed planned sessions.}}",
+  "@backgroundUpdateSessions": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "llmProviderTitle": "LLM provider",
   "claudeLabel": "Claude",
   "ollamaLabel": "Ollama",

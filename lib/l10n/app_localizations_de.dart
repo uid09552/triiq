@@ -441,11 +441,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get backgroundSyncTitle => 'Nächtliche Hintergrund-Synchronisierung';
+  String get backgroundSyncTitle =>
+      'Im Hintergrund weiter synchronisieren';
 
   @override
   String get backgroundSyncDescription =>
-      'Aktualisiert die aktuelle Woche über Nacht, auch wenn die App geschlossen ist. Läuft etwa einmal täglich, nur mit Netzwerkverbindung und wenn der Akku nicht schwach ist.';
+      'Aktualisiert die aktuelle Woche und deine geplanten Einheiten, auch wenn die App geschlossen ist – nur mit Netzwerkverbindung und wenn der Akku nicht schwach ist.';
 
   @override
   String get backgroundSyncNoRun => 'Noch kein Hintergrundlauf.';
@@ -467,14 +468,69 @@ class AppLocalizationsDe extends AppLocalizations {
       'Schlüssel abgelehnt, im Profil neu verbinden';
 
   @override
-  String get backgroundResultFailed => 'fehlgeschlagen, neuer Versuch morgen';
+  String get backgroundResultFailed =>
+      'fehlgeschlagen, neuer Versuch beim nächsten Lauf';
 
   @override
   String get backgroundResultNotConnected => 'nicht verbunden';
 
   @override
   String get backgroundSyncUnsupported =>
-      'Hintergrund-Synchronisierung ist auf dieser Plattform nicht verfügbar. Die Daten werden aktualisiert, solange die App geöffnet ist.';
+      'Synchronisieren bei geschlossener App ist auf dieser Plattform nicht verfügbar – eine geschlossene App kann hier nicht geweckt werden. Die Daten werden aktualisiert, solange die App geöffnet ist.';
+
+  @override
+  String get backgroundSyncIntervalLabel =>
+      'Wie oft';
+
+  @override
+  String get backgroundInterval15Min =>
+      'Alle 15 Min.';
+
+  @override
+  String get backgroundIntervalHourly =>
+      'Stündlich';
+
+  @override
+  String get backgroundInterval6Hours =>
+      'Alle 6 Std.';
+
+  @override
+  String get backgroundIntervalNightly =>
+      'Nachts';
+
+  @override
+  String get backgroundSyncNotifyHint =>
+      'Mit eingeschalteten Benachrichtigungen erfährst du, wenn neue Aktivitäten oder neue bzw. geänderte geplante Einheiten ankommen.';
+
+  @override
+  String get backgroundSyncBatteryHint =>
+      'Android kann Hintergrundläufe verzögern oder auslassen, um Akku zu sparen. Fehlen Läufe, stelle die Akkunutzung von TriIQ in den Systemeinstellungen auf „Nicht eingeschränkt“ (Apps → TriIQ → Akku).';
+
+  @override
+  String get backgroundUpdateTitle =>
+      'Neu in TriIQ';
+
+  @override
+  String backgroundUpdateActivities(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count neue Aktivitäten.',
+      one: '1 neue Aktivität.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backgroundUpdateSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count neue oder geänderte geplante Einheiten.',
+      one: '1 neue oder geänderte geplante Einheit.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get llmProviderTitle => 'LLM-Anbieter';

@@ -863,13 +863,13 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundSyncTitle.
   ///
   /// In en, this message translates to:
-  /// **'Nightly background sync'**
+  /// **'Keep syncing in background'**
   String get backgroundSyncTitle;
 
   /// No description provided for @backgroundSyncDescription.
   ///
   /// In en, this message translates to:
-  /// **'Refresh the current week overnight even when the app is closed. It runs about once a day, only with a network connection and when the battery isn\'t low.'**
+  /// **'Refresh the current week and your planned sessions even when the app is closed — only with a network connection and when the battery isn\'t low.'**
   String get backgroundSyncDescription;
 
   /// No description provided for @backgroundSyncNoRun.
@@ -905,7 +905,7 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundResultFailed.
   ///
   /// In en, this message translates to:
-  /// **'failed, will retry tomorrow'**
+  /// **'failed, will retry at the next run'**
   String get backgroundResultFailed;
 
   /// No description provided for @backgroundResultNotConnected.
@@ -917,8 +917,68 @@ abstract class AppLocalizations {
   /// No description provided for @backgroundSyncUnsupported.
   ///
   /// In en, this message translates to:
-  /// **'Background sync is not available on this platform. Data refreshes while the app is open.'**
+  /// **'Syncing while the app is closed is not available on this platform — it cannot wake a closed app. Data refreshes while the app is open.'**
   String get backgroundSyncUnsupported;
+
+  /// No description provided for @backgroundSyncIntervalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How often'**
+  String get backgroundSyncIntervalLabel;
+
+  /// No description provided for @backgroundInterval15Min.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 15 min'**
+  String get backgroundInterval15Min;
+
+  /// No description provided for @backgroundIntervalHourly.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly'**
+  String get backgroundIntervalHourly;
+
+  /// No description provided for @backgroundInterval6Hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 6 h'**
+  String get backgroundInterval6Hours;
+
+  /// No description provided for @backgroundIntervalNightly.
+  ///
+  /// In en, this message translates to:
+  /// **'Nightly'**
+  String get backgroundIntervalNightly;
+
+  /// No description provided for @backgroundSyncNotifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With notifications on, you get a notification when new activities or new or changed planned sessions arrive.'**
+  String get backgroundSyncNotifyHint;
+
+  /// No description provided for @backgroundSyncBatteryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Android may delay or skip background runs to save battery. If runs are missed, set TriIQ\'s battery usage to "Unrestricted" in the system settings (Apps → TriIQ → Battery).'**
+  String get backgroundSyncBatteryHint;
+
+  /// No description provided for @backgroundUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New in TriIQ'**
+  String get backgroundUpdateTitle;
+
+  /// No description provided for @backgroundUpdateActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new activity.} other{{count} new activities.}}'**
+  String backgroundUpdateActivities(int count);
+
+  /// No description provided for @backgroundUpdateSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new or changed planned session.} other{{count} new or changed planned sessions.}}'**
+  String backgroundUpdateSessions(int count);
 
   /// No description provided for @llmProviderTitle.
   ///

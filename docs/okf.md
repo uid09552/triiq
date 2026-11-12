@@ -57,7 +57,7 @@ athlete can:
 |---|---|
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — two ways in: **Log in with Intervals.icu** (OAuth 2 with PKCE as a public client: the browser opens Intervals.icu's page, the app gets a bearer token back, no secret and no password in the app) or a pasted **API key**. Either is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch (`IntervalsSession.connect` / `connectWithToken`; one credential at a time). Disconnect forgets it, and revokes the token at Intervals.icu for an OAuth login |
-| Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, nightly background sync on Android) |
+| Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, closed-app background sync on Android — nightly by default, or every 15 min / 1 h / 6 h — with a notification when something new arrived) |
 | Today screen | ✅ Real data once connected — a compact **header tile** (date badge, today's status — "Ready to train" until something is logged, or "Train with care" / "Take it easy today" in the readiness colour when readiness says Caution / Back off, so the header and the readiness card never disagree, done-vs-planned TSS / time / session count with a hairline progress bar, the refresh button and a ⋯ button; **long-press** or ⋯ opens quick actions: sync now, Train now, log fatigue & soreness, open the calendar on Intervals.icu, customize Today), a readiness card (a 0–100 score ring in the status colour, Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with small tinted pills for each signal's value plus CTL with its weekly trend, and a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each with a tiny sparkline inside and a trend arrow (rising / steady / falling: CTL/ATL/Form/Ramp against a week earlier, TSS today as the last 7 days vs the 7 before, TSS week as the last finished week vs the one before), each tappable through to its own chart; optional a slim stacked bar of this week's total training hours (swim/ride/run/other, against the summed targets) above per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
@@ -227,7 +227,7 @@ the single read path for the UI.
   app fresh: while it's in the foreground it re-syncs the **current month**
   on a timer, throttled to `SyncSettings.autoSyncIntervalMinutes` (Settings →
   Sync, default 5). It stops while backgrounded — there's no reliable way to
-  wake a closed app on this schedule; closed-app refreshes are the nightly
+  wake a closed app on this schedule; closed-app refreshes are the
   background sync below. It's a `ChangeNotifier` as well as a
   `WidgetsBindingObserver`, because the screens `IndexedStack` keeps alive
   (Today, Calendar, Statistics) don't re-run their own load on a tab switch
@@ -238,24 +238,48 @@ the single read path for the UI.
   wellness, activities and events, ignoring the interval and stale
   throttles (it still joins an identical fetch in flight). It does not stamp
   the month throttle, because today alone doesn't refresh the month.
-- **Nightly background sync (Android).** `lib/data/sync/background_sync.dart`
-  registers one WorkManager periodic job (24 h period, 3 h flex, so it runs
-  between about 02:00 and 05:00 local time) with `NetworkType.connected` and
-  `requiresBatteryNotLow`. `BackgroundSyncRunner` (the testable core, wired
-  to real storage by `BackgroundSyncRunner.live()` in the background
-  isolate) syncs `SyncService.todayWindow()` — the Monday–Sunday week, plus
-  Monday when today is Sunday — unless the cache was refreshed within the
-  last 6 hours, in which case it makes no request. It restores the stored
-  key itself; a network error keeps the key, a 401/403 does not. Outcomes
-  and a consecutive-failure counter go to `SyncSettings` (Settings → Data & privacy → Sync
-  shows the last run and result). The athlete is notified once after three
-  failures in a row, and once when the key is rejected; the job always
-  reports success to WorkManager so a dead network or revoked key is retried
-  the next night, not with backoff. The toggle is in Settings → Data & privacy → Sync
-  (default on) and registration is re-applied at every launch
-  (`ExistingPeriodicWorkPolicy.keep`, so reopening the app never pushes the
-  schedule back). **Windows and web have no closed-app wake**: the toggle is
-  replaced by a note and sync stays foreground-only.
+- **Background sync (Android): "Keep syncing in background".**
+  `lib/data/sync/background_sync.dart` registers one WorkManager periodic
+  job with `NetworkType.connected` and `requiresBatteryNotLow`. Its period
+  is `SyncSettings.backgroundSyncInterval` (`BackgroundSyncInterval`:
+  15 min — WorkManager's minimum —, 1 h, 6 h, or **nightly**, the default).
+  Nightly keeps the original shape: 24 h period, 3 h flex, so it runs
+  between about 02:00 and 05:00 local time; the other intervals have no
+  flex and no initial delay. `BackgroundSync.apply()` runs at every launch
+  and after every change in Settings; it registers with
+  `ExistingPeriodicWorkPolicy.keep` (so reopening the app never pushes the
+  schedule back) and remembers the interval it scheduled
+  (`sync.background_scheduled_interval`) — when the choice differs it
+  cancels the old job first so the new period takes effect. Switching the
+  toggle off cancels the job. `BackgroundSyncRunner` (the testable core,
+  wired to real storage by `BackgroundSyncRunner.live()` in the background
+  isolate — no app singletons are assumed loaded) syncs
+  `SyncService.todayWindow()` — the Monday–Sunday week, plus Monday when
+  today is Sunday — unless the cache was refreshed within the interval's
+  `freshFor` (nightly 6 h, 6 h → 3 h, 1 h → 30 min, 15 min → 10 min), in
+  which case it makes no request. The year-long events horizon is fetched
+  on every nightly run, but at most every 6 hours on the shorter intervals.
+  It restores the stored key itself; a network error keeps the key, a
+  401/403 does not. Outcomes and a consecutive-failure counter go to
+  `SyncSettings` (Settings → Data & privacy → Sync shows the last run and
+  result). The athlete is notified once after three failures in a row, and
+  once when the key is rejected; the job always reports success to
+  WorkManager so a dead network or revoked key is retried at the next
+  scheduled run, not with backoff.
+  **"New data" notification**: before and after the fetch the runner takes
+  a `BackgroundSnapshot` of the cache — activity ids in the week window, and
+  a fingerprint (date, type, name, description, planned load/time/distance,
+  indoor) of every planned `WORKOUT` from today on (none when copying
+  planned events is off). If the diff (`BackgroundChanges`) has new
+  activities or new/changed sessions, it shows one localised notification
+  (`NotificationService.showBackgroundUpdate`, id 6) — only when the master
+  notifications switch is on, never on a failed or skipped run, never for a
+  deletion alone, and never on the very first fill of an empty cache.
+  The toggle is in Settings → Data & privacy → Sync (default on, nightly).
+  **Windows, iOS and web have no closed-app wake**: the toggle is replaced
+  by a note and sync stays foreground-only. A foreground service (to survive
+  aggressive OEM battery savers) is not implemented; Settings instead hints
+  at setting the app's battery usage to "Unrestricted".
 - **Coming back to the app** is the moment staleness is most visible (the
   athlete just finished a ride and opened TriIQ), so `didChangeAppLifecycleState`
   re-syncs the current month whenever the last sync is older than
@@ -661,6 +685,12 @@ single plugin covers this app's platforms:
   manual sync; `ChatScreen._finish()` fires `showAgentReply` when a reply
   completes without error, the app isn't foreground, and notifications are
   enabled.
+  `BackgroundSyncRunner` (Android background sync, see Sync & local cache)
+  fires `showBackgroundUpdate` — text composed and localised by the caller
+  via `lookupAppLocalizations`, since the background isolate has no widget
+  tree — when a run brought new activities or new/changed planned
+  sessions, and `showSyncProblem` after repeated failures or a rejected key;
+  both only with the master toggle on.
 
 Android manifest additions this needed: `POST_NOTIFICATIONS` (the
 permission the runtime prompt is asking about), `RECEIVE_BOOT_COMPLETED`
@@ -940,8 +970,9 @@ truth: `IntervalsEventService` (`lib/data/intervals_event_service.dart`)
 creates/updates/deletes there via `createEvent` / `updateEvent` / `deleteEvent`
 and mirrors the result into the `events` cache. `SyncService.syncEventsHorizon()`
 refetches that whole span (independent of "Copy planned events"); the
-**nightly background sync** runs it after the week sync
-(`BackgroundSyncRunner.syncEvents`), opening the screen refreshes it when
+**background sync** runs it after the week sync
+(`BackgroundSyncRunner.syncEvents`; every run when nightly, at most every
+6 hours on the shorter intervals), opening the screen refreshes it when
 older than an hour, and pull-to-refresh forces it.
 
 ### Deleting planned sessions
@@ -1725,11 +1756,17 @@ off under Settings → App → Notifications.
   supports scheduling (Android/iOS — not Windows), a **daily training
   reminder** toggle and time picker appear underneath.
 - **Sync**: how often the open app refreshes the current month, and (Android)
-  the **nightly background sync** switch. With it on, TriIQ refreshes the
-  current week once a night, even when closed — only with a network and a
-  battery that isn't low — and shows when it last ran and how it went. Opening
-  the app always fetches today straight away. On Windows the app only syncs
-  while it is open.
+  the **Keep syncing in background** switch (on by default). With it on,
+  TriIQ refreshes the current week and your planned sessions even when
+  closed — only with a network and a battery that isn't low — at the
+  interval you pick: every 15 min, hourly, every 6 h or **nightly** (the
+  default, around 02:00–05:00). It shows when it last ran and how it went.
+  With notifications on, you get a notification when a background run
+  brought new activities or new or changed planned sessions — nothing when
+  nothing changed. If Android skips runs, set TriIQ's battery usage to
+  "Unrestricted" (Apps → TriIQ → Battery). Opening the app always fetches
+  today straight away. On Windows, iOS and web the app only syncs while it
+  is open.
 - **Calendar**: two independent switches, both on by default.
   **Send plan to Intervals.icu** — off keeps taken plans in TriIQ only;
   turning it back on offers to send the current plan's upcoming sessions
@@ -1830,7 +1867,13 @@ card at the top shows the currently cached date range.
   that builds under this project's AGP — the fixed-offset workaround in
   `NotificationService` is fine but not exact across a DST change.
 - No background sync on Windows (same missing closed-app wake as the daily
-  reminder below); the nightly job is Android only.
+  reminder below); the periodic job is Android only. Follow-up: a Windows
+  tray / Task Scheduler entry that keeps syncing (and notifying) with the
+  window closed — deliberately not attempted yet.
+- No foreground service on Android for the background sync: WorkManager
+  runs can be delayed or skipped by OEM battery savers. A battery-
+  optimisation exemption button would need a new plugin or native code;
+  Settings only explains where to change it.
 - No daily-reminder scheduling on Windows (see Notifications) — would need
   real background-wake support, e.g. a Task Scheduler entry, which is a
   separate, heavier piece of work.

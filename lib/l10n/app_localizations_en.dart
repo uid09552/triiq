@@ -433,11 +433,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get backgroundSyncTitle => 'Nightly background sync';
+  String get backgroundSyncTitle =>
+      'Keep syncing in background';
 
   @override
   String get backgroundSyncDescription =>
-      'Refresh the current week overnight even when the app is closed. It runs about once a day, only with a network connection and when the battery isn\'t low.';
+      "Refresh the current week and your planned sessions even when the app is closed — only with a network connection and when the battery isn't low.";
 
   @override
   String get backgroundSyncNoRun => 'No background run yet.';
@@ -458,14 +459,69 @@ class AppLocalizationsEn extends AppLocalizations {
       'key rejected, reconnect in Profile';
 
   @override
-  String get backgroundResultFailed => 'failed, will retry tomorrow';
+  String get backgroundResultFailed =>
+      'failed, will retry at the next run';
 
   @override
   String get backgroundResultNotConnected => 'not connected';
 
   @override
   String get backgroundSyncUnsupported =>
-      'Background sync is not available on this platform. Data refreshes while the app is open.';
+      'Syncing while the app is closed is not available on this platform — it cannot wake a closed app. Data refreshes while the app is open.';
+
+  @override
+  String get backgroundSyncIntervalLabel =>
+      'How often';
+
+  @override
+  String get backgroundInterval15Min =>
+      'Every 15 min';
+
+  @override
+  String get backgroundIntervalHourly =>
+      'Hourly';
+
+  @override
+  String get backgroundInterval6Hours =>
+      'Every 6 h';
+
+  @override
+  String get backgroundIntervalNightly =>
+      'Nightly';
+
+  @override
+  String get backgroundSyncNotifyHint =>
+      'With notifications on, you get a notification when new activities or new or changed planned sessions arrive.';
+
+  @override
+  String get backgroundSyncBatteryHint =>
+      'Android may delay or skip background runs to save battery. If runs are missed, set TriIQ\'s battery usage to "Unrestricted" in the system settings (Apps → TriIQ → Battery).';
+
+  @override
+  String get backgroundUpdateTitle =>
+      'New in TriIQ';
+
+  @override
+  String backgroundUpdateActivities(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new activities.',
+      one: '1 new activity.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backgroundUpdateSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new or changed planned sessions.',
+      one: '1 new or changed planned session.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get llmProviderTitle => 'LLM provider';
