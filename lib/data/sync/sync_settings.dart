@@ -1,6 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// How often the closed-app background sync runs (Android, WorkManager).
+/// [nightly] is the original behaviour and the default.
+enum BackgroundSyncInterval {
+  minutes15(Duration(minutes: 15), Duration(minutes: 10)),
+  hourly(Duration(hours: 1), Duration(minutes: 30)),
+  every6Hours(Duration(hours: 6), Duration(hours: 3)),
+  nightly(Duration(hours: 24), Duration(hours: 6));
+
+  const BackgroundSyncInterval(this.frequency, this.freshFor);
+
+  /// The WorkManager period. 15 minutes is WorkManager's minimum.
+  final Duration frequency;
+
+  /// A cache refreshed within this long ago (by the open app, say) is not
+  /// fetched again by a background run — shorter than [frequency] so a
+  /// run is never skipped just because the previous one landed.
+  final Duration freshFor;
+
+  static BackgroundSyncInterval fromName(String? name) =>
+      values.asNameMap()[name] ?? nightly;
+}
+
 /// How often the app is allowed to auto-sync the current month from
 /// Intervals.icu while it's open — nothing secret, so plain
 /// `shared_preferences`, same shape as [NotificationSettings](../../notifications/notification_settings.dart).
@@ -14,6 +36,7 @@ class SyncSettings extends ChangeNotifier {
 
   static const _autoSyncIntervalKey = 'sync.auto_interval_minutes';
   static const _backgroundEnabledKey = 'sync.background_enabled';
+  static const _backgroundIntervalKey = 'sync.background_interval';
   static const _backgroundLastRunKey = 'sync.background_last_run';
   static const _backgroundLastResultKey = 'sync.background_last_result';
   static const _backgroundFailuresKey = 'sync.background_failures';
@@ -33,6 +56,10 @@ class SyncSettings extends ChangeNotifier {
   /// Whether the nightly background sync is on (Android only; the control is
   /// hidden elsewhere). On by default — it only ever runs once connected.
   bool backgroundSyncEnabled = true;
+
+  /// How often that background sync runs; nightly unless changed.
+  BackgroundSyncInterval backgroundSyncInterval =
+      BackgroundSyncInterval.nightly;
 
   /// When the last background run finished, and how it went (a
   /// `BackgroundSyncOutcome.name`). Written from the background isolate.
@@ -68,6 +95,9 @@ class SyncSettings extends ChangeNotifier {
       // preferences cache, so re-read from disk before trusting ours.
       await prefs.reload();
       backgroundSyncEnabled = prefs.getBool(_backgroundEnabledKey) ?? true;
+      backgroundSyncInterval = BackgroundSyncInterval.fromName(
+        prefs.getString(_backgroundIntervalKey),
+      );
       sendPlanToIntervals = prefs.getBool(_sendPlanKey) ?? true;
       copyIntervalsEvents = prefs.getBool(_copyEventsKey) ?? true;
       final lastRun = prefs.getInt(_backgroundLastRunKey);
@@ -112,6 +142,20 @@ class SyncSettings extends ChangeNotifier {
       await prefs.setBool(_backgroundEnabledKey, enabled);
     } catch (error) {
       debugPrint('SyncSettings: cannot persist background sync flag: $error');
+    }
+  }
+
+  Future<void> setBackgroundSyncInterval(
+    BackgroundSyncInterval interval,
+  ) async {
+    if (interval == backgroundSyncInterval) return;
+    backgroundSyncInterval = interval;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_backgroundIntervalKey, interval.name);
+    } catch (error) {
+      debugPrint('SyncSettings: cannot persist background interval: $error');
     }
   }
 

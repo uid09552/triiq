@@ -66,11 +66,44 @@ void main() {
     expect(find.text(l10n.backgroundSyncNoRun), findsNothing);
   });
 
+  testWidgets('Android: picking an interval persists it; nightly is default', (
+    tester,
+  ) async {
+    final settings = await pump(tester, supported: true);
+    final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+
+    expect(settings.backgroundSyncInterval, BackgroundSyncInterval.nightly);
+    final nightly = tester.widget<ChoiceChip>(
+      find.widgetWithText(ChoiceChip, l10n.backgroundIntervalNightly),
+    );
+    expect(nightly.selected, isTrue);
+
+    await tester.tap(find.text(l10n.backgroundIntervalHourly));
+    await tester.pumpAndSettle();
+
+    expect(settings.backgroundSyncInterval, BackgroundSyncInterval.hourly);
+    final stored = await SharedPreferences.getInstance();
+    expect(stored.getString('sync.background_interval'), 'hourly');
+  });
+
+  testWidgets('Android: the interval choice hides when switched off', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      supported: true,
+      prefs: {'sync.background_enabled': false},
+    );
+
+    expect(find.byType(ChoiceChip), findsNothing);
+  });
+
   testWidgets('elsewhere: no switch, just why', (tester) async {
     await pump(tester, supported: false);
 
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));
     expect(find.byType(SwitchListTile), findsNothing);
+    expect(find.byType(ChoiceChip), findsNothing);
     expect(find.text(l10n.backgroundSyncUnsupported), findsOneWidget);
   });
 }

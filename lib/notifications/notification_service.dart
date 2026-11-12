@@ -60,6 +60,14 @@ abstract class NotificationService {
   /// which only they can fix.
   Future<void> showSyncProblem({required bool reconnectNeeded});
 
+  /// Tells the athlete a background sync brought new activities or new or
+  /// changed planned sessions. The text is composed (and localised) by the
+  /// caller.
+  Future<void> showBackgroundUpdate({
+    required String title,
+    required String body,
+  });
+
   Future<void> scheduleDailyReminder(TimeOfDay time);
 
   Future<void> cancelDailyReminder();
@@ -78,7 +86,7 @@ abstract class NotificationService {
 
 String _syncProblemBody(bool reconnectNeeded) => reconnectNeeded
     ? 'Intervals.icu rejected your API key. Open TriIQ and reconnect.'
-    : 'The nightly sync has failed several times in a row. '
+    : 'The background sync has failed several times in a row. '
           'Your data is still available offline.';
 
 class _NoopNotificationService implements NotificationService {
@@ -102,6 +110,12 @@ class _NoopNotificationService implements NotificationService {
 
   @override
   Future<void> showSyncProblem({required bool reconnectNeeded}) async {}
+
+  @override
+  Future<void> showBackgroundUpdate({
+    required String title,
+    required String body,
+  }) async {}
 
   @override
   Future<void> scheduleDailyReminder(TimeOfDay time) async {}
@@ -133,6 +147,7 @@ class _MobileNotificationService implements NotificationService {
   static const _reminderNotificationId = 3;
   static const _syncProblemNotificationId = 4;
   static const _briefingNotificationId = 5;
+  static const _backgroundUpdateNotificationId = 6;
 
   static const _syncDetails = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -250,6 +265,14 @@ class _MobileNotificationService implements NotificationService {
       _syncProblemBody(reconnectNeeded),
       _syncDetails,
     );
+  }
+
+  @override
+  Future<void> showBackgroundUpdate({
+    required String title,
+    required String body,
+  }) async {
+    await _show(_backgroundUpdateNotificationId, title, body, _syncDetails);
   }
 
   Future<void> _show(
@@ -425,6 +448,12 @@ class _WindowsNotificationService implements NotificationService {
   Future<void> showSyncProblem({required bool reconnectNeeded}) async {
     await _notify('Sync problem', _syncProblemBody(reconnectNeeded));
   }
+
+  @override
+  Future<void> showBackgroundUpdate({
+    required String title,
+    required String body,
+  }) => _notify(title, body);
 
   Future<void> _notify(String title, String body) async {
     if (!_initialized) return;

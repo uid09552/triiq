@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'background_sync_runner.dart';
@@ -23,15 +24,17 @@ void backgroundSyncDispatcher() {
       debugPrint('Background sync crashed: $error');
     }
     // Always "done": a false would make WorkManager retry with backoff, and
-    // a revoked key or dead network would just burn battery. Tomorrow's run
-    // is the retry.
+    // a revoked key or dead network would just burn battery. The next
+    // scheduled run is the retry.
     return true;
   });
 }
 
-/// Schedules (or cancels) the nightly sync that keeps the cache fresh while
-/// the app is closed. Android only: Windows and web have no closed-app wake,
-/// so there the app stays foreground-synced (see `AutoSyncService`).
+/// Schedules (or cancels) the periodic sync that keeps the cache fresh while
+/// the app is closed — nightly by default, or every 15 min / 1 h / 6 h as
+/// chosen in Settings ([BackgroundSyncInterval]). Android only: Windows,
+/// iOS and web have no closed-app wake here, so there the app stays
+/// foreground-synced (see `AutoSyncService`).
 class BackgroundSync {
   BackgroundSync._();
 
@@ -51,8 +54,13 @@ class BackgroundSync {
 
   bool _initialized = false;
 
-  /// Makes the schedule match [SyncSettings.backgroundSyncEnabled]. Safe to
-  /// call at every launch and after every toggle; never throws.
+  /// The interval the registered job was last scheduled with, so [apply]
+  /// can tell a changed choice (re-register) from a plain relaunch (keep).
+  static const _scheduledIntervalKey = 'sync.background_scheduled_interval';
+
+  /// Makes the schedule match [SyncSettings.backgroundSyncEnabled] and
+  /// [SyncSettings.backgroundSyncInterval]. Safe to call at every launch and
+  /// after every change; never throws.
   Future<void> apply() async {
     if (!isSupported) return;
     try {
@@ -63,24 +71,38 @@ class BackgroundSync {
         await manager.initialize(backgroundSyncDispatcher);
         _initialized = true;
       }
+      final prefs = await SharedPreferences.getInstance();
       if (!settings.backgroundSyncEnabled) {
         await manager.cancelByUniqueName(_uniqueName);
+        await prefs.remove(_scheduledIntervalKey);
         return;
       }
+      final interval = settings.backgroundSyncInterval;
+      final scheduled = prefs.getString(_scheduledIntervalKey);
+      // A job from before the interval choice existed was the nightly one.
+      final changed =
+          (scheduled ?? BackgroundSyncInterval.nightly.name) != interval.name;
+      if (changed) {
+        // `keep` below would otherwise leave the old period in place.
+        await manager.cancelByUniqueName(_uniqueName);
+      }
+      final nightly = interval == BackgroundSyncInterval.nightly;
       await manager.registerPeriodicTask(
         _uniqueName,
         _taskName,
-        frequency: const Duration(hours: 24),
-        flexInterval: windowLength,
-        initialDelay: initialDelayFor(DateTime.now()),
+        frequency: interval.frequency,
+        flexInterval: nightly ? windowLength : null,
+        initialDelay: nightly ? initialDelayFor(DateTime.now()) : Duration.zero,
         constraints: Constraints(
           networkType: NetworkType.connected,
           requiresBatteryNotLow: true,
         ),
         // Keep: re-registering at every launch must not restart the period,
-        // or an app opened daily would push the sync back forever.
+        // or an app opened daily would push the sync back forever. A changed
+        // interval cancelled the old job above, so this registers afresh.
         existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
       );
+      await prefs.setString(_scheduledIntervalKey, interval.name);
     } catch (error) {
       debugPrint('BackgroundSync: could not update schedule: $error');
     }

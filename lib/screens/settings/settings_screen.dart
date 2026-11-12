@@ -849,10 +849,9 @@ class _AutoSyncSection extends StatelessWidget {
   }
 }
 
-/// The nightly background-sync toggle and what its last run did. Android
-/// only — elsewhere nothing can wake a closed app, so it says so instead of
-/// offering a switch that would do nothing.
-/// The nightly background-sync switch and its last run (Android only).
+/// The "keep syncing in background" switch, how often it runs, and what
+/// its last run did. Android only — elsewhere nothing can wake a closed
+/// app, so it says so instead of offering a switch that would do nothing.
 class BackgroundSyncControls extends StatefulWidget {
   const BackgroundSyncControls({super.key, required this.settings});
 
@@ -884,6 +883,16 @@ class BackgroundSyncControlsState extends State<BackgroundSyncControls> {
     };
   }
 
+  String _intervalLabel(
+    AppLocalizations l10n,
+    BackgroundSyncInterval interval,
+  ) => switch (interval) {
+    BackgroundSyncInterval.minutes15 => l10n.backgroundInterval15Min,
+    BackgroundSyncInterval.hourly => l10n.backgroundIntervalHourly,
+    BackgroundSyncInterval.every6Hours => l10n.backgroundInterval6Hours,
+    BackgroundSyncInterval.nightly => l10n.backgroundIntervalNightly,
+  };
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: settings,
@@ -913,6 +922,30 @@ class BackgroundSyncControlsState extends State<BackgroundSyncControls> {
             await BackgroundSync.instance.apply();
           },
         ),
+        if (settings.backgroundSyncEnabled) ...[
+          Text(l10n.backgroundSyncIntervalLabel),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final interval in BackgroundSyncInterval.values)
+                ChoiceChip(
+                  label: Text(_intervalLabel(l10n, interval)),
+                  selected: settings.backgroundSyncInterval == interval,
+                  onSelected: (_) async {
+                    await settings.setBackgroundSyncInterval(interval);
+                    await BackgroundSync.instance.apply();
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(l10n.backgroundSyncNotifyHint, style: muted),
+          const SizedBox(height: 4),
+          Text(l10n.backgroundSyncBatteryHint, style: muted),
+          const SizedBox(height: 8),
+        ],
         Text(
           lastRun == null
               ? l10n.backgroundSyncNoRun
