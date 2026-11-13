@@ -127,6 +127,16 @@ List<double?> bestTimeAfter(
   ];
 }
 
+/// The session a best value came from.
+class DurabilitySource {
+  const DurabilitySource({required this.id, this.name, required this.date});
+  final String id;
+  final String? name;
+
+  /// ISO date of the session.
+  final String date;
+}
+
 /// One level of the result: the fresh reference or a fatigued curve.
 class DurabilityLevel {
   const DurabilityLevel({
@@ -134,6 +144,7 @@ class DurabilityLevel {
     required this.workAfter,
     required this.values,
     this.sessions = 0,
+    this.sources = const [],
   });
 
   /// Shown on the legend ("Season best", "After 2000 kJ").
@@ -147,6 +158,12 @@ class DurabilityLevel {
 
   /// How many sessions supplied at least one value.
   final int sessions;
+
+  /// The session each value came from, aligned with [values]; empty when
+  /// unknown (the fresh reference, or a result built without sources).
+  final List<DurabilitySource?> sources;
+
+  DurabilitySource? sourceAt(int i) => i < sources.length ? sources[i] : null;
 
   bool get hasData => values.any((v) => v != null);
 }
@@ -294,6 +311,10 @@ class DurabilityLoader {
     final best = [
       for (final _ in levels) List<double?>.filled(points.length, null),
     ];
+    final sources = [
+      for (final _ in levels)
+        List<DurabilitySource?>.filled(points.length, null),
+    ];
     final sessions = List<int>.filled(levels.length, 0);
     var analysed = 0, failed = 0;
 
@@ -321,7 +342,14 @@ class DurabilityLoader {
             if (v == null) continue;
             any = true;
             final cur = best[l][p];
-            if (cur == null || (isRide ? v > cur : v < cur)) best[l][p] = v;
+            if (cur == null || (isRide ? v > cur : v < cur)) {
+              best[l][p] = v;
+              sources[l][p] = DurabilitySource(
+                id: chosen[n].id,
+                name: chosen[n].name,
+                date: chosen[n].date,
+              );
+            }
           }
           if (any) sessions[l]++;
         }
@@ -346,6 +374,7 @@ class DurabilityLoader {
             workAfter: levels[l],
             values: best[l],
             sessions: sessions[l],
+            sources: sources[l],
           ),
       ],
       candidates: candidates.length,

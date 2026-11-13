@@ -84,9 +84,12 @@ void main() {
       await _settle(tester);
 
       expect(find.text('Durability'), findsWidgets);
-      expect(find.text('After 1000 kJ'), findsOneWidget); // legend
-      expect(find.text('After 2000 kJ'), findsOneWidget);
+      expect(find.text('After 1000 kJ'), findsWidgets); // legends
+      expect(find.text('After 2000 kJ'), findsWidgets);
       expect(find.text('After 3000 kJ'), findsNothing); // never reached
+      // The table sits behind a toggle.
+      await tester.tap(find.byKey(const ValueKey('durability-table-toggle')));
+      await tester.pump();
       expect(find.text('Season best'), findsWidgets);
       // 1-minute row: 250 W against 500 W fresh = 50 %.
       expect(find.textContaining('250 W 50%'), findsWidgets);
@@ -111,7 +114,7 @@ void main() {
       );
       await _settle(tester);
 
-      expect(find.text('After 1000 kJ'), findsOneWidget);
+      expect(find.text('After 1000 kJ'), findsWidgets);
       expect(find.textContaining('W 50%'), findsNothing); // nothing to compare
       expect(tester.takeException(), isNull);
     });

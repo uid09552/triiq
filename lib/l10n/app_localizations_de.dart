@@ -5097,4 +5097,57 @@ class AppLocalizationsDe extends AppLocalizations {
   String weeklyReviewRace(String name, String day) {
     return 'Wettkampf $name ($day)';
   }
+
+  @override
+  String get durRadarNoData => 'keine Daten';
+
+  @override
+  String get durRadarTitle => 'Anteil des frischen Werts';
+
+  @override
+  String get durRadarHint =>
+      'Der äußere Ring ist dein frischer Wert (100 %). Tippe auf einen Punkt oder eine Achse für den Wert und die Einheit, aus der er stammt; tippe auf einen Legendeneintrag, um ihn ein- oder auszublenden.';
+
+  @override
+  String get durRadarNoFresh =>
+      'Das Netz vergleicht mit deiner Saisonkurve, die gerade nicht verfügbar ist. Die Tabelle unten zeigt die Rohwerte.';
+
+  @override
+  String get durShowTable => 'Tabelle anzeigen';
+
+  @override
+  String get durHideTable => 'Tabelle ausblenden';
+
+  @override
+  String durRadarPart(String point, String pct) {
+    return '$point $pct %';
+  }
+
+  @override
+  String durRadarSummary(String level, String parts) {
+    return '$level: $parts';
+  }
+
+  @override
+  String durRadarSummaryNone(String level) {
+    return '$level: keine Daten';
+  }
+
+  @override
+  String durRadarTip(String point, String level, String value, String pct) {
+    return '$point, $level: $value, $pct % des frischen Werts';
+  }
+
+  @override
+  String durRadarTipNoData(String point, String level) {
+    return '$point, $level: keine Daten';
+  }
+
+  @override
+  String durRadarSource(String name, String date) {
+    return 'Einheit: $name ($date)';
+  }
+
+  @override
+  String get durRadarOpen => 'Einheit öffnen';
 }

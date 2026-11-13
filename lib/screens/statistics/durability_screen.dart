@@ -4,9 +4,13 @@ import '../../evaluation/durability.dart';
 import '../../evaluation/performance_curves.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/chart_options.dart';
+import '../../data/repositories/activities_repository.dart';
+import '../../widgets/charts/chart_theme.dart';
 import '../../widgets/charts/line_chart.dart';
+import '../../widgets/charts/radar_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/status_message.dart';
+import '../activities/activity_detail_screen.dart';
 
 /// Power (rides) or pace (runs) after a lot of work, against the fresh
 /// season best: the best efforts that started after 1,000 / 2,000 / 3,000 kJ
@@ -16,10 +20,14 @@ class DurabilityScreen extends StatefulWidget {
     super.key,
     this.sport = CurveSport.ride,
     DurabilityLoader? loader,
+    this.activities,
   }) : loader = loader ?? DurabilityLoader();
 
   final CurveSport sport;
   final DurabilityLoader loader;
+
+  /// Where "Open session" looks the activity up; the shared cache by default.
+  final ActivitiesRepository? activities;
 
   @override
   State<DurabilityScreen> createState() => _DurabilityScreenState();
@@ -37,6 +45,10 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
   bool _loading = true;
   int _done = 0, _total = 0;
   int _generation = 0;
+  bool _showTable = false;
+  final Set<String> _hiddenLevels = {};
+  RadarSelection? _selected;
+  late final _activities = widget.activities ?? ActivitiesRepository();
 
   @override
   void initState() {
@@ -68,6 +80,7 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
       if (!mounted || generation != _generation) return;
       setState(() {
         _result = result;
+        _selected = null;
         _loading = false;
       });
     } catch (e) {
@@ -98,6 +111,198 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
   String _valueLabel(double value, double point) {
     if (_isRide) return '${value.round()} W';
     return formatPace(point / value, per: 1000);
+  }
+
+  static const _radarMarkers = [
+    RadarMarker.circle,
+    RadarMarker.square,
+    RadarMarker.triangle,
+  ];
+  static const _radarDashes = <List<double>?>[
+    null,
+    [8, 4],
+    [2, 4],
+  ];
+
+  /// One radar polygon per fatigue level: the share of the fresh value kept.
+  List<RadarSeries> _radarSeries(AppLocalizations l10n, DurabilityResult r) => [
+    for (var l = 0; l < r.fatigued.length; l++)
+      RadarSeries(
+        label: _levelLabel(l10n, r.fatigued[l]),
+        color: _levelColor(l),
+        marker: _radarMarkers[l % _radarMarkers.length],
+        dash: _radarDashes[l % _radarDashes.length],
+        values: [
+          for (var i = 0; i < r.points.length; i++)
+            r.retained(r.fatigued[l], i),
+        ],
+      ),
+  ];
+
+  /// "After 2000 kJ: 5 min 92 %, 20 min 85 %" for each level.
+  String _radarSummary(
+    AppLocalizations l10n,
+    DurabilityResult r,
+    List<RadarSeries> series,
+  ) => [
+    for (var l = 0; l < series.length; l++)
+      () {
+        final parts = [
+          for (var i = 0; i < r.points.length; i++)
+            if (series[l].values[i] != null)
+              l10n.durRadarPart(
+                _pointLabel(r.points[i]),
+                (series[l].values[i]! * 100).round().toString(),
+              ),
+        ];
+        return parts.isEmpty
+            ? l10n.durRadarSummaryNone(series[l].label)
+            : l10n.durRadarSummary(series[l].label, parts.join(', '));
+      }(),
+  ].join('. ');
+
+  Future<void> _openSession(String activityId) async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final activity = await _activities.getById(activityId);
+    if (!mounted) return;
+    if (activity == null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.curveSessionNotCached)),
+      );
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ActivityDetailScreen(activity: activity),
+      ),
+    );
+  }
+
+  Widget _radarLegend(BuildContext context, List<RadarSeries> series) {
+    final theme = Theme.of(context);
+    return Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      children: [
+        // Levels never reached have nothing to show or hide.
+        for (final s in series.where((s) => s.values.any((v) => v != null)))
+          Semantics(
+            button: true,
+            toggled: !_hiddenLevels.contains(s.label),
+            label: s.label,
+            excludeSemantics: true,
+            child: InkWell(
+              key: ValueKey('radar-legend-${s.label}'),
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => setState(() {
+                if (!_hiddenLevels.remove(s.label)) _hiddenLevels.add(s.label);
+                _selected = null;
+              }),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Opacity(
+                  opacity: _hiddenLevels.contains(s.label) ? 0.4 : 1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RadarLegendSwatch(series: s),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            s.label,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// The tooltip: value, share kept and source session for the selected
+  /// vertex, or for every visible level on a selected axis.
+  Widget _radarDetail(
+    BuildContext context,
+    AppLocalizations l10n,
+    DurabilityResult r,
+    List<RadarSeries> series,
+  ) {
+    final theme = Theme.of(context);
+    final sel = _selected;
+    if (sel == null || sel.axis >= r.points.length) {
+      return const SizedBox.shrink();
+    }
+    final i = sel.axis;
+    final point = _pointLabel(r.points[i]);
+    final rows = <Widget>[];
+    for (var l = 0; l < r.fatigued.length; l++) {
+      if (sel.series != null && sel.series != l) continue;
+      if (_hiddenLevels.contains(series[l].label)) continue;
+      final level = r.fatigued[l];
+      final v = level.values[i];
+      final kept = r.retained(level, i);
+      final src = level.sourceAt(i);
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            children: [
+              Text(
+                v == null || kept == null
+                    ? l10n.durRadarTipNoData(point, series[l].label)
+                    : l10n.durRadarTip(
+                        point,
+                        series[l].label,
+                        _valueLabel(v, r.points[i]),
+                        (kept * 100).round().toString(),
+                      ),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (src != null && v != null) ...[
+                Text(
+                  l10n.durRadarSource(src.name ?? src.id, src.date),
+                  style: theme.textTheme.bodySmall,
+                ),
+                TextButton(
+                  key: ValueKey('radar-open-$l'),
+                  onPressed: () => _openSession(src.id),
+                  child: Text(l10n.durRadarOpen),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+    if (rows.isEmpty) return const SizedBox.shrink();
+    final chart = ChartTheme.of(context);
+    return Container(
+      key: const ValueKey('radar-detail'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: chart.tooltip,
+        border: Border.all(color: chart.tooltipBorder),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: rows,
+      ),
+    );
   }
 
   void _openOptions(AppLocalizations l10n) {
@@ -270,14 +475,27 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
         ),
       ),
       const SizedBox(height: 16),
+      _radarCard(context, l10n, r, muted),
+      const SizedBox(height: 16),
       SectionCard(
         icon: Icons.table_rows_outlined,
         title: l10n.durRetained,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _table(context, l10n, r),
-            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: const ValueKey('durability-table-toggle'),
+                onPressed: () => setState(() => _showTable = !_showTable),
+                icon: Icon(_showTable ? Icons.expand_less : Icons.expand_more),
+                label: Text(_showTable ? l10n.durHideTable : l10n.durShowTable),
+              ),
+            ),
+            if (_showTable) ...[
+              _table(context, l10n, r),
+              const SizedBox(height: 8),
+            ],
             Text(
               l10n.durBasedOn(r.analysed, r.candidates, r.days),
               style: muted,
@@ -287,6 +505,45 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
         ),
       ),
     ];
+  }
+
+  Widget _radarCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    DurabilityResult r,
+    TextStyle? muted,
+  ) {
+    final series = _radarSeries(l10n, r);
+    return SectionCard(
+      icon: Icons.radar,
+      title: l10n.durRadarTitle,
+      child: !r.fresh.hasData
+          ? Text(l10n.durRadarNoFresh, style: muted)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: RadarChart(
+                      key: ValueKey('durability-radar-$_sport-$_days'),
+                      axes: [for (final x in r.points) _pointLabel(x)],
+                      series: series,
+                      hidden: _hiddenLevels,
+                      selection: _selected,
+                      onSelect: (s) => setState(() => _selected = s),
+                      semanticsLabel:
+                          '${l10n.durRadarTitle}. ${_radarSummary(l10n, r, series)}',
+                    ),
+                  ),
+                ),
+                _radarLegend(context, series),
+                _radarDetail(context, l10n, r, series),
+                const SizedBox(height: 8),
+                Text(l10n.durRadarHint, style: muted),
+              ],
+            ),
+    );
   }
 
   Widget _table(

@@ -5051,4 +5051,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String weeklyReviewRace(String name, String day) {
     return 'Race $name ($day)';
   }
+
+  @override
+  String get durRadarNoData => 'no data';
+
+  @override
+  String get durRadarTitle => 'Share of fresh kept';
+
+  @override
+  String get durRadarHint =>
+      'The outer ring is your fresh level (100 %). Tap a point or axis for the value and the session it came from; tap a legend entry to show or hide it.';
+
+  @override
+  String get durRadarNoFresh =>
+      'The radar compares against your season curve, which isn\'t available right now. The table below shows the raw values.';
+
+  @override
+  String get durShowTable => 'Show table';
+
+  @override
+  String get durHideTable => 'Hide table';
+
+  @override
+  String durRadarPart(String point, String pct) {
+    return '$point $pct %';
+  }
+
+  @override
+  String durRadarSummary(String level, String parts) {
+    return '$level: $parts';
+  }
+
+  @override
+  String durRadarSummaryNone(String level) {
+    return '$level: no data';
+  }
+
+  @override
+  String durRadarTip(String point, String level, String value, String pct) {
+    return '$point, $level: $value, $pct % of fresh';
+  }
+
+  @override
+  String durRadarTipNoData(String point, String level) {
+    return '$point, $level: no data';
+  }
+
+  @override
+  String durRadarSource(String name, String date) {
+    return 'Session: $name ($date)';
+  }
+
+  @override
+  String get durRadarOpen => 'Open session';
 }

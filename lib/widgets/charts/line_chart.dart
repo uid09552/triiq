@@ -959,10 +959,12 @@ class ChartLegend extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(width: 6),
-                  Text(
-                    s.label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      decoration: off ? TextDecoration.lineThrough : null,
+                  Flexible(
+                    child: Text(
+                      s.label,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        decoration: off ? TextDecoration.lineThrough : null,
+                      ),
                     ),
                   ),
                 ],
