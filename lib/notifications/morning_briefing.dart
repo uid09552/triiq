@@ -116,7 +116,7 @@ class MorningBriefingScheduler {
        _fatigue = fatigue ?? FatigueWarningService(),
        _wellness = wellness ?? WellnessRepository(),
        _clock = clock ?? DateTime.now,
-       _l10n = l10n ?? _currentL10n;
+       _l10n = l10n ?? currentL10n;
 
   final NotificationSettings _settings;
   final NotificationService _notifications;
@@ -127,7 +127,8 @@ class MorningBriefingScheduler {
   final DateTime Function() _clock;
   final AppLocalizations Function() _l10n;
 
-  static AppLocalizations _currentL10n() {
+  /// The app language outside a widget tree (the background isolate).
+  static AppLocalizations currentL10n() {
     final chosen =
         LocaleController.instance.locale ?? PlatformDispatcher.instance.locale;
     final code =

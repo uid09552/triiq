@@ -86,6 +86,7 @@ class DataEraser {
     await step(() => _llm.setOllamaApiKey(''));
     await step(_notifications.cancelBriefing);
     await step(_notifications.cancelDailyReminder);
+    await step(_notifications.cancelWeeklyReview);
     await step(() async => await _database.eraseAll());
     await step(() async {
       final prefs = await SharedPreferences.getInstance();

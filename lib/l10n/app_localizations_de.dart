@@ -4970,4 +4970,98 @@ class AppLocalizationsDe extends AppLocalizations {
   String a11yHeatmapMatrix(String day, int tss) {
     return 'Stärkster Wochentag: $day, insgesamt $tss TSS.';
   }
+
+  @override
+  String get weeklyReviewNotification => 'Wochenrückblick';
+
+  @override
+  String get weeklyReviewNotificationHelp =>
+      'Einmal pro Woche: Belastung und Einheiten gegenüber dem Plan, Fitness, Bereitschaft und was die nächste Woche bringt. Erstellt aus deinem letzten Sync.';
+
+  @override
+  String get weeklyReviewOnStartHelp =>
+      'Auf dieser Plattform erscheint er beim nächsten Öffnen von TriIQ nach der gewählten Zeit.';
+
+  @override
+  String get weeklyReviewDayLabel => 'Tag';
+
+  @override
+  String get weeklyReviewTrainerComment => 'Trainer-Kommentar hinzufügen';
+
+  @override
+  String get weeklyReviewTrainerCommentHelp =>
+      'Ergänzt einen Satz deines KI-Anbieters, nur auf Basis der Zahlen. Entfällt, wenn der Anbieter nicht rechtzeitig antwortet.';
+
+  @override
+  String weeklyReviewNotificationTitle(String range) {
+    return 'Deine Woche · $range';
+  }
+
+  @override
+  String weeklyReviewLoad(int load) {
+    return 'Belastung $load TSS';
+  }
+
+  @override
+  String weeklyReviewLoadOfTarget(int load, int target, int percent) {
+    return 'Belastung $load von $target TSS ($percent %)';
+  }
+
+  @override
+  String weeklyReviewSessions(int done, int planned) {
+    return 'Einheiten $done/$planned erledigt';
+  }
+
+  @override
+  String weeklyReviewMissed(int count) {
+    return '$count verpasst';
+  }
+
+  @override
+  String weeklyReviewKeyHit(String name) {
+    return 'Schlüsseleinheit erledigt: $name';
+  }
+
+  @override
+  String weeklyReviewKeyMissed(String name) {
+    return 'Schlüsseleinheit verpasst: $name';
+  }
+
+  @override
+  String weeklyReviewCtl(String change, String ctl) {
+    return 'CTL $change → $ctl';
+  }
+
+  @override
+  String weeklyReviewForm(String form) {
+    return 'Form $form';
+  }
+
+  @override
+  String get weeklyReviewRampHigh => 'Anstieg über üblich';
+
+  @override
+  String weeklyReviewReadiness(int ready, int caution, int backOff) {
+    return 'Bereitschaft: $ready bereit, $caution Vorsicht, $backOff zurückschalten';
+  }
+
+  @override
+  String weeklyReviewHrv(String trend) {
+    return 'HRV $trend';
+  }
+
+  @override
+  String weeklyReviewRestingHr(String trend) {
+    return 'Ruhepuls $trend';
+  }
+
+  @override
+  String weeklyReviewNext(String details) {
+    return 'Nächste Woche: $details';
+  }
+
+  @override
+  String weeklyReviewRace(String name, String day) {
+    return 'Wettkampf $name ($day)';
+  }
 }

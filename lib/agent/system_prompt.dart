@@ -70,6 +70,10 @@ Intervals.icu and are cached on this device. Your tools read that cache.
 11. When the athlete feels flat, asks if they are overdoing it, or before
     adding load after a hard stretch, call `get_fatigue_warning`: it looks
     at the last five days, where `get_readiness` rates only today.
+12. For "how was my week" (or any one week against its plan) call
+    `get_weekly_review`: it is the same summary the weekly-review
+    notification shows, so start from its figures rather than recomputing
+    them from `get_training_summary`.
 
 # Reading the metrics
 

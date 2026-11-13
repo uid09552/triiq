@@ -17,6 +17,7 @@ import '../../data/threshold_suggestions_service.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
+import '../../evaluation/weekly_review_summary.dart';
 import '../../season/race_predictor.dart' show RaceSpec;
 import '../../plan/adaptation_service.dart';
 import '../../data/sync/sync_service.dart';
@@ -363,6 +364,31 @@ class TrainingDataTools {
           'hard session today. Read-only.',
       schema: const {'type': 'object', 'properties': <String, dynamic>{}},
       run: (_) => _readinessToday(),
+    ),
+    _tool(
+      name: 'get_weekly_review',
+      description:
+          'One Monday–Sunday week reviewed against its plan — the same '
+          'figures as the weekly-review notification: load vs the plan '
+          "week's target TSS, time per sport vs the athlete's weekly "
+          'targets, planned / completed / missed sessions and whether the '
+          'key session was done, CTL change and form at week end, whether '
+          'the CTL ramp is above usual, ready / caution / back-off day '
+          'counts with the HRV and resting-HR direction, and next week '
+          '(target TSS, phase, key sessions, races). The right tool for '
+          '"how was my week". Defaults to the current week. Read-only.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'week_of': {
+            'type': 'string',
+            'description':
+                'Any day of the week to review, as YYYY-MM-DD. Defaults to '
+                'today (the current week).',
+          },
+        },
+      },
+      run: (args) => _weeklyReview(args),
     ),
     _tool(
       name: 'get_threshold_suggestions',
@@ -1460,6 +1486,25 @@ class TrainingDataTools {
           : 'Review and apply in Insights → Performance curves; this tool '
                 'cannot apply or dismiss one.',
     });
+  }
+
+  Future<Map<String, dynamic>> _weeklyReview(Map<String, dynamic> args) async {
+    final raw = args['week_of'];
+    final day = raw == null ? _clock() : _parseDate(raw);
+    if (day == null) return {'error': 'week_of must be a date as YYYY-MM-DD.'};
+    final summary = await WeeklyReviewSummaryLoader(
+      activities: _activitiesRepository,
+      planned: _eventsRepository,
+      wellness: _wellnessRepository,
+      plans: _plans,
+      readiness: _readiness,
+      clock: _clock,
+    ).load(day);
+    return {
+      ...summary.toJson(),
+      if (!summary.hasData)
+        'note': 'Nothing done or planned in this week, or it is not cached.',
+    };
   }
 
   Future<Map<String, dynamic>> _readinessToday() async {

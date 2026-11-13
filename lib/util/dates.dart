@@ -16,5 +16,8 @@ String isoDate(DateTime date) =>
 DateTime dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
 
 /// The Monday of [date]'s week — Intervals.icu weeks start on Monday.
+///
+/// Built from calendar fields rather than subtracting a [Duration], so a
+/// week that spans a DST change still starts at local midnight.
 DateTime startOfWeek(DateTime date) =>
-    dateOnly(date).subtract(Duration(days: date.weekday - 1));
+    DateTime(date.year, date.month, date.day - (date.weekday - 1));

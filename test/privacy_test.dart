@@ -393,6 +393,11 @@ class FakeNotifications implements NotificationService {
   @override
   Future<void> cancelDailyReminder() async => reminderCancelled++;
 
+  int weeklyReviewCancelled = 0;
+
+  @override
+  Future<void> cancelWeeklyReview() async => weeklyReviewCancelled++;
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

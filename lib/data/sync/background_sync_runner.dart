@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../../l10n/app_localizations.dart';
 import '../../locale_controller.dart';
 import '../../notifications/morning_briefing.dart';
+import '../../notifications/weekly_review_notification.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../util/dates.dart';
@@ -159,6 +160,7 @@ class BackgroundSyncRunner {
         await HomeWidgetUpdater().update();
         await NotificationService.instance.init();
         await MorningBriefingScheduler().refresh();
+        await WeeklyReviewScheduler().refresh();
       },
       notify: ({required bool reconnectNeeded}) async {
         await NotificationSettings.instance.load();
