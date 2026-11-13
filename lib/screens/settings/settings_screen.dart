@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../agent/llm_settings.dart';
@@ -721,10 +722,78 @@ class _NotificationsSection extends StatelessWidget {
     if (picked != null) await _settings.setMorningBriefingTime(picked);
   }
 
+  Future<void> _pickWeeklyReviewTime(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _settings.weeklyReviewTime,
+    );
+    if (picked != null) await _settings.setWeeklyReviewTime(picked);
+  }
+
+  /// Weekly review: on/off, day, time and the optional trainer sentence.
+  List<Widget> _weeklyReview(BuildContext context, AppLocalizations l10n) {
+    final locale = Localizations.localeOf(context).toString();
+    // 1 Jan 2024 was a Monday.
+    String dayName(int weekday) =>
+        DateFormat.EEEE(locale).format(DateTime(2024, 1, weekday));
+    return [
+      SwitchListTile(
+        key: const ValueKey('weekly-review'),
+        contentPadding: EdgeInsets.zero,
+        title: Text(l10n.weeklyReviewNotification),
+        subtitle: Text(
+          _service.supportsScheduledReminder
+              ? l10n.weeklyReviewNotificationHelp
+              : '${l10n.weeklyReviewNotificationHelp} '
+                    '${l10n.weeklyReviewOnStartHelp}',
+        ),
+        value: _settings.weeklyReviewEnabled,
+        onChanged: _settings.setWeeklyReviewEnabled,
+      ),
+      if (_settings.weeklyReviewEnabled) ...[
+        Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            DropdownButton<int>(
+              key: const ValueKey('weekly-review-day'),
+              value: _settings.weeklyReviewWeekday,
+              hint: Text(l10n.weeklyReviewDayLabel),
+              items: [
+                for (var d = DateTime.monday; d <= DateTime.sunday; d++)
+                  DropdownMenuItem(value: d, child: Text(dayName(d))),
+              ],
+              onChanged: (d) {
+                if (d != null) _settings.setWeeklyReviewWeekday(d);
+              },
+            ),
+            OutlinedButton.icon(
+              key: const ValueKey('weekly-review-time'),
+              onPressed: () => _pickWeeklyReviewTime(context),
+              icon: const Icon(Icons.schedule_outlined),
+              label: Text(_settings.weeklyReviewTime.format(context)),
+            ),
+          ],
+        ),
+        // The sentence needs a provider; without one it isn't offered.
+        if (LlmSettings.instance.isConfigured)
+          SwitchListTile(
+            key: const ValueKey('weekly-review-comment'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.weeklyReviewTrainerComment),
+            subtitle: Text(l10n.weeklyReviewTrainerCommentHelp),
+            value: _settings.weeklyReviewTrainerComment,
+            onChanged: _settings.setWeeklyReviewTrainerComment,
+          ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _settings,
+      listenable: Listenable.merge([_settings, LlmSettings.instance]),
       builder: (context, _) {
         final l10n = AppLocalizations.of(context)!;
         return Column(
@@ -782,6 +851,10 @@ class _NotificationsSection extends StatelessWidget {
                   ),
                 ),
               ),
+            if (_settings.enabled &&
+                (_service.supportsScheduledReminder ||
+                    _service.showsMissedOnStart))
+              ..._weeklyReview(context, l10n),
             const Divider(height: 1),
             // In-app, so independent of the OS notification permission.
             SwitchListTile(

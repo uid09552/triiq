@@ -4924,4 +4924,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String a11yHeatmapMatrix(String day, int tss) {
     return 'Busiest weekday: $day, $tss TSS in total.';
   }
+
+  @override
+  String get weeklyReviewNotification => 'Weekly review';
+
+  @override
+  String get weeklyReviewNotificationHelp =>
+      'Once a week: your load and sessions against the plan, fitness, readiness and what next week holds. Prepared from your last sync.';
+
+  @override
+  String get weeklyReviewOnStartHelp =>
+      'On this platform it appears the next time you open TriIQ after the chosen time.';
+
+  @override
+  String get weeklyReviewDayLabel => 'Day';
+
+  @override
+  String get weeklyReviewTrainerComment => 'Include trainer comment';
+
+  @override
+  String get weeklyReviewTrainerCommentHelp =>
+      'Adds one sentence from your AI provider, based only on the figures. Left out if the provider doesn\'t answer in time.';
+
+  @override
+  String weeklyReviewNotificationTitle(String range) {
+    return 'Your week · $range';
+  }
+
+  @override
+  String weeklyReviewLoad(int load) {
+    return 'Load $load TSS';
+  }
+
+  @override
+  String weeklyReviewLoadOfTarget(int load, int target, int percent) {
+    return 'Load $load of $target TSS ($percent%)';
+  }
+
+  @override
+  String weeklyReviewSessions(int done, int planned) {
+    return 'Sessions $done/$planned done';
+  }
+
+  @override
+  String weeklyReviewMissed(int count) {
+    return '$count missed';
+  }
+
+  @override
+  String weeklyReviewKeyHit(String name) {
+    return 'key session done: $name';
+  }
+
+  @override
+  String weeklyReviewKeyMissed(String name) {
+    return 'key session missed: $name';
+  }
+
+  @override
+  String weeklyReviewCtl(String change, String ctl) {
+    return 'CTL $change → $ctl';
+  }
+
+  @override
+  String weeklyReviewForm(String form) {
+    return 'Form $form';
+  }
+
+  @override
+  String get weeklyReviewRampHigh => 'ramp above usual';
+
+  @override
+  String weeklyReviewReadiness(int ready, int caution, int backOff) {
+    return 'Readiness: $ready ready, $caution caution, $backOff back off';
+  }
+
+  @override
+  String weeklyReviewHrv(String trend) {
+    return 'HRV $trend';
+  }
+
+  @override
+  String weeklyReviewRestingHr(String trend) {
+    return 'Resting HR $trend';
+  }
+
+  @override
+  String weeklyReviewNext(String details) {
+    return 'Next week: $details';
+  }
+
+  @override
+  String weeklyReviewRace(String name, String day) {
+    return 'Race $name ($day)';
+  }
 }

@@ -7,6 +7,8 @@ import 'package:local_notifier/local_notifier.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'notification_taps.dart';
+
 /// Local notifications for sync completion, agent replies, and a daily
 /// training reminder.
 ///
@@ -21,7 +23,9 @@ import 'package:timezone/timezone.dart' as tz;
 ///   and agent-reply. No daily reminder: there's no OS-level way to wake a
 ///   *closed* desktop app on a schedule without native work well beyond
 ///   what a "remind me" toggle warrants, so [supportsScheduledReminder] is
-///   `false` here and Settings hides that control.
+///   `false` here and Settings hides that control. The weekly review is the
+///   exception: a missed one is shown on the next start
+///   ([showsMissedOnStart]).
 /// - **Everywhere else (web)** — no-op. The Web Notification permission
 ///   model doesn't fit this ask and wasn't part of it.
 abstract class NotificationService {
@@ -82,6 +86,28 @@ abstract class NotificationService {
   });
 
   Future<void> cancelBriefing();
+
+  /// Whether a missed weekly review is shown on the next app start instead
+  /// of being scheduled (Windows, which cannot wake a closed app).
+  bool get showsMissedOnStart;
+
+  /// Arms the weekly review at [at] with already-composed text, replacing
+  /// the previous one. Tapping it hands [payload] to [NotificationTaps].
+  Future<void> scheduleWeeklyReview({
+    required DateTime at,
+    required String title,
+    required String body,
+    required String payload,
+  });
+
+  Future<void> cancelWeeklyReview();
+
+  /// Shows the weekly review now — the missed-on-start path.
+  Future<void> showWeeklyReview({
+    required String title,
+    required String body,
+    required String payload,
+  });
 }
 
 String _syncProblemBody(bool reconnectNeeded) => reconnectNeeded
@@ -132,6 +158,27 @@ class _NoopNotificationService implements NotificationService {
 
   @override
   Future<void> cancelBriefing() async {}
+
+  @override
+  bool get showsMissedOnStart => false;
+
+  @override
+  Future<void> scheduleWeeklyReview({
+    required DateTime at,
+    required String title,
+    required String body,
+    required String payload,
+  }) async {}
+
+  @override
+  Future<void> cancelWeeklyReview() async {}
+
+  @override
+  Future<void> showWeeklyReview({
+    required String title,
+    required String body,
+    required String payload,
+  }) async {}
 }
 
 class _MobileNotificationService implements NotificationService {
@@ -148,6 +195,7 @@ class _MobileNotificationService implements NotificationService {
   static const _syncProblemNotificationId = 4;
   static const _briefingNotificationId = 5;
   static const _backgroundUpdateNotificationId = 6;
+  static const _weeklyReviewNotificationId = 7;
 
   static const _syncDetails = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -204,8 +252,19 @@ class _MobileNotificationService implements NotificationService {
             requestSoundPermission: false,
           ),
         ),
+        onDidReceiveNotificationResponse: (response) =>
+            NotificationTaps.instance.deliver(response.payload),
       );
       _initialized = true;
+      // A tap that launched the app from closed.
+      try {
+        final launch = await _plugin.getNotificationAppLaunchDetails();
+        if (launch?.didNotificationLaunchApp ?? false) {
+          NotificationTaps.instance.deliver(
+            launch!.notificationResponse?.payload,
+          );
+        }
+      } catch (_) {}
     } catch (error) {
       debugPrint('NotificationService: init failed: $error');
     }
@@ -343,14 +402,7 @@ class _MobileNotificationService implements NotificationService {
     try {
       await _plugin.zonedSchedule(
         id: _briefingNotificationId,
-        scheduledDate: tz.TZDateTime(
-          tz.local,
-          at.year,
-          at.month,
-          at.day,
-          at.hour,
-          at.minute,
-        ),
+        scheduledDate: _instant(at),
         title: title,
         body: body,
         notificationDetails: _briefingDetails,
@@ -367,6 +419,85 @@ class _MobileNotificationService implements NotificationService {
       await _plugin.cancel(id: _briefingNotificationId);
     } catch (error) {
       debugPrint('NotificationService: cancelling briefing failed: $error');
+    }
+  }
+
+  /// [at] (a local wall-clock time, resolved by Dart with the device's
+  /// real DST rules) as an instant in UTC. Scheduling by instant keeps a
+  /// time days ahead right across a DST change, which the fixed-offset
+  /// [tz.local] below would not, and UTC is a zone id the Android side
+  /// can resolve.
+  static tz.TZDateTime _instant(DateTime at) =>
+      tz.TZDateTime.from(at.toUtc(), tz.UTC);
+
+  static const _weeklyReviewDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'weekly_review_channel',
+      'Weekly review',
+      channelDescription: 'Your week against the plan, and next week.',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+      styleInformation: BigTextStyleInformation(''),
+    ),
+    iOS: DarwinNotificationDetails(),
+  );
+
+  @override
+  bool get showsMissedOnStart => false;
+
+  @override
+  Future<void> scheduleWeeklyReview({
+    required DateTime at,
+    required String title,
+    required String body,
+    required String payload,
+  }) async {
+    if (!_initialized) return;
+    try {
+      await _plugin.zonedSchedule(
+        id: _weeklyReviewNotificationId,
+        scheduledDate: _instant(at),
+        title: title,
+        body: body,
+        payload: payload,
+        notificationDetails: _weeklyReviewDetails,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    } catch (error) {
+      debugPrint(
+        'NotificationService: scheduling weekly review failed: $error',
+      );
+    }
+  }
+
+  @override
+  Future<void> cancelWeeklyReview() async {
+    try {
+      await _plugin.cancel(id: _weeklyReviewNotificationId);
+    } catch (error) {
+      debugPrint(
+        'NotificationService: cancelling weekly review failed: $error',
+      );
+    }
+  }
+
+  @override
+  Future<void> showWeeklyReview({
+    required String title,
+    required String body,
+    required String payload,
+  }) async {
+    if (!_initialized) return;
+    try {
+      await _plugin.show(
+        id: _weeklyReviewNotificationId,
+        title: title,
+        body: body,
+        payload: payload,
+        notificationDetails: _weeklyReviewDetails,
+      );
+    } catch (error) {
+      debugPrint('NotificationService: show failed: $error');
     }
   }
 
@@ -479,4 +610,34 @@ class _WindowsNotificationService implements NotificationService {
 
   @override
   Future<void> cancelBriefing() async {}
+
+  @override
+  bool get showsMissedOnStart => true;
+
+  @override
+  Future<void> scheduleWeeklyReview({
+    required DateTime at,
+    required String title,
+    required String body,
+    required String payload,
+  }) async {}
+
+  @override
+  Future<void> cancelWeeklyReview() async {}
+
+  @override
+  Future<void> showWeeklyReview({
+    required String title,
+    required String body,
+    required String payload,
+  }) async {
+    if (!_initialized) return;
+    try {
+      final notification = LocalNotification(title: title, body: body)
+        ..onClick = () => NotificationTaps.instance.deliver(payload);
+      await notification.show();
+    } catch (error) {
+      debugPrint('NotificationService: show failed: $error');
+    }
+  }
 }

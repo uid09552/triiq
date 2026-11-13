@@ -8161,6 +8161,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Busiest weekday: {day}, {tss} TSS in total.'**
   String a11yHeatmapMatrix(String day, int tss);
+
+  /// No description provided for @weeklyReviewNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly review'**
+  String get weeklyReviewNotification;
+
+  /// No description provided for @weeklyReviewNotificationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a week: your load and sessions against the plan, fitness, readiness and what next week holds. Prepared from your last sync.'**
+  String get weeklyReviewNotificationHelp;
+
+  /// No description provided for @weeklyReviewOnStartHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'On this platform it appears the next time you open TriIQ after the chosen time.'**
+  String get weeklyReviewOnStartHelp;
+
+  /// No description provided for @weeklyReviewDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get weeklyReviewDayLabel;
+
+  /// No description provided for @weeklyReviewTrainerComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Include trainer comment'**
+  String get weeklyReviewTrainerComment;
+
+  /// No description provided for @weeklyReviewTrainerCommentHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds one sentence from your AI provider, based only on the figures. Left out if the provider doesn\'t answer in time.'**
+  String get weeklyReviewTrainerCommentHelp;
+
+  /// No description provided for @weeklyReviewNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week · {range}'**
+  String weeklyReviewNotificationTitle(String range);
+
+  /// No description provided for @weeklyReviewLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load {load} TSS'**
+  String weeklyReviewLoad(int load);
+
+  /// No description provided for @weeklyReviewLoadOfTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Load {load} of {target} TSS ({percent}%)'**
+  String weeklyReviewLoadOfTarget(int load, int target, int percent);
+
+  /// No description provided for @weeklyReviewSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions {done}/{planned} done'**
+  String weeklyReviewSessions(int done, int planned);
+
+  /// No description provided for @weeklyReviewMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} missed'**
+  String weeklyReviewMissed(int count);
+
+  /// No description provided for @weeklyReviewKeyHit.
+  ///
+  /// In en, this message translates to:
+  /// **'key session done: {name}'**
+  String weeklyReviewKeyHit(String name);
+
+  /// No description provided for @weeklyReviewKeyMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'key session missed: {name}'**
+  String weeklyReviewKeyMissed(String name);
+
+  /// No description provided for @weeklyReviewCtl.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL {change} → {ctl}'**
+  String weeklyReviewCtl(String change, String ctl);
+
+  /// No description provided for @weeklyReviewForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form {form}'**
+  String weeklyReviewForm(String form);
+
+  /// No description provided for @weeklyReviewRampHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'ramp above usual'**
+  String get weeklyReviewRampHigh;
+
+  /// No description provided for @weeklyReviewReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness: {ready} ready, {caution} caution, {backOff} back off'**
+  String weeklyReviewReadiness(int ready, int caution, int backOff);
+
+  /// No description provided for @weeklyReviewHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV {trend}'**
+  String weeklyReviewHrv(String trend);
+
+  /// No description provided for @weeklyReviewRestingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting HR {trend}'**
+  String weeklyReviewRestingHr(String trend);
+
+  /// No description provided for @weeklyReviewNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week: {details}'**
+  String weeklyReviewNext(String details);
+
+  /// No description provided for @weeklyReviewRace.
+  ///
+  /// In en, this message translates to:
+  /// **'Race {name} ({day})'**
+  String weeklyReviewRace(String name, String day);
 }
 
 class _AppLocalizationsDelegate

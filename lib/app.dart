@@ -6,6 +6,10 @@ import 'locale_controller.dart';
 import 'theme_controller.dart';
 import 'widgets/main_shell.dart';
 
+/// The app's navigator, for routes opened from outside the widget tree (a
+/// tapped notification).
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 class TriiqApp extends StatelessWidget {
   const TriiqApp({super.key});
 
@@ -17,6 +21,7 @@ class TriiqApp extends StatelessWidget {
         LocaleController.instance,
       ]),
       builder: (context, _) => MaterialApp(
+        navigatorKey: rootNavigatorKey,
         title: 'TriIQ',
         themeMode: ThemeController.instance.mode,
         theme: _buildTheme(Brightness.light),

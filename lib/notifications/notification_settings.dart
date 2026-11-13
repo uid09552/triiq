@@ -21,8 +21,17 @@ class NotificationSettings extends ChangeNotifier {
   static const _briefingEnabledKey = 'notifications.morning_briefing';
   static const _briefingHourKey = 'notifications.morning_briefing_hour';
   static const _briefingMinuteKey = 'notifications.morning_briefing_minute';
+  static const _weeklyReviewEnabledKey = 'notifications.weekly_review';
+  static const _weeklyReviewWeekdayKey = 'notifications.weekly_review_weekday';
+  static const _weeklyReviewHourKey = 'notifications.weekly_review_hour';
+  static const _weeklyReviewMinuteKey = 'notifications.weekly_review_minute';
+  static const _weeklyReviewCommentKey = 'notifications.weekly_review_comment';
 
   static const defaultReminderTime = TimeOfDay(hour: 7, minute: 0);
+  static const defaultWeeklyReviewTime = TimeOfDay(hour: 19, minute: 0);
+
+  /// [DateTime.sunday].
+  static const defaultWeeklyReviewWeekday = DateTime.sunday;
 
   /// Master switch: sync-complete and agent-reply notifications, and a
   /// prerequisite for the daily reminder. Only meaningful once the OS
@@ -39,6 +48,17 @@ class NotificationSettings extends ChangeNotifier {
   /// composed from the cache and re-armed after each sync.
   bool morningBriefingEnabled = false;
   TimeOfDay morningBriefingTime = defaultReminderTime;
+
+  /// A weekly notification reviewing the week against its plan, composed
+  /// from the cache like the morning briefing. Off by default.
+  bool weeklyReviewEnabled = false;
+
+  /// [DateTime.monday]..[DateTime.sunday].
+  int weeklyReviewWeekday = defaultWeeklyReviewWeekday;
+  TimeOfDay weeklyReviewTime = defaultWeeklyReviewTime;
+
+  /// Adds one sentence from the configured LLM provider. Off by default.
+  bool weeklyReviewTrainerComment = false;
   bool isLoaded = false;
 
   Future<void> load() async {
@@ -52,6 +72,23 @@ class NotificationSettings extends ChangeNotifier {
         hour: prefs.getInt(_briefingHourKey) ?? defaultReminderTime.hour,
         minute: prefs.getInt(_briefingMinuteKey) ?? defaultReminderTime.minute,
       );
+      weeklyReviewEnabled = prefs.getBool(_weeklyReviewEnabledKey) ?? false;
+      final weekday = prefs.getInt(_weeklyReviewWeekdayKey);
+      weeklyReviewWeekday =
+          weekday != null &&
+              weekday >= DateTime.monday &&
+              weekday <= DateTime.sunday
+          ? weekday
+          : defaultWeeklyReviewWeekday;
+      weeklyReviewTime = TimeOfDay(
+        hour:
+            prefs.getInt(_weeklyReviewHourKey) ?? defaultWeeklyReviewTime.hour,
+        minute:
+            prefs.getInt(_weeklyReviewMinuteKey) ??
+            defaultWeeklyReviewTime.minute,
+      );
+      weeklyReviewTrainerComment =
+          prefs.getBool(_weeklyReviewCommentKey) ?? false;
       dailyReminderTime = TimeOfDay(
         hour: prefs.getInt(_dailyReminderHourKey) ?? defaultReminderTime.hour,
         minute:
@@ -117,6 +154,49 @@ class NotificationSettings extends ChangeNotifier {
     } catch (error) {
       debugPrint('NotificationSettings: cannot persist briefing time: $error');
     }
+  }
+
+  Future<void> setWeeklyReviewEnabled(bool value) async {
+    if (value == weeklyReviewEnabled) return;
+    weeklyReviewEnabled = value;
+    notifyListeners();
+    await _writeBool(_weeklyReviewEnabledKey, value);
+  }
+
+  Future<void> setWeeklyReviewWeekday(int weekday) async {
+    if (weekday == weeklyReviewWeekday ||
+        weekday < DateTime.monday ||
+        weekday > DateTime.sunday) {
+      return;
+    }
+    weeklyReviewWeekday = weekday;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_weeklyReviewWeekdayKey, weekday);
+    } catch (error) {
+      debugPrint('NotificationSettings: cannot persist review day: $error');
+    }
+  }
+
+  Future<void> setWeeklyReviewTime(TimeOfDay time) async {
+    if (time == weeklyReviewTime) return;
+    weeklyReviewTime = time;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_weeklyReviewHourKey, time.hour);
+      await prefs.setInt(_weeklyReviewMinuteKey, time.minute);
+    } catch (error) {
+      debugPrint('NotificationSettings: cannot persist review time: $error');
+    }
+  }
+
+  Future<void> setWeeklyReviewTrainerComment(bool value) async {
+    if (value == weeklyReviewTrainerComment) return;
+    weeklyReviewTrainerComment = value;
+    notifyListeners();
+    await _writeBool(_weeklyReviewCommentKey, value);
   }
 
   Future<void> _writeBool(String key, bool value) async {

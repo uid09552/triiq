@@ -66,6 +66,7 @@ athlete can:
 | Insights (was Statistics) | ✅ Implemented — the **Insights hub** (bottom-nav tab, `lib/screens/statistics/`): a compact grid of every analysis view, one tap each and accented by group — *Fitness* (Training analytics, Metric explorer — formerly "Analysis" in More —, Load heatmap), *Performance* (Performance curves, Best efforts, Durability), *Health* (Wellness trends), *Compare*, *Review* (Weekly review, Activities) — with the sync status and the range option in one slim row above and the overview charts right below, so the first chart is on the first screen. **Hold a tile** (long press, or hold the mouse button) to peek: a card floats over the dimmed screen — above the tile when there is room, else below — with the destination's name, a line on what it is and a small chart or a few figures from your own cached data (`HoldPreview`, `lib/widgets/hold_preview.dart`; content in `insight_previews.dart`): CTL/ATL and form for Training analytics, weekly load bars for Metric explorer, a 12-week grid for Load heatmap, season or six-week best power for Performance curves and Best efforts, the count of long rides for Durability, the HRV trend with resting HR and sleep for Wellness trends, the last four weeks against the four before for Compare, last week against the week before for Weekly review, and the latest sessions for Activities. Letting go (or a touch that turns into a scroll) hides it again; a quick tap still opens the screen. Peeks read the local cache only, so they are instant and work offline. Then: CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen (content centred and capped at 840 px on wide windows; the model card shows FTP / CP / W′ / Pmax and the settings value as tiles across its width, with the model-vs-settings gap beneath) with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
 | Fatigue early warning | ✅ Implemented — a Today card (and `get_fatigue_warning`) when HRV, resting HR, sleep, form, CTL ramp or the fatigue/soreness scores stay off on enough of the last 5 days: **watch** (two signals) or **warning** (three, or HRV/resting HR plus a load or feel signal); "Ask the trainer" or "Not now" (hidden for the day unless it worsens) |
 | Morning briefing | ✅ Implemented (Android/iOS) — Settings → App → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
+| Weekly review notification | ✅ Implemented (Android/iOS scheduled; Windows on the next start after the time; web no-op) — Settings → App → Notifications, **off by default**: a weekly notification (default **Sunday 19:00**, day and time selectable) with load vs the plan week's target TSS and time per sport vs the weekly targets, planned / done / missed sessions and whether the key session was done, CTL change, form at week end, a "ramp above usual" flag, ready / caution / back-off day counts with the HRV and resting-HR direction, and next week's target TSS, phase, 1–2 key sessions and races. Big-text style; tapping it opens Weekly review on that week. Optional **Include trainer comment** (off by default, offered only with an LLM provider set up): one sentence from the provider, given only the computed figures, 15 s timeout, silently left out on failure. Computed from the cache by `WeeklyReviewSummaryLoader` (`lib/evaluation/weekly_review_summary.dart`), composed and armed by `WeeklyReviewScheduler` (`lib/notifications/weekly_review_notification.dart`) wherever the morning briefing is re-armed; the trainer reads the same summary with `get_weekly_review` |
 | Training analytics (Insights → Training analytics) | ✅ Implemented — all from the local cache, maths in `lib/evaluation/training_analytics.dart`: **fitness by sport** (CTL or ATL per swim/ride/run from each sport's own daily TSS with the 42/7-day model, 180 days of warm-up, plus the total) and a stacked weekly **where your load comes from** chart with per-sport shares; **intensity distribution** (weekly/monthly share of easy / threshold / hard zone time via `intensityOf`, labelled polarized / pyramidal / threshold-heavy / high-intensity with Treff's polarization index, needs ≥ 1 h of zone time); **load safety** (acute:chronic load ratio 7 d/28 d — safe 0.8–1.3, risky ≤ 1.5, too fast above; CTL ramp rate — safe ≤ 5/week, risky ≤ 8; Foster monotony and strain over 7 days — safe ≤ 1.5, risky ≤ 2); **aerobic base** (EF and Pa:HR decoupling for ride/run sessions ≥ 60 min with ≥ 70 % easy zone time, EF least-squares trend per month, decoupling < 5 % solid / 5–10 % developing / > 10 % drifting) |
 | Compare (Insights → Compare, or "Compare with…" on a run/ride's page) | ✅ Implemented — running and cycling only; maths in `lib/evaluation/compare.dart`. **Activities tab**: pick two activities of the same sport; one chart per stream (power, heart rate, speed/pace, cadence, altitude) overlays both on a shared **distance** or **time** axis (blue = A, orange = B; distance is unavailable when either lacks a `distance` stream, fetched on demand by `ActivityStreamsRepository.loadForCompare`), both **courses on one map** in the two colours, and a side-by-side table of the same figures. A shared **tracker**: touching the chart moves a labelled dot for each activity on the map (the position of each at that distance/time), and tapping the map moves the chart's cursor to the nearest point of the closest course; switching axis keeps the tracker on the same moment. **Periods tab**: this block against the previous block of 7/14/28/56 days for runs or rides — sessions, distance, time, elevation, load, pace/speed, power, heart rate, EF, decoupling, easy share with the change between them, plus cumulative distance/time/load by day for both blocks |
 | Readiness signals (long-press the readiness card, or the options icon on its detail screen) | ✅ Implemented — choose which of HRV, resting HR, sleep, form, fatigue/soreness, load and the device's own readiness count toward readiness (`ReadinessSettings`, `lib/evaluation/readiness_settings.dart`, stored on the device in `shared_preferences` as the switched-off signals; at least one stays on). A switched-off signal is rated `excluded`: it moves neither the status nor the 0–100 score, its pill disappears from the card, and the detail screen lists it greyed as "Not used". `ReadinessService` applies the choice everywhere it is used — Today, the detail screen, the morning briefing, plan adjustments — and the `get_readiness` tool reports only `signals_used` (naming `signals_switched_off`) so the trainer does not base readiness advice on them. The same sheet picks the HRV / resting-HR smoothing window — the median of the last 3 (default) or 5 days with data (`ReadinessSettings.smoothingDays`, `readiness.smoothing_days`; unset follows `okf-rules` `smoothingDays`) |
@@ -332,6 +333,7 @@ is asked for or after a newer activity of that sport was synced.
 | `get_athlete_context` | Today's date, athlete identity, cached date ranges, and current thresholds per sport |
 | `get_daily_metrics` | Per day: CTL, ATL, TSB, ramp rate, resting HR, HRV, sleep, weight, subjective scores |
 | `get_plan_adjustments` | The current plan adjustments (missed sessions, week load, readiness conflicts) as **proposals** — the same keyed cards Today shows, so one Apply resolves both |
+| `get_weekly_review` | One Monday–Sunday week against its plan (defaults to the current one; `week_of` picks another) — load vs target TSS, time per sport vs weekly targets, planned / done / missed sessions and the key session, CTL change, form at week end, ramp-above-usual flag, readiness day counts, HRV / resting-HR direction and next week's target, phase, key sessions and races. The same `WeeklyReviewSummary` the weekly-review notification is composed from, so "how was my week" in chat and in the notification agree |
 | `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state (HRV / resting HR: the smoothed value, today's raw reading, the median / MADσ baseline and how many baseline days it has) — computed by the same rules as the readiness row on Today (`lib/evaluation/readiness.dart`) |
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
@@ -691,6 +693,33 @@ single plugin covers this app's platforms:
   tree — when a run brought new activities or new/changed planned
   sessions, and `showSyncProblem` after repeated failures or a rejected key;
   both only with the master toggle on.
+
+- **Weekly review** (`weekly_review_notification.dart`): mirrors the morning
+  briefing. `WeeklyReviewScheduler.refresh()` runs at start, from
+  `_keepBriefingFresh` (syncs, plan changes, settings changes) and after the
+  nightly background sync; it loads `WeeklyReviewSummary` from the cache,
+  composes the text with `lookupAppLocalizations` (no `BuildContext`, so it
+  works in the background isolate) and arms one notification (id 7,
+  `weekly_review_channel`, big-text style) at the next chosen weekday/time,
+  or cancels it when it is off, the master toggle is off, or the week has
+  nothing done or planned. A review due Friday–Sunday covers that week;
+  Monday–Thursday covers the week before. `nextDue` builds the date from
+  calendar fields and the mobile service schedules it as a UTC instant, so it
+  stays on the chosen wall-clock time across a DST change (the morning
+  briefing now uses the same `_instant` conversion). Settings:
+  `notifications.weekly_review`, `_weekday` (default 7 = Sunday), `_hour` /
+  `_minute` (19:00), `_comment` (trainer sentence, off). The trainer
+  sentence (`WeeklyReviewComment`) is only asked for within 48 h of the due
+  time, cached per figures, and dropped on any error or after 15 s.
+  **Tap routing**: the notification carries the payload
+  `weekly_review:<monday>`; `NotificationTaps` (`notification_taps.dart`)
+  receives it from `onDidReceiveNotificationResponse` or the launch details,
+  and `main.dart` pushes `WeeklyReviewScreen(initialWeek: …)` through
+  `rootNavigatorKey`. **Windows** can't schedule, so
+  `showsMissedOnStart` is true there: on refresh, if the last due time passed
+  since it was last shown (`notifications.weekly_review_last_shown`), it is
+  shown at once (clicking it opens Weekly review); switching it on only
+  records the moment, so an older review never pops up. Web: no-op.
 
 Android manifest additions this needed: `POST_NOTIFICATIONS` (the
 permission the runtime prompt is asking about), `RECEIVE_BOOT_COMPLETED`
@@ -1603,6 +1632,22 @@ the nightly background sync. It lists the day's planned workouts, readiness
 (only when today's wearable data is already in and the briefing is for
 today), the fatigue level, a note if you are logged sick or injured, and form
 with CTL.
+
+**Weekly review notification** (`lib/notifications/weekly_review_notification.dart`).
+Enable under Settings → App → Notifications (needs notifications on; off by
+default). Pick the day (default Sunday) and time (default 19:00). It sums up
+the week against the plan — load vs target, time per sport vs your weekly
+targets, sessions done / missed and the key session, CTL change and form at
+week end (with a note when CTL rose faster than usual: 8+ in the week, or
+3+ and more than 3 above your average of the four weeks before), how many
+days readiness was ready / caution / back off and which way HRV and resting
+HR moved — and previews next week: target TSS, phase, key sessions and any
+race. Like the briefing, the text is a snapshot of the cache when it was
+armed. Tap it to open Weekly review. With an AI provider set up you can add
+one sentence from the trainer; the numbers never come from it, and when the
+provider doesn't answer in time the notification goes out without it. On
+Windows it appears the next time you open TriIQ after the chosen time. Ask
+the trainer "how was my week?" for the same figures (`get_weekly_review`).
 
 The work **intervals** under the session diagram are collapsed ("Intervals (n)"); tap the header to open the list, tap an interval to zoom the diagram to it.
 

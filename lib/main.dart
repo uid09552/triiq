@@ -19,6 +19,9 @@ import 'notifications/app_lifecycle_tracker.dart';
 import 'notifications/morning_briefing.dart';
 import 'notifications/notification_service.dart';
 import 'notifications/notification_settings.dart';
+import 'notifications/notification_taps.dart';
+import 'notifications/weekly_review_notification.dart';
+import 'screens/statistics/weekly_review_screen.dart';
 import 'screens/settings/weekly_targets_settings.dart';
 import 'screens/settings/year_goals_settings.dart';
 import 'screens/today/today_layout_settings.dart';
@@ -77,8 +80,10 @@ void main() {
         );
       }
       await MorningBriefingScheduler().refresh();
+      await WeeklyReviewScheduler().refresh();
     }),
   );
+  _routeNotificationTaps();
   runApp(const TriiqApp());
 }
 
@@ -101,20 +106,48 @@ void _keepHomeWidgetFresh() {
   schedule();
 }
 
-/// Re-arms the morning briefing (its text is a snapshot) after fresh data,
-/// plan changes and settings changes.
+/// Re-arms the morning briefing and the weekly review (their text is a
+/// snapshot) after fresh data, plan changes and settings changes.
 void _keepBriefingFresh() {
   final scheduler = MorningBriefingScheduler();
+  final weekly = WeeklyReviewScheduler();
   Timer? pending;
   void schedule() {
     pending?.cancel();
-    pending = Timer(
-      const Duration(seconds: 3),
-      () => unawaited(scheduler.refresh()),
-    );
+    pending = Timer(const Duration(seconds: 3), () async {
+      await scheduler.refresh();
+      await weekly.refresh();
+    });
   }
 
   AutoSyncService.instance.addListener(schedule);
   PlanChanges.instance.addListener(schedule);
   NotificationSettings.instance.addListener(schedule);
+}
+
+/// Opens the screen a tapped notification points at — today only the
+/// weekly review. Waits for the navigator when the tap launched the app.
+void _routeNotificationTaps() {
+  void open([int attempt = 0]) {
+    final navigator = rootNavigatorKey.currentState;
+    if (navigator == null) {
+      if (attempt < 50) {
+        Timer(const Duration(milliseconds: 100), () => open(attempt + 1));
+      }
+      return;
+    }
+    final payload = NotificationTaps.instance.take();
+    if (payload == null) return;
+    final week = weeklyReviewWeekOf(payload);
+    if (week == null) return;
+    unawaited(
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => WeeklyReviewScreen(initialWeek: week),
+        ),
+      ),
+    );
+  }
+
+  NotificationTaps.instance.addListener(open);
 }
