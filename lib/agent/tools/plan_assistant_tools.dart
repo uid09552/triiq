@@ -86,6 +86,11 @@ class PlanAssistantTools {
       if (g.intervalDays.isNotEmpty)
         'interval_days': [for (final d in g.intervalDays) _weekdays[d - 1]],
       'max_sessions_per_day': g.effectiveMaxPerDay,
+      'strength_per_week': g.strengthPerWeek,
+      if (g.strengthDays.isNotEmpty)
+        'strength_days': [
+          for (final d in g.strengthDays.toList()..sort()) _weekdays[d - 1],
+        ],
     },
     if (g.baselineWeeklyLoad != null)
       'baseline_weekly_load': g.baselineWeeklyLoad,
@@ -154,6 +159,8 @@ class PlanAssistantTools {
             'phase': w.phase,
             'target_tss': w.targetLoad.round(),
             'planned_tss': w.plannedLoad,
+            if (w.strengthSessions.isNotEmpty)
+              'strength_tss_outside_target': w.strengthLoad,
             if (w.index < actuals.length && actuals[w.index] != null)
               'actual_tss': actuals[w.index],
             if (w.lowShare != null)

@@ -98,7 +98,7 @@ List<Adaptation> adaptPlan({
       result.add(
         MissedSession(
           s,
-          isHardSlot(s.slot)
+          isHardSlot(s.slot) || s.isStrength
               ? rescheduleDay(plan, goal, current, s, after: day)
               : null,
         ),
@@ -157,7 +157,11 @@ PlanWeek? weekOf(TrainingPlan plan, DateTime day) {
 
 /// The earliest training day after [after] in [week] that can take
 /// [session]: a goal training day, below the per-day cap, with no other
-/// hard session on it or the day either side. `null` when none fits.
+/// hard session on it or the day either side, and no strength session the
+/// day before it. A strength session instead needs a day with no hard
+/// session on it or the day after, at most one other session, and no
+/// strength session on it or the day either side — it is never stacked
+/// onto a hard day. `null` when none fits.
 DateTime? rescheduleDay(
   TrainingPlan plan,
   Goal goal,
@@ -168,6 +172,7 @@ DateTime? rescheduleDay(
   final others = plan.sessions.where((o) => o.id != session.id).toList();
   bool hardOn(DateTime d) =>
       others.any((o) => o.date == d && isHardSlot(o.slot));
+  bool strengthOn(DateTime d) => others.any((o) => o.date == d && o.isStrength);
   for (var i = 0; i < 7; i++) {
     final d = DateTime(
       week.startDate.year,
@@ -175,13 +180,21 @@ DateTime? rescheduleDay(
       week.startDate.day + i,
     );
     if (!d.isAfter(after) || !goal.weekdays.contains(d.weekday)) continue;
-    if (others.where((o) => o.date == d).length >= goal.effectiveMaxPerDay) {
-      continue;
-    }
     final before = DateTime(d.year, d.month, d.day - 1);
     final next = DateTime(d.year, d.month, d.day + 1);
+    if (session.isStrength) {
+      final endurance = others.where((o) => o.date == d && !o.isStrength);
+      if (endurance.length >= 2 || hardOn(d) || hardOn(next)) continue;
+      if (strengthOn(d) || strengthOn(before) || strengthOn(next)) continue;
+      return d;
+    }
+    // Strength sessions are extra: they don't count against the cap.
+    if (others.where((o) => o.date == d && !o.isStrength).length >=
+        goal.effectiveMaxPerDay) {
+      continue;
+    }
     if (isHardSlot(session.slot) &&
-        (hardOn(d) || hardOn(before) || hardOn(next))) {
+        (hardOn(d) || hardOn(before) || hardOn(next) || strengthOn(before))) {
       continue;
     }
     return d;
@@ -210,8 +223,14 @@ WeekLoadOffTarget? _weekLoad(
   if (target <= 0) return null;
   final first = isoDate(ended.startDate);
   final last = isoDate(ended.startDate.add(const Duration(days: 6)));
+  // Strength load is outside the endurance target, so outside the actual.
   final actual = activities
-      .where((a) => a.date.compareTo(first) >= 0 && a.date.compareTo(last) <= 0)
+      .where(
+        (a) =>
+            a.date.compareTo(first) >= 0 &&
+            a.date.compareTo(last) <= 0 &&
+            !isStrengthType(a.type),
+      )
       .fold<int>(0, (sum, a) => sum + (a.trainingLoad ?? 0));
 
   final double wanted;

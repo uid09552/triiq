@@ -4,6 +4,7 @@ import '../util/dates.dart';
 import 'knowledge.dart';
 import 'load_curve.dart';
 import 'plan_models.dart';
+import 'strength.dart';
 
 /// Builds a block of plan weeks from the athlete's goal, recent load, the
 /// load curve and the training knowledge. Deterministic and free of I/O:
@@ -184,7 +185,7 @@ class PlanEngine {
         sport: goal.sport,
         startDate: monday,
         baselineLoad: limits.baseline,
-        weeks: weeks,
+        weeks: _withStrength(goal, weeks),
         sportMix: goal.isTriathlon ? goal.sportMix : const {},
       ),
     );
@@ -574,6 +575,9 @@ class PlanEngine {
           result.add(intervalDay ?? longDay);
         case SessionSlot.z2:
           result.add(z2Days.isNotEmpty ? z2Days.removeAt(0) : longDay);
+        case SessionSlot.strength:
+          // Strength is placed after the week is built (_withStrength).
+          result.add(longDay);
       }
     }
     return result;
@@ -629,6 +633,136 @@ class PlanEngine {
   /// interval days that the week couldn't honour.
   static const noteLongDay = 'longDay';
   static const noteIntervalDay = 'intervalDay';
+
+  /// [PlanWeek.notes] code: a strength session found no day that keeps the
+  /// placement rules, and was left out.
+  static const noteStrength = 'strength';
+
+  /// [weeks] with the goal's strength & mobility sessions added, after the
+  /// endurance sessions are placed (they never move for strength):
+  ///
+  /// * the dose follows the phase ([strengthDoseFor]): heavy in build weeks
+  ///   (up to 2), maintenance (1) in the [strengthPeakWeeks] build weeks
+  ///   before a taper, mobility (1) in recovery and taper weeks, none in
+  ///   the race week;
+  /// * only on training days, never on a day holding two sessions already,
+  ///   never the day before an interval, long or openers session (across
+  ///   week ends), never on a taper week's key-session day, and never on
+  ///   consecutive days with another strength session;
+  /// * preferred strength days first, then days with an easy session, then
+  ///   free days, a long or interval day only as a last resort.
+  ///
+  /// Strength load is counted apart from the endurance load (see
+  /// `strength.dart`), so the targets, the CTL projection and the 80/20
+  /// share computed for [weeks] stay as they are.
+  List<PlanWeek> _withStrength(Goal goal, List<PlanWeek> weeks) {
+    if (goal.strengthPerWeek <= 0) return weeks;
+    final hardDates = <DateTime>{
+      for (final w in weeks)
+        for (final s in w.sessions)
+          if (s.slot == SessionSlot.intervals || s.slot == SessionSlot.long)
+            s.date,
+    };
+    final firstTaper = weeks.indexWhere((w) => isTaperPhase(w.phase));
+    final strengthDates = <DateTime>{};
+    final result = <PlanWeek>[];
+    for (final week in weeks) {
+      final peak =
+          firstTaper >= 0 &&
+          week.index < firstTaper &&
+          week.index >= firstTaper - strengthPeakWeeks &&
+          week.phase == buildPhase;
+      final dose = strengthDoseFor(
+        week.phase,
+        goal.strengthPerWeek,
+        peak: peak,
+      );
+      if (dose == null) {
+        result.add(week);
+        continue;
+      }
+      final added = <PlanSession>[];
+      for (var n = 0; n < dose.count; n++) {
+        final day = _strengthDay(
+          goal: goal,
+          week: week,
+          hardDates: hardDates,
+          strengthDates: strengthDates,
+        );
+        if (day == null) break;
+        strengthDates.add(day);
+        final minutes = dose.minutes;
+        added.add(
+          PlanSession(
+            weekIndex: week.index,
+            date: day,
+            slot: SessionSlot.strength,
+            templateId: strengthTemplateId(dose.focus),
+            name: strengthName(dose.focus),
+            sport: strengthSport,
+            minutes: minutes,
+            load: dose.load,
+            // Outside the 80/20 share; recorded as all easy for safety.
+            lowMinutes: minutes.toDouble(),
+            description: strengthDescription(dose.focus, variant: n),
+          ),
+        );
+      }
+      final sessions = [...week.sessions, ...added]
+        ..sort((a, b) => a.date.compareTo(b.date));
+      result.add(
+        week.withSessions(
+          sessions,
+          notes: added.length < dose.count
+              ? [...week.notes, noteStrength]
+              : null,
+        ),
+      );
+    }
+    return result;
+  }
+
+  /// The best day of [week] for one more strength session, or `null`.
+  DateTime? _strengthDay({
+    required Goal goal,
+    required PlanWeek week,
+    required Set<DateTime> hardDates,
+    required Set<DateTime> strengthDates,
+  }) {
+    final taper = isTaperPhase(week.phase);
+    DateTime? best;
+    var bestCost = double.infinity;
+    for (final weekday in goal.weekdays.toList()..sort()) {
+      final day = _plusDays(week.startDate, weekday - 1);
+      final there = week.sessions.where((s) => s.date == day).toList();
+      if (there.length >= 2) continue;
+      if (hardDates.contains(_plusDays(day, 1))) continue;
+      if (strengthDates.contains(day) ||
+          strengthDates.contains(_plusDays(day, -1)) ||
+          strengthDates.contains(_plusDays(day, 1))) {
+        continue;
+      }
+      final hardThere = hardDates.contains(day);
+      if (taper && hardThere) continue;
+      var cost = 0.0;
+      if (goal.strengthDays.contains(weekday)) cost -= 100;
+      if (hardThere) {
+        cost += 50;
+      } else if (there.isEmpty) {
+        cost += 5;
+      }
+      // Two sessions in a week: spread them out.
+      for (final other in strengthDates) {
+        final gap = other.difference(day).inDays.abs();
+        if (gap < 7) cost -= gap;
+      }
+      if (cost < bestCost) {
+        bestCost = cost;
+        best = day;
+      }
+    }
+    return best;
+  }
 
   /// Places [entries] in their order (long, intervals, Z2): at most the
   /// goal's sessions per day, long sessions on different days, a sport's

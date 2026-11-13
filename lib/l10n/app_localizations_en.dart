@@ -1618,6 +1618,39 @@ class AppLocalizationsEn extends AppLocalizations {
       'The intervals couldn\'t go on a preferred interval day.';
 
   @override
+  String get sportStrength => 'Strength & mobility';
+
+  @override
+  String get planGoalStrengthTitle => 'Strength & mobility';
+
+  @override
+  String get planGoalStrengthHelp =>
+      'Sessions per week (WeightTraining). Heavier in build weeks, one maintenance session before the taper, mobility only in recovery and taper weeks, none in race week. Never the day before a key session. Counted apart from the endurance TSS target and the 80/20 share.';
+
+  @override
+  String get planGoalStrengthDays => 'Preferred strength days';
+
+  @override
+  String get planNoteStrength =>
+      'A strength session found no suitable day and was left out.';
+
+  @override
+  String planWeekStrength(int count, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count strength & mobility sessions',
+      one: '1 strength & mobility session',
+    );
+    return '$_temp0 · $minutes min, outside the TSS target';
+  }
+
+  @override
+  String weeklyStrengthValue(int done, int planned) {
+    return 'Strength & mobility: $done of $planned sessions';
+  }
+
+  @override
   String get sessionDiagramTitle => 'Over time';
 
   @override

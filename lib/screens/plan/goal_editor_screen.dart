@@ -55,6 +55,8 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
   late Map<String, int> _longDays;
   late Set<int> _intervalDays;
   int? _perDay;
+  late int _strength;
+  late Set<int> _strengthDays;
   final _baseline = TextEditingController();
   final _ramp = TextEditingController();
   String? _error;
@@ -78,6 +80,10 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     _longDays = {...?goal?.longDays};
     _intervalDays = {...?goal?.intervalDays};
     _perDay = goal?.maxSessionsPerDay;
+    // A new goal starts with one session; a saved one keeps its choice
+    // (0 for goals saved before the option existed).
+    _strength = goal?.strengthPerWeek ?? Goal.defaultStrengthPerWeek;
+    _strengthDays = {...?goal?.strengthDays};
     if (goal?.baselineWeeklyLoad != null) {
       _baseline.text = goal!.baselineWeeklyLoad!.round().toString();
     }
@@ -127,6 +133,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
         // A preference on a day that is no longer trained goes with it.
         _longDays.removeWhere((_, d) => d == day);
         _intervalDays.remove(day);
+        _strengthDays.remove(day);
       }
     });
   }
@@ -152,6 +159,8 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
       longDays: _longDays,
       intervalDays: _intervalDays,
       maxSessionsPerDay: _perDay,
+      strengthPerWeek: _strength,
+      strengthDays: _strength == 0 ? const {} : _strengthDays,
     ).withoutStalePreferences();
     final problem = goal.validate(today: DateTime.now());
     if (problem != null) {
@@ -267,6 +276,8 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
           _slotsEditor(l10n, theme),
           const SizedBox(height: 20),
           _preferencesEditor(l10n, theme),
+          const SizedBox(height: 20),
+          _strengthEditor(l10n, theme),
           const SizedBox(height: 20),
           TextField(
             controller: _baseline,
@@ -473,6 +484,63 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
             }),
             child: Text(l10n.planGoalSlotsReset),
           ),
+      ],
+    );
+  }
+
+  Widget _strengthEditor(AppLocalizations l10n, ThemeData theme) {
+    final locale = Localizations.localeOf(context).toString();
+    final monday = DateTime(2024, 1, 1);
+    String dayName(int d) =>
+        DateFormat.E(locale).format(monday.add(Duration(days: d - 1)));
+    final days = _days.toList()..sort();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(activityTypeIcon('WeightTraining'), size: 20),
+            const SizedBox(width: 8),
+            Text(l10n.planGoalStrengthTitle, style: theme.textTheme.titleSmall),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<int>(
+          key: const ValueKey('strength-per-week'),
+          segments: [
+            for (var n = 0; n <= Goal.maxStrengthPerWeek; n++)
+              ButtonSegment(value: n, label: Text('$n')),
+          ],
+          selected: {_strength},
+          onSelectionChanged: (s) => setState(() => _strength = s.first),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.planGoalStrengthHelp,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        if (_strength > 0) ...[
+          const SizedBox(height: 8),
+          Text(l10n.planGoalStrengthDays),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final d in days)
+                FilterChip(
+                  key: ValueKey('strength-day-$d'),
+                  label: Text(dayName(d)),
+                  selected: _strengthDays.contains(d),
+                  onSelected: (on) => setState(
+                    () => on ? _strengthDays.add(d) : _strengthDays.remove(d),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }

@@ -75,6 +75,18 @@ class WeeklyReview {
   final double lowTolerance;
 
   int get plannedSessions => days.fold(0, (n, d) => n + d.planned.length);
+
+  /// Strength & mobility sessions planned this week.
+  int get strengthPlanned => days.fold(
+    0,
+    (n, d) => n + d.planned.where((p) => isStrengthType(p.type)).length,
+  );
+
+  /// Strength & mobility sessions done this week, planned or not.
+  int get strengthDone => days.fold(
+    0,
+    (n, d) => n + d.done.where((a) => isStrengthType(a.type)).length,
+  );
   int get completedPlanned => days.fold(0, (n, d) => n + d.matches.length);
   int get missedSessions => days.fold(0, (n, d) => n + d.missed.length);
 
@@ -132,6 +144,8 @@ WeeklyReview buildWeeklyReview({
   IntensitySplit? split;
   var noZones = 0;
   for (final a in activities) {
+    // Strength work is outside the 80/20 share, as in the plan.
+    if (isStrengthType(a.type)) continue;
     final s = intensityOf(a.raw);
     if (s == null) {
       noZones++;

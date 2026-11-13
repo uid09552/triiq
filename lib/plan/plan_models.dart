@@ -25,6 +25,8 @@ class Goal {
     this.longDays = const {},
     this.intervalDays = const {},
     this.maxSessionsPerDay,
+    this.strengthPerWeek = 0,
+    this.strengthDays = const {},
   });
 
   /// A `GoalProfile.id` from the knowledge, e.g. `long_distance`.
@@ -77,6 +79,17 @@ class Goal {
   /// Most sessions on one day; `null` means 2 for triathlon, 1 otherwise.
   final int? maxSessionsPerDay;
 
+  /// Strength & mobility sessions per week asked for, 0-2. Saved goals
+  /// from before the option load as 0, so their plans don't change; the
+  /// goal editor starts a new goal at [defaultStrengthPerWeek].
+  final int strengthPerWeek;
+
+  /// Preferred weekdays (1-7) for strength sessions; training days only.
+  final Set<int> strengthDays;
+
+  static const maxStrengthPerWeek = 2;
+  static const defaultStrengthPerWeek = 1;
+
   static const slotKeys = ['z2', 'intervals', 'long'];
 
   int get effectiveMaxPerDay => maxSessionsPerDay ?? (isTriathlon ? 2 : 1);
@@ -94,6 +107,7 @@ class Goal {
           e.key: e.value,
     },
     intervalDays: intervalDays.where(weekdays.contains).toSet(),
+    strengthDays: strengthDays.where(weekdays.contains).toSet(),
   );
 
   static const triathlon = 'Triathlon';
@@ -235,6 +249,13 @@ class Goal {
     if (perDay != null && perDay != 1 && perDay != 2) {
       return 'At most 1 or 2 sessions a day.';
     }
+    if (strengthPerWeek < 0 || strengthPerWeek > maxStrengthPerWeek) {
+      return 'Strength & mobility is 0 to $maxStrengthPerWeek sessions a '
+          'week.';
+    }
+    if (!weekdays.containsAll(strengthDays)) {
+      return 'Strength days must be training days.';
+    }
     final event = eventDate;
     if (event != null &&
         DateTime(
@@ -277,6 +298,8 @@ class Goal {
     Set<int>? intervalDays,
     int? maxSessionsPerDay,
     bool clearMaxSessionsPerDay = false,
+    int? strengthPerWeek,
+    Set<int>? strengthDays,
   }) => Goal(
     targetType: targetType ?? this.targetType,
     weekdays: weekdays ?? this.weekdays,
@@ -296,6 +319,8 @@ class Goal {
     maxSessionsPerDay: clearMaxSessionsPerDay
         ? null
         : maxSessionsPerDay ?? this.maxSessionsPerDay,
+    strengthPerWeek: strengthPerWeek ?? this.strengthPerWeek,
+    strengthDays: strengthDays ?? this.strengthDays,
   );
 
   Map<String, dynamic> toJson() => {
@@ -315,6 +340,8 @@ class Goal {
     'longDays': longDays,
     'intervalDays': intervalDays.toList()..sort(),
     'maxSessionsPerDay': maxSessionsPerDay,
+    'strengthPerWeek': strengthPerWeek,
+    'strengthDays': strengthDays.toList()..sort(),
   };
 
   factory Goal.fromJson(Map<String, dynamic> json) => Goal(
@@ -357,6 +384,13 @@ class Goal {
         (d as num).toInt(),
     },
     maxSessionsPerDay: (json['maxSessionsPerDay'] as num?)?.toInt(),
+    // Absent in goals saved before strength & mobility existed: none, so a
+    // saved goal's plan stays as it was.
+    strengthPerWeek: (json['strengthPerWeek'] as num?)?.toInt() ?? 0,
+    strengthDays: {
+      for (final d in json['strengthDays'] as List? ?? const [])
+        (d as num).toInt(),
+    },
   );
 }
 
@@ -445,6 +479,9 @@ class PlanSession {
   final String? calendarEventId;
   final PlanSessionStatus status;
 
+  /// A strength & mobility session — counted apart from the endurance load.
+  bool get isStrength => slot == SessionSlot.strength;
+
   PlanSession copyWith({
     int? id,
     String? description,
@@ -517,10 +554,10 @@ class PlanWeek {
   /// (`longDay:<sport>`, `intervalDay`).
   final List<String> notes;
 
-  /// Planned load per Intervals.icu sport.
+  /// Planned endurance load per Intervals.icu sport (strength excluded).
   Map<String, int> get loadBySport {
     final result = <String, int>{};
-    for (final s in sessions) {
+    for (final s in enduranceSessions) {
       result[s.sport] = (result[s.sport] ?? 0) + s.load;
     }
     return result;
@@ -533,13 +570,34 @@ class PlanWeek {
   final double lowIntensityTarget;
   final double lowIntensityTolerance;
 
-  int get totalMinutes => sessions.fold(0, (sum, s) => sum + s.minutes);
-  int get plannedLoad => sessions.fold(0, (sum, s) => sum + s.load);
+  /// The swim/bike/run sessions: what the load target, planned load,
+  /// minutes and the 80/20 share are about.
+  Iterable<PlanSession> get enduranceSessions =>
+      sessions.where((s) => !s.isStrength);
 
-  /// Share of planned time at low intensity, 0..1; `null` for an empty week.
+  /// Strength & mobility sessions, counted separately (see `strength.dart`).
+  Iterable<PlanSession> get strengthSessions =>
+      sessions.where((s) => s.isStrength);
+
+  int get strengthMinutes =>
+      strengthSessions.fold(0, (sum, s) => sum + s.minutes);
+  int get strengthLoad => strengthSessions.fold(0, (sum, s) => sum + s.load);
+
+  /// Endurance minutes (strength excluded).
+  int get totalMinutes =>
+      enduranceSessions.fold(0, (sum, s) => sum + s.minutes);
+
+  /// Endurance load (strength excluded) — compared with [targetLoad].
+  int get plannedLoad => enduranceSessions.fold(0, (sum, s) => sum + s.load);
+
+  /// Share of planned endurance time at low intensity, 0..1; `null` for an
+  /// empty week.
   double? get lowShare {
     if (totalMinutes == 0) return null;
-    final low = sessions.fold<double>(0, (sum, s) => sum + s.lowMinutes);
+    final low = enduranceSessions.fold<double>(
+      0,
+      (sum, s) => sum + s.lowMinutes,
+    );
     return low / totalMinutes;
   }
 
@@ -550,21 +608,22 @@ class PlanWeek {
     return share != null && share < lowIntensityTarget - lowIntensityTolerance;
   }
 
-  PlanWeek withSessions(List<PlanSession> sessions) => PlanWeek(
-    index: index,
-    phase: phase,
-    startDate: startDate,
-    targetLoad: targetLoad,
-    requestedLoad: requestedLoad,
-    limit: limit,
-    projectedCtlEnd: projectedCtlEnd,
-    sessions: sessions,
-    lowIntensityTarget: lowIntensityTarget,
-    lowIntensityTolerance: lowIntensityTolerance,
-    factor: factor,
-    warnings: warnings,
-    notes: notes,
-  );
+  PlanWeek withSessions(List<PlanSession> sessions, {List<String>? notes}) =>
+      PlanWeek(
+        index: index,
+        phase: phase,
+        startDate: startDate,
+        targetLoad: targetLoad,
+        requestedLoad: requestedLoad,
+        limit: limit,
+        projectedCtlEnd: projectedCtlEnd,
+        sessions: sessions,
+        lowIntensityTarget: lowIntensityTarget,
+        lowIntensityTolerance: lowIntensityTolerance,
+        factor: factor,
+        warnings: warnings,
+        notes: notes ?? this.notes,
+      );
 }
 
 /// A generated block of plan weeks.
