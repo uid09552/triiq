@@ -441,4 +441,55 @@ void main() {
       isEmpty,
     );
   });
+
+  for (final lang in ['en', 'de']) {
+    testWidgets('compact header and 3 activities need no scroll ($lang)', (
+      t,
+    ) async {
+      // A typical phone: 360 x 780 dp, minus ~80 dp top bar and 68 dp nav bar.
+      t.view.physicalSize = const Size(720, 1560);
+      t.view.devicePixelRatio = 2;
+      addTearDown(t.view.reset);
+      await t.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale(lang),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                height: 780 - 80 - 68,
+                child: CalendarScreen(
+                  loader: FakeLoader(
+                    const [],
+                    activities: [
+                      activity('a', '2026-11-13'),
+                      activity('b', '2026-11-13', type: 'Ride'),
+                      activity('c', '2026-11-13', type: 'Swim'),
+                    ],
+                  ),
+                  mover: FakeMover(),
+                  today: () => today,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+
+      // Level labels stay on one line: each segment is a single text line.
+      for (final level in ['year', 'month', 'week', 'day']) {
+        final box = t.getSize(find.byKey(ValueKey('level-$level')));
+        expect(box.height, lessThan(20), reason: level);
+      }
+
+      // The third activity row is fully inside the visible area.
+      final visible = 780.0 - 80 - 68;
+      final last = find.text('Morning Swim');
+      expect(last, findsOneWidget);
+      expect(t.getBottomLeft(last).dy, lessThanOrEqualTo(visible));
+    });
+  }
 }

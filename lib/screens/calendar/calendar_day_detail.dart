@@ -129,7 +129,7 @@ class CalendarDayDetail extends StatelessWidget {
         key: const ValueKey('day-detail-card'),
         margin: EdgeInsets.zero,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 10, 8, 4),
+          padding: const EdgeInsets.fromLTRB(12, 6, 6, 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -369,7 +369,7 @@ class _DayEventRow extends StatelessWidget {
         MaterialPageRoute(builder: (_) => EventEditorScreen(event: event)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
           children: [
             Container(
@@ -556,7 +556,7 @@ class _Row extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
           children: [
             CalendarDayMarker(type: type, color: color, size: 22),

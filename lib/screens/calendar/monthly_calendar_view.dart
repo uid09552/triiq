@@ -15,7 +15,7 @@ import 'day_cell_parts.dart';
 import 'day_events.dart';
 
 const _maxMarkersPerCell = 3;
-const _weekColumnWidth = 28.0;
+const _weekColumnWidth = 22.0;
 
 /// Month grid of planned (tertiary colour) vs. completed (primary colour)
 /// trainings, each day carrying a tiny icon per session, a fill for done
@@ -91,13 +91,13 @@ class MonthlyCalendarView extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: MediaQuery.withClampedTextScaling(
         maxScaleFactor: 1.3,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final cellWidth = (constraints.maxWidth - _weekColumnWidth) / 7;
-            final cellHeight = cellWidth / (compact ? 0.85 : 0.62);
+            final cellHeight = cellWidth / (compact ? 1.05 : 0.84);
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -112,7 +112,7 @@ class MonthlyCalendarView extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 for (var week = 0; week < 6; week++)
                   SizedBox(
                     height: cellHeight,
@@ -319,8 +319,8 @@ class _DayCell extends StatelessWidget {
         onLongPress: onLongPress,
         child: Container(
           key: ValueKey('day-fill-${summary.fill.name}-${isoDate(date)}'),
-          margin: const EdgeInsets.all(2),
-          padding: const EdgeInsets.fromLTRB(2, 3, 2, 3),
+          margin: const EdgeInsets.all(1),
+          padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
           decoration: BoxDecoration(
             color: hovering
                 ? colorScheme.primary.withValues(alpha: 0.25)
