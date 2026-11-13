@@ -1284,6 +1284,12 @@ Settings — so a first launch isn't just a wall of "not connected" labels.
 
 ### Calendar
 
+**Compact layout.** The level buttons use a small single-line label (never
+wrapping, in English or German), the header rows and the month grid have
+tighter padding, and month cells are shorter, so the month grid plus the day
+card with three activities fit on a ~780 dp phone without scrolling
+(`test/screens/calendar_drilldown_test.dart`).
+
 **Levels.** Four zoom levels — **Year**, **Month**, **Week**, **Day** — picked
 with the buttons at the top, by pinching (out = one level in, in = one level
 out), or by tapping: a month in the year view, a week number in the month

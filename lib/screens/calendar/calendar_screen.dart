@@ -320,7 +320,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
                 child: _levelButtons(context, l10n),
               ),
               Padding(
@@ -330,6 +330,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     IconButton(
                       key: const ValueKey('calendar-prev'),
                       onPressed: () => _shift(-1),
+                      visualDensity: VisualDensity.compact,
                       tooltip: l10n.calPrevious,
                       icon: const Icon(Icons.chevron_left),
                     ),
@@ -337,6 +338,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     IconButton(
                       key: const ValueKey('calendar-next'),
                       onPressed: () => _shift(1),
+                      visualDensity: VisualDensity.compact,
                       tooltip: l10n.calNext,
                       icon: const Icon(Icons.chevron_right),
                     ),
@@ -350,11 +352,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     Expanded(child: _summary(context, l10n)),
                     IconButton(
                       onPressed: _goToToday,
+                      visualDensity: VisualDensity.compact,
                       tooltip: l10n.todayTooltip,
                       icon: const Icon(Icons.today_outlined),
                     ),
                     IconButton(
                       key: const ValueKey('calendar-filter'),
+                      visualDensity: VisualDensity.compact,
                       onPressed: () =>
                           setState(() => _showFilters = !_showFilters),
                       tooltip: l10n.calFilterTooltip,
@@ -366,6 +370,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       onPressed: _loading
                           ? null
                           : () => _load(freshness: CalendarFreshness.force),
+                      visualDensity: VisualDensity.compact,
                       tooltip: l10n.refreshTooltip,
                       icon: const Icon(Icons.refresh),
                     ),
@@ -446,11 +451,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
       tooltip: iconsOnly ? label : null,
       label: iconsOnly
           ? null
-          : Text(label, key: ValueKey('level-${level.name}')),
+          : Text(
+              label,
+              key: ValueKey('level-${level.name}'),
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+            ),
       icon: Icon(icon, key: iconsOnly ? ValueKey('level-${level.name}') : null),
     );
     return SegmentedButton<CalendarLevel>(
       showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        textStyle: const TextStyle(fontSize: 12),
+        iconSize: 16,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       segments: [
         seg(CalendarLevel.year, l10n.calendarYear, Icons.calendar_today),
         seg(CalendarLevel.month, l10n.calendarMonth, Icons.calendar_view_month),
@@ -624,7 +642,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _dayDetail(BuildContext context, CalendarData data) {
     final key = isoDate(_date);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
       child: CalendarDayDetail(
         date: _date,
         events: data.eventsByDate[key] ?? const [],
