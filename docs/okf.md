@@ -62,7 +62,7 @@ athlete can:
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → App → Notifications |
-| Calendar screen | ✅ Implemented — month/week views of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
+| Calendar screen | ✅ Implemented — **year / month / week / day** levels (drill down by tap, pinch, the level buttons or the breadcrumb `2026 › November › Week 46 › Fri 13`; level and date remembered; zoom animation off under reduced motion), swipe to change period, swipe down on the header for today; **drag a planned session to another day** (plan rules warn, Undo), swipe a session in the day list (left = delete with undo, right = "How did it feel?"), "Move to…" as the gesture-free path; richer cells (load fill, per-sport minutes bar, readiness dot, key/strength badges, week-number column, compact/comfortable density); filter chips (sport, planned/completed) and the period's TSS / hours / sessions / CTL change in the header — `lib/screens/calendar/`; of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Insights (was Statistics) | ✅ Implemented — the **Insights hub** (bottom-nav tab, `lib/screens/statistics/`): a compact grid of every analysis view, one tap each and accented by group — *Fitness* (Training analytics, Metric explorer — formerly "Analysis" in More —, Load heatmap), *Performance* (Performance curves, Best efforts, Durability), *Health* (Wellness trends), *Compare*, *Review* (Weekly review, Activities) — with the sync status and the range option in one slim row above and the overview charts right below, so the first chart is on the first screen. **Hold a tile** (long press, or hold the mouse button) to peek: a card floats over the dimmed screen — above the tile when there is room, else below — with the destination's name, a line on what it is and a small chart or a few figures from your own cached data (`HoldPreview`, `lib/widgets/hold_preview.dart`; content in `insight_previews.dart`): CTL/ATL and form for Training analytics, weekly load bars for Metric explorer, a 12-week grid for Load heatmap, season or six-week best power for Performance curves and Best efforts, the count of long rides for Durability, the HRV trend with resting HR and sleep for Wellness trends, the last four weeks against the four before for Compare, last week against the week before for Weekly review, and the latest sessions for Activities. Letting go (or a touch that turns into a scroll) hides it again; a quick tap still opens the screen. Peeks read the local cache only, so they are instant and work offline. Then: CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen (content centred and capped at 840 px on wide windows; the model card shows FTP / CP / W′ / Pmax and the settings value as tiles across its width, with the model-vs-settings gap beneath) with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
 | Fatigue early warning | ✅ Implemented — a Today card (and `get_fatigue_warning`) when HRV, resting HR, sleep, form, CTL ramp or the fatigue/soreness scores stay off on enough of the last 5 days: **watch** (two signals) or **warning** (three, or HRV/resting HR plus a load or feel signal); "Ask the trainer" or "Not now" (hidden for the day unless it worsens) |
 | Morning briefing | ✅ Implemented (Android/iOS) — Settings → App → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
@@ -217,7 +217,9 @@ the single read path for the UI.
   request for a different range queues behind whatever is running. Without
   it, a pull-to-refresh landing on top of the background auto-sync would
   fire the same three requests twice over.
-- The **Calendar** screen syncs the range it is showing. Navigating between
+- The **Calendar** screen syncs the range it is showing (the whole year at
+  the year level, the six-week grid for a month, the week for the week and
+  day levels). Navigating between
   months uses `syncRangeIfMissing()` (a month already looked at is free);
   *switching to the tab* uses `syncRangeIfStale()`, which refetches unless
   the cache was refreshed within `SyncService.staleAfter` (1 minute), so
@@ -1043,7 +1045,8 @@ older than an hour, and pull-to-refresh forces it.
 
 ### Deleting planned sessions
 
-Deleting a planned session (the trash button in the Calendar day list, the
+Deleting a planned session (the trash button in the Calendar day list or a
+left swipe on it, the
 detail screen, or the long-press on a day / Today's training) removes it
 everywhere (`planned_workout_actions.dart`): on Intervals.icu (already gone
 counts as deleted), in the event cache, and in the TriIQ plan — a plan
@@ -1268,7 +1271,89 @@ Settings — so a first launch isn't just a wall of "not connected" labels.
 
 ### Calendar
 
-Toggle between **Month** and **Week** views. Each day shows a tiny icon per
+**Levels.** Four zoom levels — **Year**, **Month**, **Week**, **Day** — picked
+with the buttons at the top, by pinching (out = one level in, in = one level
+out), or by tapping: a month in the year view, a week number in the month
+grid, a day (the first tap selects it and shows its card below, the second
+opens it; the card's ⤢ button opens it too). The **breadcrumb** under the
+buttons (`2026 › November › Week 46 › Fri 13`) jumps back up to any part.
+The arrows, or a **sideways swipe** anywhere on the view, move one period
+(year, month, week or day); **swipe down on the header**, or the Today
+button, goes back to today. Level and date are kept across restarts
+(`CalendarPrefs`, shared_preferences `calendar.level` / `calendar.date`).
+Changing level zooms with a short scale-and-fade, off when the system asks
+for reduced motion.
+
+- **Year** (`year_calendar_view.dart`): twelve mini-months (1–4 across,
+  fewer at large text), each day tinted by its TSS on the Load heatmap's
+  colour scale (`buildLoadHeatmap` + `ChartTheme.heatColorOf`, theme or
+  Viridis as chosen there), outlined for races (amber), sick/injured days
+  (red) and holidays (blue); a coloured band beside each week shows the
+  current plan's phase (build, recovery, peak, taper, race — legend below).
+  Each month reads to a screen reader as "November: 640 TSS, 18 sessions".
+- **Month**: the grid with an ISO **week-number column** (tap = open the
+  week, long-press = week actions). Each cell: a **fill** for done against
+  planned load (faint = planned, not done yet; stronger = partial < 80 % /
+  done 80–120 %; tertiary = over 120 %; training on an unplanned day counts as
+  done), session icons, a two-line **per-sport bar** (planned minutes faint
+  above, done minutes solid below, both on one scale, sport colours as
+  elsewhere), a **readiness dot** (green / amber / red from
+  `ReadinessService.loadDays`, only for days up to today that had HRV,
+  resting HR or sleep) and a **badge** — a star for a key session (intervals
+  or a long session, `isHardSession`), a dumbbell for strength. The
+  *Compact* chip in the filter row switches to taller cells (more icons).
+  Sick and injured days still tint the cell.
+- **Week**: a summary card (planned vs. done TSS and hours, a ring per sport
+  for done vs. planned minutes, ⋯ for the week actions), then a row per day
+  with each session as a block sized by its duration, the day's load, badge,
+  readiness dot and race countdown.
+- **Day** (`day_calendar_view.dart`): the day's readiness, HRV, resting HR,
+  sleep and fatigue/soreness as pills, a race countdown, then the day card.
+
+**Header.** Below the breadcrumb, the visible period's done / planned TSS,
+hours done, sessions done / planned and (for a year, month or week) the CTL
+change. The filter button opens **filter chips**: sports (swim, ride, run,
+strength, other — none selected = all) and *Planned* / *Completed*. Day
+events (sick days, races, …) are never filtered out.
+
+**Moving sessions.** Long-press a planned session — in the day card, a week
+row, or a month cell's icon — and **drag** it to another day (month cell or
+week row); a week row previews the day's load after the drop. Without a
+gesture: the **Move to…** button on the row (also a screen-reader action)
+opens a date picker. Both go through `PlanActions.movePlanned`: a TriIQ plan
+session (or the Intervals.icu event a plan session was sent as) moves with
+`moveSession` (inside the plan, not into the past); any other Intervals.icu
+workout is moved upstream through `QueuedWorkoutWriter` (queued when
+offline) and in the event cache. A snackbar confirms and offers **Undo**
+(moves it back). Rules from plan adaptation are **warned about, not
+enforced** (`moveWarnings`): two hard sessions on neighbouring (or the same)
+days, a hard session the day after strength, strength the day before a hard
+session. Races, notes, past sessions and an event still waiting to reach
+Intervals.icu can't be dragged: a long-press says why.
+
+**Swipe actions** in the day card: swipe a planned session **left** to delete
+it — the same undo window as the trash button (`PendingDeletes`), no dialog;
+swipe a completed one **right** for *How did it feel?* (fatigue/soreness).
+Both are also on the row (trash button; screen-reader actions).
+
+**Long-press menus.** A day (cell, row or card): *Propose training*, *Add
+event*, **Mark as sick**, **Mark as holiday** (open the event editor preset
+— it creates the Intervals.icu event), **Ask the trainer about this day**
+(opens Chat with the day's sessions as context and a draft question), and
+*Delete day's training*. A week (its number in the month grid, or ⋯ on the
+week view): *Open week*, **Weekly review** (weeks that have started) and
+**Ask the trainer about this week**.
+
+**Accessibility.** Every gesture has a button or menu (level buttons and
+breadcrumb for pinch, arrows for swipe, Today for swipe-down, Move to… for
+drag, trash / screen-reader actions for swipes, ⋯ for the week long-press).
+Day cells and week rows read as one summary ("Friday, November 13, 2
+planned, 1 done, 50 / 110 TSS, Readiness: Ready, key session"), months in
+the year view as their load. Cell text is capped at 1.3× in the dense month
+grid (the summary carries the rest); the screen is tested at 360 dp with 2×
+text in light and dark themes.
+
+Each day shows a tiny icon per
 session — tertiary-coloured for Intervals.icu planned events, secondary for
 TriIQ plan sessions, primary for completed activities — reading planned
 items from `PlannedItemsRepository` (`lib/data/planned_items.dart`: the
@@ -1971,6 +2056,16 @@ Each run shows how many wellness/activity records were synced, and the
 card at the top shows the currently cached date range.
 
 ## 4. Known gaps / next steps
+
+- Calendar follow-ups from issue #73 not built yet: a plan overlay (ghost of
+  the original plan vs. moved / missed / extra), an agenda/list mode with
+  weekly totals, search ("my last long run"), a weather icon on the next 7
+  days, a tablet/desktop split view (month left, day timeline right),
+  *Copy day to…*, *Shift week by a day* and *Make recovery week* in the week
+  menu (needs a one-tap path to a recovery load curve), a "key sessions only"
+  filter, and session steps inline on the day view (they open from the row).
+  Drag-and-drop only reaches days on screen (month grid or week); farther
+  moves go through *Move to…*.
 
 - Chart follow-ups left out of the D3-style pass (issue #65): a radial
   (ring) load view, a sankey of sport → zone time, scatter and violin plots,

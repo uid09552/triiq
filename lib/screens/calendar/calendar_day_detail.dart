@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/local_activity.dart';
@@ -12,6 +13,9 @@ import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../plan/plan_session_sheet.dart';
 import 'calendar_day_marker.dart';
+import 'calendar_drag.dart';
+import 'calendar_moves.dart';
+import '../activities/feel_dialog.dart';
 import 'day_actions.dart';
 import 'day_events.dart';
 import '../events/event_editor_screen.dart';
@@ -34,7 +38,30 @@ class CalendarDayDetail extends StatelessWidget {
     required this.activities,
     this.dayEvents = const [],
     this.today,
+    this.mover,
+    this.onMove,
+    this.swipeActions = false,
+    this.onOpenDay,
+    this.onFeel,
   });
+
+  /// Which planned sessions may be dragged to another day (long-press a
+  /// row); without it rows can't be dragged.
+  final CalendarMover? mover;
+
+  /// "Move to…" for a planned session — the gesture-free way to move it.
+  final ValueChanged<LocalEvent>? onMove;
+
+  /// Swipe a planned row left to delete it (with the undo window), a
+  /// completed one right for "How did it feel?". Off where the list isn't
+  /// rebuilt from [PendingDeletes] at once.
+  final bool swipeActions;
+
+  /// Opens the full day view; shown as a button in the header.
+  final VoidCallback? onOpenDay;
+
+  /// Swipe right on a completed session; defaults to the feel dialog.
+  final void Function(LocalActivity activity)? onFeel;
 
   /// Sick days, notes, holidays, races, … covering this day.
   final List<LocalEvent> dayEvents;
@@ -96,7 +123,8 @@ class CalendarDayDetail extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onLongPress: () => showDayActions(context, date, plannedEvents),
+      onLongPress: () =>
+          showDayActions(context, date, plannedEvents, activities: activities),
       child: Card(
         key: const ValueKey('day-detail-card'),
         margin: EdgeInsets.zero,
@@ -109,10 +137,14 @@ class CalendarDayDetail extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6),
                 child: Row(
                   children: [
-                    Text(
-                      DateFormat.MMMEd(locale).format(date),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Text(
+                        DateFormat.MMMEd(locale).format(date),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     if (_isToday()) ...[
@@ -138,13 +170,25 @@ class CalendarDayDetail extends StatelessWidget {
                     ],
                     const Spacer(),
                     if (load != null)
-                      Text(
-                        load,
-                        key: const ValueKey('day-load'),
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
+                      Flexible(
+                        child: Text(
+                          load,
+                          key: const ValueKey('day-load'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
+                      ),
+                    if (onOpenDay != null)
+                      IconButton(
+                        key: const ValueKey('day-open'),
+                        tooltip: l10n.calOpenDay,
+                        visualDensity: VisualDensity.compact,
+                        onPressed: onOpenDay,
+                        icon: const Icon(Icons.open_in_full, size: 18),
                       ),
                   ],
                 ),
@@ -193,6 +237,11 @@ class CalendarDayDetail extends StatelessWidget {
                         ? () => deletePlannedWorkoutWithUndo(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
+                    onMove: onMove == null ? null : () => onMove!(event),
+                    dragEvent: event,
+                    mover: mover,
+                    swipe: swipeActions,
+                    swipeId: event.id,
                     status: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -251,6 +300,11 @@ class CalendarDayDetail extends StatelessWidget {
                         ? () => deletePlannedWorkoutWithUndo(context, event)
                         : null,
                     deleteTooltip: l10n.deleteTooltip,
+                    onMove: onMove == null ? null : () => onMove!(event),
+                    dragEvent: event,
+                    mover: mover,
+                    swipe: swipeActions,
+                    swipeId: event.id,
                   ),
                 for (final activity in activities)
                   _Row(
@@ -276,6 +330,12 @@ class CalendarDayDetail extends StatelessWidget {
                     onLongPress: isComparable(activity)
                         ? () => _showActivityActions(context, activity)
                         : null,
+                    swipe: swipeActions,
+                    swipeId: activity.id,
+                    onSwipeRight: () => onFeel != null
+                        ? onFeel!(activity)
+                        : showFeelDialog(context, date: activity.date),
+                    swipeRightLabel: l10n.feelDialogTitle,
                   ),
               ],
             ],
@@ -375,7 +435,27 @@ class _Row extends StatelessWidget {
     this.onDelete,
     this.deleteTooltip,
     this.status,
+    this.onMove,
+    this.dragEvent,
+    this.mover,
+    this.swipe = false,
+    this.swipeId,
+    this.onSwipeRight,
+    this.swipeRightLabel,
   });
+
+  /// "Move to…" (a button and a screen-reader action).
+  final VoidCallback? onMove;
+
+  /// The planned session a long-press picks up for dragging.
+  final LocalEvent? dragEvent;
+  final CalendarMover? mover;
+
+  /// Swipe left = [onDelete], swipe right = [onSwipeRight].
+  final bool swipe;
+  final String? swipeId;
+  final VoidCallback? onSwipeRight;
+  final String? swipeRightLabel;
 
   /// A small trailing indicator, e.g. whether a plan session was sent.
   final Widget? status;
@@ -396,7 +476,82 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    Widget row = _content(context, theme);
+    if (dragEvent != null && mover != null) {
+      row = PlannedDragSource(event: dragEvent!, mover: mover, child: row);
+    }
+    final canLeft = swipe && onDelete != null;
+    final canRight = swipe && onSwipeRight != null;
+    if (canLeft || canRight) {
+      final scheme = theme.colorScheme;
+      Widget bg(Color color, IconData icon, String label, Alignment align) =>
+          Container(
+            color: color,
+            alignment: align,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.white, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          );
+      final right = bg(
+        scheme.primary,
+        Icons.mood,
+        swipeRightLabel ?? '',
+        Alignment.centerLeft,
+      );
+      final left = bg(
+        scheme.error,
+        Icons.delete_outline,
+        deleteTooltip ?? '',
+        Alignment.centerRight,
+      );
+      row = Dismissible(
+        key: ValueKey('swipe-$swipeId'),
+        direction: canLeft && canRight
+            ? DismissDirection.horizontal
+            : canLeft
+            ? DismissDirection.endToStart
+            : DismissDirection.startToEnd,
+        background: canRight ? right : left,
+        secondaryBackground: canRight && canLeft ? left : null,
+        // The row never stays dismissed here: deleting hides it through
+        // [PendingDeletes] (with Undo), the feel dialog leaves it be.
+        confirmDismiss: (direction) async {
+          if (direction == DismissDirection.endToStart) {
+            onDelete?.call();
+          } else {
+            onSwipeRight?.call();
+          }
+          return false;
+        },
+        child: row,
+      );
+    }
+    return Semantics(
+      customSemanticsActions: {
+        CustomSemanticsAction(label: l10n.calMoveTo): ?onMove,
+        if (onDelete != null && deleteTooltip != null)
+          CustomSemanticsAction(label: deleteTooltip!): onDelete!,
+        if (onSwipeRight != null && swipeRightLabel != null)
+          CustomSemanticsAction(label: swipeRightLabel!): onSwipeRight!,
+      },
+      child: row,
+    );
+  }
 
+  Widget _content(BuildContext context, ThemeData theme) {
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -432,6 +587,17 @@ class _Row extends StatelessWidget {
               ),
             ),
             if (status != null) ...[status!, const SizedBox(width: 8)],
+            if (onMove != null)
+              IconButton(
+                key: ValueKey('move-$swipeId'),
+                onPressed: onMove,
+                tooltip: AppLocalizations.of(context)!.calMoveTo,
+                iconSize: 20,
+                icon: Icon(
+                  Icons.event_repeat,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             if (onDelete != null)
               IconButton(
                 onPressed: onDelete,

@@ -5051,4 +5051,197 @@ class AppLocalizationsEn extends AppLocalizations {
   String weeklyReviewRace(String name, String day) {
     return 'Race $name ($day)';
   }
+
+  @override
+  String get calendarYear => 'Year';
+
+  @override
+  String get calendarDay => 'Day';
+
+  @override
+  String calBreadcrumbWeek(int week) {
+    return 'Week $week';
+  }
+
+  @override
+  String calGoTo(String label) {
+    return 'Go to $label';
+  }
+
+  @override
+  String get calPrevious => 'Previous';
+
+  @override
+  String get calNext => 'Next';
+
+  @override
+  String get calFilterTooltip => 'Filter';
+
+  @override
+  String get calSportOther => 'Other';
+
+  @override
+  String get calDensityCompact => 'Compact';
+
+  @override
+  String calSummary(
+    int done,
+    int planned,
+    String hours,
+    int doneCount,
+    int plannedCount,
+  ) {
+    return '$done / $planned TSS · $hours h · $doneCount/$plannedCount sessions';
+  }
+
+  @override
+  String calSummaryCtl(String delta) {
+    return 'CTL $delta';
+  }
+
+  @override
+  String get calMoveTo => 'Move to…';
+
+  @override
+  String calMoved(String name, String day) {
+    return '$name moved to $day';
+  }
+
+  @override
+  String calMovedWarning(String name, String day, String warning) {
+    return '$name moved to $day — note: $warning';
+  }
+
+  @override
+  String get calWarnHardBackToBack => 'two hard days in a row';
+
+  @override
+  String get calWarnHardAfterStrength =>
+      'a hard session the day after strength';
+
+  @override
+  String get calWarnStrengthBeforeHard =>
+      'strength the day before a hard session';
+
+  @override
+  String get calMoveNotWorkout =>
+      'Only planned workouts can be moved; races and other entries stay put.';
+
+  @override
+  String get calMoveNotSynced =>
+      'This session is still waiting to reach Intervals.icu and can\'t be moved yet.';
+
+  @override
+  String calMoveFailed(String error) {
+    return 'Could not move: $error';
+  }
+
+  @override
+  String get calDayMarkSick => 'Mark as sick';
+
+  @override
+  String get calDayMarkHoliday => 'Mark as holiday';
+
+  @override
+  String get calDayAskTrainer => 'Ask the trainer about this day';
+
+  @override
+  String calDayAskDraft(String day) {
+    return 'What do you think about my training on $day?';
+  }
+
+  @override
+  String get calWeekOpen => 'Open week';
+
+  @override
+  String get calWeekAskTrainer => 'Ask the trainer about this week';
+
+  @override
+  String calWeekAskDraft(String range) {
+    return 'How does my week $range look?';
+  }
+
+  @override
+  String get calWeekActions => 'Week actions';
+
+  @override
+  String get calDayActions => 'Day actions';
+
+  @override
+  String get calOpenDay => 'Open day';
+
+  @override
+  String calReadiness(String level) {
+    return 'Readiness: $level';
+  }
+
+  @override
+  String get calSemNothing => 'nothing planned or done';
+
+  @override
+  String calSemPlanned(int count) {
+    return '$count planned';
+  }
+
+  @override
+  String calSemDone(int count) {
+    return '$count done';
+  }
+
+  @override
+  String get calSemKey => 'key session';
+
+  @override
+  String get calSemStrength => 'strength session';
+
+  @override
+  String calSemRaces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count races',
+      one: '1 race',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String calRaceInDays(int days) {
+    return 'race in $days d';
+  }
+
+  @override
+  String calMonthSemantics(String month, int tss, int sessions) {
+    return '$month: $tss TSS, $sessions sessions done';
+  }
+
+  @override
+  String calWeekPlanned(int tss, String hours) {
+    return 'Planned $tss TSS · $hours h';
+  }
+
+  @override
+  String calWeekDone(int tss, String hours) {
+    return 'Done $tss TSS · $hours h';
+  }
+
+  @override
+  String calWellnessHrv(int value) {
+    return 'HRV $value ms';
+  }
+
+  @override
+  String calWellnessRhr(int value) {
+    return 'Resting HR $value bpm';
+  }
+
+  @override
+  String calWellnessSleep(String hours) {
+    return 'Sleep $hours h';
+  }
+
+  @override
+  String calWellnessFeel(String fatigue, String soreness) {
+    return 'Fatigue $fatigue · Soreness $soreness';
+  }
 }

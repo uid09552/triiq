@@ -8329,6 +8329,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Race {name} ({day})'**
   String weeklyReviewRace(String name, String day);
+
+  /// No description provided for @calendarYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get calendarYear;
+
+  /// No description provided for @calendarDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get calendarDay;
+
+  /// No description provided for @calBreadcrumbWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}'**
+  String calBreadcrumbWeek(int week);
+
+  /// No description provided for @calGoTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to {label}'**
+  String calGoTo(String label);
+
+  /// No description provided for @calPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get calPrevious;
+
+  /// No description provided for @calNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get calNext;
+
+  /// No description provided for @calFilterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get calFilterTooltip;
+
+  /// No description provided for @calSportOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get calSportOther;
+
+  /// No description provided for @calDensityCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get calDensityCompact;
+
+  /// No description provided for @calSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {planned} TSS · {hours} h · {doneCount}/{plannedCount} sessions'**
+  String calSummary(
+    int done,
+    int planned,
+    String hours,
+    int doneCount,
+    int plannedCount,
+  );
+
+  /// No description provided for @calSummaryCtl.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL {delta}'**
+  String calSummaryCtl(String delta);
+
+  /// No description provided for @calMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to…'**
+  String get calMoveTo;
+
+  /// No description provided for @calMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} moved to {day}'**
+  String calMoved(String name, String day);
+
+  /// No description provided for @calMovedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} moved to {day} — note: {warning}'**
+  String calMovedWarning(String name, String day, String warning);
+
+  /// No description provided for @calWarnHardBackToBack.
+  ///
+  /// In en, this message translates to:
+  /// **'two hard days in a row'**
+  String get calWarnHardBackToBack;
+
+  /// No description provided for @calWarnHardAfterStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'a hard session the day after strength'**
+  String get calWarnHardAfterStrength;
+
+  /// No description provided for @calWarnStrengthBeforeHard.
+  ///
+  /// In en, this message translates to:
+  /// **'strength the day before a hard session'**
+  String get calWarnStrengthBeforeHard;
+
+  /// No description provided for @calMoveNotWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Only planned workouts can be moved; races and other entries stay put.'**
+  String get calMoveNotWorkout;
+
+  /// No description provided for @calMoveNotSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'This session is still waiting to reach Intervals.icu and can\'t be moved yet.'**
+  String get calMoveNotSynced;
+
+  /// No description provided for @calMoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not move: {error}'**
+  String calMoveFailed(String error);
+
+  /// No description provided for @calDayMarkSick.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as sick'**
+  String get calDayMarkSick;
+
+  /// No description provided for @calDayMarkHoliday.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as holiday'**
+  String get calDayMarkHoliday;
+
+  /// No description provided for @calDayAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the trainer about this day'**
+  String get calDayAskTrainer;
+
+  /// No description provided for @calDayAskDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you think about my training on {day}?'**
+  String calDayAskDraft(String day);
+
+  /// No description provided for @calWeekOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open week'**
+  String get calWeekOpen;
+
+  /// No description provided for @calWeekAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the trainer about this week'**
+  String get calWeekAskTrainer;
+
+  /// No description provided for @calWeekAskDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'How does my week {range} look?'**
+  String calWeekAskDraft(String range);
+
+  /// No description provided for @calWeekActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Week actions'**
+  String get calWeekActions;
+
+  /// No description provided for @calDayActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Day actions'**
+  String get calDayActions;
+
+  /// No description provided for @calOpenDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Open day'**
+  String get calOpenDay;
+
+  /// No description provided for @calReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness: {level}'**
+  String calReadiness(String level);
+
+  /// No description provided for @calSemNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'nothing planned or done'**
+  String get calSemNothing;
+
+  /// No description provided for @calSemPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} planned'**
+  String calSemPlanned(int count);
+
+  /// No description provided for @calSemDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} done'**
+  String calSemDone(int count);
+
+  /// No description provided for @calSemKey.
+  ///
+  /// In en, this message translates to:
+  /// **'key session'**
+  String get calSemKey;
+
+  /// No description provided for @calSemStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'strength session'**
+  String get calSemStrength;
+
+  /// No description provided for @calSemRaces.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 race} other{{count} races}}'**
+  String calSemRaces(int count);
+
+  /// No description provided for @calRaceInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'race in {days} d'**
+  String calRaceInDays(int days);
+
+  /// No description provided for @calMonthSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: {tss} TSS, {sessions} sessions done'**
+  String calMonthSemantics(String month, int tss, int sessions);
+
+  /// No description provided for @calWeekPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned {tss} TSS · {hours} h'**
+  String calWeekPlanned(int tss, String hours);
+
+  /// No description provided for @calWeekDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done {tss} TSS · {hours} h'**
+  String calWeekDone(int tss, String hours);
+
+  /// No description provided for @calWellnessHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV {value} ms'**
+  String calWellnessHrv(int value);
+
+  /// No description provided for @calWellnessRhr.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting HR {value} bpm'**
+  String calWellnessRhr(int value);
+
+  /// No description provided for @calWellnessSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep {hours} h'**
+  String calWellnessSleep(String hours);
+
+  /// No description provided for @calWellnessFeel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue {fatigue} · Soreness {soreness}'**
+  String calWellnessFeel(String fatigue, String soreness);
 }
 
 class _AppLocalizationsDelegate
