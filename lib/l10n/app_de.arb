@@ -1595,5 +1595,18 @@
   "calWellnessHrv": "HRV {value} ms",
   "calWellnessRhr": "Ruhepuls {value} bpm",
   "calWellnessSleep": "Schlaf {hours} h",
-  "calWellnessFeel": "Müdigkeit {fatigue} · Muskelkater {soreness}"
+  "calWellnessFeel": "Müdigkeit {fatigue} · Muskelkater {soreness}",
+  "durRadarNoData": "keine Daten",
+  "durRadarTitle": "Anteil des frischen Werts",
+  "durRadarHint": "Der äußere Ring ist dein frischer Wert (100 %). Tippe auf einen Punkt oder eine Achse für den Wert und die Einheit, aus der er stammt; tippe auf einen Legendeneintrag, um ihn ein- oder auszublenden.",
+  "durRadarNoFresh": "Das Netz vergleicht mit deiner Saisonkurve, die gerade nicht verfügbar ist. Die Tabelle unten zeigt die Rohwerte.",
+  "durShowTable": "Tabelle anzeigen",
+  "durHideTable": "Tabelle ausblenden",
+  "durRadarPart": "{point} {pct} %",
+  "durRadarSummary": "{level}: {parts}",
+  "durRadarSummaryNone": "{level}: keine Daten",
+  "durRadarTip": "{point}, {level}: {value}, {pct} % des frischen Werts",
+  "durRadarTipNoData": "{point}, {level}: keine Daten",
+  "durRadarSource": "Einheit: {name} ({date})",
+  "durRadarOpen": "Einheit öffnen"
 }

@@ -8605,6 +8605,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fatigue {fatigue} · Soreness {soreness}'**
   String calWellnessFeel(String fatigue, String soreness);
+
+  /// No description provided for @durRadarNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'no data'**
+  String get durRadarNoData;
+
+  /// No description provided for @durRadarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share of fresh kept'**
+  String get durRadarTitle;
+
+  /// No description provided for @durRadarHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The outer ring is your fresh level (100 %). Tap a point or axis for the value and the session it came from; tap a legend entry to show or hide it.'**
+  String get durRadarHint;
+
+  /// No description provided for @durRadarNoFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'The radar compares against your season curve, which isn\'t available right now. The table below shows the raw values.'**
+  String get durRadarNoFresh;
+
+  /// No description provided for @durShowTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Show table'**
+  String get durShowTable;
+
+  /// No description provided for @durHideTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide table'**
+  String get durHideTable;
+
+  /// No description provided for @durRadarPart.
+  ///
+  /// In en, this message translates to:
+  /// **'{point} {pct} %'**
+  String durRadarPart(String point, String pct);
+
+  /// No description provided for @durRadarSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{level}: {parts}'**
+  String durRadarSummary(String level, String parts);
+
+  /// No description provided for @durRadarSummaryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'{level}: no data'**
+  String durRadarSummaryNone(String level);
+
+  /// No description provided for @durRadarTip.
+  ///
+  /// In en, this message translates to:
+  /// **'{point}, {level}: {value}, {pct} % of fresh'**
+  String durRadarTip(String point, String level, String value, String pct);
+
+  /// No description provided for @durRadarTipNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'{point}, {level}: no data'**
+  String durRadarTipNoData(String point, String level);
+
+  /// No description provided for @durRadarSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Session: {name} ({date})'**
+  String durRadarSource(String name, String date);
+
+  /// No description provided for @durRadarOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open session'**
+  String get durRadarOpen;
 }
 
 class _AppLocalizationsDelegate
