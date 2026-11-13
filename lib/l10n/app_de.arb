@@ -1503,5 +1503,18 @@
   "insPeekWeekBefore": "Woche davor",
   "readinessPeekFitness": "Chronische Trainingsbelastung (CTL): deine über die letzten Wochen aufgebaute Fitness. Der Pfeil vergleicht sie mit vor einer Woche.",
   "readinessPeekToday": "Heute",
-  "readinessPeekWeekChange": "zu vor einer Woche"
+  "readinessPeekWeekChange": "zu vor einer Woche",
+  "chartOverview": "Übersicht: ziehen, um den sichtbaren Bereich zu wählen",
+  "a11yChartRange": "Zeigt {from} bis {to}",
+  "chartSeriesShown": "{series}: sichtbar. Tippen zum Ausblenden.",
+  "chartSeriesHidden": "{series}: ausgeblendet. Tippen zum Einblenden.",
+  "hmStyle": "Darstellung",
+  "hmStyleGrid": "Jahresraster",
+  "hmStyleMonths": "Monate",
+  "hmStyleMatrix": "Wochentabelle",
+  "hmScale": "Farben",
+  "hmScaleTheme": "Design",
+  "hmScaleViridis": "Viridis",
+  "hmWeekCol": "Woche",
+  "a11yHeatmapMatrix": "Stärkster Wochentag: {day}, insgesamt {tss} TSS."
 }

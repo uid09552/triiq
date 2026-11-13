@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'chart_theme.dart';
 
 /// The visible slice of a chart's x-axis, in data-index space, with the
 /// zoom and pan arithmetic every zoomable chart shares.
@@ -95,6 +96,11 @@ class ChartViewport extends ChangeNotifier {
 /// pinch to zoom, one finger to scrub (or pan once zoomed), double tap to
 /// zoom in or back out, Ctrl + mouse wheel to zoom.
 ///
+/// With [brushable], press and hold, then drag, to **brush** a range: a
+/// shaded band follows the finger and the chart zooms to it on release
+/// (D3's brush-to-zoom). Off by default, since a hold on some cards already
+/// opens their options.
+///
 /// Uses a scale recognizer only, whose pan slop is larger than a vertical
 /// scroll's, so a page scroll that starts on the chart still scrolls the
 /// page.
@@ -108,9 +114,13 @@ class ChartInteraction extends StatefulWidget {
     this.onSelectAt,
     this.hoverSelects = false,
     this.zoomable = true,
+    this.brushable = false,
   });
 
   final ChartViewport viewport;
+
+  /// Hold and drag to brush a range to zoom to.
+  final bool brushable;
 
   /// Pixels left of the plot (the y-axis labels).
   final double plotLeft;
@@ -133,6 +143,23 @@ class ChartInteraction extends StatefulWidget {
 class _ChartInteractionState extends State<ChartInteraction> {
   double _lastScale = 1;
   Offset _doubleTapAt = Offset.zero;
+  double? _brushFrom;
+  double? _brushTo;
+
+  void _clearBrush() {
+    if (_brushFrom == null && _brushTo == null) return;
+    setState(() => _brushFrom = _brushTo = null);
+  }
+
+  void _finishBrush(double width) {
+    final from = _brushFrom, to = _brushTo;
+    _clearBrush();
+    if (from == null || to == null || (to - from).abs() < 12) return;
+    final vp = widget.viewport;
+    final a = vp.indexAt(_fraction(math.min(from, to), width));
+    final b = vp.indexAt(_fraction(math.max(from, to), width));
+    vp.setRange(a, b);
+  }
 
   double _fraction(double dx, double width) {
     final plot = width - widget.plotLeft - widget.plotRight;
@@ -193,6 +220,17 @@ class _ChartInteractionState extends State<ChartInteraction> {
                         ? vp.reset()
                         : vp.zoomAt(3, _fraction(_doubleTapAt.dx, width))
                   : null,
+              onLongPressStart: widget.brushable && widget.zoomable
+                  ? (d) => setState(
+                      () => _brushFrom = _brushTo = d.localPosition.dx,
+                    )
+                  : null,
+              onLongPressMoveUpdate: widget.brushable && widget.zoomable
+                  ? (d) => setState(() => _brushTo = d.localPosition.dx)
+                  : null,
+              onLongPressEnd: widget.brushable && widget.zoomable
+                  ? (_) => _finishBrush(width)
+                  : null,
               onScaleStart: (_) => _lastScale = 1,
               onScaleUpdate: (d) {
                 if (widget.zoomable && d.pointerCount >= 2) {
@@ -212,11 +250,62 @@ class _ChartInteractionState extends State<ChartInteraction> {
                   _select(d.localFocalPoint.dx, width);
                 }
               },
-              child: widget.child,
+              child: Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  widget.child,
+                  if (_brushFrom != null && _brushTo != null)
+                    _BrushBand(
+                      from: math.min(_brushFrom!, _brushTo!),
+                      to: math.max(_brushFrom!, _brushTo!),
+                      plotLeft: widget.plotLeft,
+                      plotRight: width - widget.plotRight,
+                    ),
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// The shaded band shown while brushing.
+class _BrushBand extends StatelessWidget {
+  const _BrushBand({
+    required this.from,
+    required this.to,
+    required this.plotLeft,
+    required this.plotRight,
+  });
+
+  final double from;
+  final double to;
+  final double plotLeft;
+  final double plotRight;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = ChartTheme.of(context).brush;
+    final left = from.clamp(plotLeft, plotRight).toDouble();
+    final right = to.clamp(plotLeft, plotRight).toDouble();
+    return Positioned(
+      key: const ValueKey('chart-brush'),
+      left: left,
+      width: math.max(1.0, right - left),
+      top: 0,
+      bottom: 0,
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.14),
+            border: Border.symmetric(
+              vertical: BorderSide(color: color.withValues(alpha: 0.8)),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

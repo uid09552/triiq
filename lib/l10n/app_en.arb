@@ -1769,5 +1769,22 @@
   "insPeekWeekBefore": "Week before",
   "readinessPeekFitness": "Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.",
   "readinessPeekToday": "Today",
-  "readinessPeekWeekChange": "vs a week ago"
+  "readinessPeekWeekChange": "vs a week ago",
+  "chartOverview": "Overview: drag to choose the range shown",
+  "a11yChartRange": "Showing {from} to {to}",
+  "@a11yChartRange": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "chartSeriesShown": "{series}: shown. Tap to hide.",
+  "@chartSeriesShown": {"placeholders": {"series": {"type": "String"}}},
+  "chartSeriesHidden": "{series}: hidden. Tap to show.",
+  "@chartSeriesHidden": {"placeholders": {"series": {"type": "String"}}},
+  "hmStyle": "Layout",
+  "hmStyleGrid": "Year grid",
+  "hmStyleMonths": "Months",
+  "hmStyleMatrix": "Week table",
+  "hmScale": "Colours",
+  "hmScaleTheme": "Theme",
+  "hmScaleViridis": "Viridis",
+  "hmWeekCol": "Week",
+  "a11yHeatmapMatrix": "Busiest weekday: {day}, {tss} TSS in total.",
+  "@a11yHeatmapMatrix": {"placeholders": {"day": {"type": "String"}, "tss": {"type": "int"}}}
 }

@@ -8,15 +8,19 @@ import '../../evaluation/training_analytics.dart' show LoadSport;
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/chart_options.dart';
+import '../../widgets/charts/chart_theme.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/status_message.dart';
+import 'heatmap_views.dart';
 
 enum _Period { last12Months, thisYear, lastYear }
 
-/// A year of training load as a calendar grid — one square per day, one
-/// column per week, coloured by TSS — in the style of a contribution graph.
-/// Tap a day for its load and sessions.
+/// A year of training load, one square per day coloured by TSS, in one of
+/// three layouts ([HeatmapStyle]): the contribution-graph grid (a column per
+/// week, or a row per week on a narrow phone), twelve small month calendars,
+/// or a week × weekday table with totals. Layout and colour scale are kept
+/// in shared_preferences. Tap a day for its load and sessions.
 class LoadHeatmapScreen extends StatefulWidget {
   LoadHeatmapScreen({super.key, ActivitiesRepository? repository, this.today})
     : repository = repository ?? ActivitiesRepository();
@@ -30,14 +34,13 @@ class LoadHeatmapScreen extends StatefulWidget {
 
 class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
   static const _cell = 13.0;
-  static const _gap = 3.0;
-  static const _labelWidth = 26.0;
 
   _Period _period = _Period.last12Months;
   LoadSport? _sport;
   bool _loading = true;
   List<LocalActivity> _activities = const [];
   DateTime? _selected;
+  HeatmapPrefs _prefs = const HeatmapPrefs();
 
   DateTime get _today => dateOnly(widget.today ?? DateTime.now());
 
@@ -57,7 +60,21 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
   void initState() {
     super.initState();
     _load();
+    HeatmapPrefs.load().then((p) {
+      if (mounted) setState(() => _prefs = p);
+    });
   }
+
+  void _setPrefs(HeatmapPrefs p) {
+    _prefs = p;
+    p.save();
+  }
+
+  String _styleLabel(AppLocalizations l10n, HeatmapStyle s) => switch (s) {
+    HeatmapStyle.grid => l10n.hmStyleGrid,
+    HeatmapStyle.months => l10n.hmStyleMonths,
+    HeatmapStyle.matrix => l10n.hmStyleMatrix,
+  };
 
   Object? _error;
 
@@ -122,6 +139,50 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
             ),
           ),
           OptionGroup(
+            label: l10n.hmStyle,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final s in HeatmapStyle.values)
+                  ChoiceChip(
+                    key: ValueKey('hm-style-${s.name}'),
+                    label: Text(_styleLabel(l10n, s)),
+                    selected: _prefs.style == s,
+                    onSelected: (_) => apply(
+                      () => _setPrefs(
+                        HeatmapPrefs(style: s, scale: _prefs.scale),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          OptionGroup(
+            label: l10n.hmScale,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final s in HeatScale.values)
+                  ChoiceChip(
+                    key: ValueKey('hm-scale-${s.name}'),
+                    label: Text(
+                      s == HeatScale.theme
+                          ? l10n.hmScaleTheme
+                          : l10n.hmScaleViridis,
+                    ),
+                    selected: _prefs.scale == s,
+                    onSelected: (_) => apply(
+                      () => _setPrefs(
+                        HeatmapPrefs(style: _prefs.style, scale: s),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          OptionGroup(
             label: l10n.chartOptionsSport,
             child: Wrap(
               spacing: 6,
@@ -167,7 +228,8 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
         actions: [
           ChartOptionsButton(
             summary:
-                '${_periodLabel(l10n, _period)} · ${_sportLabel(l10n, _sport)}',
+                '${_periodLabel(l10n, _period)} · ${_sportLabel(l10n, _sport)}'
+                ' · ${_styleLabel(l10n, _prefs.style)}',
             onPressed: () => _openOptions(l10n),
           ),
         ],
@@ -196,18 +258,8 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
                               const SizedBox(height: 10),
                               Semantics(
                                 container: true,
-                                label: l10n.a11yHeatmap(
-                                  heatmap.activeDays,
-                                  heatmap.totalTss,
-                                  heatmap.longestStreak,
-                                ),
-                                child: _Grid(
-                                  heatmap: heatmap,
-                                  selected: _selected,
-                                  onSelect: (d) => setState(
-                                    () => _selected = _selected == d ? null : d,
-                                  ),
-                                ),
+                                label: _semantics(context, l10n, heatmap),
+                                child: _view(l10n, heatmap),
                               ),
                               const SizedBox(height: 10),
                               _legend(context, l10n),
@@ -221,6 +273,64 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
               ],
             ),
     );
+  }
+
+  Widget _view(AppLocalizations l10n, LoadHeatmap heatmap) {
+    void select(DateTime d) =>
+        setState(() => _selected = _selected == d ? null : d);
+    return switch (_prefs.style) {
+      HeatmapStyle.grid => HeatmapGridView(
+        heatmap: heatmap,
+        selected: _selected,
+        onSelect: select,
+        scale: _prefs.scale,
+      ),
+      HeatmapStyle.months => HeatmapMonthsView(
+        heatmap: heatmap,
+        selected: _selected,
+        onSelect: select,
+        scale: _prefs.scale,
+      ),
+      HeatmapStyle.matrix => HeatmapMatrixView(
+        heatmap: heatmap,
+        selected: _selected,
+        onSelect: select,
+        scale: _prefs.scale,
+        weekLabel: l10n.hmWeekCol,
+      ),
+    };
+  }
+
+  /// The screen-reader summary: the year's figures, the layout, and for the
+  /// table the busiest weekday.
+  String _semantics(
+    BuildContext context,
+    AppLocalizations l10n,
+    LoadHeatmap heatmap,
+  ) {
+    final parts = [
+      l10n.a11yHeatmap(
+        heatmap.activeDays,
+        heatmap.totalTss,
+        heatmap.longestStreak,
+      ),
+      _styleLabel(l10n, _prefs.style),
+    ];
+    if (_prefs.style == HeatmapStyle.matrix) {
+      final totals = HeatmapMatrixView.weekdayTotals(heatmap);
+      var best = 0;
+      for (var i = 1; i < 7; i++) {
+        if (totals[i] > totals[best]) best = i;
+      }
+      final locale = Localizations.localeOf(context).toString();
+      parts.add(
+        l10n.a11yHeatmapMatrix(
+          DateFormat.EEEE(locale).format(DateTime(2026, 11, 2 + best)),
+          totals[best],
+        ),
+      );
+    }
+    return parts.join('. ');
   }
 
   Widget _readout(BuildContext context, AppLocalizations l10n, LoadHeatmap h) {
@@ -258,7 +368,7 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
             height: _cell,
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
-              color: heatColor(theme.colorScheme, level),
+              color: ChartTheme.of(context).heatColorOf(level, _prefs.scale),
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -324,153 +434,6 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
 }
 
 /// The colour of a heatmap step: the rest colour, then the theme colour at
-/// four strengths.
-Color heatColor(ColorScheme scheme, int level) => level == 0
-    ? scheme.surfaceContainerHighest
-    : scheme.primary.withValues(
-        alpha: const <double>[0, 0.30, 0.50, 0.75, 1.0][level],
-      );
-
-class _Grid extends StatefulWidget {
-  const _Grid({
-    required this.heatmap,
-    required this.selected,
-    required this.onSelect,
-  });
-
-  final LoadHeatmap heatmap;
-  final DateTime? selected;
-  final ValueChanged<DateTime> onSelect;
-
-  @override
-  State<_Grid> createState() => _GridState();
-}
-
-class _GridState extends State<_Grid> {
-  final _scroll = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Start at the latest week; the year scrolls back from there.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scroll.hasClients) {
-        _scroll.jumpTo(_scroll.position.maxScrollExtent);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
-    final weeks = widget.heatmap.weeks;
-    const step = _LoadHeatmapScreenState._cell + _LoadHeatmapScreenState._gap;
-
-    // A month label above the first column of each month.
-    DateTime firstDayOf(int w) => weeks[w].firstWhere((d) => d.inRange).date;
-    String? monthLabel(int w) {
-      final first = firstDayOf(w);
-      if (w > 0 && firstDayOf(w - 1).month == first.month) return null;
-      return DateFormat.MMM(locale).format(first);
-    }
-
-    final weekdays = [
-      for (var i = 0; i < 7; i++)
-        i.isEven ? DateFormat.E(locale).format(DateTime(2026, 11, 2 + i)) : '',
-    ];
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            const SizedBox(height: 18),
-            for (final label in weekdays)
-              SizedBox(
-                width: _LoadHeatmapScreenState._labelWidth,
-                height: step,
-                child: Text(
-                  label,
-                  style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
-                ),
-              ),
-          ],
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _scroll,
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var w = 0; w < weeks.length; w++)
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      right: _LoadHeatmapScreenState._gap,
-                    ),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 18,
-                          width: _LoadHeatmapScreenState._cell,
-                          child: OverflowBox(
-                            maxWidth: 40,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              monthLabel(w) ?? '',
-                              maxLines: 1,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 9,
-                              ),
-                            ),
-                          ),
-                        ),
-                        for (final day in weeks[w])
-                          GestureDetector(
-                            onTap: day.inRange
-                                ? () => widget.onSelect(day.date)
-                                : null,
-                            child: Container(
-                              key: day.inRange
-                                  ? ValueKey('hm-${isoDate(day.date)}')
-                                  : null,
-                              width: _LoadHeatmapScreenState._cell,
-                              height: _LoadHeatmapScreenState._cell,
-                              margin: const EdgeInsets.only(
-                                bottom: _LoadHeatmapScreenState._gap,
-                              ),
-                              decoration: BoxDecoration(
-                                color: day.inRange
-                                    ? heatColor(
-                                        theme.colorScheme,
-                                        widget.heatmap.levelOf(day.tss),
-                                      )
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(3),
-                                border: widget.selected == day.date
-                                    ? Border.all(
-                                        color: theme.colorScheme.onSurface,
-                                        width: 1.5,
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
+/// four strengths. See [ChartTheme.heatColorOf] for the other scales.
+Color heatColor(ColorScheme scheme, int level) =>
+    ChartTheme.fromColorScheme(scheme).heatColorOf(level);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'chart_theme.dart';
 import 'chart_viewport.dart';
 import 'line_chart.dart' show chartL10n;
 
@@ -66,7 +67,7 @@ class SimpleBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final chart = ChartTheme.of(context);
     final format = formatValue ?? (v) => v.toStringAsFixed(0);
     final l10n = chartL10n(context);
     String? summary = semanticsLabel;
@@ -108,20 +109,17 @@ class SimpleBarChart extends StatelessWidget {
               painter: _BarChartPainter(
                 bars: bars,
                 selected: selectedIndex,
-                barColor: barColor ?? colorScheme.primary,
-                selectedBarColor: colorScheme.tertiary,
-                targetColor: (targetColor ?? colorScheme.tertiary).withValues(
+                barColor: barColor ?? chart.primary,
+                selectedBarColor: chart.highlight,
+                targetColor: (targetColor ?? chart.highlight).withValues(
                   alpha: 0.3,
                 ),
-                tickColor: colorScheme.onSurface,
+                tickColor: chart.text,
                 labelEvery: labelEvery,
                 showAverage: showAverage,
                 format: formatValue ?? (v) => v.toStringAsFixed(0),
-                surface: colorScheme.surface,
-                labelStyle: TextStyle(
-                  fontSize: 10,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                surface: chart.surface,
+                labelStyle: chart.labelStyle,
               ),
             ),
           );

@@ -26,6 +26,8 @@ class AnalyticsScreen extends StatefulWidget {
 enum _SafetyMetric { acwr, ramp, monotony }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
+  /// Sports switched off in the fitness chart's legend.
+  final Set<String> _hiddenFitness = {};
   static const _rangeOptions = [90, 180, 365];
 
   /// History before the window so CTL, ACWR and monotony are warmed up.
@@ -313,11 +315,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 190,
+                  height: 230,
                   child: MetricLineChart(
                     // Re-key so switching CTL/ATL refits the y-scale.
                     key: ValueKey('fitness-$_atl-$_days'),
                     series: series,
+                    hiddenSeries: _hiddenFitness,
+                    overview: true,
                     labels: [
                       for (final d in _fitness)
                         DateFormat.MMMd(locale).format(d.date),
@@ -328,7 +332,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ChartLegend(series: series),
+                ChartLegend(
+                  series: series,
+                  hidden: _hiddenFitness,
+                  onToggle: (label) => setState(
+                    () => _hiddenFitness.contains(label)
+                        ? _hiddenFitness.remove(label)
+                        : _hiddenFitness.add(label),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _hint(l10n.anSportFitnessHint),
               ],

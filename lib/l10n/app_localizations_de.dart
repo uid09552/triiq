@@ -441,8 +441,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get backgroundSyncTitle =>
-      'Im Hintergrund weiter synchronisieren';
+  String get backgroundSyncTitle => 'Im Hintergrund weiter synchronisieren';
 
   @override
   String get backgroundSyncDescription =>
@@ -479,24 +478,19 @@ class AppLocalizationsDe extends AppLocalizations {
       'Synchronisieren bei geschlossener App ist auf dieser Plattform nicht verfügbar – eine geschlossene App kann hier nicht geweckt werden. Die Daten werden aktualisiert, solange die App geöffnet ist.';
 
   @override
-  String get backgroundSyncIntervalLabel =>
-      'Wie oft';
+  String get backgroundSyncIntervalLabel => 'Wie oft';
 
   @override
-  String get backgroundInterval15Min =>
-      'Alle 15 Min.';
+  String get backgroundInterval15Min => 'Alle 15 Min.';
 
   @override
-  String get backgroundIntervalHourly =>
-      'Stündlich';
+  String get backgroundIntervalHourly => 'Stündlich';
 
   @override
-  String get backgroundInterval6Hours =>
-      'Alle 6 Std.';
+  String get backgroundInterval6Hours => 'Alle 6 Std.';
 
   @override
-  String get backgroundIntervalNightly =>
-      'Nachts';
+  String get backgroundIntervalNightly => 'Nachts';
 
   @override
   String get backgroundSyncNotifyHint =>
@@ -507,8 +501,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Android kann Hintergrundläufe verzögern oder auslassen, um Akku zu sparen. Fehlen Läufe, stelle die Akkunutzung von TriIQ in den Systemeinstellungen auf „Nicht eingeschränkt“ (Apps → TriIQ → Akku).';
 
   @override
-  String get backgroundUpdateTitle =>
-      'Neu in TriIQ';
+  String get backgroundUpdateTitle => 'Neu in TriIQ';
 
   @override
   String backgroundUpdateActivities(int count) {
@@ -4896,4 +4889,52 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readinessPeekWeekChange => 'zu vor einer Woche';
+
+  @override
+  String get chartOverview =>
+      'Übersicht: ziehen, um den sichtbaren Bereich zu wählen';
+
+  @override
+  String a11yChartRange(String from, String to) {
+    return 'Zeigt $from bis $to';
+  }
+
+  @override
+  String chartSeriesShown(String series) {
+    return '$series: sichtbar. Tippen zum Ausblenden.';
+  }
+
+  @override
+  String chartSeriesHidden(String series) {
+    return '$series: ausgeblendet. Tippen zum Einblenden.';
+  }
+
+  @override
+  String get hmStyle => 'Darstellung';
+
+  @override
+  String get hmStyleGrid => 'Jahresraster';
+
+  @override
+  String get hmStyleMonths => 'Monate';
+
+  @override
+  String get hmStyleMatrix => 'Wochentabelle';
+
+  @override
+  String get hmScale => 'Farben';
+
+  @override
+  String get hmScaleTheme => 'Design';
+
+  @override
+  String get hmScaleViridis => 'Viridis';
+
+  @override
+  String get hmWeekCol => 'Woche';
+
+  @override
+  String a11yHeatmapMatrix(String day, int tss) {
+    return 'Stärkster Wochentag: $day, insgesamt $tss TSS.';
+  }
 }
