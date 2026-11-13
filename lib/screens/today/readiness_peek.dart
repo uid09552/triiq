@@ -74,7 +74,7 @@ class ReadinessPeek extends StatelessWidget {
         : readinessSignalLabel(l10n, s.kind);
     final (ratingLabel, ratingColor) = s == null
         ? ('', scheme.primary)
-        : readinessRatingStyle(l10n, scheme, s.rating);
+        : readinessRatingStyle(l10n, scheme, s.rating, signal: s);
     final accent = s == null ? scheme.primary : ratingColor;
 
     return Column(

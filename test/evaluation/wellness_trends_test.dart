@@ -47,28 +47,34 @@ void main() {
     expect(wide[5], 25); // window 2..5: 20 and 30
   });
 
-  test('baseline band is mean ± one SD, null on too little data', () {
+  test('baseline band is median ± one MADσ, null on too little data', () {
     expect(baselineBand([1, 2, 3]), isNull);
+    // 21 values are needed now, the same as readiness.
+    expect(baselineBand([for (var i = 0; i < 20; i++) 60.0]), isNull);
     final b = baselineBand([
-      for (var i = 0; i < 20; i++) i.isEven ? 60.0 : 70.0,
+      for (var i = 0; i < 22; i++) i.isEven ? 60.0 : 70.0,
+      // Outliers neither move the centre nor widen the band.
+      0,
+      200,
     ])!;
     expect(b.mean, 65);
-    expect(b.sd, closeTo(5.13, 0.01));
+    expect(b.sd, closeTo(5 * 1.4826, 0.01));
     expect(b.contains(65), isTrue);
     expect(b.contains(80), isFalse);
   });
 
   test('a trend over a range: latest, weekly change and where it stands', () {
-    // 30 days of HRV around 60 with the last week clearly lower.
+    // 30 days of HRV around 60 with the last week clearly lower (the band
+    // is the median ± MADσ of the whole range, so "clearly" is 40).
     final records = [
       for (var i = 0; i < 30; i++)
-        _day(i, {'hrv': i < 7 ? 45 : 60 + (i.isEven ? 4 : -4)}),
+        _day(i, {'hrv': i < 7 ? 40 : 60 + (i.isEven ? 4 : -4)}),
     ];
     final t = wellnessTrend(records, WellnessMetric.hrv, _today, 30);
     expect(t.days, hasLength(30));
     expect(t.days.last, DateTime(2026, 11, 7));
-    expect(t.latest!.$2, 45);
-    expect(t.latestAverage, 45);
+    expect(t.latest!.$2, 40);
+    expect(t.latestAverage, 40);
     expect(t.weekChange, lessThan(0));
     expect(t.position, BandPosition.below);
     expect(t.hasData, isTrue);

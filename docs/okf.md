@@ -68,9 +68,9 @@ athlete can:
 | Morning briefing | ✅ Implemented (Android/iOS) — Settings → App → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
 | Training analytics (Insights → Training analytics) | ✅ Implemented — all from the local cache, maths in `lib/evaluation/training_analytics.dart`: **fitness by sport** (CTL or ATL per swim/ride/run from each sport's own daily TSS with the 42/7-day model, 180 days of warm-up, plus the total) and a stacked weekly **where your load comes from** chart with per-sport shares; **intensity distribution** (weekly/monthly share of easy / threshold / hard zone time via `intensityOf`, labelled polarized / pyramidal / threshold-heavy / high-intensity with Treff's polarization index, needs ≥ 1 h of zone time); **load safety** (acute:chronic load ratio 7 d/28 d — safe 0.8–1.3, risky ≤ 1.5, too fast above; CTL ramp rate — safe ≤ 5/week, risky ≤ 8; Foster monotony and strain over 7 days — safe ≤ 1.5, risky ≤ 2); **aerobic base** (EF and Pa:HR decoupling for ride/run sessions ≥ 60 min with ≥ 70 % easy zone time, EF least-squares trend per month, decoupling < 5 % solid / 5–10 % developing / > 10 % drifting) |
 | Compare (Insights → Compare, or "Compare with…" on a run/ride's page) | ✅ Implemented — running and cycling only; maths in `lib/evaluation/compare.dart`. **Activities tab**: pick two activities of the same sport; one chart per stream (power, heart rate, speed/pace, cadence, altitude) overlays both on a shared **distance** or **time** axis (blue = A, orange = B; distance is unavailable when either lacks a `distance` stream, fetched on demand by `ActivityStreamsRepository.loadForCompare`), both **courses on one map** in the two colours, and a side-by-side table of the same figures. A shared **tracker**: touching the chart moves a labelled dot for each activity on the map (the position of each at that distance/time), and tapping the map moves the chart's cursor to the nearest point of the closest course; switching axis keeps the tracker on the same moment. **Periods tab**: this block against the previous block of 7/14/28/56 days for runs or rides — sessions, distance, time, elevation, load, pace/speed, power, heart rate, EF, decoupling, easy share with the change between them, plus cumulative distance/time/load by day for both blocks |
-| Readiness signals (long-press the readiness card, or the options icon on its detail screen) | ✅ Implemented — choose which of HRV, resting HR, sleep, form, fatigue/soreness, load and the device's own readiness count toward readiness (`ReadinessSettings`, `lib/evaluation/readiness_settings.dart`, stored on the device in `shared_preferences` as the switched-off signals; at least one stays on). A switched-off signal is rated `excluded`: it moves neither the status nor the 0–100 score, its pill disappears from the card, and the detail screen lists it greyed as "Not used". `ReadinessService` applies the choice everywhere it is used — Today, the detail screen, the morning briefing, plan adjustments — and the `get_readiness` tool reports only `signals_used` (naming `signals_switched_off`) so the trainer does not base readiness advice on them |
+| Readiness signals (long-press the readiness card, or the options icon on its detail screen) | ✅ Implemented — choose which of HRV, resting HR, sleep, form, fatigue/soreness, load and the device's own readiness count toward readiness (`ReadinessSettings`, `lib/evaluation/readiness_settings.dart`, stored on the device in `shared_preferences` as the switched-off signals; at least one stays on). A switched-off signal is rated `excluded`: it moves neither the status nor the 0–100 score, its pill disappears from the card, and the detail screen lists it greyed as "Not used". `ReadinessService` applies the choice everywhere it is used — Today, the detail screen, the morning briefing, plan adjustments — and the `get_readiness` tool reports only `signals_used` (naming `signals_switched_off`) so the trainer does not base readiness advice on them. The same sheet picks the HRV / resting-HR smoothing window — the median of the last 3 (default) or 5 days with data (`ReadinessSettings.smoothingDays`, `readiness.smoothing_days`; unset follows `okf-rules` `smoothingDays`) |
 | Durability (Insights → Durability, rides and runs) | ✅ Implemented — how much of your fresh power or pace is left after a lot of work. Intervals.icu only serves two predefined fatigued curves, so the levels are computed in `lib/evaluation/durability.dart` from the sessions' own streams: for rides the best 5 s / 1 min / 5 min / 20 min / 1 h power of efforts that *started after* 1,000 / 2,000 / 3,000 kJ of work, for runs the fastest 1 / 3 / 5 / 10 km after 10 / 20 / 30 km already run, taken across the most recent long sessions (rides ≥ 1,000 kJ or 1.5 h, runs ≥ 10 km; last 90/180/365 days, at most 40 sessions, streams fetched once and cached). The fresh reference is the season curve (else last 42 days) from the Performance curves; the screen plots all levels, shows the value and the share kept per point, and says how many sessions it was based on |
-| Wellness trends (Insights → Wellness trends, or "Longer trends" on the readiness screen) | ✅ Implemented — HRV, resting HR, sleep (hours) and weight over 30/90/180/365 days from the wellness cache (`lib/evaluation/wellness_trends.dart`): the daily values, a 7-day trailing average that carries through missing days, a shaded band of the usual range (mean ± 1 SD over the period, needs 14 values), and latest / 7-day average / change against a week earlier with a below / within / above-range note. Metrics can be hidden in the options sheet; a metric with no data has no card |
+| Wellness trends (Insights → Wellness trends, or "Longer trends" on the readiness screen) | ✅ Implemented — HRV, resting HR, sleep (hours) and weight over 30/90/180/365 days from the wellness cache (`lib/evaluation/wellness_trends.dart`): the daily values, a 7-day trailing average that carries through missing days, a shaded band of the usual range (median ± 1 MADσ over the period after dropping outliers — the shared robust baseline of `wellness_baseline.dart` — needs 21 values), and latest / 7-day average / change against a week earlier with a below / within / above-range note. Metrics can be hidden in the options sheet; a metric with no data has no card |
 | Best efforts (Insights → Best efforts, rides and runs) | ✅ Implemented — the best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 / 10 km (runs) of every session over the last year, from Intervals.icu's per-activity curves (`activity-power-curves` / `activity-pace-curves`, `lib/evaluation/best_efforts.dart`; cached 6 h in SQLite, the last copy used offline). One line of the best per 30-day window (12 windows) with a second line of the best of the 90 days up to each, for the effort chosen in the options sheet, and a table of the last 30 days against the best of the 90 days before them with the change (green better, red worse; for pace a lower time is better). The pace response is not documented, so it is parsed defensively and not yet checked against the live API |
 | Load heatmap (Insights → Load heatmap) | ✅ Implemented — daily TSS, one square per day, coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`). Three layouts, chosen under the options button and remembered (shared_preferences `heatmap.style`): **Year grid** — the contribution graph, Monday first, cells sized from the available width so a year fits without sideways scrolling; on a narrow phone (360 dp) it turns into weeks-as-rows (seven columns, month labels on the left), and only a tiny width or very large text falls back to scrolling (`HeatmapGridLayout.fit`); **Months** — a small calendar per month, 2–4 across; **Week table** — weeks × weekdays with each week's total (over a bar of its share of the busiest week) and each weekday's total. Colour scale: theme colour or **Viridis** (`heatmap.scale`; ordered so more load always stands out further from the background, in light and dark). Views in `lib/screens/statistics/heatmap_views.dart`. Last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
@@ -332,7 +332,7 @@ is asked for or after a newer activity of that sport was synced.
 | `get_athlete_context` | Today's date, athlete identity, cached date ranges, and current thresholds per sport |
 | `get_daily_metrics` | Per day: CTL, ATL, TSB, ramp rate, resting HR, HRV, sleep, weight, subjective scores |
 | `get_plan_adjustments` | The current plan adjustments (missed sessions, week load, readiness conflicts) as **proposals** — the same keyed cards Today shows, so one Apply resolves both |
-| `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state — computed by the same rules as the readiness row on Today (`lib/evaluation/readiness.dart`) |
+| `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state (HRV / resting HR: the smoothed value, today's raw reading, the median / MADσ baseline and how many baseline days it has) — computed by the same rules as the readiness row on Today (`lib/evaluation/readiness.dart`) |
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
@@ -1150,8 +1150,9 @@ the same cards when you say you missed something.
 **Readiness.** The row above the tiles says **Ready**, **Caution** or **Back
 off** for today and why ("Due to HRV, Sleep"). It is worked out on the
 device from today's Intervals.icu wellness record: HRV and resting HR against
-your own normal over the previous 60 days (a signal needs at least 14 days of
-values before it counts), last night's sleep, form (CTL − ATL), the
+your own normal over the previous 60 days (a signal needs at least 21 days of
+values before it counts — until then it says "Building baseline (n/21
+days)"; see below), last night's sleep, form (CTL − ATL), the
 fatigue/soreness you logged — from an activity's detail screen (see
 Activities above) or directly in Intervals.icu — and two signals that see
 today's training: **Load** (how much is already on the legs: today's training
@@ -1173,6 +1174,39 @@ figure and the normal range in words; the Fitness pill shows CTL over time and
 its change against a week ago. Letting go hides it; a tap on a pill still opens
 the detail screen, and a long press elsewhere on the card still opens the
 signal options.
+**How HRV and resting HR are rated** (`lib/evaluation/wellness_baseline.dart`,
+shared by readiness, the fatigue early warning, the wellness trends and the
+trainer's `get_readiness` tool, so they agree on "usual"):
+
+- *Today's figure* is the median of the last 3 days with a value (5 if you
+  pick that under the readiness options — long-press the card; stored on the
+  device, `readiness.smoothing_days`; the `okf-rules` default is
+  `smoothingDays`). Today's own reading is still shown next to it. One odd
+  morning — a +12 bpm spike — therefore never changes the rating; a change
+  has to last two of three days.
+- *Usual* is the **median and MADσ** (median absolute deviation × 1.4826,
+  which reads like a standard deviation) of the 60 days before the
+  smoothing window, after dropping implausible readings (resting HR outside
+  25–120 bpm, HRV ≤ 0 or above 300 ms) and readings more than 4 MADσ from
+  the median. It needs 21 values; the spread never counts as less than
+  1 bpm (resting HR) or 1 ms / 3 % of the median (HRV).
+- *Resting HR* is a caution at median + max(3 bpm, 1.5 MADσ) and back off at
+  median + max(6 bpm, 2.5 MADσ). *HRV* is a caution 1 MADσ and back off
+  2 MADσ below the median.
+- *Hysteresis*: a level is reached as soon as the smoothed value crosses its
+  threshold, but it only clears once the value has been back past the
+  threshold by 1 bpm (resting HR) / 0.25 MADσ (HRV) on 2 days in a row. The
+  previous 14 days are replayed from the stored records each time, so no
+  state is kept and a value wobbling around a threshold doesn't flip the
+  status every day.
+- *Context cap*: a high resting HR with HRV and sleep fine (and nothing bad
+  logged) is capped at Caution — heat, caffeine or a late meal raise it too.
+- The detail screen and the peek spell it out: "Normal up to 51 bpm (avg 48
+  bpm) · 3-day median 54 bpm vs usual 48 ± 1 (40 days) · today 56 bpm".
+- Not done yet: detecting a device change (a lasting step in the values) and
+  restarting the baseline instead of warning; for now a new strap shows as a
+  sustained change until the baseline catches up.
+
 Without a wearable you get "No wellness data" (and a status from form
 alone); before today's data has arrived, "Waiting for today's data". Tap the
 row for each signal's value, normal range and rating and a 30-day HRV /
@@ -1550,11 +1584,13 @@ provider only lays them out.
 
 **Fatigue early warning** (`lib/evaluation/fatigue_warning.dart`). Where
 readiness rates one day, this asks whether the same signals have stayed off.
-Over the last 5 days a signal *fires* when: HRV is more than 1 SD below your
-60-day baseline, or resting HR 4+ bpm above it, on 3 days; sleep is under 6.5 h
+Over the last 5 days a signal *fires* when: HRV is more than 1 MADσ below your
+60-day baseline median, or resting HR 4+ bpm above it, on 3 days (the same
+robust baseline readiness uses, `wellness_baseline.dart`; each day is judged
+on its own reading — the 3-of-5 count is the smoothing here); sleep is under 6.5 h
 on 3 nights; form is −25 or lower on 3 days; CTL ramps 8+/week on 2 days; or
 fatigue/soreness is rated 3–4 on 2 days. Days with no value (a wearable's 0)
-don't count, and a signal needs 3 days of data (HRV/resting HR also 14 days
+don't count, and a signal needs 3 days of data (HRV/resting HR also 21 days
 of baseline). **Warning** — three signals, or HRV/resting HR together with a
 load or feel signal; **watch** — two signals, or HRV/resting HR alone on four
 days. One bad night never triggers it.
@@ -1958,13 +1994,21 @@ below it a week may fall before it is flagged (more easy time than the target
 is not a problem). `recoveryHours` maps a session's TSS to recovery hours
 (`[upTo, hours]`, `null` = above the last band); `recoveryFormPenaltyBelow`
 adds 12 h when form (CTL − ATL) is below it. `readiness` holds the daily
-readiness thresholds, each pair `[caution, back off]`: `hrvSd` (standard
-deviations below the HRV baseline), `restingHrBpm` (bpm above the resting-HR
-baseline), `sleepHoursCaution` (caution only), `form`, `acwr` (ATL ÷ CTL at or
+readiness thresholds, each pair `[caution, back off]`: `hrvSd` (MADσ below
+the HRV baseline median), `restingHrBpm` and `restingHrMad` (resting HR at
+least this many bpm *and* this many MADσ above the baseline median — whichever
+is more), `sleepHoursCaution` (caution only), `form`, `acwr` (ATL ÷ CTL at or
 above), `dayLoadVsCtl` (today's load as a multiple of CTL, at or above),
 `minCtl` (below this CTL there is too little history for the two load ratios),
-`deviceReadiness` (the device's 0–100 figure, below), and the baseline
-window (`baselineDays`, `minBaselineDays`). Defaults: `acwr` `[1.3, 1.5]`,
+`deviceReadiness` (the device's 0–100 figure, below), the baseline
+window (`baselineDays`, `minBaselineDays` values needed), `smoothingDays`
+(HRV and resting HR are rated by the median of this many latest days with a
+value; the athlete can override it with 3 or 5 in the readiness options),
+`outlierMad` (baseline readings this far from the median are dropped) and the
+hysteresis: a raised HRV / resting-HR level clears only after the smoothed
+value has been back past its threshold by `restingHrClearBpm` bpm /
+`hrvClearSd` MADσ on `clearDays` days in a row (see "How HRV and resting HR
+are rated" under Today). Defaults: `acwr` `[1.3, 1.5]`,
 `dayLoadVsCtl` `[1.5, 2.5]`, `minCtl` 10, `deviceReadiness` `[50, 25]`. Fatigue or soreness at 4, the
 worst of Intervals.icu's 1-4 scale, is a caution.
 
@@ -1987,7 +2031,8 @@ worst of Intervals.icu's 1-4 scale, is a caution.
   },
   "readiness": {
     "hrvSd": [1, 2],
-    "restingHrBpm": [5, 10],
+    "restingHrBpm": [3, 6],
+    "restingHrMad": [1.5, 2.5],
     "sleepHoursCaution": 6,
     "form": [-20, -30],
     "acwr": [1.3, 1.5],
@@ -1995,7 +2040,12 @@ worst of Intervals.icu's 1-4 scale, is a caution.
     "minCtl": 10,
     "deviceReadiness": [50, 25],
     "baselineDays": 60,
-    "minBaselineDays": 14
+    "minBaselineDays": 21,
+    "smoothingDays": 3,
+    "outlierMad": 4,
+    "restingHrClearBpm": 1,
+    "hrvClearSd": 0.25,
+    "clearDays": 2
   }
 }
 ```

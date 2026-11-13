@@ -375,6 +375,7 @@ void main() {
     });
 
     test('rated from real wellness data too', () {
+      // Resting HR is rated by its 3-day median: up for three days.
       final records = [
         for (var i = 1; i <= 30; i++)
           LocalWellness(
@@ -384,7 +385,7 @@ void main() {
             ctlLoad: null,
             atlLoad: null,
             rampRate: null,
-            raw: {'restingHR': 48},
+            raw: {'restingHR': i <= 2 ? 60 : 48},
             syncedAt: DateTime(2026),
           ),
         LocalWellness(

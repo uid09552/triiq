@@ -68,10 +68,14 @@ void main() {
   }
 
   test('matches evaluateReadiness for the same records', () async {
+    // HRV low for three days (it is rated by its 3-day median), today's own
+    // reading a little lower still.
     final records = [
-      for (var i = 1; i <= 40; i++)
-        day(i, hrv: 62 + (i.isEven ? 6 : -6), rhr: 48, sleep: 8 * 3600),
-      day(0, hrv: 52, rhr: 48, sleep: 8 * 3600),
+      for (var i = 3; i <= 42; i++)
+        day(i, hrv: 62 + (i.isEven ? 4 : -4), rhr: 48, sleep: 8 * 3600),
+      day(2, hrv: 52, rhr: 48, sleep: 8 * 3600),
+      day(1, hrv: 52, rhr: 48, sleep: 8 * 3600),
+      day(0, hrv: 50, rhr: 48, sleep: 8 * 3600),
     ];
     await wellness.upsertAll(records);
 
@@ -87,7 +91,11 @@ void main() {
         .firstWhere((s) => s['signal'] == 'hrv');
     expect(hrv['rating'], 'caution');
     expect(hrv['value'], 52);
+    expect(hrv['value_today_raw'], 50);
+    expect(hrv['smoothing_days'], 3);
     expect(hrv['baseline_mean'], 62);
+    expect(hrv['baseline_days'], 40);
+    expect(hrv['baseline_days_needed'], 21);
   });
 
   test('only the signals the athlete left on are reported', () async {

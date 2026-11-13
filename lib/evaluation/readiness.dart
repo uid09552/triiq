@@ -2,13 +2,15 @@ import 'dart:math' as math;
 
 import '../data/models/local_wellness.dart';
 import '../util/dates.dart';
+import 'wellness_baseline.dart';
 
 /// The thresholds readiness is rated by (`readiness` in the `okf-rules`
 /// block). Each pair is `[caution, back off]`.
 class ReadinessRules {
   const ReadinessRules({
     this.hrvSd = const [1, 2],
-    this.restingHrBpm = const [5, 10],
+    this.restingHrBpm = const [3, 6],
+    this.restingHrMad = const [1.5, 2.5],
     this.sleepHoursCaution = 6,
     this.form = const [-20, -30],
     this.acwr = const [1.3, 1.5],
@@ -16,14 +18,21 @@ class ReadinessRules {
     this.minCtl = 10,
     this.deviceReadiness = const [50, 25],
     this.baselineDays = 60,
-    this.minBaselineDays = 14,
+    this.minBaselineDays = defaultMinBaselineDays,
+    this.smoothingDays = 3,
+    this.outlierMad = 4,
+    this.restingHrClearBpm = 1,
+    this.hrvClearSd = 0.25,
+    this.clearDays = 2,
   });
 
-  /// HRV this many standard deviations below the baseline mean.
+  /// HRV (smoothed) this many MADσ below the baseline median.
   final List<double> hrvSd;
 
-  /// Resting HR this many bpm above the baseline mean.
+  /// Resting HR (smoothed) above the baseline median by at least this many
+  /// bpm — or [restingHrMad] MADσ, whichever is more.
   final List<double> restingHrBpm;
+  final List<double> restingHrMad;
 
   /// Less sleep than this is a caution; sleep alone never says back off.
   final double sleepHoursCaution;
@@ -48,10 +57,56 @@ class ReadinessRules {
   /// values.
   final List<double> deviceReadiness;
 
-  /// The window before today a baseline is taken from, and how many days of
-  /// it need a value before the baseline counts.
+  /// The window before the smoothing window a baseline is taken from, and how
+  /// many of its days need a value before the baseline counts.
   final int baselineDays;
   final int minBaselineDays;
+
+  /// HRV and resting HR are rated by the median of this many latest days
+  /// with a value (the athlete can pick 3 or 5 in the readiness options).
+  final int smoothingDays;
+
+  /// Baseline readings this many MADσ from the median are dropped.
+  final double outlierMad;
+
+  /// Hysteresis: a raised HRV / resting-HR level only clears once the
+  /// smoothed value has been past its threshold by this margin (bpm for
+  /// resting HR, MADσ for HRV) on [clearDays] days in a row.
+  final double restingHrClearBpm;
+  final double hrvClearSd;
+  final int clearDays;
+
+  /// The baseline settings shared with the fatigue warning and the trends.
+  WellnessBaselineRules baselineRules({int? smoothingDays}) =>
+      WellnessBaselineRules(
+        baselineDays: baselineDays,
+        minBaselineDays: minBaselineDays,
+        smoothingDays: smoothingDays ?? this.smoothingDays,
+        outlierMad: outlierMad,
+      );
+
+  /// Days of records before today [evaluateReadiness] reads: the baseline,
+  /// the longest smoothing window and the days hysteresis looks back over.
+  int get historyDays => baselineDays + readinessHysteresisDays + 2 * 5;
+
+  ReadinessRules copyWith({int? smoothingDays}) => ReadinessRules(
+    hrvSd: hrvSd,
+    restingHrBpm: restingHrBpm,
+    restingHrMad: restingHrMad,
+    sleepHoursCaution: sleepHoursCaution,
+    form: form,
+    acwr: acwr,
+    dayLoadVsCtl: dayLoadVsCtl,
+    minCtl: minCtl,
+    deviceReadiness: deviceReadiness,
+    baselineDays: baselineDays,
+    minBaselineDays: minBaselineDays,
+    smoothingDays: smoothingDays ?? this.smoothingDays,
+    outlierMad: outlierMad,
+    restingHrClearBpm: restingHrClearBpm,
+    hrvClearSd: hrvClearSd,
+    clearDays: clearDays,
+  );
 
   factory ReadinessRules.fromJson(Map<String, dynamic> json) {
     const d = ReadinessRules();
@@ -73,6 +128,7 @@ class ReadinessRules {
     final rules = ReadinessRules(
       hrvSd: pair('hrvSd', d.hrvSd),
       restingHrBpm: pair('restingHrBpm', d.restingHrBpm),
+      restingHrMad: pair('restingHrMad', d.restingHrMad),
       sleepHoursCaution:
           number('sleepHoursCaution')?.toDouble() ?? d.sleepHoursCaution,
       form: pair('form', d.form),
@@ -82,6 +138,12 @@ class ReadinessRules {
       deviceReadiness: pair('deviceReadiness', d.deviceReadiness),
       baselineDays: number('baselineDays')?.toInt() ?? d.baselineDays,
       minBaselineDays: number('minBaselineDays')?.toInt() ?? d.minBaselineDays,
+      smoothingDays: number('smoothingDays')?.toInt() ?? d.smoothingDays,
+      outlierMad: number('outlierMad')?.toDouble() ?? d.outlierMad,
+      restingHrClearBpm:
+          number('restingHrClearBpm')?.toDouble() ?? d.restingHrClearBpm,
+      hrvClearSd: number('hrvClearSd')?.toDouble() ?? d.hrvClearSd,
+      clearDays: number('clearDays')?.toInt() ?? d.clearDays,
     );
     if (rules.minBaselineDays < 2 ||
         rules.minBaselineDays > rules.baselineDays) {
@@ -89,9 +151,20 @@ class ReadinessRules {
         'readiness.minBaselineDays must be 2..baselineDays.',
       );
     }
+    if (rules.smoothingDays < 1 || rules.smoothingDays > 7) {
+      throw const FormatException('readiness.smoothingDays must be 1..7.');
+    }
+    if (rules.clearDays < 1 || rules.outlierMad <= 0) {
+      throw const FormatException(
+        'readiness.clearDays must be ≥ 1 and outlierMad > 0.',
+      );
+    }
     return rules;
   }
 }
+
+/// How many days before today hysteresis replays HRV and resting HR from.
+const readinessHysteresisDays = 14;
 
 /// Intervals.icu's subjective scores run 1 (good) to 4 (bad).
 const subjectiveWorst = 4;
@@ -139,16 +212,23 @@ class ReadinessSignal {
     this.fatigue,
     this.soreness,
     this.dayLoad,
+    this.todayValue,
+    this.smoothingDays,
+    this.baselineCount,
+    this.baselineNeeded,
   });
 
   final ReadinessSignalKind kind;
   final SignalRating rating;
 
   /// Today's value: ms (HRV), bpm (resting HR), hours (sleep), form, or the
-  /// worse of fatigue/soreness.
+  /// worse of fatigue/soreness. For HRV and resting HR this is the value
+  /// they are rated by: the median of the last [smoothingDays] days with a
+  /// value; [todayValue] is the day's own reading.
   final double? value;
 
-  /// The athlete's baseline, where the signal has one.
+  /// The athlete's baseline, where the signal has one: for HRV and resting
+  /// HR the median and MADσ (MAD × 1.4826) of the baseline window.
   final double? mean;
   final double? sd;
 
@@ -163,13 +243,24 @@ class ReadinessSignal {
   /// Today's training load (TSS), for [ReadinessSignalKind.load].
   final double? dayLoad;
 
+  /// HRV / resting HR: today's own reading, how many days [value] is the
+  /// median of, and how many baseline values there are against how many
+  /// are needed ("building baseline 9/21").
+  final double? todayValue;
+  final int? smoothingDays;
+  final int? baselineCount;
+  final int? baselineNeeded;
+
   bool get counts =>
       rating == SignalRating.caution || rating == SignalRating.backOff;
 
   /// The same reading, left out of the rating.
-  ReadinessSignal excluded() => ReadinessSignal(
+  ReadinessSignal excluded() => withRating(SignalRating.excluded);
+
+  /// The same reading, rated [rating].
+  ReadinessSignal withRating(SignalRating rating) => ReadinessSignal(
     kind: kind,
-    rating: SignalRating.excluded,
+    rating: rating,
     value: value,
     mean: mean,
     sd: sd,
@@ -177,6 +268,10 @@ class ReadinessSignal {
     fatigue: fatigue,
     soreness: soreness,
     dayLoad: dayLoad,
+    todayValue: todayValue,
+    smoothingDays: smoothingDays,
+    baselineCount: baselineCount,
+    baselineNeeded: baselineNeeded,
   );
 }
 
@@ -247,7 +342,7 @@ int? readinessScore(Readiness r) {
 }
 
 /// Rates [today] from [records] (any order; only the [today] row and the
-/// [ReadinessRules.baselineDays] before it are read). Only the signals in
+/// [ReadinessRules.historyDays] before it are read). Only the signals in
 /// [enabled] (all by default) count: the others are kept for display but
 /// rated [SignalRating.excluded], so they move neither the status nor the
 /// score.
@@ -272,8 +367,9 @@ Readiness evaluateReadiness(
       )
       .toList();
 
-  double? hrvOf(LocalWellness r) => _positive(r.raw['hrv']);
-  double? rhrOf(LocalWellness r) => _positive(r.raw['restingHR']);
+  double? hrvOf(LocalWellness r) => wellnessSignalValue(r, WellnessSignal.hrv);
+  double? rhrOf(LocalWellness r) =>
+      wellnessSignalValue(r, WellnessSignal.restingHr);
   double? sleepOf(LocalWellness r) {
     final secs = _positive(r.raw['sleepSecs']);
     return secs == null ? null : secs / 3600;
@@ -303,63 +399,22 @@ Readiness evaluateReadiness(
       ? ReadinessDataState.complete
       : ReadinessDataState.waitingForToday;
 
-  // HRV: low is bad.
-  final hrvValues = baseline.map(hrvOf).nonNulls.toList();
-  final hrvToday = todayRecord == null ? null : hrvOf(todayRecord);
-  final ReadinessSignal hrv;
-  if (hrvValues.length < rules.minBaselineDays) {
-    hrv = ReadinessSignal(
-      kind: ReadinessSignalKind.hrv,
-      rating: hrvToday == null ? SignalRating.missing : SignalRating.noBaseline,
-      value: hrvToday,
-    );
-  } else {
-    final (mean, sd) = _meanSd(hrvValues);
-    final caution = mean - rules.hrvSd[0] * sd;
-    final backOff = mean - rules.hrvSd[1] * sd;
-    hrv = ReadinessSignal(
-      kind: ReadinessSignalKind.hrv,
-      rating: hrvToday == null
-          ? SignalRating.missing
-          : hrvToday < backOff
-          ? SignalRating.backOff
-          : hrvToday < caution
-          ? SignalRating.caution
-          : SignalRating.ok,
-      value: hrvToday,
-      mean: mean,
-      sd: sd,
-      okBound: caution,
-    );
-  }
-
-  // Resting HR: high is bad.
-  final rhrValues = baseline.map(rhrOf).nonNulls.toList();
-  final rhrToday = todayRecord == null ? null : rhrOf(todayRecord);
-  final ReadinessSignal restingHr;
-  if (rhrValues.length < rules.minBaselineDays) {
-    restingHr = ReadinessSignal(
-      kind: ReadinessSignalKind.restingHr,
-      rating: rhrToday == null ? SignalRating.missing : SignalRating.noBaseline,
-      value: rhrToday,
-    );
-  } else {
-    final (mean, sd) = _meanSd(rhrValues);
-    restingHr = ReadinessSignal(
-      kind: ReadinessSignalKind.restingHr,
-      rating: rhrToday == null
-          ? SignalRating.missing
-          : rhrToday >= mean + rules.restingHrBpm[1]
-          ? SignalRating.backOff
-          : rhrToday >= mean + rules.restingHrBpm[0]
-          ? SignalRating.caution
-          : SignalRating.ok,
-      value: rhrToday,
-      mean: mean,
-      sd: sd,
-      okBound: mean + rules.restingHrBpm[0],
-    );
-  }
+  // HRV (low is bad) and resting HR (high is bad): the smoothed value
+  // against the robust baseline, with hysteresis.
+  final hrv = _rateWellness(
+    records,
+    today,
+    ReadinessSignalKind.hrv,
+    WellnessSignal.hrv,
+    rules,
+  );
+  var restingHr = _rateWellness(
+    records,
+    today,
+    ReadinessSignalKind.restingHr,
+    WellnessSignal.restingHr,
+    rules,
+  );
 
   // Sleep: absolute, caution only.
   final sleepToday = todayRecord == null ? null : sleepOf(todayRecord);
@@ -457,6 +512,18 @@ Readiness evaluateReadiness(
     okBound: rules.deviceReadiness[0],
   );
 
+  // A high resting HR on its own — HRV and sleep fine, nothing logged as
+  // bad — is more often heat, caffeine or a late meal than fatigue: it can
+  // say caution, not back off.
+  bool fine(ReadinessSignal s) => !s.counts;
+  if (restingHr.rating == SignalRating.backOff &&
+      fine(hrv) &&
+      fine(sleep) &&
+      fine(subjective) &&
+      (hrv.rating == SignalRating.ok || sleep.rating == SignalRating.ok)) {
+    restingHr = restingHr.withRating(SignalRating.caution);
+  }
+
   final signals = [
     for (final s in [hrv, restingHr, sleep, form, subjective, load, device])
       on.contains(s.kind) ? s : s.excluded(),
@@ -504,12 +571,114 @@ double? _deviceScore(Object? raw) {
   return v == null || v > 100 ? null : v;
 }
 
-(double, double) _meanSd(List<double> values) {
-  final mean = values.reduce((a, b) => a + b) / values.length;
-  final variance =
-      values.fold<double>(0, (sum, v) => sum + (v - mean) * (v - mean)) /
-      (values.length - 1);
-  return (mean, math.sqrt(variance));
+/// HRV or resting HR on [today]: the smoothed value (see
+/// [wellnessReading]) against the robust baseline.
+///
+/// Thresholds — resting HR at or above median + max(bpm, MAD factor × σ),
+/// HRV below median − hrvSd × σ. A level is reached as soon as the smoothed
+/// value crosses its threshold, but only clears once it has been back past
+/// it by the clear margin on [ReadinessRules.clearDays] days in a row. The
+/// previous [readinessHysteresisDays] days are replayed from the same
+/// records, so no state is stored and every caller gets the same answer.
+ReadinessSignal _rateWellness(
+  List<LocalWellness> records,
+  DateTime today,
+  ReadinessSignalKind kind,
+  WellnessSignal signal,
+  ReadinessRules rules,
+) {
+  final values = wellnessSignalValues(records, signal);
+  final baselineRules = rules.baselineRules();
+  final highIsBad = signal == WellnessSignal.restingHr;
+
+  ({double caution, double backOff, double margin}) bounds(RobustBaseline b) {
+    if (highIsBad) {
+      return (
+        caution:
+            b.median +
+            math.max(rules.restingHrBpm[0], rules.restingHrMad[0] * b.sigma),
+        backOff:
+            b.median +
+            math.max(rules.restingHrBpm[1], rules.restingHrMad[1] * b.sigma),
+        margin: rules.restingHrClearBpm,
+      );
+    }
+    return (
+      caution: b.median - rules.hrvSd[0] * b.sigma,
+      backOff: b.median - rules.hrvSd[1] * b.sigma,
+      margin: rules.hrvClearSd * b.sigma,
+    );
+  }
+
+  // 0 ok, 1 caution, 2 back off; [shift] moves both thresholds toward ok.
+  int level(double v, double caution, double backOff, [double shift = 0]) =>
+      highIsBad
+      ? (v >= backOff - shift
+            ? 2
+            : v >= caution - shift
+            ? 1
+            : 0)
+      : (v < backOff + shift
+            ? 2
+            : v < caution + shift
+            ? 1
+            : 0);
+
+  final d = dateOnly(today);
+  int? state;
+  final cleared = <int>[];
+  late WellnessReading reading;
+  for (var i = readinessHysteresisDays; i >= 0; i--) {
+    reading = wellnessReading(
+      values,
+      DateTime(d.year, d.month, d.day - i),
+      signal,
+      rules: baselineRules,
+    );
+    final v = reading.smoothed;
+    final b = reading.baseline;
+    if (b == null) {
+      state = null;
+      cleared.clear();
+      continue;
+    }
+    if (v == null) continue;
+    final t = bounds(b);
+    final raw = level(v, t.caution, t.backOff);
+    final clear = level(v, t.caution, t.backOff, t.margin);
+    cleared.add(clear);
+    if (cleared.length > rules.clearDays) cleared.removeAt(0);
+    if (state == null || raw >= state) {
+      state = raw;
+    } else if (cleared.length == rules.clearDays) {
+      final worst = cleared.reduce(math.max);
+      if (worst < state) state = worst;
+    }
+  }
+
+  final b = reading.baseline;
+  final v = reading.smoothed;
+  final rating = v == null
+      ? SignalRating.missing
+      : b == null || state == null
+      ? SignalRating.noBaseline
+      : const [
+          SignalRating.ok,
+          SignalRating.caution,
+          SignalRating.backOff,
+        ][state];
+  return ReadinessSignal(
+    kind: kind,
+    rating: rating,
+    value: v ?? reading.today,
+    mean: b?.median,
+    sd: b?.sigma,
+    okBound: b == null ? null : bounds(b).caution,
+    todayValue: reading.today,
+    smoothingDays: reading.smoothedDays == 0 ? null : reading.smoothedDays,
+    baselineCount: reading.baselineCount,
+    baselineNeeded: reading.baselineNeeded,
+  );
 }
 
 /// A wearable writes 0 for "not measured" often enough that it can't be a

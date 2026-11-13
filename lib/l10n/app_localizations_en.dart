@@ -3823,6 +3823,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readinessRatingExcluded => 'Not used';
 
   @override
+  String readinessRatingBuildingBaseline(int count, int needed) {
+    return 'Building baseline ($count/$needed days)';
+  }
+
+  @override
+  String readinessSmoothedDetail(
+    int days,
+    String value,
+    String mean,
+    String sd,
+    int count,
+  ) {
+    return '$days-day median $value vs usual $mean ± $sd ($count days)';
+  }
+
+  @override
+  String readinessTodayRaw(String value) {
+    return 'today $value';
+  }
+
+  @override
+  String get readinessSmoothingTitle => 'HRV and resting HR smoothing';
+
+  @override
+  String get readinessSmoothingHint =>
+      'Rate the median of the last few days with data, so one odd morning doesn\'t flip the status. More days react more slowly.';
+
+  @override
+  String readinessSmoothingDays(int days) {
+    return '$days days';
+  }
+
+  @override
   String get readinessOptionsReset => 'Use all signals';
 
   @override
@@ -3912,7 +3945,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wtBandNote =>
-      'Shaded band: your usual range, the mean ± 1 SD over this period.';
+      'Shaded band: your usual range, the median ± one robust spread (MAD) over this period, ignoring outlier days.';
 
   @override
   String get wtNoData => 'No data in this range.';

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../data/models/local_wellness.dart';
 import '../util/dates.dart';
+import 'wellness_baseline.dart';
 
 /// Thresholds for the multi-day fatigue trend. Readiness rates one day
 /// against the athlete's baseline; this looks for the *same* signals
@@ -11,7 +12,8 @@ class FatigueRules {
   const FatigueRules({
     this.window = 5,
     this.baselineDays = 60,
-    this.minBaselineDays = 14,
+    this.minBaselineDays = defaultMinBaselineDays,
+    this.outlierMad = 4,
     this.minDataDays = 3,
     this.hrvSd = 1.0,
     this.restingHrBpm = 4.0,
@@ -26,15 +28,19 @@ class FatigueRules {
   /// Days looked at, ending today.
   final int window;
   final int baselineDays;
+
+  /// Values the robust baseline (median and MADσ, shared with readiness)
+  /// needs after outliers are dropped.
   final int minBaselineDays;
+  final double outlierMad;
 
   /// Days with a value a signal needs before it can fire.
   final int minDataDays;
 
-  /// HRV this many SD below the baseline mean is a bad day.
+  /// HRV this many MADσ below the baseline median is a bad day.
   final double hrvSd;
 
-  /// Resting HR this many bpm over the baseline mean is a bad day.
+  /// Resting HR this many bpm over the baseline median is a bad day.
   final double restingHrBpm;
   final double sleepHours;
   final double form;
@@ -109,15 +115,11 @@ class FatigueWarning {
 
 double? _positive(Object? raw) => raw is num && raw > 0 ? raw.toDouble() : null;
 
-(double, double) _meanSd(List<double> v) {
-  final mean = v.reduce((a, b) => a + b) / v.length;
-  final variance =
-      v.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) / v.length;
-  return (mean, math.sqrt(variance));
-}
-
 /// Looks at the last [FatigueRules.window] days to [today] in [records]
-/// (any order) against the baseline before them.
+/// (any order) against the baseline before them — the same robust median /
+/// MADσ baseline readiness uses ([robustBaseline]), so an outlier day in the
+/// history doesn't shift "normal". Each window day is judged on its own
+/// reading: the "bad on 3 of 5 days" count is the smoothing here.
 ///
 /// * a signal *fires* when it is off on enough of the days that have a
 ///   value (HRV low, resting HR high, short sleep, deep negative form,
@@ -150,13 +152,20 @@ FatigueWarning evaluateFatigue(
 
   void low(
     FatigueSignalKind kind,
-    double? Function(LocalWellness) read, {
-    required bool Function(double value, double mean, double sd) bad,
+    WellnessSignal signal, {
+    required bool Function(double value, double median, double sigma) bad,
   }) {
-    final base = baseline.map(read).nonNulls.toList();
-    if (base.length < rules.minBaselineDays) return;
-    final (mean, sd) = _meanSd(base);
-    final values = window.map(read).nonNulls.toList();
+    final base = robustBaseline(
+      baseline.map((r) => wellnessSignalValue(r, signal)).nonNulls,
+      signal: signal,
+      outlierMad: rules.outlierMad,
+    );
+    if (base == null || base.count < rules.minBaselineDays) return;
+    final mean = base.median, sd = base.sigma;
+    final values = window
+        .map((r) => wellnessSignalValue(r, signal))
+        .nonNulls
+        .toList();
     if (values.length < rules.minDataDays) return;
     final badCount = values.where((v) => bad(v, mean, sd)).length;
     signals.add(
@@ -171,13 +180,13 @@ FatigueWarning evaluateFatigue(
 
   low(
     FatigueSignalKind.hrvLow,
-    (r) => _positive(r.raw['hrv']),
-    bad: (v, mean, sd) => v < mean - rules.hrvSd * sd,
+    WellnessSignal.hrv,
+    bad: (v, median, sigma) => v < median - rules.hrvSd * sigma,
   );
   low(
     FatigueSignalKind.restingHrHigh,
-    (r) => _positive(r.raw['restingHR']),
-    bad: (v, mean, sd) => v >= mean + rules.restingHrBpm,
+    WellnessSignal.restingHr,
+    bad: (v, median, sigma) => v >= median + rules.restingHrBpm,
   );
 
   final sleep = window
