@@ -100,6 +100,7 @@ athlete can:
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
 | Training-plan calculation | ✅ Implemented — More → Training plan: goal (Run, Ride or Triathlon with a swim/bike/run mix), 2-16 weeks, a draggable load graph on a TSS axis (80-120% of a proposed +10%/week ramp), a Monday-Sunday calendar per week; a **taper and race week** when the plan ends at the goal's event, with a race countdown on Today; deterministic engine (`lib/plan`) decides every number and date, including a swim **technique session** every other build/peak week; its content (a short description plus the detailed, set-by-set text) is then written by the athlete's configured LLM provider when one is set up, `lib/plan/session_content.dart`, falling back to plain deterministic text otherwise or on any failure; **Take as plan** saves locally and opens the Calendar, sending to Intervals.icu is optional (Settings → Data & privacy → Calendar); **plan adjustments** on Today (missed sessions, a week far off its target load, hard sessions on low-readiness days) as Apply / Dismiss cards (`lib/plan/plan_adaptation.dart`) |
+| Strength & mobility block | ✅ Implemented — goal option (0/1/2 sessions a week, preferred days; new goals default 1, goals saved before it load as 0); the engine adds `WeightTraining` sessions by phase (heavy in build weeks, maintenance before the taper, mobility in recovery/taper weeks, none in race week), never the day before a key session; exercise content with sets × reps and purpose (default, or LLM-written); load counted apart from the endurance target and 80/20; done/missed tracking, Weekly review count, adaptation (`lib/plan/strength.dart`) |
 | LLM credential persistence | ✅ Implemented — Claude key in the OS vault, the rest in shared preferences |
 | Notifications | ✅ Implemented on Android/iOS (incl. daily reminder) and Windows (sync/agent only, no reminder); no-op on web |
 | Web platform | ⚠️ Local storage unsupported (SQLite has no web backend wired up yet); UI renders fine |
@@ -1799,6 +1800,47 @@ tiles (minutes and TSS; tap one for its steps). Triathlon weeks hold at
 most two sessions a day by default (your limit if you set one) with the long ride and long run on different days;
 with few training days Z2 sessions are dropped first.
 
+**Strength & mobility.** The goal editor's **Strength & mobility** option
+asks for 0, 1 or 2 sessions a week (a new goal starts at 1; a goal saved
+before the option existed keeps 0, so its plan doesn't change) and,
+optionally, preferred days. The engine then adds them as their own sessions
+(Intervals.icu type `WeightTraining`, shown with a dumbbell):
+
+| Week | Strength |
+|---|---|
+| Build | up to 2 × **Strength** (40 min): heavy, low reps, plyometrics |
+| The 2 build weeks before a taper (peak) | 1 × **Strength maintenance** (30 min) |
+| Recovery and taper weeks | 1 × **Mobility** (20 min) |
+| Race week | none |
+
+They go on training days only, after the endurance sessions are placed
+(which never move for them): never on a day that already holds two
+sessions, never the day before an interval, long or openers session (also
+across a week's end), never on a taper week's key-session day, and never on
+consecutive days. Preferred strength days come first, then days with an
+easy session, then free days; a long or interval day is the last resort. A
+session that finds no day is left out and the week says so.
+
+Each session lists its exercises with sets × reps and what they do (squat,
+Romanian deadlift, split squats, step-ups, single-leg work, jumps, calf
+raises, core; mobility flows and hip/glute activation in mobility weeks) —
+the engine's default text, or the LLM's version when a provider is set.
+It is plain text, not step syntax, and is sent to Intervals.icu like any
+other session.
+
+**Load accounting.** A strength session carries a small fixed TSS estimate
+(25 / 15 / 5), shown on its tile, but it is **counted apart**: it is not in
+the week's TSS target or planned TSS, the load graph, the projected CTL, the
+weekly-hours budget or the 80/20 share. The week card shows it on its own
+line ("2 strength & mobility sessions · 80 min, outside the TSS target").
+Completed `WeightTraining` (also Yoga/Pilates) activities count as done for
+a planned strength session, are judged on duration only, and are left out of
+the week's actual endurance load and the Weekly review's 80/20 split; the
+Weekly review shows **Strength & mobility: N of M sessions**. A missed
+strength session is moved to the next day that keeps the same rules (never
+onto or before a hard day), or let go; a moved key session never lands the
+day after a strength session.
+
 **AI-authored session content.** Every number — date, sport, slot, minutes,
 load — is always the deterministic engine's; separately, each session's
 name and description (a short one-line summary, shown next to the name
@@ -2094,6 +2136,11 @@ worst of Intervals.icu's 1-4 scale, is a caution.
   }
 }
 ```
+
+Strength & mobility sessions are not part of these rules or of a goal's
+load split: their dose per phase, durations, fixed TSS and placement rules
+are built into the engine (`lib/plan/strength.dart`), see **Training plan →
+Strength & mobility** above.
 
 ### 5.2 Goals
 

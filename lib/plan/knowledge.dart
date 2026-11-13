@@ -145,7 +145,9 @@ RecoveryRules _recoveryRules(Map<String, dynamic> json) {
 }
 
 /// The session types a week is built from, in the order they are placed.
-enum SessionSlot { z2, intervals, long }
+/// [strength] is the engine's own strength & mobility session: not part of
+/// a goal's load split and not built from an `okf-template`.
+enum SessionSlot { z2, intervals, long, strength }
 
 /// How a goal divides a week (`okf-goal` block).
 class GoalProfile {
@@ -163,7 +165,7 @@ class GoalProfile {
     final slots = <SessionSlot, SlotShare>{};
     for (final entry in (json['slots'] as Map<String, dynamic>).entries) {
       final slot = SessionSlot.values.asNameMap()[entry.key];
-      if (slot == null) {
+      if (slot == null || slot == SessionSlot.strength) {
         throw FormatException('Unknown slot "${entry.key}".');
       }
       final value = entry.value as Map<String, dynamic>;
@@ -325,7 +327,8 @@ class SessionTemplate {
 
   factory SessionTemplate.fromJson(Map<String, dynamic> json) {
     final slot = SessionSlot.values.asNameMap()[json['slot']];
-    if (slot == null) throw FormatException('Unknown slot "${json['slot']}".');
+    if (slot == null || slot == SessionSlot.strength)
+      throw FormatException('Unknown slot "${json['slot']}".');
     final steps = [
       for (final s in json['steps'] as List)
         StepSpec.fromJson(s as Map<String, dynamic>),

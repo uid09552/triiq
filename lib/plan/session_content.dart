@@ -7,6 +7,7 @@ import 'package:langchain_core/chat_models.dart';
 import '../agent/chat_model_factory.dart';
 import '../agent/llm_settings.dart';
 import 'plan_models.dart';
+import 'strength.dart';
 
 /// Rewrites a generated plan's sessions' `name`, `shortDescription` and
 /// `description` using the athlete's configured chat LLM provider — the
@@ -109,6 +110,17 @@ class SessionContentGenerator {
       'session: build its description around named technique drills (e.g. '
       'catch-up drill, fingertip drag, bilateral breathing, high-elbow '
       'catch) instead of plain effort percentages. '
+      'A session with "slot": "strength" (sport WeightTraining) is a '
+      'strength & mobility session for an endurance athlete, NOT a timed '
+      'workout: do not use step syntax or "- " lines. Write its description '
+      'as plain text — a first line with the purpose, then one exercise per '
+      'line as "<exercise>: <sets> x <reps or time>, <rest>. <purpose and '
+      'effect for swim/bike/run>". Follow its "strength_focus": "heavy" = '
+      'max strength and plyometrics (squat, deadlift/RDL, step-ups, '
+      'single-leg work, jumps, calf raises, core; 3-4 sets of 4-6 heavy reps '
+      'with full rest), "maintenance" = the same lifts at 2 sets and low '
+      'volume, "mobility" = mobility flows, hip/glute activation and '
+      'stretches only, no load. Fit it into the given minutes. '
       'Reply with ONLY a JSON array, same length and order as the input, '
       'each element {"index": <int>, "name": <string>, '
       '"short_description": <string>, "description": <string>}. No prose, '
@@ -126,6 +138,8 @@ class SessionContentGenerator {
     'load': s.load,
     'low_intensity_minutes': double.parse(s.lowMinutes.toStringAsFixed(1)),
     'technique_focus': s.techniqueFocus,
+    if (strengthFocusOf(s.templateId) case final focus?)
+      'strength_focus': focus.name,
   };
 
   /// Parses the model's reply into valid entries keyed by session index.

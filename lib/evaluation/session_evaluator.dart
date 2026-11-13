@@ -161,12 +161,17 @@ class SessionEvaluator {
           aMin != null &&
           pMin > 0 &&
           aMin < pMin * cutShortRatio;
+      // A strength session's TSS is a rough estimate either side: judged
+      // on duration only.
+      final strength = isStrengthType(plan.planned.type);
       final overLoad =
+          !strength &&
           pLoad != null &&
           aLoad != null &&
           pLoad > 0 &&
           aLoad > pLoad * overLoadRatio;
       final underLoad =
+          !strength &&
           pLoad != null &&
           aLoad != null &&
           pLoad > 0 &&
@@ -217,6 +222,9 @@ class SessionEvaluator {
         return SessionIntent.hard;
       case 'z2' || 'long':
         return SessionIntent.easy;
+      case 'strength':
+        // Not an intensity-zone session: judged on duration only.
+        return SessionIntent.unknown;
     }
     final name = '${planned.name ?? ''} ${planned.description ?? ''}'
         .toLowerCase();
@@ -244,7 +252,19 @@ String sportFamily(String? type) {
   }
   if (t.contains('run')) return 'run';
   if (t.contains('swim')) return 'swim';
+  if (isStrengthType(type)) return 'strength';
   return t;
+}
+
+/// Whether an Intervals.icu type is strength or mobility work
+/// (`WeightTraining`, also Yoga/Pilates): the family a plan's strength &
+/// mobility session matches.
+bool isStrengthType(String? type) {
+  final t = (type ?? '').toLowerCase();
+  return t.contains('weight') ||
+      t.contains('strength') ||
+      t.contains('yoga') ||
+      t.contains('pilates');
 }
 
 /// The planned session [activity] most likely fulfilled: same day, same

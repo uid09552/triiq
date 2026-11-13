@@ -2726,6 +2726,48 @@ abstract class AppLocalizations {
   /// **'The intervals couldn\'t go on a preferred interval day.'**
   String get planNoteIntervalDay;
 
+  /// No description provided for @sportStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength & mobility'**
+  String get sportStrength;
+
+  /// No description provided for @planGoalStrengthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength & mobility'**
+  String get planGoalStrengthTitle;
+
+  /// No description provided for @planGoalStrengthHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions per week (WeightTraining). Heavier in build weeks, one maintenance session before the taper, mobility only in recovery and taper weeks, none in race week. Never the day before a key session. Counted apart from the endurance TSS target and the 80/20 share.'**
+  String get planGoalStrengthHelp;
+
+  /// No description provided for @planGoalStrengthDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred strength days'**
+  String get planGoalStrengthDays;
+
+  /// No description provided for @planNoteStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'A strength session found no suitable day and was left out.'**
+  String get planNoteStrength;
+
+  /// No description provided for @planWeekStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 strength & mobility session} other{{count} strength & mobility sessions}} · {minutes} min, outside the TSS target'**
+  String planWeekStrength(int count, int minutes);
+
+  /// No description provided for @weeklyStrengthValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength & mobility: {done} of {planned} sessions'**
+  String weeklyStrengthValue(int done, int planned);
+
   /// No description provided for @sessionDiagramTitle.
   ///
   /// In en, this message translates to:

@@ -98,6 +98,10 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
     'compliance': r.compliance,
     'load_tss': r.load,
     'planned_load_tss': r.plannedLoad,
+    if (r.strengthPlanned > 0 || r.strengthDone > 0) ...{
+      'strength_sessions_planned': r.strengthPlanned,
+      'strength_sessions_done': r.strengthDone,
+    },
     'recent_average_load_tss': r.recentAverageLoad?.round(),
     'intensity_seconds': r.split == null
         ? null
@@ -235,6 +239,15 @@ class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
                     l10n.weeklyLoadValue(r.load, r.plannedLoad),
                     style: muted,
                   ),
+                  if (r.strengthPlanned > 0 || r.strengthDone > 0)
+                    Text(
+                      l10n.weeklyStrengthValue(
+                        r.strengthDone,
+                        r.strengthPlanned,
+                      ),
+                      key: const ValueKey('weekly-strength'),
+                      style: muted,
+                    ),
                   const SizedBox(height: 8),
                   for (final d in r.days)
                     Padding(

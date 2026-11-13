@@ -25,6 +25,7 @@ String sportLabel(AppLocalizations l10n, String sport) => switch (sport) {
   'Ride' => l10n.sportRide,
   'Swim' => l10n.sportSwim,
   'Triathlon' => l10n.sportTriathlon,
+  'WeightTraining' => l10n.sportStrength,
   _ => sport,
 };
 
@@ -42,6 +43,7 @@ String refusalLabel(AppLocalizations l10n, ReplaceRefusedException e) =>
 /// A `PlanWeek.notes` code (from `PlanEngine`) in words.
 String planNoteLabel(AppLocalizations l10n, String note) {
   if (note == PlanEngine.noteIntervalDay) return l10n.planNoteIntervalDay;
+  if (note == PlanEngine.noteStrength) return l10n.planNoteStrength;
   if (note.startsWith('${PlanEngine.noteLongDay}:')) {
     final sport = note.substring(PlanEngine.noteLongDay.length + 1);
     return l10n.planNoteLongDay(sportLabel(l10n, sport));

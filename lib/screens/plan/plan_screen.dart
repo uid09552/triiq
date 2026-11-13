@@ -740,6 +740,29 @@ class _WeekCard extends StatelessWidget {
                 ],
               ),
             ],
+            if (week.strengthSessions.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    activityTypeIcon('WeightTraining'),
+                    size: 16,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      l10n.planWeekStrength(
+                        week.strengthSessions.length,
+                        week.strengthMinutes,
+                      ),
+                      key: ValueKey('plan-week-strength-${week.index}'),
+                      style: muted,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (share != null) ...[
               const SizedBox(height: 6),
               Row(

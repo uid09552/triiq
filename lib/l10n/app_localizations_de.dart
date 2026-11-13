@@ -1638,6 +1638,39 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Intervalle konnten nicht auf einen Wunsch-Intervalltag.';
 
   @override
+  String get sportStrength => 'Kraft & Mobilität';
+
+  @override
+  String get planGoalStrengthTitle => 'Kraft & Mobilität';
+
+  @override
+  String get planGoalStrengthHelp =>
+      'Einheiten pro Woche (WeightTraining). Schwerer in Aufbauwochen, eine Erhaltungseinheit vor dem Tapering, nur Mobilität in Erholungs- und Taperwochen, keine in der Wettkampfwoche. Nie am Tag vor einer Schlüsseleinheit. Zählt nicht zum Ausdauer-TSS-Ziel und nicht zum 80/20-Anteil.';
+
+  @override
+  String get planGoalStrengthDays => 'Bevorzugte Krafttage';
+
+  @override
+  String get planNoteStrength =>
+      'Eine Krafteinheit fand keinen passenden Tag und entfällt.';
+
+  @override
+  String planWeekStrength(int count, int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kraft- & Mobilitätseinheiten',
+      one: '1 Kraft- & Mobilitätseinheit',
+    );
+    return '$_temp0 · $minutes min, außerhalb des TSS-Ziels';
+  }
+
+  @override
+  String weeklyStrengthValue(int done, int planned) {
+    return 'Kraft & Mobilität: $done von $planned Einheiten';
+  }
+
+  @override
   String get sessionDiagramTitle => 'Verlauf';
 
   @override

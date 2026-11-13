@@ -1,6 +1,7 @@
 import '../data/pending_writes.dart';
 import '../data/repositories/activities_repository.dart';
 import '../data/repositories/plans_repository.dart';
+import '../evaluation/session_evaluator.dart';
 import '../util/dates.dart';
 import 'knowledge.dart';
 import 'load_curve.dart';
@@ -98,7 +99,7 @@ class PlanService {
     return PlanResult.plan(await _content.enrich(plan));
   }
 
-  /// Completed load per plan week (TSS), for target-versus-actual. Weeks
+  /// Completed endurance load per plan week (TSS), for target-versus-actual. Weeks
   /// that haven't started have no actual yet.
   Future<List<int?>> actualLoads(TrainingPlan plan, {DateTime? today}) async {
     final now = dateOnly(today ?? DateTime.now());
@@ -112,7 +113,12 @@ class PlanService {
         isoDate(week.startDate),
         isoDate(week.startDate.add(const Duration(days: 6))),
       );
-      result.add(rows.fold<int>(0, (sum, a) => sum + (a.trainingLoad ?? 0)));
+      // Endurance only, like the week's target and planned load.
+      result.add(
+        rows
+            .where((a) => !isStrengthType(a.type))
+            .fold<int>(0, (sum, a) => sum + (a.trainingLoad ?? 0)),
+      );
     }
     return result;
   }

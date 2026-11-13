@@ -28,6 +28,7 @@ import '../../plan/plan_engine.dart';
 import '../../plan/plan_inputs.dart';
 import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
+import '../../plan/strength.dart';
 import '../../util/dates.dart';
 import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
@@ -546,6 +547,13 @@ class TrainingDataTools {
                 'YYYY-MM-DD; moved to that week\'s Monday. Default: next '
                 'Monday.',
           },
+          'strength_per_week': {
+            'type': 'integer',
+            'description':
+                'Strength & mobility sessions per week, 0-2 (default: the '
+                'saved goal\'s, else 0). The engine sets their phase, '
+                'day and content.',
+          },
         },
       },
       run: (args) => _generatePlan(args),
@@ -562,7 +570,10 @@ class TrainingDataTools {
         'type': 'object',
         'properties': {
           'goal_type': {'type': 'string'},
-          'slot': {'type': 'string', 'description': 'z2, intervals or long.'},
+          'slot': {
+            'type': 'string',
+            'description': 'z2, intervals, long or strength.',
+          },
           'phase': {
             'type': 'string',
             'description': 'build, build_plus, peak or recovery.',
@@ -1252,6 +1263,15 @@ class TrainingDataTools {
       }
       factors = [for (final f in factorsArg) (f as num).toDouble()];
     }
+    final strengthArg = args['strength_per_week'];
+    if (strengthArg != null &&
+        (strengthArg is! num ||
+            strengthArg < 0 ||
+            strengthArg > Goal.maxStrengthPerWeek)) {
+      return {
+        'error': 'strength_per_week must be 0 to ${Goal.maxStrengthPerWeek}.',
+      };
+    }
 
     final goal = Goal(
       targetType: goalType,
@@ -1267,6 +1287,13 @@ class TrainingDataTools {
       weeks: (weeksArg as num?)?.toInt() ?? saved?.weeks,
       sportMix: mix ?? saved?.sportMix ?? Goal.defaultSportMix,
       loadFactors: factors ?? saved?.loadFactors ?? const [],
+      strengthPerWeek:
+          (strengthArg as num?)?.toInt() ?? saved?.strengthPerWeek ?? 0,
+      strengthDays: {
+        ...?saved?.strengthDays.where(
+          (d) => (weekdays ?? saved.weekdays).contains(d),
+        ),
+      },
     );
 
     final now = _clock();
@@ -1315,6 +1342,11 @@ class TrainingDataTools {
             if (plan.sportMix.isNotEmpty)
               'planned_load_by_sport': week.loadBySport,
             'planned_minutes': week.totalMinutes,
+            if (week.strengthSessions.isNotEmpty) ...{
+              'strength_sessions': week.strengthSessions.length,
+              'strength_minutes': week.strengthMinutes,
+              'strength_load': week.strengthLoad,
+            },
             'low_intensity_share': week.lowShare == null
                 ? null
                 : double.parse(week.lowShare!.toStringAsFixed(2)),
@@ -1342,7 +1374,10 @@ class TrainingDataTools {
           'times the athlete\'s load_factor from the load graph. above_limits '
           'lists limits an athlete-set week exceeds (shown, not enforced). '
           'Ramp limits and the 80/20 tolerance are defaults from the '
-          'training knowledge, not universal values. Nothing is saved: the '
+          'training knowledge, not universal values. Strength sessions '
+          '(slot "strength", sport WeightTraining) are counted apart: their '
+          'small fixed TSS is not in planned_load, planned_minutes or the '
+          '80/20 share. Nothing is saved: the '
           'athlete sees a card under your reply; Apply opens the plan '
           'preview, where they take the plan (or open the Plan screen).',
     };
@@ -1366,6 +1401,9 @@ class TrainingDataTools {
     final goalType = args['goal_type'] as String?;
     final slotName = args['slot'] as String?;
     final phase = args['phase'] as String?;
+    if (slotName == SessionSlot.strength.name && phase != null) {
+      return _strengthTemplate(phase);
+    }
     if (goalType == null || slotName == null || phase == null) {
       return {
         'goals': knowledge.goals.keys.toList(),
@@ -1377,7 +1415,10 @@ class TrainingDataTools {
     }
     final slot = SessionSlot.values.asNameMap()[slotName];
     if (slot == null) {
-      return {'error': 'Unknown slot "$slotName". Use z2, intervals or long.'};
+      return {
+        'error':
+            'Unknown slot "$slotName". Use z2, intervals, long or strength.',
+      };
     }
     try {
       final t = knowledge.templateFor(
@@ -1400,6 +1441,43 @@ class TrainingDataTools {
     } on MissingTemplateException catch (error) {
       return {'error': error.toString()};
     }
+  }
+
+  /// The engine's built-in strength & mobility recipe for [phase].
+  static Map<String, dynamic> _strengthTemplate(String phase) {
+    final focus = strengthFocusForPhase(phase);
+    final rules =
+        'Strength & mobility (sport WeightTraining): heavy in build weeks '
+        '(1-2 a week), one maintenance session in the $strengthPeakWeeks '
+        'build weeks before a taper, mobility only in recovery and taper '
+        'weeks, none in the race week. Training days only, never the day '
+        'before an interval, long or openers session, never on a taper '
+        'key-session day, not on consecutive days; preferred strength days '
+        'first, then easy days. Its small fixed TSS is counted apart from '
+        'the endurance target, the load graph and the 80/20 share.';
+    if (focus == null) {
+      return {
+        'slot': 'strength',
+        'phase': phase,
+        'sessions': 0,
+        'rules': rules,
+      };
+    }
+    return {
+      'id': strengthTemplateId(focus),
+      'name': strengthName(focus),
+      'slot': 'strength',
+      'sport': strengthSport,
+      'phase': phase,
+      'focus': focus.name,
+      'minutes': StrengthDose.minutesFor(focus),
+      'tss_estimate': StrengthDose.loadFor(focus),
+      'exercises': [
+        for (final e in strengthExercises(focus))
+          {'name': e.name, 'dose': e.dose, 'purpose': e.purpose},
+      ],
+      'rules': rules,
+    };
   }
 
   static String _describeStep(StepSpec step) => switch (step) {

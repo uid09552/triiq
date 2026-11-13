@@ -12,7 +12,7 @@ void main() {
     File('docs/okf.md').readAsStringSync(),
   );
 
-  Future<Goal? Function()> open(WidgetTester tester, Goal initial) async {
+  Future<Goal? Function()> open(WidgetTester tester, Goal? initial) async {
     tester.view.physicalSize = const Size(900, 4000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -136,5 +136,40 @@ void main() {
     await save(tester);
 
     expect(popped()!.maxSessionsPerDay, 1);
+  });
+
+  SegmentedButton<int> strengthButton(WidgetTester tester) =>
+      tester.widget<SegmentedButton<int>>(
+        find.byKey(const ValueKey('strength-per-week')),
+      );
+
+  testWidgets('a new goal starts with one strength session a week', (
+    tester,
+  ) async {
+    await open(tester, null);
+    expect(strengthButton(tester).selected, {1});
+  });
+
+  testWidgets('a saved goal without strength keeps 0; 2 and a day save', (
+    tester,
+  ) async {
+    final popped = await open(tester, tri);
+    expect(strengthButton(tester).selected, {0});
+    expect(find.byKey(const ValueKey('strength-day-2')), findsNothing);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('strength-per-week')),
+        matching: find.text('2'),
+      ),
+    );
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const ValueKey('strength-day-2')));
+    await tester.tap(find.byKey(const ValueKey('strength-day-2')));
+    await tester.pump();
+    await save(tester);
+
+    expect(popped()!.strengthPerWeek, 2);
+    expect(popped()!.strengthDays, {2});
   });
 }

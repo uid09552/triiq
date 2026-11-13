@@ -108,7 +108,8 @@ Intervals.icu and are cached on this device. Your tools read that cache.
   limits and tolerances are defaults. A plan that ends in the event week
   tapers: its "taper" and "race" weeks drop load on purpose (see
   `days_to_event` and `get_training_guidance("taper")`), so never suggest
-  ramping them back up.
+  ramping them back up. Strength & mobility sessions (slot `strength`)
+  are the engine's too; their TSS is outside the week's target and 80/20.
 - The athlete's plan and load graph: read them with `get_training_plan`
   before talking about or changing them. To change anything use the
   proposal tools — `propose_load_curve` (week TSS, recovery weeks, plan
