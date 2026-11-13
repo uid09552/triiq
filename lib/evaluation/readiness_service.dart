@@ -39,11 +39,11 @@ class ReadinessService {
   Future<ReadinessReport> load() async {
     await _settings.ensureLoaded();
     final today = dateOnly(_clock());
-    final rules = (await _knowledge.load()).rules.readiness;
+    var rules = (await _knowledge.load()).rules.readiness;
+    final smoothing = _settings.smoothingDays;
+    if (smoothing != null) rules = rules.copyWith(smoothingDays: smoothing);
     final records = await _wellness.getRange(
-      isoDate(
-        DateTime(today.year, today.month, today.day - rules.baselineDays),
-      ),
+      isoDate(DateTime(today.year, today.month, today.day - rules.historyDays)),
       isoDate(today),
     );
     return ReadinessReport(

@@ -18,9 +18,42 @@ class ReadinessSettings extends ChangeNotifier {
   factory ReadinessSettings.forTesting() = ReadinessSettings._;
 
   static const _disabledKey = 'readiness.disabled_signals';
+  static const _smoothingKey = 'readiness.smoothing_days';
+
+  /// The smoothing windows the athlete can choose for HRV and resting HR.
+  static const smoothingChoices = [3, 5];
 
   final Set<ReadinessSignalKind> _disabled = {};
+  int? _smoothingDays;
   bool _loaded = false;
+
+  /// The athlete's smoothing window for HRV and resting HR (3 or 5 days), or
+  /// null to follow the training knowledge (`readiness.smoothingDays`,
+  /// 3 by default).
+  int? get smoothingDays => _smoothingDays;
+
+  /// Sets the smoothing window; null goes back to the knowledge's default.
+  Future<void> setSmoothingDays(int? days) async {
+    await ensureLoaded();
+    if (days != null && !smoothingChoices.contains(days)) {
+      throw ArgumentError.value(
+        days,
+        'days',
+        'must be one of $smoothingChoices',
+      );
+    }
+    if (days == _smoothingDays) return;
+    _smoothingDays = days;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      days == null
+          ? await prefs.remove(_smoothingKey)
+          : await prefs.setInt(_smoothingKey, days);
+    } catch (error) {
+      debugPrint('ReadinessSettings: cannot store smoothing: $error');
+    }
+  }
 
   /// The signals that count.
   Set<ReadinessSignalKind> get enabled => {
@@ -46,6 +79,8 @@ class ReadinessSettings extends ChangeNotifier {
       if (_disabled.length >= ReadinessSignalKind.values.length) {
         _disabled.clear();
       }
+      final smoothing = prefs.getInt(_smoothingKey);
+      _smoothingDays = smoothingChoices.contains(smoothing) ? smoothing : null;
     } catch (error) {
       debugPrint('ReadinessSettings: cannot read stored choice: $error');
     }

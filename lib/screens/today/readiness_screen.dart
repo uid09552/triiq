@@ -151,6 +151,7 @@ class _SignalTile extends StatelessWidget {
       l10n,
       scheme,
       s.rating,
+      signal: s,
     );
     final valueText = readinessValueText(s);
     final range = readinessRangeText(l10n, s);

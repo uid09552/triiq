@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../data/models/local_wellness.dart';
 import '../util/dates.dart';
+import 'wellness_baseline.dart';
 
 /// The wellness figures with a long-term trend: what the readiness screen's
 /// 30-day chart shows (HRV, resting HR) plus sleep and weight, over any range.
@@ -66,13 +67,18 @@ List<double?> trailingAverage(
   return out;
 }
 
-/// The athlete's normal range for a metric: the mean and one standard
-/// deviation either side, over the values given. Null with fewer than
-/// [minCount] values — too little to call anything normal.
+/// The athlete's normal range for a metric: the median and one MADσ
+/// (MAD × 1.4826) either side, over the values given — the same robust
+/// baseline readiness and the fatigue warning use ([robustBaseline]), so
+/// outlier days don't widen it. Null with fewer than [minCount] values (after
+/// outliers are dropped) — too little to call anything normal.
 class BaselineBand {
   const BaselineBand(this.mean, this.sd);
 
+  /// The median.
   final double mean;
+
+  /// The MADσ.
   final double sd;
 
   double get low => mean - sd;
@@ -81,13 +87,14 @@ class BaselineBand {
   bool contains(double v) => v >= low && v <= high;
 }
 
-BaselineBand? baselineBand(List<double?> values, {int minCount = 14}) {
-  final v = values.whereType<double>().toList();
-  if (v.length < minCount) return null;
-  final mean = v.reduce((a, b) => a + b) / v.length;
-  final variance =
-      v.fold<double>(0, (s, x) => s + (x - mean) * (x - mean)) / (v.length - 1);
-  return BaselineBand(mean, math.sqrt(variance));
+BaselineBand? baselineBand(
+  List<double?> values, {
+  int minCount = defaultMinBaselineDays,
+  WellnessSignal? signal,
+}) {
+  final b = robustBaseline(values.whereType<double>(), signal: signal);
+  if (b == null || b.count < minCount) return null;
+  return BaselineBand(b.median, b.sigma);
 }
 
 /// Where the latest value stands against the baseline.
@@ -168,6 +175,13 @@ WellnessTrend wellnessTrend(
     days: days,
     daily: daily,
     average: trailingAverage(daily),
-    band: baselineBand(daily),
+    band: baselineBand(
+      daily,
+      signal: switch (metric) {
+        WellnessMetric.hrv => WellnessSignal.hrv,
+        WellnessMetric.restingHr => WellnessSignal.restingHr,
+        _ => null,
+      },
+    ),
   );
 }

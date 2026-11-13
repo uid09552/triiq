@@ -166,6 +166,28 @@ void main() {
       expect(prefs.getStringList('readiness.disabled_signals'), ['sleep']);
     });
 
+    testWidgets('the sheet picks the HRV / resting-HR smoothing window', (
+      tester,
+    ) async {
+      final report = ReadinessReport(
+        evaluateReadiness(_records(), _today),
+        _records(),
+      );
+      await tester.pumpWidget(_app(ReadinessCard(report: report)));
+      await tester.pumpAndSettle();
+      await tester.longPress(find.byKey(const ValueKey('readiness-score')));
+      await tester.pumpAndSettle();
+      final five = find.text('5 days');
+      await tester.ensureVisible(five);
+      await tester.pumpAndSettle();
+      await tester.tap(five);
+      await tester.pumpAndSettle();
+      expect(ReadinessSettings.instance.smoothingDays, 5);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('readiness.smoothing_days'), 5);
+      await ReadinessSettings.instance.setSmoothingDays(null);
+    });
+
     testWidgets('the card shows pills only for the signals that count', (
       tester,
     ) async {

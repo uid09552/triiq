@@ -6278,6 +6278,48 @@ abstract class AppLocalizations {
   /// **'Not used'**
   String get readinessRatingExcluded;
 
+  /// No description provided for @readinessRatingBuildingBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Building baseline ({count}/{needed} days)'**
+  String readinessRatingBuildingBaseline(int count, int needed);
+
+  /// No description provided for @readinessSmoothedDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}-day median {value} vs usual {mean} ± {sd} ({count} days)'**
+  String readinessSmoothedDetail(
+    int days,
+    String value,
+    String mean,
+    String sd,
+    int count,
+  );
+
+  /// No description provided for @readinessTodayRaw.
+  ///
+  /// In en, this message translates to:
+  /// **'today {value}'**
+  String readinessTodayRaw(String value);
+
+  /// No description provided for @readinessSmoothingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV and resting HR smoothing'**
+  String get readinessSmoothingTitle;
+
+  /// No description provided for @readinessSmoothingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the median of the last few days with data, so one odd morning doesn\'t flip the status. More days react more slowly.'**
+  String get readinessSmoothingHint;
+
+  /// No description provided for @readinessSmoothingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String readinessSmoothingDays(int days);
+
   /// No description provided for @readinessOptionsReset.
   ///
   /// In en, this message translates to:
@@ -6425,7 +6467,7 @@ abstract class AppLocalizations {
   /// No description provided for @wtBandNote.
   ///
   /// In en, this message translates to:
-  /// **'Shaded band: your usual range, the mean ± 1 SD over this period.'**
+  /// **'Shaded band: your usual range, the median ± one robust spread (MAD) over this period, ignoring outlier days.'**
   String get wtBandNote;
 
   /// No description provided for @wtNoData.

@@ -60,9 +60,18 @@ LocalWellness _day(
   );
 }
 
-List<LocalWellness> _baseline() => [
-  for (var i = 1; i <= 40; i++)
-    _day(i, hrv: 62 + (i.isEven ? 6 : -6), rhr: 48, sleepSecs: 8 * 3600),
+/// 40 days of HRV 62 ± 4 (median 62, MADσ ≈ 5.9) and resting HR 48,
+/// starting [from] days ago.
+List<LocalWellness> _baseline({int from = 1}) => [
+  for (var i = from; i < from + 40; i++)
+    _day(i, hrv: 62 + (i.isEven ? 4 : -4), rhr: 48, sleepSecs: 8 * 3600),
+];
+
+/// The baseline, then the two days before today at [hrv] / [rhr]: HRV and
+/// resting HR are rated by their 3-day median, so a change has to last.
+List<LocalWellness> _sustained({num hrv = 62, num rhr = 48}) => [
+  ..._baseline(from: 3),
+  for (final d in [2, 1]) _day(d, hrv: hrv, rhr: rhr, sleepSecs: 8 * 3600),
 ];
 
 ReadinessReport _report(List<LocalWellness> records) =>
@@ -335,7 +344,7 @@ void main() {
         _app(
           ReadinessCard(
             report: _report([
-              ..._baseline(),
+              ..._sustained(hrv: 52),
               _day(0, hrv: 52, rhr: 48, sleepSecs: 5 * 3600),
             ]),
           ),
@@ -386,7 +395,7 @@ void main() {
         _app(
           ReadinessCard(
             report: _report([
-              ..._baseline(),
+              ..._sustained(hrv: 52),
               _day(0, hrv: 52, rhr: 48, sleepSecs: 5 * 3600),
             ]),
           ),
@@ -439,7 +448,7 @@ void main() {
           locale: const Locale('en'),
           home: ReadinessScreen(
             report: _report([
-              ..._baseline(),
+              ..._sustained(hrv: 52),
               _day(
                 0,
                 hrv: 52,
@@ -479,7 +488,7 @@ void main() {
 
   group('hard-session hint', () {
     final backOff = evaluateReadiness([
-      ..._baseline(),
+      ..._sustained(hrv: 48),
       _day(0, hrv: 48, rhr: 48, sleepSecs: 8 * 3600),
     ], _today);
 
@@ -515,7 +524,7 @@ void main() {
 
     testWidgets('Caution with only Z2 planned: no hint', (tester) async {
       final caution = evaluateReadiness([
-        ..._baseline(),
+        ..._sustained(hrv: 52),
         _day(0, hrv: 52, rhr: 48, sleepSecs: 8 * 3600),
       ], _today);
       await tester.pumpWidget(
@@ -568,7 +577,7 @@ void main() {
       final wellness = WellnessRepository(database: database);
       await tester.runAsync(
         () => wellness.upsertAll([
-          ..._baseline(),
+          ..._sustained(rhr: 60),
           _day(0, hrv: 62, rhr: 60, sleepSecs: 8 * 3600),
         ]),
       );
@@ -598,8 +607,9 @@ void main() {
 
       expect(find.byType(ReadinessCard), findsOneWidget);
       expect(find.text('Due to Resting HR'), findsOneWidget);
-      // One verdict: the header above no longer says "Ready to train".
-      expect(find.text('Take it easy today'), findsOneWidget);
+      // One verdict: the header above no longer says "Ready to train". A
+      // high resting HR with HRV and sleep fine is capped at Caution.
+      expect(find.text('Train with care'), findsOneWidget);
       expect(find.text('Ready to train'), findsNothing);
     });
 
@@ -643,7 +653,7 @@ void main() {
       final wellness = WellnessRepository(database: database);
       await tester.runAsync(
         () => wellness.upsertAll([
-          ..._baseline(),
+          ..._sustained(hrv: 52),
           _day(0, hrv: 52, rhr: 48, sleepSecs: 5 * 3600),
         ]),
       );

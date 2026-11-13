@@ -28,6 +28,7 @@ class FatigueWarningService {
       rules = FatigueRules(
         baselineDays: r.baselineDays,
         minBaselineDays: r.minBaselineDays,
+        outlierMad: r.outlierMad,
       );
     } catch (_) {
       // Defaults are fine when the knowledge can't be read.

@@ -14,7 +14,7 @@ import '../../widgets/status_message.dart';
 
 /// HRV, resting HR, sleep and weight over 30 days to a year: the daily
 /// values, their 7-day average and the shaded band the athlete normally sits
-/// in (mean ± 1 SD over the period). Read from the local wellness cache.
+/// in (median ± 1 MADσ over the period, see `wellness_baseline.dart`). Read from the local wellness cache.
 class WellnessTrendsScreen extends StatefulWidget {
   WellnessTrendsScreen({super.key, WellnessRepository? repository, this.today})
     : repository = repository ?? WellnessRepository();

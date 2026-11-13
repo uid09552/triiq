@@ -1498,8 +1498,15 @@ class TrainingDataTools {
               ReadinessSignalKind.device =>
                 '0..100, from the athlete\'s device',
             },
+            // HRV / resting HR: value is the median of the last
+            // smoothing_days days, rated against the robust baseline
+            // (median and MAD × 1.4826) of baseline_days values.
+            'value_today_raw': _round(s.todayValue),
+            'smoothing_days': s.smoothingDays,
             'baseline_mean': _round(s.mean),
             'baseline_sd': _round(s.sd),
+            'baseline_days': s.baselineCount,
+            'baseline_days_needed': s.baselineNeeded,
             'ok_bound': _round(s.okBound),
             'fatigue': s.fatigue,
             'soreness': s.soreness,

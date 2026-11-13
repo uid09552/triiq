@@ -3860,6 +3860,39 @@ class AppLocalizationsDe extends AppLocalizations {
   String get readinessRatingExcluded => 'Nicht verwendet';
 
   @override
+  String readinessRatingBuildingBaseline(int count, int needed) {
+    return 'Basis im Aufbau ($count/$needed Tage)';
+  }
+
+  @override
+  String readinessSmoothedDetail(
+    int days,
+    String value,
+    String mean,
+    String sd,
+    int count,
+  ) {
+    return 'Median $days Tage $value vs. üblich $mean ± $sd ($count Tage)';
+  }
+
+  @override
+  String readinessTodayRaw(String value) {
+    return 'heute $value';
+  }
+
+  @override
+  String get readinessSmoothingTitle => 'Glättung von HRV und Ruhepuls';
+
+  @override
+  String get readinessSmoothingHint =>
+      'Bewertet wird der Median der letzten Tage mit Daten, damit ein einzelner ungewöhnlicher Morgen den Status nicht kippt. Mehr Tage reagieren träger.';
+
+  @override
+  String readinessSmoothingDays(int days) {
+    return '$days Tage';
+  }
+
+  @override
   String get readinessOptionsReset => 'Alle Werte verwenden';
 
   @override
@@ -3950,7 +3983,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wtBandNote =>
-      'Schattiertes Band: dein üblicher Bereich, Mittelwert ± 1 Standardabweichung in diesem Zeitraum.';
+      'Schattiertes Band: dein üblicher Bereich, Median ± eine robuste Streuung (MAD) in diesem Zeitraum, Ausreißer-Tage ignoriert.';
 
   @override
   String get wtNoData => 'Keine Daten in diesem Zeitraum.';

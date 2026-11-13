@@ -9,10 +9,13 @@ import 'readiness_card.dart';
 /// Which readiness signals count — opened by a long press on the readiness
 /// card on Today, or from the options icon on the readiness screen. The
 /// choice is stored on the device and applies to the score, the status, the
-/// morning briefing and the trainer alike.
+/// morning briefing and the trainer alike. Below the signals, the HRV /
+/// resting-HR smoothing window (3 or 5 days; [defaultSmoothingDays] is what
+/// the training knowledge says while the athlete hasn't picked one).
 Future<void> showReadinessOptions(
   BuildContext context, {
   ReadinessSettings? settings,
+  int defaultSmoothingDays = 3,
 }) {
   final l10n = AppLocalizations.of(context)!;
   final store = settings ?? ReadinessSettings.instance;
@@ -57,6 +60,34 @@ Future<void> showReadinessOptions(
                   }
                 : null,
           ),
+        const SizedBox(height: 12),
+        Text(
+          l10n.readinessSmoothingTitle,
+          style: Theme.of(sheet).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.readinessSmoothingHint,
+          style: Theme.of(sheet).textTheme.bodySmall?.copyWith(
+            color: Theme.of(sheet).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<int>(
+          key: const ValueKey('readiness-smoothing'),
+          segments: [
+            for (final days in ReadinessSettings.smoothingChoices)
+              ButtonSegment(
+                value: days,
+                label: Text(l10n.readinessSmoothingDays(days)),
+              ),
+          ],
+          selected: {store.smoothingDays ?? defaultSmoothingDays},
+          onSelectionChanged: (picked) async {
+            await store.setSmoothingDays(picked.single);
+            apply(() {});
+          },
+        ),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(

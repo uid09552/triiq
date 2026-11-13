@@ -40,21 +40,30 @@ LocalWellness _day(
   );
 }
 
-/// [count] baseline days alternating mean ± sd, so the sample mean is
-/// exactly [mean] and the SD close to [sd].
+/// [count] baseline days alternating mean ± sd, starting [from] days ago, so
+/// the median is exactly [hrvMean] and the MADσ is 1.4826 × [hrvSd]
+/// (≈ 5.9 for the default 4).
 List<LocalWellness> _baseline({
   int count = 40,
+  int from = 1,
   double hrvMean = 62,
-  double hrvSd = 6,
+  double hrvSd = 4,
   double rhr = 48,
 }) => [
-  for (var i = 1; i <= count; i++)
+  for (var i = from; i < from + count; i++)
     _day(
       i,
       hrv: hrvMean + (i.isEven ? hrvSd : -hrvSd),
       rhr: rhr,
       sleepSecs: 8 * 3600,
     ),
+];
+
+/// The baseline, then the two days before today at [hrv] / [rhr]: HRV and
+/// resting HR are rated by their 3-day median, so a change has to last.
+List<LocalWellness> _sustained({num hrv = 62, num? rhr = 48}) => [
+  ..._baseline(from: 3),
+  for (final d in [2, 1]) _day(d, hrv: hrv, rhr: rhr, sleepSecs: 8 * 3600),
 ];
 
 void main() {
@@ -66,8 +75,9 @@ void main() {
       ], _today);
 
       final hrv = r.signal(ReadinessSignalKind.hrv);
+      // Median and MADσ: 62 and 4 × 1.4826.
       expect(hrv.mean, closeTo(62, 1e-9));
-      expect(hrv.sd, closeTo(6, 0.1));
+      expect(hrv.sd, closeTo(5.93, 0.01));
       expect(hrv.rating, SignalRating.ok);
     });
 
@@ -95,9 +105,9 @@ void main() {
   });
 
   group('signal ratings', () {
-    test('low HRV: 52 against 62 ± 6 is caution', () {
+    test('low HRV: 52 for three days against 62 ± 5.9 is caution', () {
       final r = evaluateReadiness([
-        ..._baseline(),
+        ..._sustained(hrv: 52),
         _day(0, hrv: 52, rhr: 48, sleepSecs: 8 * 3600),
       ], _today);
 
@@ -105,19 +115,20 @@ void main() {
       expect(r.level, ReadinessLevel.caution);
     });
 
-    test('HRV two SD down is back off', () {
+    test('HRV two MADσ down for three days is back off', () {
       final r = evaluateReadiness([
-        ..._baseline(),
+        ..._sustained(hrv: 48),
         _day(0, hrv: 48, rhr: 48, sleepSecs: 8 * 3600),
       ], _today);
 
       expect(r.signal(ReadinessSignalKind.hrv).rating, SignalRating.backOff);
     });
 
-    test('elevated resting HR: 59 against 48 is back off', () {
+    test('elevated resting HR: 59 for three days against 48 is back off', () {
+      // No HRV or sleep to say otherwise, so the back-off is not capped.
       final r = evaluateReadiness([
-        ..._baseline(),
-        _day(0, hrv: 62, rhr: 59, sleepSecs: 8 * 3600),
+        ..._sustained(rhr: 59),
+        _day(0, rhr: 59),
       ], _today);
 
       expect(
@@ -127,9 +138,9 @@ void main() {
       expect(r.level, ReadinessLevel.backOff);
     });
 
-    test('resting HR 5 bpm up is caution', () {
+    test('resting HR 5 bpm up for three days is caution', () {
       final r = evaluateReadiness([
-        ..._baseline(),
+        ..._sustained(rhr: 53),
         _day(0, hrv: 62, rhr: 53, sleepSecs: 8 * 3600),
       ], _today);
 
@@ -195,7 +206,7 @@ void main() {
   group('status', () {
     test('two cautions: back off, with both as reasons', () {
       final r = evaluateReadiness([
-        ..._baseline(),
+        ..._sustained(hrv: 52),
         _day(0, hrv: 52, rhr: 48, sleepSecs: 5 * 3600),
       ], _today);
 
@@ -219,7 +230,7 @@ void main() {
 
     test('back-off reasons come before caution reasons', () {
       final r = evaluateReadiness([
-        ..._baseline(),
+        ..._sustained(hrv: 52, rhr: 60),
         _day(0, hrv: 52, rhr: 60, sleepSecs: 8 * 3600),
       ], _today);
 

@@ -99,6 +99,12 @@ void main() {
       expect(r.deviceReadiness, d.deviceReadiness);
       expect(r.baselineDays, d.baselineDays);
       expect(r.minBaselineDays, d.minBaselineDays);
+      expect(r.restingHrMad, d.restingHrMad);
+      expect(r.smoothingDays, d.smoothingDays);
+      expect(r.outlierMad, d.outlierMad);
+      expect(r.restingHrClearBpm, d.restingHrClearBpm);
+      expect(r.hrvClearSd, d.hrvClearSd);
+      expect(r.clearDays, d.clearDays);
     });
 
     test('every goal has swim z2 and interval templates for every phase', () {
