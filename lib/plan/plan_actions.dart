@@ -448,6 +448,60 @@ class PlanActions {
     _notify();
   }
 
+  /// Moves the planned entry [planned] to [date] — the calendar's drag and
+  /// "Move to…". A TriIQ plan session, or an Intervals.icu event a plan
+  /// session was sent as, goes through [moveSession] (same rules); any other
+  /// Intervals.icu workout is moved upstream (queued when offline) and then
+  /// in the cache. Neither the entry nor the target may be in the past.
+  Future<void> movePlanned(LocalEvent planned, DateTime date) async {
+    if (planned.isPlanSession) {
+      await moveSession(planned.planSessionId!, date);
+      return;
+    }
+    final linked = await _sessionOfEvent(planned.id);
+    if (linked?.id != null) {
+      await moveSession(linked!.id!, date);
+      return;
+    }
+    final from = DateTime.tryParse(planned.date);
+    final target = DateTime(date.year, date.month, date.day);
+    if (from == null || from.isBefore(_today) || target.isBefore(_today)) {
+      throw const ReplaceRefusedException(ReplaceRefusal.past);
+    }
+    if (_numericId(planned.id) == null) {
+      throw const ReplaceRefusedException(ReplaceRefusal.missing);
+    }
+    await _workouts.updatePlannedWorkoutDate(planned.id, target);
+    final start = DateTime.tryParse(
+      planned.raw['start_date_local'] as String? ?? '',
+    );
+    final time = start == null
+        ? 'T00:00:00'
+        : 'T${start.hour.toString().padLeft(2, '0')}:'
+              '${start.minute.toString().padLeft(2, '0')}:00';
+    await _events.upsert(
+      LocalEvent(
+        id: planned.id,
+        date: isoDate(target),
+        category: planned.category,
+        type: planned.type,
+        name: planned.name,
+        description: planned.description,
+        plannedLoad: planned.plannedLoad,
+        plannedTime: planned.plannedTime,
+        plannedDistance: planned.plannedDistance,
+        indoor: planned.indoor,
+        raw: {...planned.raw, 'start_date_local': '${isoDate(target)}$time'},
+        syncedAt: planned.syncedAt,
+      ),
+    );
+    if (_connected()) {
+      await _safeResync(from);
+      if (!_sameMonth(from, target)) await _safeResync(target);
+    }
+    _notify();
+  }
+
   /// Takes plan session [sessionId] out of the plan, and off Intervals.icu
   /// when it is there. [missed] as for [moveSession].
   Future<void> removeSession(int sessionId, {bool missed = false}) async {

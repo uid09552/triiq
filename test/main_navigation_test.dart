@@ -25,7 +25,9 @@ void main() {
     await tester.pump();
 
     expect(bar().selectedIndex, MainNavigation.calendarTab);
-    expect(find.text('March 2027'), findsOneWidget);
+    // The breadcrumb: 2027 › March.
+    expect(find.text('2027'), findsOneWidget);
+    expect(find.text('March'), findsOneWidget);
     expect(MainNavigation.instance.calendarFocus!.date, DateTime(2027, 3, 10));
   });
 }

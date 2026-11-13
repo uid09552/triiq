@@ -5099,6 +5099,199 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get calendarYear => 'Jahr';
+
+  @override
+  String get calendarDay => 'Tag';
+
+  @override
+  String calBreadcrumbWeek(int week) {
+    return 'KW $week';
+  }
+
+  @override
+  String calGoTo(String label) {
+    return 'Zu $label';
+  }
+
+  @override
+  String get calPrevious => 'Zurück';
+
+  @override
+  String get calNext => 'Weiter';
+
+  @override
+  String get calFilterTooltip => 'Filter';
+
+  @override
+  String get calSportOther => 'Sonstiges';
+
+  @override
+  String get calDensityCompact => 'Kompakt';
+
+  @override
+  String calSummary(
+    int done,
+    int planned,
+    String hours,
+    int doneCount,
+    int plannedCount,
+  ) {
+    return '$done / $planned TSS · $hours h · $doneCount/$plannedCount Einheiten';
+  }
+
+  @override
+  String calSummaryCtl(String delta) {
+    return 'CTL $delta';
+  }
+
+  @override
+  String get calMoveTo => 'Verschieben nach…';
+
+  @override
+  String calMoved(String name, String day) {
+    return '$name auf $day verschoben';
+  }
+
+  @override
+  String calMovedWarning(String name, String day, String warning) {
+    return '$name auf $day verschoben — Achtung: $warning';
+  }
+
+  @override
+  String get calWarnHardBackToBack => 'zwei harte Tage hintereinander';
+
+  @override
+  String get calWarnHardAfterStrength =>
+      'harte Einheit am Tag nach Krafttraining';
+
+  @override
+  String get calWarnStrengthBeforeHard =>
+      'Krafttraining am Tag vor einer harten Einheit';
+
+  @override
+  String get calMoveNotWorkout =>
+      'Nur geplante Trainings lassen sich verschieben; Wettkämpfe und andere Einträge bleiben.';
+
+  @override
+  String get calMoveNotSynced =>
+      'Diese Einheit ist noch nicht bei Intervals.icu angekommen und lässt sich noch nicht verschieben.';
+
+  @override
+  String calMoveFailed(String error) {
+    return 'Verschieben fehlgeschlagen: $error';
+  }
+
+  @override
+  String get calDayMarkSick => 'Als krank markieren';
+
+  @override
+  String get calDayMarkHoliday => 'Als Urlaub markieren';
+
+  @override
+  String get calDayAskTrainer => 'Trainer zu diesem Tag fragen';
+
+  @override
+  String calDayAskDraft(String day) {
+    return 'Was hältst du von meinem Training am $day?';
+  }
+
+  @override
+  String get calWeekOpen => 'Woche öffnen';
+
+  @override
+  String get calWeekAskTrainer => 'Trainer zu dieser Woche fragen';
+
+  @override
+  String calWeekAskDraft(String range) {
+    return 'Wie sieht meine Woche $range aus?';
+  }
+
+  @override
+  String get calWeekActions => 'Wochenaktionen';
+
+  @override
+  String get calDayActions => 'Tagesaktionen';
+
+  @override
+  String get calOpenDay => 'Tag öffnen';
+
+  @override
+  String calReadiness(String level) {
+    return 'Bereitschaft: $level';
+  }
+
+  @override
+  String get calSemNothing => 'nichts geplant oder erledigt';
+
+  @override
+  String calSemPlanned(int count) {
+    return '$count geplant';
+  }
+
+  @override
+  String calSemDone(int count) {
+    return '$count erledigt';
+  }
+
+  @override
+  String get calSemKey => 'Schlüsseleinheit';
+
+  @override
+  String get calSemStrength => 'Krafteinheit';
+
+  @override
+  String calSemRaces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Wettkämpfe',
+      one: '1 Wettkampf',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String calRaceInDays(int days) {
+    return 'Wettkampf in $days T';
+  }
+
+  @override
+  String calMonthSemantics(String month, int tss, int sessions) {
+    return '$month: $tss TSS, $sessions Einheiten erledigt';
+  }
+
+  @override
+  String calWeekPlanned(int tss, String hours) {
+    return 'Geplant $tss TSS · $hours h';
+  }
+
+  @override
+  String calWeekDone(int tss, String hours) {
+    return 'Erledigt $tss TSS · $hours h';
+  }
+
+  @override
+  String calWellnessHrv(int value) {
+    return 'HRV $value ms';
+  }
+
+  @override
+  String calWellnessRhr(int value) {
+    return 'Ruhepuls $value bpm';
+  }
+
+  @override
+  String calWellnessSleep(String hours) {
+    return 'Schlaf $hours h';
+  }
+
+  @override
+  String calWellnessFeel(String fatigue, String soreness) {
+    return 'Müdigkeit $fatigue · Muskelkater $soreness';
+  }
+
+  @override
   String get durRadarNoData => 'keine Daten';
 
   @override
