@@ -187,5 +187,63 @@ void main() {
         isFalse,
       );
     });
+
+    testWidgets('AI step: an OpenAI-compatible server needs no key', (
+      tester,
+    ) async {
+      await pump(tester);
+      // Welcome, connect, training: skip ahead to the AI step.
+      for (var i = 0; i < 3; i++) {
+        if (i == 1) {
+          await tester.tap(find.byKey(const ValueKey('onboarding-skip-step')));
+        } else {
+          await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+        }
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.byKey(const ValueKey('onboarding-ai-openai')));
+      await tester.pump();
+      expect(
+        find.byKey(const ValueKey('onboarding-openai-url')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('onboarding-ollama-url')), findsNothing);
+
+      // A public http:// URL cannot be saved.
+      await tester.enterText(
+        find.byKey(const ValueKey('onboarding-openai-url')),
+        'http://api.example.com/v1',
+      );
+      await tester.pump();
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const ValueKey('onboarding-next')))
+            .onPressed,
+        isNull,
+      );
+
+      await tester.enterText(
+        find.byKey(const ValueKey('onboarding-openai-url')),
+        'http://localhost:1234/v1',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('onboarding-openai-model')),
+        'llama-3.1-8b',
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      for (var i = 0; i < 5; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+      expect(llm.provider, LlmProvider.openai);
+      expect(llm.openAiBaseUrl, 'http://localhost:1234/v1');
+      expect(llm.openAiModel, 'llama-3.1-8b');
+      expect(llm.hasOpenAiApiKey, isFalse);
+      expect(consentAsked, isTrue);
+    });
   });
 }

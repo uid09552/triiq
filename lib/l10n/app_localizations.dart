@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @setupLlmPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Set up an LLM provider (Claude or Ollama) to chat with the training agent.'**
+  /// **'Set up an LLM provider (Claude, Ollama or an OpenAI-compatible server) to chat with the training agent.'**
   String get setupLlmPrompt;
 
   /// No description provided for @syncFailed.
@@ -6881,7 +6881,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvRecipientsBody.
   ///
   /// In en, this message translates to:
-  /// **'• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, or your own Ollama server): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.'**
+  /// **'• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, an OpenAI-compatible service you configured, or a server on your own network): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.'**
   String get pvRecipientsBody;
 
   /// No description provided for @pvTransferTitle.
@@ -6893,7 +6893,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvTransferBody.
   ///
   /// In en, this message translates to:
-  /// **'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A self-hosted Ollama server on your own network keeps the data with you.'**
+  /// **'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A model server on your own network (Ollama, LM Studio…) keeps the data with you; an OpenAI-compatible service on the internet does not.'**
   String get pvTransferBody;
 
   /// No description provided for @pvBasisTitle.
@@ -9065,7 +9065,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchDescAi.
   ///
   /// In en, this message translates to:
-  /// **'Claude or Ollama, model, API key and AI consent'**
+  /// **'Claude, Ollama or OpenAI-compatible, model, API key and AI consent'**
   String get searchDescAi;
 
   /// No description provided for @searchDescDailyReminder.
@@ -9085,6 +9085,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your week against the plan, once a week as a notification'**
   String get searchDescWeeklyReviewNotification;
+
+  /// No description provided for @openaiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI-compatible'**
+  String get openaiLabel;
+
+  /// No description provided for @openaiBaseUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Base URL'**
+  String get openaiBaseUrlLabel;
+
+  /// No description provided for @openaiModelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model name'**
+  String get openaiModelLabel;
+
+  /// No description provided for @openaiApiKeyOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API key (optional)'**
+  String get openaiApiKeyOptionalLabel;
+
+  /// No description provided for @openaiLoadModelsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Load models'**
+  String get openaiLoadModelsButton;
+
+  /// No description provided for @openaiKeyStoredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A key is stored — type a new one to replace it'**
+  String get openaiKeyStoredHint;
+
+  /// No description provided for @openaiKeySavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'API key saved.'**
+  String get openaiKeySavedMessage;
+
+  /// No description provided for @openaiKeyRemovedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'API key removed.'**
+  String get openaiKeyRemovedMessage;
+
+  /// No description provided for @openaiKeySecureHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The key is stored in your operating system\'s credential vault and sent only to the base URL above.'**
+  String get openaiKeySecureHelp;
+
+  /// No description provided for @openaiKeyInsecureHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This build cannot store the key securely, so it is kept for this session only and you will re-enter it after a reload.'**
+  String get openaiKeyInsecureHelp;
+
+  /// No description provided for @openaiCloudHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your questions and training data are sent to {host}, a third party. Works with OpenAI, OpenRouter, Azure-style proxies, LiteLLM and similar. The model must support tool calling.'**
+  String openaiCloudHelp(String host);
+
+  /// No description provided for @openaiLocalHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a server on your own network ({host}); nothing leaves it. Works with LM Studio, vLLM, llama.cpp and similar. The model must support tool calling — without it the agent cannot read your training data.'**
+  String openaiLocalHelp(String host);
+
+  /// No description provided for @openaiUrlEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the server\'s base URL, for example https://api.openai.com/v1.'**
+  String get openaiUrlEmpty;
+
+  /// No description provided for @openaiUrlInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a valid URL. Use the form https://host/v1.'**
+  String get openaiUrlInvalid;
+
+  /// No description provided for @openaiUrlCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t put a user name or password in the URL. Use the API key field instead.'**
+  String get openaiUrlCredentials;
+
+  /// No description provided for @openaiUrlHttpPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'http:// is only allowed for a server on your own network (localhost, 192.168.x.x, 10.x.x.x, 172.16–31.x.x). Use https:// for {host}.'**
+  String openaiUrlHttpPublic(String host);
+
+  /// No description provided for @llmErrUnauthorizedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI server refused the key'**
+  String get llmErrUnauthorizedTitle;
+
+  /// No description provided for @llmErrUnauthorizedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the API key in Settings → LLM provider.'**
+  String get llmErrUnauthorizedReason;
+
+  /// No description provided for @llmErrNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI server doesn\'t know that address or model'**
+  String get llmErrNotFoundTitle;
+
+  /// No description provided for @llmErrNotFoundReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the base URL (it usually ends in /v1) and the model name in Settings → LLM provider.'**
+  String get llmErrNotFoundReason;
+
+  /// No description provided for @llmErrRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI server asks to slow down'**
+  String get llmErrRateTitle;
+
+  /// No description provided for @llmErrRateReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate limit or quota reached. Wait a minute, or check your plan.'**
+  String get llmErrRateReason;
+
+  /// No description provided for @llmErrServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI server is having trouble'**
+  String get llmErrServerTitle;
+
+  /// No description provided for @llmErrServerReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in a few minutes.'**
+  String get llmErrServerReason;
+
+  /// No description provided for @llmErrToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This model can\'t use tools'**
+  String get llmErrToolsTitle;
+
+  /// No description provided for @llmErrToolsReason.
+  ///
+  /// In en, this message translates to:
+  /// **'The server rejected tool calling, which the agent needs to read your training data. Pick a model or server that supports tools (function calling).'**
+  String get llmErrToolsReason;
+
+  /// No description provided for @llmErrUnreachableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the AI server'**
+  String get llmErrUnreachableTitle;
+
+  /// No description provided for @llmErrUnreachableReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the base URL and that the server is running and reachable from this device.'**
+  String get llmErrUnreachableReason;
+
+  /// No description provided for @llmErrInvalidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected answer from the AI server'**
+  String get llmErrInvalidTitle;
+
+  /// No description provided for @llmErrInvalidReason.
+  ///
+  /// In en, this message translates to:
+  /// **'The server answered, but not like an OpenAI-compatible API. Check the base URL.'**
+  String get llmErrInvalidReason;
+
+  /// No description provided for @pvProviderOpenAiCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} (an OpenAI-compatible service)'**
+  String pvProviderOpenAiCloud(String host);
+
+  /// No description provided for @pvProviderOpenAiLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'your local model server ({host})'**
+  String pvProviderOpenAiLocal(String host);
+
+  /// No description provided for @pvConsentDialogBodyLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. That server is on your own network, so the data stays with you. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.'**
+  String pvConsentDialogBodyLocal(String provider);
 }
 
 class _AppLocalizationsDelegate

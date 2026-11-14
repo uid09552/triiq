@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../agent/llm_settings.dart';
+import '../../agent/openai_connection.dart';
 import '../../data/privacy_settings.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -12,7 +13,19 @@ String aiProviderName(AppLocalizations l10n, LlmSettings settings) =>
         settings.isOllamaCloud
             ? l10n.pvProviderOllamaCloud
             : l10n.pvProviderOllamaServer,
+      // Named by its host, so the athlete sees where the data goes; a
+      // localhost / private-network server counts as local, anything else
+      // as a third-party service.
+      LlmProvider.openai =>
+        settings.isOpenAiLocal
+            ? l10n.pvProviderOpenAiLocal(serverHostOf(settings.openAiBaseUrl))
+            : l10n.pvProviderOpenAiCloud(serverHostOf(settings.openAiBaseUrl)),
     };
+
+/// Whether the consent text should use the local-model wording (data stays
+/// on the athlete's network) rather than the third-party one.
+bool aiProviderIsLocal(LlmSettings settings) =>
+    settings.provider == LlmProvider.openai && settings.isOpenAiLocal;
 
 /// Asks for the explicit consent to send training and health data to the AI
 /// provider (GDPR Art. 6(1)(a), 9(2)(a)). Records it when given. Returns
@@ -29,7 +42,11 @@ Future<bool> askAiConsent(
     context: context,
     builder: (dialog) => AlertDialog(
       title: Text(l10n.pvConsentDialogTitle),
-      content: Text(l10n.pvConsentDialogBody(aiProviderName(l10n, llm))),
+      content: Text(
+        aiProviderIsLocal(llm)
+            ? l10n.pvConsentDialogBodyLocal(aiProviderName(l10n, llm))
+            : l10n.pvConsentDialogBody(aiProviderName(l10n, llm)),
+      ),
       actions: [
         TextButton(
           key: const ValueKey('ai-consent-no'),

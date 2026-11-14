@@ -47,6 +47,7 @@ void main() {
       for (final d in [
         'intervals.icu',
         'anthropic.com',
+        'openai.com',
         'ollama.com',
         'openstreetmap.org',
       ]) {
@@ -55,14 +56,22 @@ void main() {
     });
   });
 
-  group('backup never carries LLM connection settings', () {
-    test('llm.* keys are excluded on export and restore', () {
-      expect(BackupService.excludedPref('llm.ollama_base_url'), isTrue);
-      expect(BackupService.excludedPref('llm.provider'), isTrue);
-      expect(BackupService.excludedPref('plan.goal'), isFalse);
-      expect(BackupService.excludedPref('agent.memory'), isFalse);
-    });
-  });
+  group(
+    'backup carries no LLM connection settings except the OpenAI-compatible URL/model',
+    () {
+      test('llm.* keys are excluded on export and restore', () {
+        expect(BackupService.excludedPref('llm.ollama_base_url'), isTrue);
+        expect(BackupService.excludedPref('llm.provider'), isTrue);
+        // The OpenAI-compatible URL/model are the one deliberate exception
+        // (validated on restore); keys are never preferences at all.
+        expect(BackupService.excludedPref('llm.openai_base_url'), isFalse);
+        expect(BackupService.excludedPref('llm.openai_model'), isFalse);
+        expect(BackupService.excludedPref('llm.openai_api_key'), isTrue);
+        expect(BackupService.excludedPref('plan.goal'), isFalse);
+        expect(BackupService.excludedPref('agent.memory'), isFalse);
+      });
+    },
+  );
 
   group('desktop database moves out of the working directory', () {
     late Directory dir;

@@ -101,7 +101,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupLlmPrompt =>
-      'Richte einen LLM-Anbieter (Claude oder Ollama) ein, um mit dem Trainingsassistenten zu chatten.';
+      'Richte einen LLM-Anbieter (Claude, Ollama oder ein OpenAI-kompatibler Server) ein, um mit dem Trainingsassistenten zu chatten.';
 
   @override
   String get syncFailed => 'Synchronisierung fehlgeschlagen';
@@ -4223,14 +4223,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pvRecipientsBody =>
-      '• Intervals.icu: Deine Trainingsdaten werden mit deinem Konto synchronisiert, mit deinem API-Schlüssel.\n• Dein KI-Anbieter (Claude von Anthropic, Ollama Cloud oder dein eigener Ollama-Server): nur wenn du es unten erlaubt hast und den KI-Trainer, „Jetzt trainieren“, die Wochennotiz oder KI-geschriebene Planinhalte nutzt. Gesendet werden das Gespräch und die dafür nötigen Trainings- und Gesundheitsdaten.\n• OpenStreetMap-Kartenserver: nur wenn eine Streckenkarte angezeigt wird. Sie sehen deine IP-Adresse und den Kartenausschnitt.\nSonst nichts: keine Analyse, keine Absturzberichte, keine Werbung.';
+      '• Intervals.icu: Deine Trainingsdaten werden mit deinem Konto synchronisiert, mit deinem API-Schlüssel.\n• Dein KI-Anbieter (Claude von Anthropic, Ollama Cloud, ein von dir eingerichteter OpenAI-kompatibler Dienst oder ein Server im eigenen Netz): nur wenn du es unten erlaubt hast und den KI-Trainer, „Jetzt trainieren“, die Wochennotiz oder KI-geschriebene Planinhalte nutzt. Gesendet werden das Gespräch und die dafür nötigen Trainings- und Gesundheitsdaten.\n• OpenStreetMap-Kartenserver: nur wenn eine Streckenkarte angezeigt wird. Sie sehen deine IP-Adresse und den Kartenausschnitt.\nSonst nichts: keine Analyse, keine Absturzberichte, keine Werbung.';
 
   @override
   String get pvTransferTitle => 'Übermittlung außerhalb der EU/des EWR';
 
   @override
   String get pvTransferBody =>
-      'Einige dieser Dienste verarbeiten Daten möglicherweise außerhalb der EU/des EWR (zum Beispiel ein KI-Anbieter in den USA). Für das, was sie erhalten, gelten ihre eigenen Datenschutzbestimmungen. Ein selbst betriebener Ollama-Server im eigenen Netz hält die Daten bei dir.';
+      'Einige dieser Dienste verarbeiten Daten möglicherweise außerhalb der EU/des EWR (zum Beispiel ein KI-Anbieter in den USA). Für das, was sie erhalten, gelten ihre eigenen Datenschutzbestimmungen. Ein Modellserver im eigenen Netz (Ollama, LM Studio …) hält die Daten bei dir; ein OpenAI-kompatibler Dienst im Internet nicht.';
 
   @override
   String get pvBasisTitle => 'Rechtsgrundlage';
@@ -5585,7 +5585,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get searchDescAi =>
-      'Claude oder Ollama, Modell, API-Schlüssel und KI-Einwilligung';
+      'Claude, Ollama oder OpenAI-kompatibel, Modell, API-Schlüssel und KI-Einwilligung';
 
   @override
   String get searchDescDailyReminder =>
@@ -5598,4 +5598,129 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get searchDescWeeklyReviewNotification =>
       'Deine Woche gegen den Plan, einmal pro Woche als Benachrichtigung';
+
+  @override
+  String get openaiLabel => 'OpenAI-kompatibel';
+
+  @override
+  String get openaiBaseUrlLabel => 'Basis-URL';
+
+  @override
+  String get openaiModelLabel => 'Modellname';
+
+  @override
+  String get openaiApiKeyOptionalLabel => 'API-Schlüssel (optional)';
+
+  @override
+  String get openaiLoadModelsButton => 'Modelle laden';
+
+  @override
+  String get openaiKeyStoredHint =>
+      'Ein Schlüssel ist gespeichert — tippe einen neuen ein, um ihn zu ersetzen';
+
+  @override
+  String get openaiKeySavedMessage => 'API-Schlüssel gespeichert.';
+
+  @override
+  String get openaiKeyRemovedMessage => 'API-Schlüssel entfernt.';
+
+  @override
+  String get openaiKeySecureHelp =>
+      'Der Schlüssel liegt im Anmeldedaten-Tresor deines Betriebssystems und wird nur an die Basis-URL oben gesendet.';
+
+  @override
+  String get openaiKeyInsecureHelp =>
+      'Dieser Build kann den Schlüssel nicht sicher speichern, deshalb gilt er nur für diese Sitzung und muss nach einem Neuladen erneut eingegeben werden.';
+
+  @override
+  String openaiCloudHelp(String host) {
+    return 'Deine Fragen und Trainingsdaten gehen an $host, einen Drittanbieter. Funktioniert mit OpenAI, OpenRouter, Azure-ähnlichen Proxys, LiteLLM und Ähnlichem. Das Modell muss Tool-Aufrufe unterstützen.';
+  }
+
+  @override
+  String openaiLocalHelp(String host) {
+    return 'Das ist ein Server in deinem eigenen Netzwerk ($host); nichts verlässt es. Funktioniert mit LM Studio, vLLM, llama.cpp und Ähnlichem. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen.';
+  }
+
+  @override
+  String get openaiUrlEmpty =>
+      'Gib die Basis-URL des Servers ein, zum Beispiel https://api.openai.com/v1.';
+
+  @override
+  String get openaiUrlInvalid =>
+      'Das ist keine gültige URL. Verwende die Form https://host/v1.';
+
+  @override
+  String get openaiUrlCredentials =>
+      'Schreibe keinen Benutzernamen oder kein Passwort in die URL. Nutze das Feld für den API-Schlüssel.';
+
+  @override
+  String openaiUrlHttpPublic(String host) {
+    return 'http:// ist nur für einen Server im eigenen Netzwerk erlaubt (localhost, 192.168.x.x, 10.x.x.x, 172.16–31.x.x). Verwende https:// für $host.';
+  }
+
+  @override
+  String get llmErrUnauthorizedTitle =>
+      'Der KI-Server hat den Schlüssel abgelehnt';
+
+  @override
+  String get llmErrUnauthorizedReason =>
+      'Prüfe den API-Schlüssel unter Einstellungen → LLM-Anbieter.';
+
+  @override
+  String get llmErrNotFoundTitle =>
+      'Der KI-Server kennt diese Adresse oder dieses Modell nicht';
+
+  @override
+  String get llmErrNotFoundReason =>
+      'Prüfe die Basis-URL (sie endet meist auf /v1) und den Modellnamen unter Einstellungen → LLM-Anbieter.';
+
+  @override
+  String get llmErrRateTitle => 'Der KI-Server bittet, langsamer zu machen';
+
+  @override
+  String get llmErrRateReason =>
+      'Ratenlimit oder Kontingent erreicht. Warte eine Minute oder prüfe deinen Tarif.';
+
+  @override
+  String get llmErrServerTitle => 'Der KI-Server hat Probleme';
+
+  @override
+  String get llmErrServerReason => 'Versuche es in ein paar Minuten erneut.';
+
+  @override
+  String get llmErrToolsTitle => 'Dieses Modell kann keine Tools nutzen';
+
+  @override
+  String get llmErrToolsReason =>
+      'Der Server hat Tool-Aufrufe abgelehnt, die der Assistent braucht, um deine Trainingsdaten zu lesen. Wähle ein Modell oder einen Server mit Tool-Unterstützung (Function Calling).';
+
+  @override
+  String get llmErrUnreachableTitle => 'KI-Server nicht erreichbar';
+
+  @override
+  String get llmErrUnreachableReason =>
+      'Prüfe die Basis-URL und ob der Server läuft und von diesem Gerät erreichbar ist.';
+
+  @override
+  String get llmErrInvalidTitle => 'Unerwartete Antwort vom KI-Server';
+
+  @override
+  String get llmErrInvalidReason =>
+      'Der Server hat geantwortet, aber nicht wie eine OpenAI-kompatible API. Prüfe die Basis-URL.';
+
+  @override
+  String pvProviderOpenAiCloud(String host) {
+    return '$host (ein OpenAI-kompatibler Dienst)';
+  }
+
+  @override
+  String pvProviderOpenAiLocal(String host) {
+    return 'deinem lokalen Modellserver ($host)';
+  }
+
+  @override
+  String pvConsentDialogBodyLocal(String provider) {
+    return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. Dieser Server steht in deinem eigenen Netzwerk, die Daten bleiben bei dir. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Einwilligung & Rechte widerrufen.';
+  }
 }

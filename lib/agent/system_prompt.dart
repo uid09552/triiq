@@ -178,6 +178,11 @@ what was asked.
 ///
 /// [cachedRanges] maps a scope name (`activities`, `wellness`, `events`) to
 /// a human-readable range, as recorded by `SyncStateRepository`.
+///
+/// The small-local-model hints are added for Ollama, and for the
+/// OpenAI-compatible provider only when [localModel] says its server is on
+/// the athlete's own machine/network (localhost, private address — see
+/// `isLocalServerUrl`). A hosted OpenAI-compatible service gets none.
 String buildRuntimeContext({
   required DateTime now,
   required bool intervalsConnected,
@@ -186,6 +191,7 @@ String buildRuntimeContext({
   required Map<String, String> cachedRanges,
   required LlmProvider provider,
   required String model,
+  bool localModel = false,
 }) {
   final buffer = StringBuffer()
     ..writeln('# Runtime context')
@@ -216,7 +222,8 @@ String buildRuntimeContext({
   }
 
   buffer.writeln('LLM: ${provider.name} / $model.');
-  if (provider == LlmProvider.ollama) {
+  if (provider == LlmProvider.ollama ||
+      (provider == LlmProvider.openai && localModel)) {
     // Small local models drift on tool arguments far more than Claude does.
     buffer.writeln(
       'You are running on a local model. Keep tool arguments minimal and '

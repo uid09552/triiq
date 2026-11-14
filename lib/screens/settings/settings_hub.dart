@@ -163,6 +163,7 @@ enum SettingsSection {
       'llm',
       'claude',
       'ollama',
+      'openai',
       'model',
       'api key',
       'trainer',

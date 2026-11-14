@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../agent/llm_settings.dart';
 import '../../data/backup/backup_files.dart';
 import '../../data/backup/backup_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -83,6 +86,8 @@ class _BackupSettingsSectionState extends State<BackupSettingsSection> {
       );
       if (ok != true) return;
       await _service.restore(json);
+      // The restored OpenAI-compatible URL/model are read at startup.
+      unawaited(LlmSettings.instance.load());
       PlanChanges.instance.notify();
       AutoSyncService.instance.notifyCacheChanged();
       if (mounted) _say(l10n.backupRestored);

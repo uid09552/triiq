@@ -101,7 +101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupLlmPrompt =>
-      'Set up an LLM provider (Claude or Ollama) to chat with the training agent.';
+      'Set up an LLM provider (Claude, Ollama or an OpenAI-compatible server) to chat with the training agent.';
 
   @override
   String get syncFailed => 'Sync failed';
@@ -4184,14 +4184,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pvRecipientsBody =>
-      '• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, or your own Ollama server): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.';
+      '• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, an OpenAI-compatible service you configured, or a server on your own network): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.';
 
   @override
   String get pvTransferTitle => 'Transfers outside the EU/EEA';
 
   @override
   String get pvTransferBody =>
-      'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A self-hosted Ollama server on your own network keeps the data with you.';
+      'Some of these services may process data outside the EU/EEA (for example an AI provider in the USA). Their own privacy terms apply to what they receive. A model server on your own network (Ollama, LM Studio…) keeps the data with you; an OpenAI-compatible service on the internet does not.';
 
   @override
   String get pvBasisTitle => 'Legal basis';
@@ -5536,7 +5536,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchDescYearGoals => 'Distance or time goals for the year';
 
   @override
-  String get searchDescAi => 'Claude or Ollama, model, API key and AI consent';
+  String get searchDescAi =>
+      'Claude, Ollama or OpenAI-compatible, model, API key and AI consent';
 
   @override
   String get searchDescDailyReminder =>
@@ -5549,4 +5550,128 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get searchDescWeeklyReviewNotification =>
       'Your week against the plan, once a week as a notification';
+
+  @override
+  String get openaiLabel => 'OpenAI-compatible';
+
+  @override
+  String get openaiBaseUrlLabel => 'Base URL';
+
+  @override
+  String get openaiModelLabel => 'Model name';
+
+  @override
+  String get openaiApiKeyOptionalLabel => 'API key (optional)';
+
+  @override
+  String get openaiLoadModelsButton => 'Load models';
+
+  @override
+  String get openaiKeyStoredHint =>
+      'A key is stored — type a new one to replace it';
+
+  @override
+  String get openaiKeySavedMessage => 'API key saved.';
+
+  @override
+  String get openaiKeyRemovedMessage => 'API key removed.';
+
+  @override
+  String get openaiKeySecureHelp =>
+      'The key is stored in your operating system\'s credential vault and sent only to the base URL above.';
+
+  @override
+  String get openaiKeyInsecureHelp =>
+      'This build cannot store the key securely, so it is kept for this session only and you will re-enter it after a reload.';
+
+  @override
+  String openaiCloudHelp(String host) {
+    return 'Your questions and training data are sent to $host, a third party. Works with OpenAI, OpenRouter, Azure-style proxies, LiteLLM and similar. The model must support tool calling.';
+  }
+
+  @override
+  String openaiLocalHelp(String host) {
+    return 'This is a server on your own network ($host); nothing leaves it. Works with LM Studio, vLLM, llama.cpp and similar. The model must support tool calling — without it the agent cannot read your training data.';
+  }
+
+  @override
+  String get openaiUrlEmpty =>
+      'Enter the server\'s base URL, for example https://api.openai.com/v1.';
+
+  @override
+  String get openaiUrlInvalid =>
+      'That is not a valid URL. Use the form https://host/v1.';
+
+  @override
+  String get openaiUrlCredentials =>
+      'Don\'t put a user name or password in the URL. Use the API key field instead.';
+
+  @override
+  String openaiUrlHttpPublic(String host) {
+    return 'http:// is only allowed for a server on your own network (localhost, 192.168.x.x, 10.x.x.x, 172.16–31.x.x). Use https:// for $host.';
+  }
+
+  @override
+  String get llmErrUnauthorizedTitle => 'The AI server refused the key';
+
+  @override
+  String get llmErrUnauthorizedReason =>
+      'Check the API key in Settings → LLM provider.';
+
+  @override
+  String get llmErrNotFoundTitle =>
+      'The AI server doesn\'t know that address or model';
+
+  @override
+  String get llmErrNotFoundReason =>
+      'Check the base URL (it usually ends in /v1) and the model name in Settings → LLM provider.';
+
+  @override
+  String get llmErrRateTitle => 'The AI server asks to slow down';
+
+  @override
+  String get llmErrRateReason =>
+      'Rate limit or quota reached. Wait a minute, or check your plan.';
+
+  @override
+  String get llmErrServerTitle => 'The AI server is having trouble';
+
+  @override
+  String get llmErrServerReason => 'Try again in a few minutes.';
+
+  @override
+  String get llmErrToolsTitle => 'This model can\'t use tools';
+
+  @override
+  String get llmErrToolsReason =>
+      'The server rejected tool calling, which the agent needs to read your training data. Pick a model or server that supports tools (function calling).';
+
+  @override
+  String get llmErrUnreachableTitle => 'Can\'t reach the AI server';
+
+  @override
+  String get llmErrUnreachableReason =>
+      'Check the base URL and that the server is running and reachable from this device.';
+
+  @override
+  String get llmErrInvalidTitle => 'Unexpected answer from the AI server';
+
+  @override
+  String get llmErrInvalidReason =>
+      'The server answered, but not like an OpenAI-compatible API. Check the base URL.';
+
+  @override
+  String pvProviderOpenAiCloud(String host) {
+    return '$host (an OpenAI-compatible service)';
+  }
+
+  @override
+  String pvProviderOpenAiLocal(String host) {
+    return 'your local model server ($host)';
+  }
+
+  @override
+  String pvConsentDialogBodyLocal(String provider) {
+    return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. That server is on your own network, so the data stays with you. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.';
+  }
 }

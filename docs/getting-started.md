@@ -46,6 +46,7 @@ Open the profile icon (top-right) → **Settings → AI trainer → LLM provider
 | **Ollama, self-hosted** | An Ollama server on your computer or home network, e.g. `http://192.168.1.20:11434` | No key. Plain `http://` is allowed on your own network (Settings shows a warning). |
 | **Ollama Cloud** | `https://ollama.com` and an Ollama API key | The key is only ever sent to `https://ollama.com`. |
 | **Claude** | An Anthropic API key | Pick the model in Settings. |
+| **OpenAI-compatible** | A base URL (default `https://api.openai.com/v1`), a model name and, if the server needs one, an API key | Works with OpenAI, OpenRouter, LM Studio, vLLM, llama.cpp, LiteLLM… `https://` for any host; `http://` only for `localhost` or your own network. **Load models** lists what the server offers. |
 
 Tap **Test connection** to load the model list. Without a provider the app
 works fully — only the chat, Train now proposals and AI-written plan content
