@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart' show DatabaseException;
 
-import '../agent/chat_model_factory.dart' show classifyLlmError;
+import '../agent/chat_model_factory.dart'
+    show LlmNotConfiguredException, classifyLlmError;
+import '../agent/llm_gateway.dart' show AllModelsFailedException;
 import '../agent/openai_connection.dart' show LlmFailureKind;
 import '../l10n/app_localizations.dart';
 import '../screens/profile/profile_screen.dart';
@@ -33,7 +36,23 @@ class FriendlyError {
 /// on: offline, a refused key, not connected, Intervals.icu down or
 /// throttling, the local database, anything else.
 FriendlyError describeError(Object error, AppLocalizations l10n) {
-  final llm = classifyLlmError(error);
+  if (error is AllModelsFailedException) {
+    return FriendlyError(
+      icon: Icons.cloud_off_outlined,
+      title: l10n.llmErrAllFailedTitle,
+      reason: describeAgentError(error, l10n),
+      fix: ErrorFix.retry,
+    );
+  }
+  // Plain network errors are worded as "offline" here (sync, Intervals.icu);
+  // only errors from an LLM client get the AI-server wording.
+  final genericNetwork =
+      error is SocketException ||
+      error is TimeoutException ||
+      error is HttpException ||
+      error is HandshakeException ||
+      error is http.ClientException;
+  final llm = genericNetwork ? null : classifyLlmError(error);
   if (llm != null) return describeLlmFailure(llm, l10n);
   if (error is DioException) {
     final status = error.response?.statusCode;
@@ -132,6 +151,36 @@ FriendlyError describeLlmFailure(LlmFailureKind kind, AppLocalizations l10n) {
       l10n.llmErrInvalidTitle,
       l10n.llmErrInvalidReason,
     ),
+    LlmFailureKind.notConfigured => (
+      Icons.settings_outlined,
+      l10n.llmErrNotConfiguredTitle,
+      l10n.llmErrNotConfiguredReason,
+    ),
+    LlmFailureKind.noConsent => (
+      Icons.privacy_tip_outlined,
+      l10n.llmErrNoConsentTitle,
+      l10n.llmErrNoConsentReason,
+    ),
+    LlmFailureKind.cancelled => (
+      Icons.cancel_outlined,
+      l10n.llmErrCancelledTitle,
+      l10n.llmErrCancelledReason,
+    ),
+    LlmFailureKind.refused => (
+      Icons.block_outlined,
+      l10n.llmErrRefusedTitle,
+      l10n.llmErrRefusedReason,
+    ),
+    LlmFailureKind.contextTooLong => (
+      Icons.notes_outlined,
+      l10n.llmErrContextTitle,
+      l10n.llmErrContextReason,
+    ),
+    LlmFailureKind.badRequest => (
+      Icons.error_outline,
+      l10n.llmErrBadRequestTitle,
+      l10n.llmErrBadRequestReason,
+    ),
   };
   return FriendlyError(
     icon: icon,
@@ -145,13 +194,38 @@ FriendlyError describeLlmFailure(LlmFailureKind kind, AppLocalizations l10n) {
 
 /// The text for a failed chat/agent turn: friendly for an LLM-server
 /// failure, the raw message otherwise (it is often what the athlete needs,
-/// e.g. "connection refused").
+/// e.g. "connection refused", or which key is missing). When every model
+/// entry failed, one line per entry with its reason.
 String describeAgentError(Object error, AppLocalizations l10n) {
+  if (error is AllModelsFailedException) {
+    final lines = [
+      for (final f in error.failures)
+        '• ${l10n.llmErrEntryLine(f.entry.label, _shortReason(f.error, l10n))}',
+    ];
+    return '${l10n.llmErrAllFailedTitle}.\n${lines.join('\n')}';
+  }
+  if (error is LlmNotConfiguredException) return error.message;
   final kind = classifyLlmError(error);
-  if (kind == null) return '$error';
+  if (kind == null || kind == LlmFailureKind.badRequest) return '$error';
   final friendly = describeLlmFailure(kind, l10n);
   return '${friendly.title}. ${friendly.reason}';
 }
+
+/// One entry's reason in the "no model answered" list: the friendly title,
+/// or the raw text when the failure is not one we recognise.
+String _shortReason(Object error, AppLocalizations l10n) {
+  final kind = classifyLlmError(error);
+  if (kind == null) {
+    final text = '$error';
+    return text.length <= 120 ? text : '${text.substring(0, 119)}…';
+  }
+  return describeLlmFailure(kind, l10n).title;
+}
+
+/// The short reason for a model switch or an entry's status: "unreachable",
+/// "rate limited"… (the friendly title).
+String describeLlmFailureShort(LlmFailureKind? kind, AppLocalizations l10n) =>
+    kind == null ? l10n.smGenericTitle : describeLlmFailure(kind, l10n).title;
 
 FriendlyError _offline(AppLocalizations l10n) => FriendlyError(
   icon: Icons.wifi_off,

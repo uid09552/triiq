@@ -39,7 +39,9 @@ background while it is open, and (Android) every night.
 
 ## 3. Choose an LLM for the AI trainer
 
-Open the profile icon (top-right) → **Settings → AI trainer → LLM provider**.
+Open the profile icon (top-right) → **Settings → AI trainer → Models**. The
+list starts with one Claude entry; edit it (pencil), or **Add model** for
+another provider.
 
 | Provider | What you need | Notes |
 |---|---|---|
@@ -51,6 +53,12 @@ Open the profile icon (top-right) → **Settings → AI trainer → LLM provider
 Tap **Test connection** to load the model list. Without a provider the app
 works fully — only the chat, Train now proposals and AI-written plan content
 need one.
+
+You can add **several models** (say Claude, then Ollama Cloud, then LM Studio
+on your PC) and order them by priority: the trainer uses the first one that
+works and switches to the next when it is unreachable, rate-limited or
+failing; the chat says when it switched and shows which model answered. Each
+new third-party server asks for your consent first.
 
 ## 4. First steps
 

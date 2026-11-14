@@ -3,13 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:langchain_core/chat_models.dart';
-import 'package:langchain_core/prompts.dart';
 import 'package:langchain_core/tools.dart';
 
 import '../data/intervals_session.dart';
 import 'chat_model_factory.dart';
 import 'agent_memory.dart';
+import 'llm_gateway.dart';
 import 'llm_settings.dart';
+import 'openai_connection.dart' show LlmFailureKind;
 import 'plan_proposals.dart';
 import 'system_prompt.dart';
 import 'tools/training_data_tools.dart';
@@ -25,6 +26,36 @@ class AgentTextDelta extends AgentEvent {
   const AgentTextDelta(this.text);
 
   final String text;
+}
+
+/// [entry] is being asked for the next part of the reply. Text streamed
+/// after this belongs to that attempt; the last one before the turn ends is
+/// the model that answered (the chat shows it under the reply).
+class AgentModelAnswering extends AgentEvent {
+  const AgentModelAnswering(this.entry);
+
+  final LlmModelEntry entry;
+}
+
+/// [from] failed with a failover-worthy error ([reason]) and [to] is asked
+/// with the same history instead. Any text streamed since the last
+/// [AgentModelAnswering] belonged to the failed attempt and must be
+/// discarded ([discardedText] says whether there was any). Safe because no
+/// tool of the failed attempt ran: tools only run once a model call has
+/// completed, and they are read-only or produce proposals the athlete
+/// applies by hand.
+class AgentModelSwitched extends AgentEvent {
+  const AgentModelSwitched({
+    required this.from,
+    required this.to,
+    required this.reason,
+    this.discardedText = false,
+  });
+
+  final LlmModelEntry from;
+  final LlmModelEntry to;
+  final LlmFailureKind? reason;
+  final bool discardedText;
 }
 
 /// The model asked for data. Emitted before the tool runs.
@@ -59,6 +90,35 @@ class AgentNavigation extends AgentEvent {
   final String destinationId;
 }
 
+/// The reply text an event stream adds up to, without the partial text of
+/// an attempt that failed over ([AgentModelSwitched]) — so a screen never
+/// shows the failed model's half sentence followed by the next model's
+/// full answer. [answeredBy] is the entry of the last attempt.
+class AgentReplyBuffer {
+  String text = '';
+  int _attemptStart = 0;
+  LlmModelEntry? answeredBy;
+
+  /// Folds [event] in; returns whether [text] changed.
+  bool apply(AgentEvent event) {
+    switch (event) {
+      case AgentModelAnswering(:final entry):
+        _attemptStart = text.length;
+        answeredBy = entry;
+        return false;
+      case AgentTextDelta(text: final delta):
+        text += delta;
+        return delta.isNotEmpty;
+      case AgentModelSwitched():
+        final changed = text.length != _attemptStart;
+        text = text.substring(0, _attemptStart);
+        return changed;
+      default:
+        return false;
+    }
+  }
+}
+
 /// The training-analysis agent: a chat model, the training-data tools, and
 /// the loop that lets the model call them until it can answer.
 ///
@@ -76,17 +136,20 @@ class TrainingAgent {
     DateTime Function()? clock,
     PlanProposals? proposals,
     AgentMemoryStore? memory,
-    BaseChatModel Function(LlmSettings settings, List<ToolSpec> tools)?
-    chatModelFactory,
+    ChatModelBuilder? chatModelFactory,
+    LlmGateway? gateway,
   }) : _settings = settings ?? LlmSettings.instance,
        _session = session ?? IntervalsSession.instance,
        _tools = tools ?? TrainingDataTools(),
        _clock = clock ?? DateTime.now,
        _proposals = proposals ?? PlanProposals.instance,
        _memory = memory ?? AgentMemoryStore.instance,
-       _chatModelFactory =
-           chatModelFactory ??
-           ((settings, tools) => createChatModel(settings, tools: tools));
+       _gateway =
+           gateway ??
+           LlmGateway(
+             settings: settings ?? LlmSettings.instance,
+             buildModel: chatModelFactory,
+           );
 
   final LlmSettings _settings;
   final IntervalsSession _session;
@@ -94,7 +157,7 @@ class TrainingAgent {
   final DateTime Function() _clock;
   final PlanProposals _proposals;
   final AgentMemoryStore _memory;
-  final BaseChatModel Function(LlmSettings, List<ToolSpec>) _chatModelFactory;
+  final LlmGateway _gateway;
 
   /// How many model turns one question may take. Each tool round-trip costs
   /// one; the cap stops a confused model looping on the same call forever.
@@ -122,41 +185,75 @@ class TrainingAgent {
 
   /// Answers [input], streaming text and tool activity as it goes.
   ///
-  /// Throws [LlmNotConfiguredException] if no provider is set up; provider
-  /// and network failures surface as whatever the provider threw, since the
-  /// message ("401 unauthorized", "connection refused") is what the athlete
-  /// needs to see.
+  /// Every model call goes through [LlmGateway]: it uses the
+  /// highest-priority model entry that works and fails over to the next on
+  /// a failover-worthy error, at the start of the turn or between tool
+  /// rounds (see [AgentModelSwitched]). An entry that failed once in this
+  /// turn is not asked again in it.
+  ///
+  /// Throws [LlmNotConfiguredException] if nothing is set up; with one
+  /// model its failure surfaces as whatever the provider threw (the
+  /// message — "401 unauthorized", "connection refused" — is what the
+  /// athlete needs to see), with several an [AllModelsFailedException].
   Stream<AgentEvent> send(String input) async* {
     // Before anything is built or sent: no consent, no request — whatever
     // the screen that called us shows.
-    if (_settings.needsConsent) throw const AiConsentRequiredException();
+    if (_settings.blockedByConsent) throw const AiConsentRequiredException();
     final toolset = _tools.build();
-    final model = _chatModelFactory(_settings, toolset);
     final byName = {for (final tool in toolset) tool.name: tool};
 
     _history.add(ChatMessage.humanText(_withOutcomes(input)));
     _trimHistory();
 
     final memoryBlock = await _memory.promptBlock();
-    final systemMessages = [
+    final cachedRanges = await _tools.cachedRanges();
+    // The runtime context names the model in use, so it is built per entry.
+    List<ChatMessage> promptFor(LlmModelEntry entry) => [
       ChatMessage.system(trainingAgentSystemPrompt),
-      ChatMessage.system(await _runtimeContext()),
+      ChatMessage.system(_runtimeContext(entry, cachedRanges)),
       if (memoryBlock != null) ChatMessage.system(memoryBlock),
       if (attachedContext != null)
         ChatMessage.system(
           '# The athlete is asking about this\n\n$attachedContext',
         ),
+      ..._history,
     ];
+    final failedThisTurn = <String>{};
 
     for (var iteration = 0; iteration < maxIterations; iteration++) {
       AIChatMessage? reply;
+      var streamedText = false;
 
-      await for (final chunk in model.stream(
-        PromptValue.chat([...systemMessages, ..._history]),
+      await for (final event in _gateway.stream(
+        promptFor,
+        tools: toolset,
+        exclude: failedThisTurn,
       )) {
-        reply = reply == null ? chunk.output : reply.concat(chunk.output);
-        final text = _textOf(chunk.output);
-        if (text.isNotEmpty) yield AgentTextDelta(text);
+        switch (event) {
+          case LlmAttemptStarted(:final entry):
+            reply = null;
+            streamedText = false;
+            yield AgentModelAnswering(entry);
+          case LlmChunk(:final chunk):
+            reply = reply == null ? chunk.output : reply.concat(chunk.output);
+            final text = _textOf(chunk.output);
+            if (text.isNotEmpty) {
+              streamedText = true;
+              yield AgentTextDelta(text);
+            }
+          case LlmFailedOver(:final from, :final to, :final kind):
+            // The failed attempt's partial reply (text, half a tool call)
+            // is dropped: the next entry gets the same history.
+            failedThisTurn.add(from.id);
+            yield AgentModelSwitched(
+              from: from,
+              to: to,
+              reason: kind,
+              discardedText: streamedText,
+            );
+            reply = null;
+            streamedText = false;
+        }
       }
 
       final message = reply ?? AIChatMessage.text('');
@@ -253,15 +350,18 @@ class TrainingAgent {
     }
   }
 
-  Future<String> _runtimeContext() async => buildRuntimeContext(
+  String _runtimeContext(
+    LlmModelEntry entry,
+    Map<String, String> cachedRanges,
+  ) => buildRuntimeContext(
     now: _clock(),
     intervalsConnected: _session.isConnected,
     athleteName: _session.athleteName,
     athleteId: _session.athleteId,
-    cachedRanges: await _tools.cachedRanges(),
-    provider: _settings.provider,
-    model: _settings.activeModel,
-    localModel: _settings.isOpenAiLocal,
+    cachedRanges: cachedRanges,
+    provider: entry.provider,
+    model: entry.model,
+    localModel: entry.isLocal,
   );
 
   /// Drops the oldest messages once history outgrows the cap, without

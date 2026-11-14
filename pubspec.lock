@@ -18,7 +18,7 @@ packages:
     source: hosted
     version: "7.7.1"
   anthropic_sdk_dart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: anthropic_sdk_dart
       sha256: "2765bdb3a3970a5cc292b93d48d3a60150382cf8a5c4f2c37e1f844d0c6a39fa"
@@ -550,7 +550,7 @@ packages:
     source: hosted
     version: "2.0.2"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -822,7 +822,7 @@ packages:
     source: hosted
     version: "9.5.0"
   ollama_dart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: ollama_dart
       sha256: "9a6c38609d54cb9a9f4db5f1ceba1536a31cf609856bef4be1ece04262321df7"

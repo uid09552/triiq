@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../agent/llm_settings.dart';
-import '../../agent/openai_connection.dart';
+import '../privacy_settings.dart';
 import '../db/app_database.dart';
 
 class BackupFormatException implements Exception {
@@ -70,21 +70,22 @@ class BackupService {
   /// Preferences that describe this device's runtime, not the athlete's
   /// choices, and keys that look like credentials.
   ///
-  /// LLM connection settings (`llm.*`: provider, server URLs, models) are
-  /// device setup, not training data, and a restore must never switch the
-  /// provider or point the trainer — and the data it sends — at another
-  /// server. The one exception is the OpenAI-compatible base URL and model
-  /// ([portableLlmPrefs]), which are restored only if the URL passes the
-  /// same https-or-local check as in Settings; the provider choice itself
-  /// is not restored, and the API key lives in the OS vault, never here.
-  static const portableLlmPrefs = {
-    LlmSettings.openAiBaseUrlPref,
-    LlmSettings.openAiModelPref,
-  };
+  /// LLM connection settings (`llm.*`) are device setup, not training data,
+  /// and a restore must never point the trainer — or a stored key — at a
+  /// server unchecked. The one exception is the model list
+  /// ([LlmSettings.modelsPref]): its non-secret fields and order travel
+  /// ([LlmModelEntry.toBackupJson]: no ids, no vault references, never a
+  /// key) and are restored through [restoreModelEntries], which drops any
+  /// entry whose URL fails the https-or-local check and only reuses a key
+  /// already on this device for the same provider, server and model. The
+  /// hosts the AI consent covers ([PrivacySettings.aiConsentHostsPref]) stay
+  /// on the device: a file must not grant consent for a server.
+  static const portableLlmPrefs = {LlmSettings.modelsPref};
 
   static bool excludedPref(String key) =>
       key.startsWith('sync.background_') ||
       (key.startsWith('llm.') && !portableLlmPrefs.contains(key)) ||
+      key == PrivacySettings.aiConsentHostsPref ||
       RegExp(
         r'(api[_-]?key|token|secret|password)',
         caseSensitive: false,
@@ -101,7 +102,11 @@ class BackupService {
     final settings = <String, dynamic>{};
     for (final key in prefs.getKeys()) {
       if (excludedPref(key)) continue;
-      final v = prefs.get(key);
+      var v = prefs.get(key);
+      if (key == LlmSettings.modelsPref && v is String) {
+        v = _portableModels(v);
+        if (v == null) continue;
+      }
       final entry = switch (v) {
         String s => {'t': 's', 'v': s},
         int i => {'t': 'i', 'v': i},
@@ -119,6 +124,26 @@ class BackupService {
       'tables': tables,
       'settings': settings,
     };
+  }
+
+  /// The stored model list without ids or vault references.
+  static String? _portableModels(String raw) {
+    try {
+      return jsonEncode([
+        for (final e in LlmModelEntry.decodeList(raw)) e.toBackupJson(),
+      ]);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  static List<LlmModelEntry> _storedModels(String? raw) {
+    if (raw == null) return const [];
+    try {
+      return LlmModelEntry.decodeList(raw);
+    } on FormatException {
+      return const [];
+    }
   }
 
   String encode(Map<String, dynamic> backup) =>
@@ -234,13 +259,16 @@ class BackupService {
         final key = '${e.key}';
         final entry = e.value;
         if (excludedPref(key) || entry is! Map) continue;
-        final value = entry['v'];
-        // A backup file is not trusted to aim the trainer at a server: the
+        var value = entry['v'];
+        // A backup file is not trusted to aim the trainer at a server: each
         // URL must pass the same check as in Settings (https, or http on
-        // the local network, no credentials in it).
-        if (key == LlmSettings.openAiBaseUrlPref &&
-            !(value is String && isValidOpenAiBaseUrl(value))) {
-          continue;
+        // the local network, no credentials in it), and ids / key
+        // references are made on this device.
+        if (key == LlmSettings.modelsPref) {
+          final current = _storedModels(prefs.getString(key));
+          final restored = restoreModelEntries(value, current);
+          if (restored == null) continue;
+          value = LlmModelEntry.encodeList(restored);
         }
         switch (entry['t']) {
           case 's' when value is String:

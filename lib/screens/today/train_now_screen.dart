@@ -172,6 +172,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   TrainingAgent? _agent;
   StreamSubscription<AgentEvent>? _subscription;
   String _reply = '';
+  AgentReplyBuffer _replyBuffer = AgentReplyBuffer();
 
   /// What the agent is doing right now, when that is more specific than
   /// "thinking" — the tool it is running, or the note that one failed. Null
@@ -233,6 +234,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     setState(() {
       _requested = true;
       _reply = '';
+      _replyBuffer = AgentReplyBuffer();
       _error = null;
       _activity = null;
     });
@@ -370,9 +372,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   void _onEvent(AgentEvent event) {
     final l10n = AppLocalizations.of(context)!;
     setState(() {
+      if (_replyBuffer.apply(event)) _reply = _replyBuffer.text;
       switch (event) {
-        case AgentTextDelta(:final text):
-          _reply += text;
+        case AgentTextDelta():
           _activity = null;
         case AgentToolStarted(:final name):
           _activity = _describeTool(l10n, name);
@@ -380,6 +382,9 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
           _activity = failed
               ? l10n.toolFailedSuffix(_describeTool(l10n, name))
               : null;
+        case AgentModelAnswering() || AgentModelSwitched():
+          // Folded into the reply text above.
+          break;
         case AgentProposal() || AgentNavigation():
           // Train Now has no proposal or page cards; the chat does.
           break;
@@ -567,11 +572,11 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   /// reply — the streaming UI has nothing to show for a format conversion.
   Future<String> _collectReply(String prompt) async {
     final agent = _agent ??= (widget.agentFactory ?? TrainingAgent.new)();
-    final buffer = StringBuffer();
+    final buffer = AgentReplyBuffer();
     await for (final event in agent.send(prompt)) {
-      if (event is AgentTextDelta) buffer.write(event.text);
+      buffer.apply(event);
     }
-    return buffer.toString();
+    return buffer.text;
   }
 
   void _showMessage(String message) => ScaffoldMessenger.of(

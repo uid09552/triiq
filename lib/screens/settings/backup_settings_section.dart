@@ -86,7 +86,7 @@ class _BackupSettingsSectionState extends State<BackupSettingsSection> {
       );
       if (ok != true) return;
       await _service.restore(json);
-      // The restored OpenAI-compatible URL/model are read at startup.
+      // The restored model list (without keys) is read back in.
       unawaited(LlmSettings.instance.load());
       PlanChanges.instance.notify();
       AutoSyncService.instance.notifyCacheChanged();

@@ -26,6 +26,26 @@ enum LlmFailureKind {
 
   /// The server answered, but not with an OpenAI-style response.
   invalidResponse,
+
+  /// The model entry is incomplete (no key, no URL, no model name) — found
+  /// before anything was sent.
+  notConfigured,
+
+  /// The athlete has not agreed to data going to this entry's host; nothing
+  /// was sent.
+  noConsent,
+
+  /// The request was cancelled on our side.
+  cancelled,
+
+  /// The model refused on content policy / safety grounds.
+  refused,
+
+  /// The conversation is longer than the model's context window.
+  contextTooLong,
+
+  /// Any other 4xx the request itself caused.
+  badRequest,
 }
 
 /// Thrown by [fetchOpenAiModels] when the server can't be reached or
