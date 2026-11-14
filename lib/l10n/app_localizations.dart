@@ -8917,6 +8917,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fewer metrics'**
   String get todayFewerMetrics;
+
+  /// No description provided for @appSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the app'**
+  String get appSearchHint;
+
+  /// No description provided for @appSearchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in the app matches “{query}”.'**
+  String appSearchNoResults(String query);
+
+  /// No description provided for @appSearchOpenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens this page'**
+  String get appSearchOpenHint;
+
+  /// No description provided for @chatToolAppSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking up where that is in the app…'**
+  String get chatToolAppSearch;
+
+  /// No description provided for @chatToolOpenPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing a link…'**
+  String get chatToolOpenPage;
+
+  /// No description provided for @navCardOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {title}'**
+  String navCardOpen(String title);
+
+  /// No description provided for @navCardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens {path}. Nothing happens until you tap.'**
+  String navCardHint(String path);
+
+  /// No description provided for @navCardUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'This page isn\'t available in this version of the app.'**
+  String get navCardUnknown;
+
+  /// No description provided for @searchDescToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s session, readiness, this week and your load tiles'**
+  String get searchDescToday;
+
+  /// No description provided for @searchDescCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned and completed sessions by year, month, week or day'**
+  String get searchDescCalendar;
+
+  /// No description provided for @searchDescChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the AI trainer about your training'**
+  String get searchDescChat;
+
+  /// No description provided for @searchDescInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Every analysis view, plus fitness trend and volume charts'**
+  String get searchDescInsights;
+
+  /// No description provided for @searchDescMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan, season, events, trainer memory, knowledge, sync'**
+  String get searchDescMore;
+
+  /// No description provided for @searchDescProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect or disconnect your Intervals.icu account'**
+  String get searchDescProfile;
+
+  /// No description provided for @searchDescSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Training, AI trainer, data & privacy, app settings'**
+  String get searchDescSettings;
+
+  /// No description provided for @searchDescAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'System, light, dark or developer theme'**
+  String get searchDescAppearance;
+
+  /// No description provided for @searchDescLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'System, English or German'**
+  String get searchDescLanguage;
+
+  /// No description provided for @searchDescNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync and trainer notifications, reminder, briefing, weekly review'**
+  String get searchDescNotifications;
+
+  /// No description provided for @searchDescSync.
+  ///
+  /// In en, this message translates to:
+  /// **'How often the app refreshes, and background sync'**
+  String get searchDescSync;
+
+  /// No description provided for @searchDescCalendarSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the plan to Intervals.icu, copy planned events from it'**
+  String get searchDescCalendarSettings;
+
+  /// No description provided for @searchDescBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Export or restore your TriIQ data as one file'**
+  String get searchDescBackup;
+
+  /// No description provided for @searchDescFeel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask how a recent session felt (fatigue, soreness)'**
+  String get searchDescFeel;
+
+  /// No description provided for @searchDescWeeklyTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly hours goal for swim, bike and run'**
+  String get searchDescWeeklyTargets;
+
+  /// No description provided for @searchDescYearGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance or time goals for the year'**
+  String get searchDescYearGoals;
+
+  /// No description provided for @searchDescAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude or Ollama, model, API key and AI consent'**
+  String get searchDescAi;
+
+  /// No description provided for @searchDescDailyReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'A daily notification at the time you choose'**
+  String get searchDescDailyReminder;
+
+  /// No description provided for @searchDescMorningBriefing.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s session, readiness and form as a morning notification'**
+  String get searchDescMorningBriefing;
+
+  /// No description provided for @searchDescWeeklyReviewNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week against the plan, once a week as a notification'**
+  String get searchDescWeeklyReviewNotification;
 }
 
 class _AppLocalizationsDelegate

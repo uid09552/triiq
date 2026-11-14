@@ -11,6 +11,8 @@ class MainNavigation extends ChangeNotifier {
   static const todayTab = 0;
   static const calendarTab = 1;
   static const chatTab = 2;
+  static const insightsTab = 3;
+  static const moreTab = 4;
 
   int? _requestedTab;
 

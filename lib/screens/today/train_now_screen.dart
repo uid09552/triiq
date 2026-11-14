@@ -380,8 +380,8 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
           _activity = failed
               ? l10n.toolFailedSuffix(_describeTool(l10n, name))
               : null;
-        case AgentProposal():
-          // Train Now has no proposal cards; the chat does.
+        case AgentProposal() || AgentNavigation():
+          // Train Now has no proposal or page cards; the chat does.
           break;
       }
     });

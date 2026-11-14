@@ -5491,4 +5491,111 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get todayFewerMetrics => 'Weniger Werte';
+
+  @override
+  String get appSearchHint => 'App durchsuchen';
+
+  @override
+  String appSearchNoResults(String query) {
+    return 'Nichts in der App passt zu „$query“.';
+  }
+
+  @override
+  String get appSearchOpenHint => 'Öffnet diese Seite';
+
+  @override
+  String get chatToolAppSearch => 'Suche, wo das in der App ist…';
+
+  @override
+  String get chatToolOpenPage => 'Bereite einen Link vor…';
+
+  @override
+  String navCardOpen(String title) {
+    return '$title öffnen';
+  }
+
+  @override
+  String navCardHint(String path) {
+    return 'Öffnet $path. Erst beim Antippen passiert etwas.';
+  }
+
+  @override
+  String get navCardUnknown =>
+      'Diese Seite gibt es in dieser App-Version nicht.';
+
+  @override
+  String get searchDescToday =>
+      'Heutige Einheit, Bereitschaft, diese Woche und deine Belastungswerte';
+
+  @override
+  String get searchDescCalendar =>
+      'Geplante und absolvierte Einheiten nach Jahr, Monat, Woche oder Tag';
+
+  @override
+  String get searchDescChat => 'Frag den KI-Trainer zu deinem Training';
+
+  @override
+  String get searchDescInsights =>
+      'Alle Analyseansichten, dazu Fitnesstrend und Umfang';
+
+  @override
+  String get searchDescMore =>
+      'Plan, Saison, Ereignisse, Trainer-Gedächtnis, Wissen, Synchronisierung';
+
+  @override
+  String get searchDescProfile => 'Intervals.icu-Konto verbinden oder trennen';
+
+  @override
+  String get searchDescSettings =>
+      'Training, KI-Trainer, Daten & Datenschutz, App';
+
+  @override
+  String get searchDescAppearance =>
+      'System-, helles, dunkles oder Entwickler-Design';
+
+  @override
+  String get searchDescLanguage => 'System, Englisch oder Deutsch';
+
+  @override
+  String get searchDescNotifications =>
+      'Sync- und Trainer-Benachrichtigungen, Erinnerung, Briefing, Wochenrückblick';
+
+  @override
+  String get searchDescSync =>
+      'Wie oft die App aktualisiert, und Hintergrund-Sync';
+
+  @override
+  String get searchDescCalendarSettings =>
+      'Plan an Intervals.icu senden, geplante Ereignisse von dort übernehmen';
+
+  @override
+  String get searchDescBackup =>
+      'Deine TriIQ-Daten als eine Datei sichern oder wiederherstellen';
+
+  @override
+  String get searchDescFeel =>
+      'Nach dem Befinden einer neuen Einheit fragen (Müdigkeit, Muskelkater)';
+
+  @override
+  String get searchDescWeeklyTargets =>
+      'Wöchentliches Stundenziel für Schwimmen, Rad und Laufen';
+
+  @override
+  String get searchDescYearGoals => 'Distanz- oder Zeitziele für das Jahr';
+
+  @override
+  String get searchDescAi =>
+      'Claude oder Ollama, Modell, API-Schlüssel und KI-Einwilligung';
+
+  @override
+  String get searchDescDailyReminder =>
+      'Eine tägliche Benachrichtigung zur gewählten Uhrzeit';
+
+  @override
+  String get searchDescMorningBriefing =>
+      'Heutige Einheit, Bereitschaft und Form als Morgen-Benachrichtigung';
+
+  @override
+  String get searchDescWeeklyReviewNotification =>
+      'Deine Woche gegen den Plan, einmal pro Woche als Benachrichtigung';
 }

@@ -14,6 +14,7 @@ import '../../notifications/notification_settings.dart';
 import '../../widgets/markdown_reply.dart';
 import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
+import 'navigation_card.dart';
 import 'proposal_card.dart';
 
 class _ChatMessage {
@@ -26,6 +27,9 @@ class _ChatMessage {
 
   /// Changes the agent proposed during this reply, shown as cards under it.
   final proposals = <PlanProposal>[];
+
+  /// App pages the agent offered to open (`open_app_page`), as buttons.
+  final navigations = <String>[];
 }
 
 /// Chat with the training-analysis agent about your Intervals.icu data.
@@ -190,6 +194,10 @@ class _ChatScreenState extends State<ChatScreen> {
               : null;
         case AgentProposal(:final proposal):
           reply.proposals.add(proposal);
+        case AgentNavigation(:final destinationId):
+          if (!reply.navigations.contains(destinationId)) {
+            reply.navigations.add(destinationId);
+          }
       }
     });
     _scrollToEnd();
@@ -237,6 +245,8 @@ class _ChatScreenState extends State<ChatScreen> {
         'get_training_guidance' => l10n.chatToolGuidance,
         'sync_from_intervals' => l10n.chatToolSyncing,
         'get_training_plan' => l10n.chatToolPlanRead,
+        'search_app_features' => l10n.chatToolAppSearch,
+        'open_app_page' => l10n.chatToolOpenPage,
         'propose_load_curve' ||
         'propose_session_change' ||
         'generate_training_plan' => l10n.chatToolProposing,
@@ -563,12 +573,15 @@ class _MessageWithProposals extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (message.proposals.isEmpty) return _ChatBubble(message: message);
+    if (message.proposals.isEmpty && message.navigations.isEmpty) {
+      return _ChatBubble(message: message);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ChatBubble(message: message),
         for (final p in message.proposals) ProposalCard(proposal: p),
+        for (final id in message.navigations) NavigationCard(destinationId: id),
         const SizedBox(height: 8),
       ],
     );

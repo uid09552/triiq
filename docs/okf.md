@@ -77,7 +77,8 @@ athlete can:
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
 | Consent & your rights (Settings → Data & privacy → Consent & your rights) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
 | Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (on the hero card, next to "Ask the trainer about today") and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
-| More tab | ✅ Implemented — three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone |
+| App search (More → search field) | ✅ Implemented — one search over every tab, Insights view, More entry, Settings group and section (and the three scheduled notifications): type a few words in English or German and tap a result to go there. Each result shows its icon, title, breadcrumb (e.g. "Insights › Durability", "Settings › App › Notifications › Weekly review") and a one-line description. Matches titles, synonyms (e.g. "dark mode" → Appearance, "Ruhepuls" → Wellness trends), descriptions and this document's user-facing text, tolerating a typo or two ("durabilty"), umlauts typed or not ("Müdigkeit" / "mudigkeit") and the filler of a question ("where is the heatmap"). No recent-searches list yet. The trainer uses the same search (`search_app_features`) |
+| More tab | ✅ Implemented — a **search field** at the top (App search, above), then three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone |
 | Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
 | Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL, and a ring per sport with a weekly target (swim/ride/run, percent and hours done of the target; the ring stops at 100 %); resizable from 4×1 (one row: session + form) and 2×2 (session + form) up to 4×2 (adds the details) and 4×3+ (adds the target rings), with a layout chosen per size; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
 | Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
@@ -148,7 +149,33 @@ the single read path for the UI.
   left, figures and the rest on the right), Insights lays its charts out two
   by two (`ResponsiveColumns`, `lib/widgets/responsive.dart`), Chat and More
   are capped in width (`ContentWidth`);
-- **More** is grouped into Plan, Trainer and Data.
+- **More** is grouped into Plan, Trainer and Data, under a search over the
+  whole app.
+
+**Destinations registry and app search** (`lib/navigation/`). Every place
+the app search and the trainer can send the athlete is one `AppDestination`
+in `app_destinations.dart`: a stable id (`tab.today`, `insights.durability`,
+`more.plan`, `settings.notifications`, …), how to open it (switch tab via
+`MainNavigation`, push a screen, or `openSettingsSection`), the localized
+title and breadcrumb, English + German keywords, and an **okf anchor** — the
+passage of *this file* that describes it. The registry is the source of
+truth for navigation and is built from the same lists the UI draws
+(`insightsDestinations`, `moreEntries`, `SettingsGroup` / `SettingsSection`),
+so a new tile shows up in search by construction. This file is the source of
+truth for what a destination *is*: `OkfIndex` (`okf_index.dart`) parses the
+bundled `docs/okf.md` (already an asset for the plan engine — ~190 KB, read
+once per run, no derived copy to keep in sync) and indexes only the
+user-facing parts: the status matrix rows (anchor `status:<area prefix>`)
+and section 3's headings (`<heading>`) and bold-led paragraphs / bullets
+inside them (`<heading>#<bold term>`). Sections 2, 4 and 5 are never
+indexed, and source-file references are stripped from excerpts.
+`app_search.dart` ranks: per query word the best hit over title (weight 10),
+keywords (7), breadcrumb (3), description (3) and okf text (1) — exact,
+prefix, compound part, or within 1–2 edits — in both languages, after
+folding case and umlauts and dropping question filler; at least half the
+words must hit. `test/navigation/app_destinations_test.dart` fails when an
+anchor resolves to nothing or a tile / entry / group is missing from the
+registry.
 
 ### Session & sync
 
@@ -311,7 +338,7 @@ answer.
 | `chat_model_factory.dart` | Builds the provider's `BaseChatModel` with the tools bound. **The only file that names Claude or Ollama** |
 | `ollama_connection.dart` | `fetchOllamaModels()` — hits `/api/tags` to test a URL/key and list real models. Used by Settings, not by the agent path |
 | `system_prompt.dart` | The standing instructions, plus the per-message runtime context block |
-| `tools/training_data_tools.dart` | The seven tools the model can call |
+| `tools/training_data_tools.dart` | The tools the model can call (with `tools/season_tools.dart`, `tools/plan_assistant_tools.dart`, `tools/app_feature_tools.dart`) |
 | `training_agent.dart` | The tool-calling loop and the event stream the Chat screen renders |
 
 **Why the loop is hand-written.** LangChain.dart 0.9 ships an
@@ -345,6 +372,8 @@ is asked for or after a newer activity of that sport was synced.
 | `get_performance_curve` | Best efforts per duration (power, HR) or distance (pace) for one sport — this season, last season, last 42 days — at fixed key points with the session that set each, the model fit (FTP/CP/W'/Pmax or critical speed/D') and its gap to the settings threshold. Fetches from Intervals.icu only when nothing is cached or a newer activity of that sport arrived |
 | `get_threshold_suggestions` | Current ride FTP / run / swim threshold-pace suggestions: current and candidate value, percent change, direction and what it's based on. Read-only — the agent explains a suggestion and points the athlete to Insights → Performance curves to review and apply it; it cannot apply or dismiss one itself |
 | `sync_from_intervals` | Fetches a date range into the cache |
+| `search_app_features` | Up to 5 app pages / settings matching a query (the same search as More's search field): id, localized title, breadcrumb path and the matching okf passage (`docs`, trimmed to ~600 characters, developer references stripped) — for "how do I… / where is…" questions |
+| `open_app_page` | A **navigation offer** for one destination id: the chat shows an "Open …" card under the reply, and the page opens only when the athlete taps it (an `AgentNavigation` event, like `AgentProposal`) |
 | `get_training_plan` | The saved goal, the load graph per week (proposed/target TSS, share, allowed range, phase, limits exceeded) and the current plan's weeks and sessions with their `session_id` |
 | `generate_training_plan` | A plan built by the engine from the goal (and any weeks / load factors / sport mix passed) — plus a **proposal** to take it |
 | `propose_load_curve` | A **proposal** for the load graph: week TSS or percent (inside each week's band), recovery weeks, plan length, sport mix, weekly increase (`ramp_percent`), hold weeks, reset — with the resulting graph, or an error naming the allowed range |
@@ -1673,9 +1702,11 @@ set.
 
 ### More
 
-Submenu for Profile, Settings, **Sync**, **Activities**, **Training
-plan**, **Weekly review** and **Knowledge library** (hidden on web), plus a
-disabled placeholder for gear.
+A search field over the whole app (see *Search the app*), then three
+groups: **Plan** (Training plans, Season, Events), **Trainer** (Trainer
+memory, Knowledge library — hidden on web) and **Data** (Sync). Profile and
+Settings are behind your avatar in the top bar; the analysis views and
+Activities live under Insights.
 
 **Knowledge library** (More, Android/Windows only) lets you import your own
 Markdown or plain-text coaching documents — swim sets, taper notes, articles
@@ -1695,7 +1726,7 @@ first). An empty library explains what it's for. On web there's no local
 database yet, so the entry is hidden and the agent uses the bundled
 reference only.
 
-**Weekly review** (More) takes one week at a time (arrows to move): each
+**Weekly review** (Insights → Weekly review) takes one week at a time (arrows to move): each
 day's planned and done sessions with missed ones marked, the share of
 planned sessions done and the planned versus done TSS, the week's 80/20
 split with a flag when easy time is below the tolerance (and how many
@@ -1704,6 +1735,27 @@ CTL / ATL / form change. It is computed from the cache and works offline.
 With an LLM provider set up, a short **Next week** note from the trainer
 follows, labelled as an inference; **Discuss in Chat** carries the week's
 figures over.
+
+### Search the app
+
+Type in the search field at the top of **More** — in English or German —
+and every matching page, Insights view and setting is listed with its
+icon, name, where it lives ("Insights › Durability", "Settings › App ›
+Notifications › Weekly review") and one line on what it is. Tap a result to
+go straight there; a setting opens its Settings page scrolled to it.
+Synonyms count ("dark mode" finds Appearance, "HRV" finds Wellness trends,
+"FTP" finds Performance curves), so do small typos and umlauts typed
+without dots. Clear the field (×) to get the More list back.
+
+### Ask the trainer where something is
+
+Ask Chat things like "where do I see my durability?", "how do I turn on
+the weekly review notification?" or "wo stelle ich das dunkle Design ein?".
+The trainer looks it up in the app's own documentation (the text you are
+reading), answers from it with the place in the app, and puts an
+**Open …** button under its reply. Nothing opens until you tap the
+button. If the app has no such feature, the trainer says so rather than
+guessing.
 
 ### Season, forecast, race predictor, illness mode and bricks
 
@@ -2104,6 +2156,11 @@ off under Settings → App → Notifications.
 
 - **Appearance**: pick System, Light, or Dark. Applies instantly across the
   whole app; resets to System on restart (not persisted yet).
+- **Language**: System (follows the device), English or Deutsch. Applies
+  instantly and is remembered across restarts.
+- **Fatigue & soreness**: whether opening a recent activity asks once how
+  the day felt (fatigue and soreness), when that day has nothing logged
+  yet. Logging it by hand from any activity's page works either way.
 - **Notifications**: the master toggle prompts for the OS notification
   permission (Android 13+/iOS) and, once granted, turns on sync-completion
   and training-agent-reply notifications. With it on and on a platform that
