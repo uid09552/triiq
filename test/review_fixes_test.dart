@@ -152,6 +152,7 @@ void main() {
         final llm = LlmSettings.forTesting();
         await llm.setProvider(LlmProvider.ollama);
         await llm.setOllamaModel('custom');
+        await llm.setOpenAiApiKey('sk-erase-me');
 
         await DataEraser(
           database: database,
@@ -172,6 +173,7 @@ void main() {
         // A fresh install in memory, not the old provider written back later.
         expect(llm.provider, LlmProvider.claude);
         expect(llm.ollamaModel, LlmSettings.defaultOllamaModel);
+        expect(llm.openAiApiKey, isNull);
       },
     );
 

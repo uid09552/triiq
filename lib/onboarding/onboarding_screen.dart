@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../agent/llm_settings.dart';
+import '../agent/openai_connection.dart';
 import '../data/intervals_session.dart';
 import '../data/sync/sync_scope.dart';
 import '../data/sync/sync_service.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/settings/ai_consent.dart';
 import '../widgets/intervals_login.dart';
+import '../screens/settings/openai_texts.dart';
 import '../screens/settings/privacy_screen.dart';
 import '../screens/settings/weekly_targets_settings.dart';
 import 'onboarding_settings.dart';
@@ -80,6 +82,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _ollamaUrl = TextEditingController(
     text: LlmSettings.defaultOllamaBaseUrl,
   );
+  final _openAiUrl = TextEditingController(
+    text: LlmSettings.defaultOpenAiBaseUrl,
+  );
+  final _openAiModel = TextEditingController(
+    text: LlmSettings.defaultOpenAiModel,
+  );
   bool _savingAi = false;
 
   WeeklyTargetsSettings get _targets =>
@@ -96,6 +104,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     _aiKey.dispose();
     _ollamaUrl.dispose();
+    _openAiUrl.dispose();
+    _openAiModel.dispose();
     super.dispose();
   }
 
@@ -167,10 +177,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await _llm.setProvider(provider);
       if (provider == LlmProvider.claude) {
         await _llm.setClaudeApiKey(_aiKey.text);
-      } else {
+      } else if (provider == LlmProvider.ollama) {
         await _llm.setOllamaBaseUrl(_ollamaUrl.text);
         if (_aiKey.text.trim().isNotEmpty) {
           await _llm.setOllamaApiKey(_aiKey.text);
+        }
+      } else {
+        await _llm.setOpenAiBaseUrl(_openAiUrl.text);
+        await _llm.setOpenAiModel(_openAiModel.text);
+        if (_aiKey.text.trim().isNotEmpty) {
+          await _llm.setOpenAiApiKey(_aiKey.text);
         }
       }
     } catch (error) {
@@ -473,6 +489,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           selected: _provider == LlmProvider.ollama,
           onSelected: (_) => setState(() => _provider = LlmProvider.ollama),
         ),
+        ChoiceChip(
+          key: const ValueKey('onboarding-ai-openai'),
+          label: Text(l10n.openaiLabel),
+          selected: _provider == LlmProvider.openai,
+          onSelected: (_) => setState(() => _provider = LlmProvider.openai),
+        ),
       ],
     ),
     const SizedBox(height: 16),
@@ -485,6 +507,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       const SizedBox(height: 12),
     ],
+    if (_provider == LlmProvider.openai) ...[
+      TextField(
+        key: const ValueKey('onboarding-openai-url'),
+        controller: _openAiUrl,
+        keyboardType: TextInputType.url,
+        autocorrect: false,
+        onChanged: (_) => setState(() {}),
+        decoration: InputDecoration(
+          labelText: l10n.openaiBaseUrlLabel,
+          errorText: checkOpenAiBaseUrl(_openAiUrl.text) == null
+              ? null
+              : openAiUrlProblemText(
+                  l10n,
+                  checkOpenAiBaseUrl(_openAiUrl.text)!,
+                  _openAiUrl.text,
+                ),
+          errorMaxLines: 3,
+        ),
+      ),
+      const SizedBox(height: 12),
+      TextField(
+        key: const ValueKey('onboarding-openai-model'),
+        controller: _openAiModel,
+        autocorrect: false,
+        decoration: InputDecoration(labelText: l10n.openaiModelLabel),
+      ),
+      const SizedBox(height: 12),
+    ],
     if (_provider != null)
       TextField(
         key: const ValueKey('onboarding-ai-key'),
@@ -494,16 +544,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         autocorrect: false,
         enableSuggestions: false,
         decoration: InputDecoration(
-          labelText: _provider == LlmProvider.claude
-              ? l10n.claudeApiKeyLabel
-              : l10n.ollamaApiKeyOptionalLabel,
+          labelText: switch (_provider) {
+            LlmProvider.claude => l10n.claudeApiKeyLabel,
+            LlmProvider.openai => l10n.openaiApiKeyOptionalLabel,
+            _ => l10n.ollamaApiKeyOptionalLabel,
+          },
         ),
       ),
     _actions(
       primary: _provider == null ? l10n.obNext : l10n.obAiSave,
       onPrimary:
           _savingAi ||
-              (_provider == LlmProvider.claude && _aiKey.text.trim().isEmpty)
+              (_provider == LlmProvider.claude && _aiKey.text.trim().isEmpty) ||
+              (_provider == LlmProvider.openai &&
+                  !isValidOpenAiBaseUrl(_openAiUrl.text))
           ? null
           : _saveAi,
       onSkip: _next,

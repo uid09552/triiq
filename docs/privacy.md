@@ -20,14 +20,14 @@ for it. Questions or requests: open an issue at
 | Activities and routes | Sessions, durations, power, pace, GPS tracks | From Intervals.icu |
 | **Health data** | Heart rate, HRV, resting heart rate, sleep, weight, how you feel (fatigue, soreness) | A special category of personal data under the GDPR (Art. 9) |
 | Profile | Name, picture, thresholds, goals, plans, trainer memory | From Intervals.icu and what you enter |
-| Credentials | Intervals.icu, Claude and Ollama keys | OS secure storage |
+| Credentials | Intervals.icu, Claude, Ollama and OpenAI-compatible keys | OS secure storage |
 
 ## What is stored where
 
 | What | Where |
 |---|---|
 | Activities, wellness, planned workouts, plans, knowledge library, caches | A SQLite database on the device — Android: app storage; Windows: the per-user app-data folder (`%APPDATA%\…\triiq\triiq.db`) |
-| Intervals.icu login (API key or the access token from *Log in with Intervals.icu*), Claude and Ollama keys | The operating system's secure storage (the Android Keystore, the Windows credential store) |
+| Intervals.icu login (API key or the access token from *Log in with Intervals.icu*), Claude, Ollama and OpenAI-compatible keys | The operating system's secure storage (the Android Keystore, the Windows credential store) |
 | Settings (goal, targets, theme, trainer memory, …) | App preferences on the device |
 
 Android's system backup is switched off for the app, because the encrypted
@@ -38,13 +38,17 @@ keys could not be decrypted on another device anyway.
 | Service | When | What is sent |
 |---|---|---|
 | **Intervals.icu** (https) | Logging in, sync, and when you create, move or delete planned workouts or apply a threshold | Your API key or access token and the requests themselves. With *Log in with Intervals.icu* you sign in on Intervals.icu's own page in your browser; TriIQ never receives your password and holds no client secret |
-| **Your LLM** (Claude / Ollama Cloud over https, or your own Ollama server) | Only when you use the chat, Train now or AI-written plan content | The conversation, including the results of the tools the trainer calls on your local data |
+| **Your LLM** (Claude / Ollama Cloud over https, an OpenAI-compatible service you configured, or your own Ollama / local model server) | Only when you use the chat, Train now or AI-written plan content | The conversation, including the results of the tools the trainer calls on your local data |
 | **OpenStreetMap** tile servers (https) | Only when a route map is shown | Map tile requests |
 
 Nothing else — no analytics, no crash reporting, no TriIQ server.
 
 - The **Ollama key is only ever sent to `https://ollama.com`**, never to a
   self-hosted server and never over plain http.
+- An **OpenAI-compatible** server is reached at the URL you enter: `https://`
+  for any host, `http://` only for localhost or your own network (anything else
+  is refused). Its optional key is sent only to that URL. On your own network
+  the data stays with you; anywhere else the server's operator receives it.
 - A **self-hosted Ollama over `http://`** works on your own network; Settings
   warns that prompts and data then travel unencrypted. Intervals.icu,
   Anthropic, Ollama Cloud and OpenStreetMap are https-only.
@@ -68,7 +72,7 @@ Nothing else — no analytics, no crash reporting, no TriIQ server.
 
 Some recipients may process data outside the EU/EEA — for example an AI
 provider in the USA. What they receive is covered by their own privacy terms.
-A self-hosted Ollama server on your own network keeps the data with you.
+A model server on your own network (Ollama, LM Studio…) keeps the data with you; an OpenAI-compatible service on the internet does not.
 
 ## How long data is kept
 

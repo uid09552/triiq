@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../agent/llm_settings.dart';
 import '../../agent/ollama_connection.dart';
+import '../../agent/openai_connection.dart';
 import '../../data/sync/background_sync.dart';
 import '../../data/sync/background_sync_runner.dart';
 import '../../data/sync/sync_settings.dart';
@@ -12,11 +13,13 @@ import '../../locale_controller.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../theme_controller.dart';
+import '../../widgets/status_message.dart' show describeLlmFailure;
 import '../../widgets/section_card.dart';
 import 'backup_settings_section.dart';
 import 'calendar_settings_section.dart';
 import 'ai_consent.dart';
 import 'feel_settings_section.dart';
+import 'openai_texts.dart';
 import 'privacy_screen.dart';
 import 'settings_hub.dart';
 import 'weekly_targets_section.dart';
@@ -52,9 +55,13 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
   late final TextEditingController _ollamaUrlController;
   late final TextEditingController _ollamaModelController;
   late final TextEditingController _ollamaKeyController;
+  late final TextEditingController _openAiUrlController;
+  late final TextEditingController _openAiModelController;
+  late final TextEditingController _openAiKeyController;
 
   bool _showClaudeKey = false;
   bool _showOllamaKey = false;
+  bool _showOpenAiKey = false;
   bool _adoptedStoredValues = false;
 
   /// Models actually seen on the server, replacing the static suggestion
@@ -64,6 +71,11 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
   bool _testingOllama = false;
   String? _ollamaTestError;
 
+  /// Same pattern for the OpenAI-compatible server: its `/models` list.
+  List<String> _openAiModels = List.of(LlmSettings.openAiModelSuggestions);
+  bool _loadingOpenAiModels = false;
+  String? _openAiTestError;
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +84,9 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
     _ollamaUrlController = TextEditingController(text: _settings.ollamaBaseUrl);
     _ollamaModelController = TextEditingController(text: _settings.ollamaModel);
     _ollamaKeyController = TextEditingController();
+    _openAiUrlController = TextEditingController(text: _settings.openAiBaseUrl);
+    _openAiModelController = TextEditingController(text: _settings.openAiModel);
+    _openAiKeyController = TextEditingController();
     // The screen can open before the initial load resolves, so pick the
     // stored values up when they land.
     _settings.addListener(_adoptStoredValues);
@@ -97,6 +112,9 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
     _ollamaUrlController.dispose();
     _ollamaModelController.dispose();
     _ollamaKeyController.dispose();
+    _openAiUrlController.dispose();
+    _openAiModelController.dispose();
+    _openAiKeyController.dispose();
     super.dispose();
   }
 
@@ -110,6 +128,8 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
       _claudeModelController.text = _settings.claudeModel;
       _ollamaUrlController.text = _settings.ollamaBaseUrl;
       _ollamaModelController.text = _settings.ollamaModel;
+      _openAiUrlController.text = _settings.openAiBaseUrl;
+      _openAiModelController.text = _settings.openAiModel;
     });
     // Best-effort: if Ollama is already set up, show the live model list
     // right away rather than waiting for the user to press something.
@@ -118,6 +138,13 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
     if (_settings.provider == LlmProvider.ollama &&
         (!_settings.isOllamaCloud || _settings.hasOllamaApiKey)) {
       _testOllamaConnection(announce: false);
+    }
+    // Same for an OpenAI-compatible server: silently, and only when the URL
+    // is usable and a key is not obviously missing for a hosted one.
+    if (_settings.provider == LlmProvider.openai &&
+        isValidOpenAiBaseUrl(_settings.openAiBaseUrl) &&
+        (_settings.isOpenAiLocal || _settings.hasOpenAiApiKey)) {
+      _loadOpenAiModels(announce: false);
     }
   }
 
@@ -237,28 +264,45 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SegmentedButton<LlmProvider>(
-                        segments: [
-                          ButtonSegment(
-                            value: LlmProvider.claude,
-                            label: Text(l10n.claudeLabel),
-                            icon: const Icon(Icons.bolt_outlined),
-                          ),
-                          ButtonSegment(
-                            value: LlmProvider.ollama,
-                            label: Text(l10n.ollamaLabel),
-                            icon: const Icon(Icons.dns_outlined),
-                          ),
+                      // Chips that wrap, not a SegmentedButton: three labels,
+                      // one of them long, do not fit a 360 dp phone in a row.
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final (provider, label, icon) in [
+                            (
+                              LlmProvider.claude,
+                              l10n.claudeLabel,
+                              Icons.bolt_outlined,
+                            ),
+                            (
+                              LlmProvider.ollama,
+                              l10n.ollamaLabel,
+                              Icons.dns_outlined,
+                            ),
+                            (
+                              LlmProvider.openai,
+                              l10n.openaiLabel,
+                              Icons.hub_outlined,
+                            ),
+                          ])
+                            ChoiceChip(
+                              key: ValueKey('llm-provider-${provider.name}'),
+                              avatar: Icon(icon, size: 18),
+                              label: Text(label),
+                              selected: _settings.provider == provider,
+                              onSelected: (_) =>
+                                  _settings.setProvider(provider),
+                            ),
                         ],
-                        selected: {_settings.provider},
-                        onSelectionChanged: (selection) =>
-                            _settings.setProvider(selection.first),
                       ),
                       const SizedBox(height: 14),
-                      if (_settings.provider == LlmProvider.claude)
-                        ..._claudeFields(context)
-                      else
-                        ..._ollamaFields(context),
+                      ...switch (_settings.provider) {
+                        LlmProvider.claude => _claudeFields(context),
+                        LlmProvider.ollama => _ollamaFields(context),
+                        LlmProvider.openai => _openAiFields(context),
+                      },
                     ],
                   ),
                 ),
@@ -467,7 +511,200 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
     ];
   }
 
+  List<Widget> _openAiFields(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final url = _openAiUrlController.text;
+    final problem = checkOpenAiBaseUrl(url);
+    final isLocal = isLocalServerUrl(url);
+    final host = serverHostOf(url);
+    final busy = _loadingOpenAiModels;
+
+    return [
+      TextField(
+        key: const ValueKey('openai-url'),
+        controller: _openAiUrlController,
+        autocorrect: false,
+        keyboardType: TextInputType.url,
+        decoration: InputDecoration(
+          labelText: l10n.openaiBaseUrlLabel,
+          hintText: LlmSettings.defaultOpenAiBaseUrl,
+          // A rejected URL (http:// to a public host...) says why; a plain
+          // http:// URL on the local network is allowed but warned about.
+          errorText: problem == null
+              ? null
+              : openAiUrlProblemText(l10n, problem, url),
+          errorMaxLines: 3,
+          helperText: problem == null && isPlainHttpUrl(url)
+              ? l10n.ollamaHttpWarning
+              : null,
+          helperMaxLines: 3,
+        ),
+        onChanged: (value) {
+          _settings.setOpenAiBaseUrl(value);
+          setState(() => _openAiTestError = null);
+        },
+      ),
+      const SizedBox(height: 14),
+      TextField(
+        key: const ValueKey('openai-key'),
+        controller: _openAiKeyController,
+        obscureText: !_showOpenAiKey,
+        autocorrect: false,
+        enableSuggestions: false,
+        decoration: InputDecoration(
+          labelText: l10n.openaiApiKeyOptionalLabel,
+          hintText: _settings.hasOpenAiApiKey ? l10n.openaiKeyStoredHint : null,
+          suffixIcon: IconButton(
+            tooltip: _showOpenAiKey ? l10n.hideTooltip : l10n.showTooltip,
+            icon: Icon(
+              _showOpenAiKey
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
+            ),
+            onPressed: () => setState(() => _showOpenAiKey = !_showOpenAiKey),
+          ),
+        ),
+        onSubmitted: (_) => _saveOpenAiKey(),
+      ),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          FilledButton(
+            key: const ValueKey('openai-save-key'),
+            onPressed: _saveOpenAiKey,
+            child: Text(l10n.saveKeyButton),
+          ),
+          if (_settings.hasOpenAiApiKey)
+            TextButton(
+              key: const ValueKey('openai-clear-key'),
+              onPressed: _clearOpenAiKey,
+              child: Text(l10n.clearButton),
+            ),
+          TextButton.icon(
+            key: const ValueKey('openai-load-models'),
+            onPressed: busy ? null : () => _loadOpenAiModels(announce: true),
+            icon: busy
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2.5),
+                  )
+                : const Icon(Icons.wifi_tethering, size: 16),
+            label: Text(l10n.openaiLoadModelsButton),
+          ),
+        ],
+      ),
+      if (_openAiTestError != null) ...[
+        const SizedBox(height: 6),
+        Text(
+          _openAiTestError!,
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
+      ],
+      const SizedBox(height: 14),
+      _modelField(
+        fieldKey: const ValueKey('openai-model'),
+        controller: _openAiModelController,
+        label: l10n.openaiModelLabel,
+        suggestions: _openAiModels,
+        onChanged: _settings.setOpenAiModel,
+      ),
+      const SizedBox(height: 10),
+      _helpText(
+        context,
+        isLocal
+            ? l10n.openaiLocalHelp(host)
+            : '${l10n.openaiCloudHelp(host)}\n'
+                  '${_settings.remembersOpenAiApiKey ? l10n.openaiKeySecureHelp : l10n.openaiKeyInsecureHelp}',
+      ),
+    ];
+  }
+
+  Future<void> _saveOpenAiKey() async {
+    final key = _openAiKeyController.text.trim();
+    if (key.isEmpty) return;
+    await _settings.setOpenAiApiKey(key);
+    _openAiKeyController.clear();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.openaiKeySavedMessage),
+      ),
+    );
+  }
+
+  Future<void> _clearOpenAiKey() async {
+    await _settings.setOpenAiApiKey('');
+    _openAiKeyController.clear();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.openaiKeyRemovedMessage),
+      ),
+    );
+  }
+
+  /// GETs `{base}/models` to check the URL/key and offer the server's real
+  /// model list. [announce] false is the silent check on screen open.
+  Future<void> _loadOpenAiModels({required bool announce}) async {
+    final l10n = AppLocalizations.of(context)!;
+    final problem = checkOpenAiBaseUrl(_openAiUrlController.text);
+    if (problem != null) {
+      if (announce) {
+        setState(
+          () => _openAiTestError = openAiUrlProblemText(
+            l10n,
+            problem,
+            _openAiUrlController.text,
+          ),
+        );
+      }
+      return;
+    }
+    final typed = _openAiKeyController.text.trim();
+    setState(() {
+      _loadingOpenAiModels = true;
+      _openAiTestError = null;
+    });
+    try {
+      final models = await fetchOpenAiModels(
+        baseUrl: _openAiUrlController.text,
+        apiKey: typed.isNotEmpty ? typed : _settings.openAiApiKey,
+      );
+      if (!mounted) return;
+      setState(() {
+        if (models.isNotEmpty) _openAiModels = models;
+        _loadingOpenAiModels = false;
+      });
+      if (announce) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.connectedModelsMessage(l10n.connectedPrefix, models.length),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      String? message;
+      if (e is OpenAiConnectionException) {
+        final friendly = describeLlmFailure(e.kind, l10n);
+        message = '${friendly.title}. ${friendly.reason}';
+      } else {
+        message = l10n.couldNotConnect(e.runtimeType.toString());
+      }
+      setState(() {
+        _loadingOpenAiModels = false;
+        if (announce) _openAiTestError = message;
+      });
+    }
+  }
+
   Widget _modelField({
+    Key? fieldKey,
     required TextEditingController controller,
     required String label,
     required List<String> suggestions,
@@ -476,6 +713,7 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       TextField(
+        key: fieldKey,
         controller: controller,
         autocorrect: false,
         decoration: InputDecoration(labelText: label),

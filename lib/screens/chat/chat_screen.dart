@@ -12,6 +12,7 @@ import '../../notifications/app_lifecycle_tracker.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../widgets/markdown_reply.dart';
+import '../../widgets/status_message.dart' show describeAgentError;
 import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
 import 'navigation_card.dart';
@@ -214,7 +215,11 @@ class _ChatScreenState extends State<ChatScreen> {
           _messages.remove(reply);
         }
         _messages.add(
-          _ChatMessage(fromUser: false, isError: true, text: '$error'),
+          _ChatMessage(
+            fromUser: false,
+            isError: true,
+            text: describeAgentError(error, AppLocalizations.of(context)!),
+          ),
         );
       } else if (reply.text.isEmpty) {
         reply.text = AppLocalizations.of(context)!.noReplyFromModel;

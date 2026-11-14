@@ -84,6 +84,7 @@ class DataEraser {
     await step(_session.disconnect);
     await step(() => _llm.setClaudeApiKey(''));
     await step(() => _llm.setOllamaApiKey(''));
+    await step(() => _llm.setOpenAiApiKey(''));
     await step(_notifications.cancelBriefing);
     await step(_notifications.cancelDailyReminder);
     await step(_notifications.cancelWeeklyReview);

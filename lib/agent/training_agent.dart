@@ -261,6 +261,7 @@ class TrainingAgent {
     cachedRanges: await _tools.cachedRanges(),
     provider: _settings.provider,
     model: _settings.activeModel,
+    localModel: _settings.isOpenAiLocal,
   );
 
   /// Drops the oldest messages once history outgrows the cap, without

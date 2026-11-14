@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart' show DatabaseException;
 
+import '../agent/chat_model_factory.dart' show classifyLlmError;
+import '../agent/openai_connection.dart' show LlmFailureKind;
 import '../l10n/app_localizations.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/sync/sync_screen.dart';
@@ -31,6 +33,8 @@ class FriendlyError {
 /// on: offline, a refused key, not connected, Intervals.icu down or
 /// throttling, the local database, anything else.
 FriendlyError describeError(Object error, AppLocalizations l10n) {
+  final llm = classifyLlmError(error);
+  if (llm != null) return describeLlmFailure(llm, l10n);
   if (error is DioException) {
     final status = error.response?.statusCode;
     if (status == 401 || status == 403) {
@@ -86,6 +90,67 @@ FriendlyError describeError(Object error, AppLocalizations l10n) {
     reason: l10n.smGenericReason,
     fix: ErrorFix.retry,
   );
+}
+
+/// An LLM-server failure (the OpenAI-compatible provider, or its connection
+/// test) in plain language. Not the Intervals.icu wording: the key and
+/// address it points at are the ones in Settings → LLM provider.
+FriendlyError describeLlmFailure(LlmFailureKind kind, AppLocalizations l10n) {
+  final (icon, title, reason) = switch (kind) {
+    LlmFailureKind.unauthorized => (
+      Icons.key_off_outlined,
+      l10n.llmErrUnauthorizedTitle,
+      l10n.llmErrUnauthorizedReason,
+    ),
+    LlmFailureKind.notFound => (
+      Icons.search_off,
+      l10n.llmErrNotFoundTitle,
+      l10n.llmErrNotFoundReason,
+    ),
+    LlmFailureKind.rateLimited => (
+      Icons.hourglass_bottom,
+      l10n.llmErrRateTitle,
+      l10n.llmErrRateReason,
+    ),
+    LlmFailureKind.server => (
+      Icons.cloud_off_outlined,
+      l10n.llmErrServerTitle,
+      l10n.llmErrServerReason,
+    ),
+    LlmFailureKind.toolsRejected => (
+      Icons.build_circle_outlined,
+      l10n.llmErrToolsTitle,
+      l10n.llmErrToolsReason,
+    ),
+    LlmFailureKind.unreachable => (
+      Icons.wifi_off,
+      l10n.llmErrUnreachableTitle,
+      l10n.llmErrUnreachableReason,
+    ),
+    LlmFailureKind.invalidResponse => (
+      Icons.error_outline,
+      l10n.llmErrInvalidTitle,
+      l10n.llmErrInvalidReason,
+    ),
+  };
+  return FriendlyError(
+    icon: icon,
+    title: title,
+    reason: reason,
+    // "Connect" would open Intervals.icu's Profile; the fix here is in
+    // Settings → LLM provider, which the reason names.
+    fix: ErrorFix.retry,
+  );
+}
+
+/// The text for a failed chat/agent turn: friendly for an LLM-server
+/// failure, the raw message otherwise (it is often what the athlete needs,
+/// e.g. "connection refused").
+String describeAgentError(Object error, AppLocalizations l10n) {
+  final kind = classifyLlmError(error);
+  if (kind == null) return '$error';
+  final friendly = describeLlmFailure(kind, l10n);
+  return '${friendly.title}. ${friendly.reason}';
 }
 
 FriendlyError _offline(AppLocalizations l10n) => FriendlyError(

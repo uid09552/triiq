@@ -2,9 +2,17 @@ import 'package:langchain_anthropic/langchain_anthropic.dart';
 import 'package:langchain_core/chat_models.dart';
 import 'package:langchain_core/tools.dart';
 import 'package:langchain_ollama/langchain_ollama.dart';
+import 'package:langchain_openai/langchain_openai.dart';
+import 'package:openai_dart/openai_dart.dart'
+    show
+        ApiException,
+        ConnectionException,
+        OpenAIException,
+        RequestTimeoutException;
 
 import 'llm_settings.dart';
 import 'ollama_connection.dart';
+import 'openai_connection.dart';
 
 /// Thrown when the selected provider has no usable configuration yet.
 class LlmNotConfiguredException implements Exception {
@@ -30,7 +38,7 @@ class AiConsentRequiredException extends LlmNotConfiguredException {
 /// Builds the LangChain chat model for the athlete's current provider
 /// choice, with [tools] bound as its default options.
 ///
-/// This is the only place either provider is named: everything above it —
+/// This is the only place a provider is named: everything above it —
 /// the agent loop, the tools, the chat UI — works against LangChain's
 /// [BaseChatModel], so adding a provider means adding a case here.
 ///
@@ -48,7 +56,7 @@ BaseChatModel createChatModel(
       if (apiKey == null || apiKey.isEmpty) {
         throw const LlmNotConfiguredException(
           'No Claude API key stored. Add one in Settings → LLM provider, or '
-          'switch to Ollama.',
+          'switch to Ollama or an OpenAI-compatible server.',
         );
       }
       return ChatAnthropic(
@@ -97,5 +105,80 @@ BaseChatModel createChatModel(
           tools: tools,
         ),
       );
+
+    case LlmProvider.openai:
+      final problem = checkOpenAiBaseUrl(settings.openAiBaseUrl);
+      if (problem != null) {
+        throw LlmNotConfiguredException(switch (problem) {
+          OpenAiUrlProblem.empty =>
+            'No server URL set. Add one in Settings → LLM provider.',
+          OpenAiUrlProblem.httpPublicHost =>
+            'Plain http:// is only allowed for a server on your own network '
+                '(localhost or a private address). Use https:// for '
+                '${serverHostOf(settings.openAiBaseUrl)}.',
+          OpenAiUrlProblem.credentialsInUrl =>
+            'The server URL must not contain a user name or password. Put '
+                'the key in the API key field instead.',
+          _ =>
+            'The server URL is not valid. Use the form '
+                'https://host/v1 in Settings → LLM provider.',
+        });
+      }
+      final model = settings.openAiModel.trim();
+      if (model.isEmpty) {
+        throw const LlmNotConfiguredException(
+          'No model name set. Add one in Settings → LLM provider.',
+        );
+      }
+      return ChatOpenAI(
+        baseUrl: normalizeOpenAiBaseUrl(settings.openAiBaseUrl),
+        // Sent to the configured server only; empty = no Authorization
+        // header (local servers).
+        apiKey: settings.openAiApiKey,
+        defaultOptions: ChatOpenAIOptions(
+          model: model,
+          // Reasoning models (o-series, gpt-5…) reject a temperature other
+          // than their default, so it is left unset for them.
+          temperature: _acceptsTemperature(model) ? 0.2 : null,
+          tools: tools,
+        ),
+      );
   }
+}
+
+/// Whether [model] takes a custom `temperature`. OpenAI's reasoning models
+/// (`o1`, `o3`, `o4-mini`, `gpt-5…`) answer 400 to anything but the default.
+bool _acceptsTemperature(String model) {
+  final name = model.toLowerCase().split('/').last;
+  return !RegExp(r'^(o\d|gpt-5)').hasMatch(name);
+}
+
+/// Classifies a failure from the OpenAI-compatible provider, or `null` when
+/// [error] is not one (other providers' errors keep their own text).
+///
+/// 401/403 → key, 404 → URL or model, 429 → rate limit, 5xx → server, a 400
+/// that complains about tools/functions → the server or model cannot do the
+/// tool calling the agent needs, no response → unreachable.
+LlmFailureKind? classifyLlmError(Object error) {
+  if (error is OpenAiConnectionException) return error.kind;
+  if (error is! OpenAIException) return null;
+  if (error is ApiException) {
+    final status = error.statusCode;
+    if (status == 401 || status == 403) return LlmFailureKind.unauthorized;
+    if (status == 404) return LlmFailureKind.notFound;
+    if (status == 429) return LlmFailureKind.rateLimited;
+    if (status >= 500) return LlmFailureKind.server;
+    if (status == 400 || status == 422) {
+      final text = '${error.message} ${error.code} ${error.param}'
+          .toLowerCase();
+      if (text.contains('tool') || text.contains('function')) {
+        return LlmFailureKind.toolsRejected;
+      }
+    }
+    return null;
+  }
+  if (error is ConnectionException || error is RequestTimeoutException) {
+    return LlmFailureKind.unreachable;
+  }
+  return null;
 }

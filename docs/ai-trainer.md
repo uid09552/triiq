@@ -1,8 +1,9 @@
 # AI trainer
 
 The chat, **Train now** and the AI-written session texts use the LLM you pick
-in **Settings → AI trainer → LLM provider**: Claude (your Anthropic key), Ollama Cloud, or
-a model you run yourself with Ollama.
+in **Settings → AI trainer → LLM provider**: Claude (your Anthropic key), Ollama Cloud, a
+model you run yourself with Ollama, or any OpenAI-compatible server (OpenAI,
+OpenRouter, LM Studio, vLLM, llama.cpp…).
 
 ## How it works
 

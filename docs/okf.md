@@ -18,8 +18,9 @@ stack: Flutter (Dart) + LangChain.dart, no custom backend
 ### What it is
 
 TriIQ is a client-only mobile/desktop app that connects an athlete's
-[Intervals.icu](https://intervals.icu) training data to an LLM (Claude, or
-Ollama — Ollama Cloud by default, or a local/self-hosted server), so the
+[Intervals.icu](https://intervals.icu) training data to an LLM (Claude;
+Ollama — Ollama Cloud by default, or a local/self-hosted server; or any
+OpenAI-compatible server), so the
 athlete can:
 
 - see today's training and load metrics at a glance,
@@ -36,10 +37,10 @@ athlete can:
 - **Local-first.** Training data fetched from Intervals.icu is cached in a
   local SQLite database, so screens read from disk and the app stays usable
   (for previously-synced data) without a live connection.
-- **LLM-agnostic.** The user picks Claude or Ollama in Settings; the agent
-  layer is provider-agnostic via LangChain.dart, and
-  `lib/agent/chat_model_factory.dart` is the only file that names either
-  provider.
+- **LLM-agnostic.** The user picks Claude, Ollama or an OpenAI-compatible
+  server in Settings; the agent layer is provider-agnostic via LangChain.dart,
+  and `lib/agent/chat_model_factory.dart` is the only file that names a
+  provider's chat model.
 - **The generated API client is a dependency, not hand-written code.**
   `lib/client/intervalls/` is produced from `openapi.json` and should be
   regenerated, not edited (two documented exceptions aside — see CLAUDE.md).
@@ -49,7 +50,9 @@ athlete can:
 | Dependency | Purpose | Auth |
 |---|---|---|
 | [Intervals.icu API](https://intervals.icu/api/v1/docs.html) (`openapi.json`) | Source of truth for activities, wellness, workouts | HTTP Basic: username `API_KEY`, password = the user's Intervals.icu API key |
-| LLM provider (Claude API, or Ollama — Ollama Cloud by default, or a local/self-hosted server) | Powers the chat/agent | Claude: API key. Ollama Cloud: API key (`ollama.com/settings/keys`). Local Ollama: none |
+| LLM provider (Claude API; Ollama — Ollama Cloud by default, or a local/self-hosted server; or an OpenAI-compatible server) | Powers the chat/agent | Claude: API key. Ollama Cloud: API key (`ollama.com/settings/keys`). Local Ollama: none. OpenAI-compatible: optional API key (OpenAI, OpenRouter, Azure-style proxies, LiteLLM need one; LM Studio, vLLM, llama.cpp usually none) |
+| `langchain_openai` (+ `openai_dart`) | The chat model behind the OpenAI-compatible provider (`ChatOpenAI`, Chat Completions, configurable `baseUrl`) | — (the provider's key is passed to it) |
+| `langchain_anthropic`, `langchain_ollama` | The chat models behind the Claude and Ollama providers | — |
 
 ### Status matrix
 
@@ -93,10 +96,10 @@ athlete can:
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
 | Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak, the layout, and the busiest weekday in the week table), the chart overview strip (the range shown) and tappable legend entries (toggle buttons: "CTL: shown. Tap to hide."), the readiness gauge ("Readiness 72 of 100"), the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"), Today's hero card as one summary (status, readiness, today's session, tomorrow) and each week-ribbon day ("Wed, Nov 4: done. Open in the calendar."). Every Today gesture has a button or menu path (swipe → screen-reader actions and the ⋯ menu; attention cards → ×). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`, Today at 360 dp and 2× in `test/today_states_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
 | Error and empty states | ✅ Implemented — one `StatusMessage` (`lib/widgets/status_message.dart`): icon, short title, plain reason, one action. `describeError` maps failures to text you can act on — offline (no response, socket, timeout) → "You're offline" + Retry; HTTP 401/403 → "Intervals.icu refused the request" + Open Profile; not connected → Open Profile; 429 / 5xx → wait and retry; SQLite → local data; else "Something went wrong". The exception text only behind an expandable **Details**. Empty states (`StatusMessage.needsSync`) say what is missing and offer Open Sync. Used on Insights, Performance curves, Durability, Best efforts, Compare periods, Wellness trends, the load heatmap, Weekly review, Activities and the activity page's chart |
-| First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key or Ollama server, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
+| First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key, Ollama server, or OpenAI-compatible URL + model + optional key, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
 | Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Each opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
 | Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → App → Appearance, applies instantly, persisted |
-| Settings — LLM provider | ✅ Implemented — provider, models, Ollama URL, Claude key and Ollama key, all persisted; live Ollama model list + connection test |
+| Settings — LLM provider | ✅ Implemented — provider (Claude / Ollama / OpenAI-compatible, chips), models, Ollama URL, OpenAI-compatible base URL, Claude, Ollama and OpenAI-compatible keys, all persisted; live Ollama model list + connection test; "Load models" (`GET {base}/models`) for the OpenAI-compatible server |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
@@ -124,7 +127,7 @@ athlete can:
 
  Chat screen ──▶ TrainingAgent (lib/agent)
                    │
-                   ├─▶ LangChain chat model ──▶ Claude API / Ollama server
+                   ├─▶ LangChain chat model ──▶ Claude API / Ollama server / OpenAI-compatible server
                    │
                    └─▶ TrainingDataTools ──┬─▶ Repositories ──▶ SQLite cache
                                            └─▶ SyncService ──▶ Intervals.icu
@@ -334,8 +337,9 @@ answer.
 
 | File | Role |
 |---|---|
-| `llm_settings.dart` | The provider choice, model names, Ollama URL, and both API keys, persisted and shared with Settings |
-| `chat_model_factory.dart` | Builds the provider's `BaseChatModel` with the tools bound. **The only file that names Claude or Ollama** |
+| `llm_settings.dart` | The provider choice, model names, Ollama and OpenAI-compatible URLs, and the three API keys, persisted and shared with Settings |
+| `chat_model_factory.dart` | Builds the provider's `BaseChatModel` with the tools bound (`ChatAnthropic` / `ChatOllama` / `ChatOpenAI`), and `classifyLlmError()` for the OpenAI-compatible provider's failures. **The only file that names a provider's chat model** |
+| `openai_connection.dart` | OpenAI-compatible helpers: `checkOpenAiBaseUrl()` (https for any host, `http://` only for localhost/private/LAN), `isLocalServerUrl()`, `fetchOpenAiModels()` (`GET {base}/models`), `parseOpenAiModelList()`, and `LlmFailureKind` (401/404/429/5xx/tools/unreachable). Used by Settings, onboarding, the factory and backup restore |
 | `ollama_connection.dart` | `fetchOllamaModels()` — hits `/api/tags` to test a URL/key and list real models. Used by Settings, not by the agent path |
 | `system_prompt.dart` | The standing instructions, plus the per-message runtime context block |
 | `tools/training_data_tools.dart` | The tools the model can call (with `tools/season_tools.dart`, `tools/plan_assistant_tools.dart`, `tools/app_feature_tools.dart`) |
@@ -463,15 +467,22 @@ The second message, `buildRuntimeContext`, is regenerated per message and
 carries today's date and weekday, the athlete identity, whether Intervals.icu
 is connected, which ranges are cached, and the active provider/model. On
 Ollama it appends a note to keep tool arguments strict — small local models
-drift there far more than Claude does.
+drift there far more than Claude does. **The rule for the OpenAI-compatible
+provider:** the same note is appended only when its base URL is local
+(`isLocalServerUrl`: loopback, private RFC 1918 / link-local address,
+single-label host or `.local`/`.lan`/`.home.arpa`/`.internal` name — LM Studio,
+llama.cpp on the LAN), not for a hosted service (OpenAI, OpenRouter…). The
+caller passes `localModel: settings.isOpenAiLocal`.
 
 ### Credential storage
 
 `SecureKeyStore` (`lib/data/secure_key_store.dart`) wraps
 `flutter_secure_storage` and is the only place a secret is written. One named
 secret per instance: `intervals_api_key` for Intervals.icu, `claude_api_key`
-for the Claude API, `ollama_api_key` for Ollama Cloud. Non-secrets — the
-provider choice, model names, the Ollama URL — go to `shared_preferences`
+for the Claude API, `ollama_api_key` for Ollama Cloud, `openai_api_key` for
+the OpenAI-compatible server (optional; cleared by *Delete all data*, never in
+`shared_preferences`, never in a backup, never logged). Non-secrets — the
+provider choice, model names, the Ollama and OpenAI-compatible URLs — go to `shared_preferences`
 instead (`LlmSettings`), because encrypting a hostname buys nothing and the
 vault is the thing most likely to be unavailable.
 Each platform gets the OS credential vault rather than a file or shared
@@ -498,6 +509,44 @@ security, against XSS, a malicious extension, or anyone with devtools open.
 A `HttpOnly` cookie would be the real answer, but that needs a backend to set
 it and the app talks to Intervals.icu directly. Profile's help text changes
 to say so when `IntervalsSession.remembersApiKey` is false.
+
+### OpenAI-compatible provider
+
+`LlmProvider.openai` talks to any server that speaks the Chat Completions API
+(OpenAI, OpenRouter, Azure-style proxies, LM Studio, vLLM, llama.cpp's server,
+LiteLLM…) through `langchain_openai`'s `ChatOpenAI(baseUrl, apiKey,
+defaultOptions: model, temperature 0.2, tools)`. Settings: **Base URL**
+(default `https://api.openai.com/v1`, `llm.openai_base_url`), **Model name**
+(free text, `llm.openai_model`, default `gpt-4o-mini`; **Load models** does
+`GET {base}/models` and replaces the suggestion chips with the server's list)
+and an optional **API key** (vault, `openai_api_key`). Nothing is migrated:
+existing installs keep their provider.
+
+- **URL rule** (`checkOpenAiBaseUrl`): `https://` for any host; `http://` only
+  for localhost, private/LAN addresses and local names (Settings shows the
+  plain-text warning); `http://` to a public host, a URL with `user:pass@` or a
+  malformed URL is rejected with a message, `hasProvider` is false and
+  `createChatModel` throws `LlmNotConfiguredException`. The key goes only to
+  the configured URL, never logged, and is omitted when empty (no
+  `Authorization` header).
+- **Consent / privacy**: it counts as a third-party cloud provider unless the
+  host is local (`LlmSettings.isOpenAiLocal`). The consent dialog and card name
+  the host ("`llm.example.com` (an OpenAI-compatible service)") with the usual
+  wording; for a local host they say "your local model server (`192.168.1.5`)"
+  and that the data stays on the network (`pvConsentDialogBodyLocal`).
+- **Tool calling** is assumed. If the server rejects tools (a 400/422 that
+  mentions tools or functions) the chat shows "This model can't use tools" with
+  advice to pick another model, instead of a raw exception. Reasoning models
+  (`o…`, `gpt-5…`) get no custom `temperature`, which they reject.
+- **Errors**: `classifyLlmError` maps `openai_dart` exceptions and
+  `describeError` words them for this provider: 401/403 → key, 404 → base URL
+  or model, 429 → rate limit/quota, 5xx → server trouble, no answer →
+  unreachable. The chat screen uses the same text (`describeAgentError`).
+- **Backup**: the base URL and model are exported and restored (the one
+  exception to "`llm.*` stays out"); a restored URL must pass the same check,
+  the provider choice and the key are never exported. `session_content.dart`
+  and the weekly-review note go through `createChatModel`, so they work with
+  the new provider unchanged.
 
 ### Ollama: cloud vs. local, and the connection test
 
@@ -1821,8 +1870,10 @@ and long/interval days in the goal for that).
 (`format: triiq-backup`, `version: 1`) with the tables wellness, activities,
 sync_state, events, plans, plan_sessions, knowledge_docs and knowledge_sections,
 plus the settings stored in shared preferences (goal, targets, theme, language,
-trainer memory, …) — except the LLM connection settings (`llm.*`: provider, server URL,
-models), which are device setup and must never be redirected by a backup file; optionally the re-fetchable chart caches (activity
+trainer memory, …) — except the LLM connection settings (`llm.*`: provider, server URLs,
+models), which are device setup and must never be redirected by a backup file; the one
+exception is the OpenAI-compatible base URL and model (`BackupService.portableLlmPrefs`),
+restored only if the URL passes `checkOpenAiBaseUrl`; optionally the re-fetchable chart caches (activity
 streams, performance curves). Excluded always: the Intervals.icu key and the
 AI keys (OS vault) and device-runtime keys (background-sync status). On
 phones the file goes to the share sheet (Drive, Files, mail); on desktop to a
@@ -1957,7 +2008,9 @@ would be 100+ minutes). Minute-based swims (the plan engine's templates) and pac
   Earlier versions wrote `triiq.db` into the working directory, which depends on how the
   app is started (a shortcut can make it the read-only install folder); on first start the
   old file is moved over once, and an existing database is never overwritten.
-- **Keys**: Intervals.icu, Claude and Ollama keys are kept in the OS vault. The **Ollama
+- **Keys**: Intervals.icu, Claude, Ollama and OpenAI-compatible keys are kept in the OS vault.
+  The OpenAI-compatible key is optional and goes only to the base URL you configured (https,
+  or `http://` on your own network); a public `http://` URL is refused. The **Ollama
   key is an Ollama Cloud key and is only ever sent to `https://ollama.com`** — never to a
   self-hosted server and never over plain http (saving a key for another server URL is
   refused with an explanation).
@@ -2093,7 +2146,7 @@ load — is always the deterministic engine's; separately, each session's
 name and description (a short one-line summary, shown next to the name
 where the preview and the week grid otherwise show only it, and a detailed
 set-by-set description, as today) are written by whichever LLM provider
-you've configured in Settings → AI trainer → LLM provider (Claude or Ollama). No
+you've configured in Settings → AI trainer → LLM provider (Claude, Ollama or an OpenAI-compatible server). No
 provider configured, a slow or failing one, or a response that doesn't
 parse: generation still succeeds, and the affected sessions keep the
 engine's own plain text instead — nothing about plan generation requires an
@@ -2191,7 +2244,7 @@ off under Settings → App → Notifications.
   for no target on that sport. **Show on Today** controls whether the
   rings appear on Today at all, separately from the targets themselves.
   Both persist across restarts.
-- **LLM provider**: choose Claude or Ollama, and configure it.
+- **LLM provider**: choose Claude, Ollama or OpenAI-compatible, and configure it.
   - **Claude** needs an API key from `console.anthropic.com`. It's stored in
     your OS credential vault (same place as the Intervals.icu key) and sent
     only to Anthropic; usage is billed to your own Anthropic account.
@@ -2205,6 +2258,18 @@ off under Settings → App → Notifications.
     use **Test connection** to check reachability and list its models the
     same way. Either way the model must support tool calling, or the agent
     can't read your training data at all; the default is `gpt-oss:120b`.
+  - **OpenAI-compatible** works with OpenAI, OpenRouter, Azure-style proxies,
+    LiteLLM, LM Studio, vLLM, llama.cpp and similar. Enter the **Base URL**
+    (default `https://api.openai.com/v1`; usually ends in `/v1`), a **Model
+    name** (or press **Load models** to pick from the server's list) and, if
+    the server needs one, an **API key** (stored in the OS vault, sent only to
+    that URL). `https://` works for any server; plain `http://` only for
+    `localhost` or an address on your own network (`192.168.x.x`, `10.x.x.x`,
+    `172.16–31.x.x`) — Settings explains why when you enter anything else. A
+    server on your own network is treated as a local model (data stays with
+    you); anything else is a third party, and the consent text names its
+    address. The model must support tool calling; if the server rejects it
+    the chat says so.
   All of this is remembered across restarts, and changing it takes effect on
   your next message.
 
