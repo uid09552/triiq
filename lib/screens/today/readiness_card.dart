@@ -105,7 +105,7 @@ class ReadinessCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  _ScoreRing(
+                  ReadinessScoreRing(
                     score: score,
                     level: r.level,
                     color: color,
@@ -149,7 +149,7 @@ class ReadinessCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
-                  child: _SignalPills(report: report),
+                  child: ReadinessSignalPills(report: report),
                 ),
               ],
             ],
@@ -163,18 +163,21 @@ class ReadinessCard extends StatelessWidget {
 /// The readiness gauge: the 0–100 score in the middle with a small icon for
 /// the status beneath it (ready, caution, rest), the arc in the status colour.
 /// An empty ring, "–" and a dash when there is no score yet.
-class _ScoreRing extends StatelessWidget {
-  const _ScoreRing({
+class ReadinessScoreRing extends StatelessWidget {
+  const ReadinessScoreRing({
+    super.key,
     required this.score,
     required this.level,
     required this.color,
     this.dim = false,
+    this.size = 76,
   });
 
   final int? score;
   final ReadinessLevel level;
   final Color color;
   final bool dim;
+  final double size;
 
   static IconData _icon(ReadinessLevel level) => switch (level) {
     ReadinessLevel.ready => Icons.bolt_rounded,
@@ -194,8 +197,8 @@ class _ScoreRing extends StatelessWidget {
           : l10n.a11yReadinessScore(score!),
       progress: (score ?? 0) / 100,
       color: color,
-      size: 76,
-      strokeWidth: 6,
+      size: size,
+      strokeWidth: size < 70 ? 5 : 6,
       dim: dim,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -225,8 +228,8 @@ class _ScoreRing extends StatelessWidget {
 /// HRV, resting HR, sleep, form and feel with today's value, tinted by
 /// rating — plus CTL with its change over the last week as the fitness
 /// indicator.
-class _SignalPills extends StatelessWidget {
-  const _SignalPills({required this.report});
+class ReadinessSignalPills extends StatelessWidget {
+  const ReadinessSignalPills({super.key, required this.report});
 
   final ReadinessReport report;
 

@@ -8683,6 +8683,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open session'**
   String get durRadarOpen;
+
+  /// No description provided for @todaySectionHero.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s plan (status, readiness, session)'**
+  String get todaySectionHero;
+
+  /// No description provided for @todaySectionWeekRibbon.
+  ///
+  /// In en, this message translates to:
+  /// **'Week ribbon'**
+  String get todaySectionWeekRibbon;
+
+  /// No description provided for @todaySectionAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get todaySectionAttention;
+
+  /// No description provided for @todayThisWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get todayThisWeekTitle;
+
+  /// No description provided for @customizeTodayTimeOfDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Order by time of day'**
+  String get customizeTodayTimeOfDay;
+
+  /// No description provided for @customizeTodayTimeOfDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning: today\'s session first. Evening: today\'s result and tomorrow first.'**
+  String get customizeTodayTimeOfDayHint;
+
+  /// No description provided for @customizeTodayAllTiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all six load tiles'**
+  String get customizeTodayAllTiles;
+
+  /// No description provided for @attentionHideToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide for today'**
+  String get attentionHideToday;
+
+  /// No description provided for @attentionShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get attentionShowLess;
+
+  /// No description provided for @attentionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+1 more} other{+{count} more}}'**
+  String attentionMore(int count);
+
+  /// No description provided for @ribbonDone.
+  ///
+  /// In en, this message translates to:
+  /// **'done'**
+  String get ribbonDone;
+
+  /// No description provided for @ribbonPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'planned'**
+  String get ribbonPlanned;
+
+  /// No description provided for @ribbonMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'missed'**
+  String get ribbonMissed;
+
+  /// No description provided for @ribbonRest.
+  ///
+  /// In en, this message translates to:
+  /// **'rest day'**
+  String get ribbonRest;
+
+  /// No description provided for @ribbonDaySemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: {status}. Open in the calendar.'**
+  String ribbonDaySemantics(String day, String status);
+
+  /// No description provided for @todayThisWeekSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {planned} sessions'**
+  String todayThisWeekSessions(int done, int planned);
+
+  /// No description provided for @todayThisWeekLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'{load} TSS this week'**
+  String todayThisWeekLoad(int load);
+
+  /// No description provided for @raceWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Race week'**
+  String get raceWeekTitle;
+
+  /// No description provided for @raceWeekFormForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'Race-day form forecast {form}'**
+  String raceWeekFormForecast(String form);
+
+  /// No description provided for @todayWaitingForWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for watch data'**
+  String get todayWaitingForWatch;
+
+  /// No description provided for @readinessExplainScore.
+  ///
+  /// In en, this message translates to:
+  /// **'The score is half the average of the rated signals and half the weakest one, so a single signal that is off shows in the number. Not medical advice.'**
+  String get readinessExplainScore;
+
+  /// No description provided for @readinessExplainDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details and trends'**
+  String get readinessExplainDetails;
+
+  /// No description provided for @heroTomorrowRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow: rest day'**
+  String get heroTomorrowRest;
+
+  /// No description provided for @heroTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow: {session}'**
+  String heroTomorrow(String session);
+
+  /// No description provided for @heroA11yToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {session}'**
+  String heroA11yToday(String session);
+
+  /// No description provided for @heroMoveToTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to tomorrow'**
+  String get heroMoveToTomorrow;
+
+  /// No description provided for @heroActionStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get heroActionStart;
+
+  /// No description provided for @heroActionSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap for easier'**
+  String get heroActionSwap;
+
+  /// No description provided for @heroActionFeel.
+  ///
+  /// In en, this message translates to:
+  /// **'Log how it felt'**
+  String get heroActionFeel;
+
+  /// No description provided for @heroNextKeySession.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day · next key session: {day}, {name}'**
+  String heroNextKeySession(String day, String name);
+
+  /// No description provided for @heroAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the trainer about today'**
+  String get heroAskTrainer;
+
+  /// No description provided for @heroExplainReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain the readiness score'**
+  String get heroExplainReadiness;
+
+  /// No description provided for @heroResultOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{actual} of {planned}'**
+  String heroResultOf(String actual, String planned);
+
+  /// No description provided for @heroFeelNotLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'How did it feel? Not logged yet.'**
+  String get heroFeelNotLogged;
+
+  /// No description provided for @heroFeelLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Felt: fatigue {fatigue}/4 · soreness {soreness}/4'**
+  String heroFeelLogged(String fatigue, String soreness);
+
+  /// No description provided for @heroAskTrainerTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get heroAskTrainerTopic;
+
+  /// No description provided for @heroAskTrainerDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'What should I do today, and am I fit for it?'**
+  String get heroAskTrainerDraft;
+
+  /// No description provided for @todayMoreMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'More metrics'**
+  String get todayMoreMetrics;
+
+  /// No description provided for @todayFewerMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer metrics'**
+  String get todayFewerMetrics;
 }
 
 class _AppLocalizationsDelegate

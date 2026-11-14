@@ -1,73 +1,92 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
-import '../../data/pending_deletes.dart';
+import '../../agent/chat_handoff.dart';
 import '../../agent/llm_settings.dart';
 import '../../agent/plan_proposals.dart';
 import '../../data/intervals_session.dart';
-import '../../l10n/app_localizations.dart';
-import '../../plan/adaptation_service.dart';
-import '../../widgets/pending_changes_card.dart';
-import '../season/health_card.dart';
-import '../calendar/day_actions.dart';
-import 'fatigue_warning_card.dart';
-import '../../util/intervals_links.dart';
-import '../activities/feel_dialog.dart';
-import 'today_header.dart';
-import 'tile_spark.dart';
-import '../../plan/plan_changes.dart';
-import '../../plan/plan_models.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../data/models/local_wellness.dart';
+import '../../data/pending_deletes.dart';
 import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
 import '../../data/repositories/plans_repository.dart';
 import '../../data/repositories/wellness_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
-import '../../data/sync/sync_settings.dart';
 import '../../data/sync/sync_service.dart';
+import '../../data/sync/sync_settings.dart';
+import '../../data/threshold_suggestions_service.dart';
+import '../../evaluation/fatigue_warning.dart';
+import '../../evaluation/fatigue_warning_service.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
 import '../../evaluation/readiness_settings.dart';
+import '../../l10n/app_localizations.dart';
+import '../../plan/adaptation_service.dart';
+import '../../plan/plan_changes.dart';
+import '../../plan/plan_models.dart';
+import '../../season/fitness_forecast.dart';
+import '../../season/illness_mode.dart' show HealthPhase;
+import '../../season/season_service.dart';
 import '../../util/dates.dart';
+import '../../util/intervals_links.dart';
 import '../../widgets/athlete_avatar.dart';
+import '../../widgets/main_navigation.dart';
+import '../../widgets/pending_changes_card.dart';
 import '../../widgets/section_card.dart';
-import '../../widgets/sync_status_chip.dart';
 import '../../widgets/stat_tile.dart';
+import '../../widgets/sync_status_chip.dart';
 import '../activities/activity_detail_screen.dart';
 import '../activities/activity_icons.dart';
+import '../activities/feel_dialog.dart';
+import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
+import '../calendar/calendar_moves.dart';
+import '../calendar/day_actions.dart';
+import '../chat/ask_trainer.dart';
 import '../chat/proposal_card.dart';
+import '../plan/plan_labels.dart';
 import '../plan/plan_session_sheet.dart';
 import '../profile/profile_screen.dart';
+import '../season/health_card.dart';
 import '../settings/settings_screen.dart';
+import '../settings/year_goals_settings.dart';
+import '../statistics/threshold_suggestion_card.dart';
 import 'athlete_detail_screen.dart';
-import 'metric_history_screen.dart';
-import 'readiness_card.dart';
-import 'train_now_screen.dart';
+import 'attention_stack.dart';
 import 'customize_today_sheet.dart';
+import 'fatigue_warning_card.dart';
+import 'metric_history_screen.dart';
+import 'race_week_header.dart';
+import 'readiness_card.dart';
+import 'readiness_explain_sheet.dart';
+import 'this_week_card.dart';
 import 'tile_details_sheet.dart';
 import 'tile_metric.dart';
-import '../settings/year_goals_progress.dart';
-import '../settings/year_goals_settings.dart';
+import 'tile_spark.dart';
+import 'today_hero_card.dart';
 import 'today_layout_settings.dart';
-import '../activities/planned_workout_actions.dart';
-import '../statistics/threshold_suggestion_card.dart';
+import 'train_now_screen.dart';
 import 'tss_history_screen.dart';
+import 'week_ribbon.dart';
 import 'weekly_load_screen.dart';
-import 'weekly_targets_row.dart';
 
-/// Today's and tomorrow's planned training, what was actually logged, and
-/// the key load metrics (TSS today, TSS this week, CTL/ATL).
-///
-/// Opening the screen (and any change to the Intervals.icu connection)
-/// fetches the current week plus tomorrow if today isn't cached yet.
-/// Pull-to-refresh always refetches, scoped to just today so the gesture
-/// stays fast. Display always reads from SQLite, so the screen works
-/// offline once synced.
 /// From this content width Today lays its sections out in two columns.
 const todayTwoColumnWidth = 900.0;
 
+/// Days before a race from which Today switches to its race-week layout.
+const raceWeekDays = 7;
+
+/// Today: one hero card (status, readiness, today's session and one primary
+/// action, tomorrow), what needs attention, this week, the load tiles,
+/// today's activities.
+///
+/// Opening the screen (and any change to the Intervals.icu connection)
+/// fetches the current week plus tomorrow if today isn't cached yet.
+/// Pull-to-refresh always refetches. Display always reads from SQLite, so
+/// the screen works offline once synced.
 class TodayScreen extends StatefulWidget {
   const TodayScreen({
     super.key,
@@ -79,6 +98,11 @@ class TodayScreen extends StatefulWidget {
     this.sparkLoader,
     this.goalStore,
     this.plansRepository,
+    this.seasonService,
+    this.fatigueWarningService,
+    this.thresholdService,
+    this.mover,
+    this.clock,
   });
 
   /// Test seams; the app uses the defaults.
@@ -92,6 +116,14 @@ class TodayScreen extends StatefulWidget {
   final TileSparkLoader? sparkLoader;
   final GoalStore? goalStore;
   final PlansRepository? plansRepository;
+  final SeasonService? seasonService;
+  final FatigueWarningService? fatigueWarningService;
+  final ThresholdSuggestionsService? thresholdService;
+
+  /// Moves a session to tomorrow (the calendar's mover: plan rules, offline
+  /// queue, undo).
+  final CalendarMover? mover;
+  final DateTime Function()? clock;
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -100,6 +132,7 @@ class TodayScreen extends StatefulWidget {
 class _TodayScreenState extends State<TodayScreen> {
   final _session = IntervalsSession.instance;
   final _layout = TodayLayoutSettings.instance;
+  final _dismissals = AttentionDismissals.instance;
   final _syncService = SyncService();
   late final _wellnessRepository =
       widget.wellnessRepository ?? WellnessRepository();
@@ -109,7 +142,7 @@ class _TodayScreenState extends State<TodayScreen> {
       widget.plannedItems ?? PlannedItemsRepository();
   late final _readinessService =
       widget.readinessService ??
-      ReadinessService(wellness: _wellnessRepository);
+      ReadinessService(wellness: _wellnessRepository, clock: widget.clock);
   late final _adaptationService =
       widget.adaptationService ??
       AdaptationService(
@@ -118,6 +151,15 @@ class _TodayScreenState extends State<TodayScreen> {
         activities: _activitiesRepository,
         readiness: _readinessService,
       );
+  late final _seasonService =
+      widget.seasonService ??
+      SeasonService(
+        planned: _eventsRepository.getRange,
+        wellness: _wellnessRepository,
+        goals: widget.goalStore,
+        clock: widget.clock,
+      );
+  late final _mover = widget.mover ?? CalendarMover(clock: widget.clock);
 
   bool _loading = true;
   String? _error;
@@ -133,29 +175,43 @@ class _TodayScreenState extends State<TodayScreen> {
 
   /// Days to the active plan's event (0 on the day), or `null`.
   int? _raceDays;
+
+  /// The plan's phase this week (taper, race week), for the race-week
+  /// header.
+  String? _racePhase;
+  SeasonSnapshot? _season;
+  FatigueWarning? _fatigue;
+
+  /// Threshold suggestions waiting (the card loads its own; this only says
+  /// whether it belongs in the attention stack).
+  int _thresholds = 0;
   List<LocalActivity> _activities = const [];
   List<LocalActivity> _weekActivities = const [];
+  List<LocalEvent> _weekEvents = const [];
   List<LocalEvent> _todaysPlan = const [];
   List<LocalEvent> _tomorrowsPlan = const [];
   int _weekLoad = 0;
   int _weekPlannedLoad = 0;
 
-  static String get _today => isoDate(DateTime.now());
+  DateTime get _now => (widget.clock ?? DateTime.now)();
 
-  static String get _tomorrow =>
-      isoDate(DateTime.now().add(const Duration(days: 1)));
+  String get _today => isoDate(_now);
+
+  String get _tomorrow => isoDate(_now.add(const Duration(days: 1)));
 
   @override
   void initState() {
     super.initState();
     _session.addListener(_load);
     _layout.addListener(_onLayoutChanged);
+    _dismissals.addListener(_onLayoutChanged);
     ReadinessSettings.instance.addListener(_onReadinessSelection);
     YearGoalsSettings.instance.addListener(_onLayoutChanged);
     AutoSyncService.instance.addListener(_onCacheChanged);
     PlanChanges.instance.addListener(_onCacheChanged);
     PendingDeletes.instance.addListener(_onCacheChanged);
     SyncSettings.instance.addListener(_onCacheChanged);
+    _dismissals.load();
     _load();
   }
 
@@ -163,6 +219,7 @@ class _TodayScreenState extends State<TodayScreen> {
   void dispose() {
     _session.removeListener(_load);
     _layout.removeListener(_onLayoutChanged);
+    _dismissals.removeListener(_onLayoutChanged);
     ReadinessSettings.instance.removeListener(_onReadinessSelection);
     YearGoalsSettings.instance.removeListener(_onLayoutChanged);
     AutoSyncService.instance.removeListener(_onCacheChanged);
@@ -189,11 +246,11 @@ class _TodayScreenState extends State<TodayScreen> {
     _load();
   }
 
-  /// Pull-to-refresh: refetch just today. [SyncService.refreshRange] decides
-  /// whether that costs a fetch — it joins one already running instead of
-  /// starting a second, skips it entirely within [SyncService.refreshMinGap]
-  /// of the last one, and gives up waiting after [SyncService.refreshTimeout]
-  /// — so the gesture is always cheap to repeat.
+  /// Pull-to-refresh: [SyncService.refreshRange] decides whether that costs
+  /// a fetch — it joins one already running instead of starting a second,
+  /// skips it entirely within [SyncService.refreshMinGap] of the last one,
+  /// and gives up waiting after [SyncService.refreshTimeout] — so the
+  /// gesture is always cheap to repeat.
   Future<void> _refreshFromGesture() async {
     _refreshingFromGesture = true;
     try {
@@ -231,10 +288,10 @@ class _TodayScreenState extends State<TodayScreen> {
     }
 
     try {
-      final (weekStart, weekEnd) = SyncService.todayWindow();
+      final (weekStart, weekEnd) = SyncService.todayWindow(_now);
       final wellness = await _wellnessRepository.getByDate(_today);
       final wellnessWeekAgo = await _wellnessRepository.getByDate(
-        isoDate(DateTime.now().subtract(const Duration(days: 7))),
+        isoDate(_now.subtract(const Duration(days: 7))),
       );
       final activities = await _activitiesRepository.getByDate(_today);
       final todaysPlan = await _eventsRepository.getByDate(_today);
@@ -253,6 +310,7 @@ class _TodayScreenState extends State<TodayScreen> {
         _wellnessWeekAgo = wellnessWeekAgo;
         _activities = activities;
         _weekActivities = weekActivities;
+        _weekEvents = weekEvents;
         _todaysPlan = todaysPlan.where((e) => e.isTraining).toList();
         _tomorrowsPlan = tomorrowsPlan.where((e) => e.isTraining).toList();
         _weekLoad = weekActivities.fold<int>(
@@ -263,20 +321,24 @@ class _TodayScreenState extends State<TodayScreen> {
             .where((e) => e.isTraining)
             .fold<int>(0, (sum, event) => sum + (event.plannedLoad ?? 0));
         _error = syncError?.toString();
-        _loading = false;
       });
     } catch (e) {
       if (!mounted) return fetched;
       setState(() {
         _error = (syncError ?? e).toString();
-        _loading = false;
       });
     }
     // Independent of each other: a slow one never holds the others back.
     await Future.wait([
       _loadReadiness().then((_) => _loadAdjustments()),
       _loadRaceCountdown(),
+      _loadSeason(),
     ]);
+    // The rest of the attention stack, one after the other: they only add
+    // cards and shouldn't compete with the hero for the database.
+    await _loadFatigue();
+    await _loadThresholds();
+    if (mounted) setState(() => _loading = false);
     return fetched;
   }
 
@@ -286,20 +348,53 @@ class _TodayScreenState extends State<TodayScreen> {
           .getCurrent();
       final goal = await (widget.goalStore ?? GoalStore()).load();
       final event = goal?.eventDate;
+      final today = dateOnly(_now);
       int? days;
+      String? phase;
       if (plan?.status == PlanStatus.active && event != null) {
-        final today = dateOnly(DateTime.now());
         days = DateTime.utc(
           event.year,
           event.month,
           event.day,
         ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
         if (days < 0) days = null;
+        for (final week in plan!.weeks) {
+          final start = dateOnly(week.startDate);
+          if (!today.isBefore(start) &&
+              today.isBefore(start.add(const Duration(days: 7)))) {
+            phase = week.phase;
+          }
+        }
       }
-      if (mounted) setState(() => _raceDays = days);
+      if (mounted) {
+        setState(() {
+          _raceDays = days;
+          _racePhase = phase;
+        });
+      }
     } catch (e) {
       debugPrint('TodayScreen: race countdown unavailable: $e');
     }
+  }
+
+  /// Illness / injury and the fitness forecast (race-day form).
+  Future<void> _loadSeason() async {
+    try {
+      final s = await _seasonService.load(horizonDays: 60);
+      if (mounted) setState(() => _season = s);
+    } catch (e) {
+      debugPrint('TodayScreen: season unavailable: $e');
+    }
+  }
+
+  Future<void> _loadFatigue() async {
+    final w = await loadVisibleFatigueWarning(
+      service:
+          widget.fatigueWarningService ??
+          FatigueWarningService(wellness: _wellnessRepository),
+      now: _now,
+    );
+    if (mounted) setState(() => _fatigue = w);
   }
 
   Future<void> _loadAdjustments() async {
@@ -311,14 +406,14 @@ class _TodayScreenState extends State<TodayScreen> {
     }
   }
 
-  /// Readiness after the rest of the screen, so a slow knowledge load or a
-  /// bad wellness row only costs the readiness row, never the load tiles.
   /// The athlete switched readiness signals on or off: rate again, and
   /// refresh the suggestions that depend on it.
   void _onReadinessSelection() {
     _loadReadiness().then((_) => _loadAdjustments());
   }
 
+  /// Readiness after the rest of the screen, so a slow knowledge load or a
+  /// bad wellness row only costs the readiness slot, never the load tiles.
   Future<void> _loadReadiness() async {
     try {
       final readiness = await _readinessService.load();
@@ -329,66 +424,165 @@ class _TodayScreenState extends State<TodayScreen> {
     }
   }
 
-  /// "How do I feel?" from the header's quick actions: today's fatigue and
-  /// soreness, prefilled with what is already logged for the day.
-  Future<void> _logFeel() {
-    final today = isoDate(DateTime.now());
-    final w = _wellness != null && _wellness!.date == today ? _wellness : null;
-    int? score(String key) {
-      final v = w?.raw[key];
-      return v is num && v > 0 ? v.toInt() : null;
-    }
+  int? _score(String key) {
+    final w = _wellness != null && _wellness!.date == _today ? _wellness : null;
+    final v = w?.raw[key];
+    return v is num && v > 0 ? v.toInt() : null;
+  }
 
-    return showFeelDialog(
+  /// "How do I feel?": today's fatigue and soreness, prefilled with what is
+  /// already logged for the day.
+  Future<void> _logFeel() async {
+    await showFeelDialog(
       context,
-      date: today,
-      initialFatigue: score('fatigue'),
-      initialSoreness: score('soreness'),
+      date: _today,
+      initialFatigue: _score('fatigue'),
+      initialSoreness: _score('soreness'),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final connected = _session.isConnected;
+  void _trainNow({String? eventId}) => Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => TrainNowScreen(initialEventId: eventId)),
+  );
 
-    final todaysLoad = _activities.isEmpty
-        ? null
-        : _activities.fold<int>(
-            0,
-            (sum, activity) => sum + (activity.trainingLoad ?? 0),
-          );
-    final todaysPlannedLoad = _todaysPlan.fold<int>(
-      0,
-      (sum, event) => sum + (event.plannedLoad ?? 0),
+  /// A session's steps: the plan-session sheet for a TriIQ session, the
+  /// planned-workout detail screen for an Intervals.icu one.
+  void _openPlanned(LocalEvent event) => event.isPlanSession
+      ? showPlanSessionSheetForEvent(context, event)
+      : Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => PlannedWorkoutDetailScreen(event: event),
+          ),
+        );
+
+  /// The calendar's move: rule warnings on the snackbar, Undo moves it back.
+  Future<void> _moveToTomorrow(LocalEvent event) {
+    final byDate = <String, List<LocalEvent>>{};
+    for (final e in [..._weekEvents, ..._tomorrowsPlan]) {
+      final list = byDate.putIfAbsent(e.date, () => []);
+      if (!list.any((x) => x.id == e.id)) list.add(e);
+    }
+    return moveWithUndo(
+      context,
+      _mover,
+      event,
+      dateOnly(_now).add(const Duration(days: 1)),
+      eventsByDate: byDate,
     );
+  }
 
-    List<Widget> sectionWidgets(TodaySection section) => switch (section) {
-      TodaySection.readiness => [
-        const SizedBox(height: 16),
-        PendingChangesCard(),
-        const HealthBanner(),
-        if (_readiness case final readiness?) ...[
-          const SizedBox(height: 16),
-          ReadinessCard(report: readiness),
-          const FatigueWarningBanner(),
-          if (ReadinessHint.hardSessionFor(readiness.readiness, _todaysPlan) !=
-              null) ...[
-            const SizedBox(height: 12),
-            ReadinessHint(
-              readiness: readiness.readiness,
-              todaysPlan: _todaysPlan,
-            ),
+  void _askTrainerAboutToday(AppLocalizations l10n) {
+    final r = _readiness?.readiness;
+    Map<String, Object?> session(LocalEvent e) => {
+      'name': e.name ?? e.type,
+      'type': e.type,
+      'planned_minutes': e.plannedTime == null
+          ? null
+          : (e.plannedTime! / 60).round(),
+      'planned_load': e.plannedLoad,
+    };
+    askTrainer(
+      context,
+      ChatTopic(
+        title: l10n.heroAskTrainerTopic,
+        context: jsonEncode({
+          'date': _today,
+          'readiness': r == null || r.dataState == ReadinessDataState.noData
+              ? null
+              : {
+                  'level': r.level.name,
+                  'data': r.dataState.name,
+                  'reasons': [for (final s in r.reasons) s.kind.name],
+                },
+          'today_planned': [for (final e in _todaysPlan) session(e)],
+          'today_done': [
+            for (final a in _activities)
+              {
+                'name': a.name ?? a.type,
+                'type': a.type,
+                'minutes': ((a.movingTime ?? 0) / 60).round(),
+                'load': a.trainingLoad,
+              },
           ],
-        ],
-      ],
-      TodaySection.adjustments => [
-        if (_adjustments.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          SectionCard(
-            collapsed: _layout.isCollapsed(TodaySection.adjustments),
-            onToggleCollapsed: () => _toggleFold(TodaySection.adjustments),
+          'tomorrow_planned': [for (final e in _tomorrowsPlan) session(e)],
+          'note':
+              'Call get_readiness and get_plan_adjustments for details '
+              'before advising.',
+        }),
+        draft: l10n.heroAskTrainerDraft,
+      ),
+    );
+  }
+
+  /// An illness or injury that is still on (not the return ramp).
+  bool get _sick => _season?.health?.phase == HealthPhase.affected;
+
+  bool get _raceWeek {
+    final days = _raceDays;
+    return days != null && days <= raceWeekDays;
+  }
+
+  /// On a day with nothing planned: the next hard session of the week.
+  LocalEvent? get _nextKeySession {
+    for (final e in _weekEvents) {
+      if (e.date.compareTo(_today) > 0 && e.isTraining && isHardSession(e)) {
+        return e;
+      }
+    }
+    return null;
+  }
+
+  double? get _raceDayForm {
+    final days = _raceDays;
+    final season = _season;
+    if (days == null || season == null) return null;
+    final day = forecastOn(
+      season.forecast,
+      dateOnly(_now).add(Duration(days: days)),
+    );
+    return day?.form;
+  }
+
+  void _dismissAttention(AttentionKind kind) => _dismissals.dismiss(kind, _now);
+
+  List<AttentionItem> _attentionItems(AppLocalizations l10n) {
+    final scheme = Theme.of(context).colorScheme;
+    bool open(AttentionKind kind) => !_dismissals.isDismissed(kind, _now);
+    final season = _season;
+    return [
+      // The return-to-training ramp after an illness; while still sick the
+      // card sits right under the hero instead.
+      if (season?.health != null && !_sick && open(AttentionKind.health))
+        AttentionItem(
+          kind: AttentionKind.health,
+          priority: 0,
+          child: HealthCard(
+            status: season!.health,
+            changes: season.healthChanges,
+            today: dateOnly(season.today),
+            onChanged: _loadSeason,
+          ),
+        ),
+      if (_fatigue case final w? when open(AttentionKind.fatigue))
+        AttentionItem(
+          kind: AttentionKind.fatigue,
+          priority: w.level == FatigueLevel.warning ? 1 : 3,
+          child: FatigueWarningCard(
+            warning: w,
+            onDismiss: () async {
+              await FatigueWarningDismissals().dismiss(_now, w.level);
+              if (mounted) setState(() => _fatigue = null);
+            },
+          ),
+        ),
+      if (_adjustments.any(
+            (p) => p.canApply || p.state == ProposalState.applying,
+          ) &&
+          open(AttentionKind.adjustments))
+        AttentionItem(
+          kind: AttentionKind.adjustments,
+          priority: 2,
+          child: SectionCard(
             icon: Icons.auto_fix_high_outlined,
             title: l10n.todayAdjustmentsTitle,
             child: ListenableBuilder(
@@ -402,10 +596,164 @@ class _TodayScreenState extends State<TodayScreen> {
               ),
             ),
           ),
+        ),
+      if (_raceDays case final days?
+          when !_raceWeek && open(AttentionKind.race))
+        AttentionItem(
+          kind: AttentionKind.race,
+          priority: 4,
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 48, 14),
+              child: Row(
+                children: [
+                  Icon(Icons.flag_outlined, color: scheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.todayRaceCountdown(days),
+                      key: const ValueKey('race-countdown'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      if (open(AttentionKind.thresholds) && _thresholds > 0)
+        AttentionItem(
+          kind: AttentionKind.thresholds,
+          priority: 5,
+          child: _thresholdSection(),
+        ),
+    ];
+  }
+
+  /// Shown only while it has suggestions; it reports back after a review
+  /// or a dismissal, so the stack can drop it.
+  Widget _thresholdSection() => ThresholdSuggestionsSection(
+    key: const ValueKey('threshold-suggestions'),
+    service: widget.thresholdService,
+    bottomPadding: 0,
+    onLoaded: (count) {
+      if (mounted && count != _thresholds) {
+        setState(() => _thresholds = count);
+      }
+    },
+  );
+
+  Future<void> _loadThresholds() async {
+    try {
+      final list =
+          await (widget.thresholdService ?? ThresholdSuggestionsService())
+              .load();
+      if (mounted) setState(() => _thresholds = list.length);
+    } catch (e) {
+      debugPrint('TodayScreen: threshold suggestions unavailable: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final connected = _session.isConnected;
+    final sick = _sick;
+    final raceWeek = _raceWeek;
+
+    final todaysLoad = _activities.isEmpty
+        ? null
+        : _activities.fold<int>(
+            0,
+            (sum, activity) => sum + (activity.trainingLoad ?? 0),
+          );
+    final todaysPlannedLoad = _todaysPlan.fold<int>(
+      0,
+      (sum, event) => sum + (event.plannedLoad ?? 0),
+    );
+    final attention = sick ? const <AttentionItem>[] : _attentionItems(l10n);
+
+    List<Widget> sectionWidgets(TodaySection section) => switch (section) {
+      TodaySection.hero => [
+        const SizedBox(height: 12),
+        TodayHeroCard(
+          date: _now,
+          connected: connected,
+          loading: _loading,
+          readiness: _readiness,
+          todaysPlan: _todaysPlan,
+          activities: _activities,
+          tomorrowsPlan: _tomorrowsPlan,
+          nextKeySession: _nextKeySession,
+          health: _season?.health,
+          fatigue: _score('fatigue'),
+          soreness: _score('soreness'),
+          statusChip: SyncStatusChip(),
+          onRefresh: _refreshFromGesture,
+          onTrainNow: _trainNow,
+          onSwapEasier: (e) => _trainNow(eventId: e.id),
+          onFeel: _logFeel,
+          onCustomize: () => showCustomizeTodaySheet(context, _layout),
+          onOpenPlanned: _openPlanned,
+          onMoveToTomorrow: sick ? null : _moveToTomorrow,
+          onAskTrainer: () => _askTrainerAboutToday(l10n),
+          onOpenTomorrow: () => _tomorrowsPlan.isEmpty
+              ? MainNavigation.instance.openCalendar(
+                  dateOnly(_now).add(const Duration(days: 1)),
+                )
+              : _openPlanned(_tomorrowsPlan.first),
+          onOpenIntervals: connected
+              ? () => openInIntervals(context, 'calendar')
+              : null,
+          onExplainReadiness: _readiness == null
+              ? null
+              : () => showReadinessExplainSheet(context, _readiness!),
+        ),
+        if (sick && _season?.health != null) ...[
+          const SizedBox(height: 12),
+          HealthCard(
+            status: _season!.health,
+            changes: _season!.healthChanges,
+            today: dateOnly(_season!.today),
+            onChanged: _loadSeason,
+          ),
+        ],
+        if (raceWeek) ...[
+          const SizedBox(height: 12),
+          RaceWeekHeader(
+            days: _raceDays!,
+            phase: _racePhase == null ? null : phaseLabel(l10n, _racePhase!),
+            raceDayForm: _raceDayForm,
+          ),
         ],
       ],
+      TodaySection.attention => [
+        AttentionStack(items: attention, onDismiss: _dismissAttention),
+      ],
+      TodaySection.weekRibbon => [
+        const SizedBox(height: 12),
+        WeekRibbon(
+          today: _now,
+          activities: _weekActivities,
+          events: _weekEvents,
+        ),
+      ],
+      TodaySection.thisWeek => [
+        const SizedBox(height: 12),
+        ThisWeekCard(
+          weekActivities: _weekActivities,
+          weekLoad: _weekLoad,
+          weekPlannedLoad: _weekPlannedLoad,
+          sessionsPlanned: _weekEvents.where((e) => e.isTraining).length,
+          collapsed: _layout.isCollapsed(TodaySection.thisWeek),
+          onToggleCollapsed: () => _toggleFold(TodaySection.thisWeek),
+        ),
+      ],
       TodaySection.metrics => [
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _MetricTiles(
           todaysLoad: todaysLoad,
           todaysPlannedLoad: todaysPlannedLoad,
@@ -414,33 +762,12 @@ class _TodayScreenState extends State<TodayScreen> {
           wellness: _wellness,
           wellnessWeekAgo: _wellnessWeekAgo,
           sparkLoader: widget.sparkLoader,
-        ),
-      ],
-      TodaySection.weeklyTargets => [
-        WeeklyTargetsRow(weekActivities: _weekActivities),
-      ],
-      TodaySection.yearGoals => [
-        if (YearGoalsSettings.instance.showOnToday &&
-            YearGoalsSettings.instance.hasAnyGoal) ...[
-          const SizedBox(height: 16),
-          SectionCard(
-            collapsed: _layout.isCollapsed(TodaySection.yearGoals),
-            onToggleCollapsed: () => _toggleFold(TodaySection.yearGoals),
-            key: const ValueKey('today-year-goals'),
-            icon: Icons.flag_outlined,
-            title: l10n.yearGoalsTitle,
-            child: YearGoalsProgress(),
-          ),
-        ],
-      ],
-      TodaySection.thresholds => [
-        ThresholdSuggestionsSection(
-          key: const ValueKey('threshold-suggestions'),
+          allTiles: _layout.allLoadTiles,
         ),
       ],
       TodaySection.activities => [
         if (_activities.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           SectionCard(
             collapsed: _layout.isCollapsed(TodaySection.activities),
             onToggleCollapsed: () => _toggleFold(TodaySection.activities),
@@ -449,43 +776,6 @@ class _TodayScreenState extends State<TodayScreen> {
             child: _TodayActivities(activities: _activities),
           ),
         ],
-      ],
-      TodaySection.todaysTraining => [
-        const SizedBox(height: 16),
-        SectionCard(
-          collapsed: _layout.isCollapsed(TodaySection.todaysTraining),
-          onToggleCollapsed: () => _toggleFold(TodaySection.todaysTraining),
-          icon: Icons.event_available_outlined,
-          title: l10n.todaysTraining,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // What today's session (or rest day) means for the week's
-              // plan as a whole — the "am I still on track" line the
-              // planned-vs-completed numbers alone don't spell out.
-              // Shown without a connection too: a TriIQ plan is local.
-              if (_weekPlannedLoad > 0) ...[
-                _WeeklyGoalProgress(
-                  completed: _weekLoad,
-                  planned: _weekPlannedLoad,
-                ),
-                const SizedBox(height: 12),
-              ],
-              _PlannedTraining(
-                onLongPress: _todaysPlan.any(canDeletePlannedWorkout)
-                    ? () => confirmAndDeleteDaysWorkouts(context, _todaysPlan)
-                    : null,
-                events: _todaysPlan,
-                // Nothing planned: a long press offers Train now.
-                onEmptyLongPress: () =>
-                    showDayActions(context, DateTime.now(), const []),
-                emptyLabel: connected
-                    ? l10n.nothingPlannedToday
-                    : l10n.connectToSeePlan,
-              ),
-            ],
-          ),
-        ),
       ],
       TodaySection.tomorrowsTraining => [
         const SizedBox(height: 12),
@@ -501,7 +791,7 @@ class _TodayScreenState extends State<TodayScreen> {
             events: _tomorrowsPlan,
             onEmptyLongPress: () => showDayActions(
               context,
-              DateTime.now().add(const Duration(days: 1)),
+              _now.add(const Duration(days: 1)),
               const [],
             ),
             emptyLabel: connected
@@ -511,7 +801,7 @@ class _TodayScreenState extends State<TodayScreen> {
         ),
       ],
       TodaySection.athlete => [
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         SectionCard(
           collapsed: _layout.isCollapsed(TodaySection.athlete),
           onToggleCollapsed: () => _toggleFold(TodaySection.athlete),
@@ -544,10 +834,32 @@ class _TodayScreenState extends State<TodayScreen> {
       ],
     };
 
-    final visible = [
-      for (final section in _layout.order)
-        if (_layout.isVisible(section)) section,
-    ];
+    // A sick or injured day hides what is about training; race week puts
+    // its header where the load tiles were.
+    bool shown(TodaySection s) {
+      if (!_layout.isVisible(s)) return false;
+      if (sick) {
+        return const {
+          TodaySection.hero,
+          TodaySection.activities,
+          TodaySection.athlete,
+        }.contains(s);
+      }
+      if (raceWeek && s == TodaySection.metrics) return false;
+      return true;
+    }
+
+    final visible = contextualTodayOrder(
+      [
+        for (final section in _layout.order)
+          if (shown(section)) section,
+      ],
+      _now,
+      enabled: _layout.timeOfDayOrder,
+    );
+    // Hero hidden by the athlete: a sick day's plan and the race-week
+    // header still have to show somewhere.
+    final heroHidden = !visible.contains(TodaySection.hero);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -555,65 +867,12 @@ class _TodayScreenState extends State<TodayScreen> {
         return RefreshIndicator(
           onRefresh: _refreshFromGesture,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
             children: [
-              TodayHeader(
-                date: DateTime.now(),
-                title: _heroTitle(l10n),
-                titleColor: _heroTitleColor(context),
-                statusChip: SyncStatusChip(),
-                subtitle: _describeStatus(context, connected),
-                loading: _loading,
-                onRefresh: _refreshFromGesture,
-                onTrainNow: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const TrainNowScreen()),
-                ),
-                onFeel: _logFeel,
-                onCustomize: () => showCustomizeTodaySheet(context, _layout),
-                onOpenIntervals: connected
-                    ? () => openInIntervals(context, 'calendar')
-                    : null,
-                doneTss: todaysLoad ?? 0,
-                plannedTss: todaysPlannedLoad,
-                doneSeconds: _activities.fold<int>(
-                  0,
-                  (sum, a) => sum + (a.movingTime ?? 0),
-                ),
-                sessions: _activities.length,
-              ),
-              if (_raceDays case final days?) ...[
-                const SizedBox(height: 12),
-                Row(
-                  key: const ValueKey('race-countdown'),
-                  children: [
-                    Icon(Icons.flag_outlined, color: colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text(
-                      days == 0
-                          ? l10n.todayRaceDay
-                          : l10n.todayRaceCountdown(days),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const TrainNowScreen()),
-                  ),
-                  icon: const Icon(Icons.fitness_center),
-                  label: Text(l10n.titleTrainNow),
-                ),
-              ),
-              const SizedBox(height: 16),
+              PendingChangesCard(),
               _SetupBanner(connected: connected),
               if (_error != null) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 SectionCard(
                   icon: Icons.error_outline,
                   title: l10n.syncFailed,
@@ -623,6 +882,8 @@ class _TodayScreenState extends State<TodayScreen> {
                   ),
                 ),
               ],
+              if (heroHidden && (sick || raceWeek))
+                ...sectionWidgets(TodaySection.hero).skip(2),
               if (twoColumns)
                 Row(
                   key: const ValueKey('today-two-columns'),
@@ -671,9 +932,9 @@ class _TodayScreenState extends State<TodayScreen> {
   /// What to do today stays on the left on a wide window; figures, targets
   /// and the rest go on the right.
   static const _primaryColumn = {
-    TodaySection.readiness,
-    TodaySection.todaysTraining,
-    TodaySection.adjustments,
+    TodaySection.hero,
+    TodaySection.attention,
+    TodaySection.weekRibbon,
     TodaySection.tomorrowsTraining,
   };
 
@@ -690,49 +951,6 @@ class _TodayScreenState extends State<TodayScreen> {
       if (ftp != null && ftp > 0) parts.add('$sport ${l10n.ftpValue(ftp)}');
     }
     return parts.isEmpty ? l10n.syncedWithIntervals : parts.join(' · ');
-  }
-
-  /// Today's readiness once the wearable data says something: a day marked
-  /// Caution or Back off no longer opens with "Ready to train" above a
-  /// readiness card that says the opposite. Null while it loads, with no
-  /// wellness data at all, or on a Ready day.
-  ReadinessLevel? get _heroReadiness {
-    final r = _readiness?.readiness;
-    if (r == null || r.dataState == ReadinessDataState.noData) return null;
-    return r.level == ReadinessLevel.ready ? null : r.level;
-  }
-
-  /// "Ready to train" until something is logged — unless readiness advises
-  /// otherwise. Once an activity is logged the title is just the count.
-  String _heroTitle(AppLocalizations l10n) {
-    if (_activities.isEmpty) {
-      switch (_heroReadiness) {
-        case ReadinessLevel.caution:
-          return l10n.heroTitleCaution;
-        case ReadinessLevel.backOff:
-          return l10n.heroTitleBackOff;
-        case ReadinessLevel.ready || null:
-          break;
-      }
-    }
-    return l10n.heroActivitiesStatus(_activities.length);
-  }
-
-  Color? _heroTitleColor(BuildContext context) {
-    final level = _heroReadiness;
-    return _activities.isEmpty && level != null
-        ? readinessColor(Theme.of(context).colorScheme, level)
-        : null;
-  }
-
-  String _describeStatus(BuildContext context, bool connected) {
-    final l10n = AppLocalizations.of(context)!;
-    if (!connected) return l10n.notConnectedToIntervals;
-    if (_activities.isEmpty) return l10n.noWorkoutLoggedToday;
-    final names = _activities
-        .map((a) => a.name ?? a.type ?? l10n.activityFallback)
-        .join(', ');
-    return names;
   }
 }
 
@@ -752,9 +970,14 @@ class _MetricTiles extends StatefulWidget {
     required this.wellness,
     required this.wellnessWeekAgo,
     this.sparkLoader,
+    this.allTiles = false,
   });
 
   final TileSparkLoader? sparkLoader;
+
+  /// All six tiles (the athlete's choice in Customize Today); otherwise
+  /// Fitness, Fatigue and Form with the rest behind "More metrics".
+  final bool allTiles;
   final int? todaysLoad;
   final int todaysPlannedLoad;
   final int weekLoad;
@@ -768,6 +991,7 @@ class _MetricTiles extends StatefulWidget {
 
 class _MetricTilesState extends State<_MetricTiles> {
   Map<TileMetric, TileSpark> _spark = const {};
+  bool _expanded = false;
 
   @override
   void initState() {
@@ -825,181 +1049,177 @@ class _MetricTilesState extends State<_MetricTiles> {
     void open(Widget screen) =>
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
 
+    final tssToday = StatTile(
+      label: l10n.tssToday,
+      value: todaysLoad?.toString() ?? '—',
+      subtitle: todaysPlannedLoad > 0
+          ? l10n.ofPlanned(todaysPlannedLoad)
+          : null,
+      icon: Icons.bolt_outlined,
+      color: colorScheme.primary,
+      onTap: () => open(const TssHistoryScreen()),
+      compact: true,
+      sparkValues: _spark[TileMetric.tssToday]?.values,
+      trend: _spark[TileMetric.tssToday]?.trend,
+      hoverPreview: (_) => MetricPreview(
+        metric: TileMetric.tssToday,
+        color: colorScheme.primary,
+      ),
+      onLongPress: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.tssToday,
+        label: l10n.tssToday,
+        value: todaysLoad?.toString() ?? '—',
+        color: colorScheme.primary,
+        intervalsPath: 'fitness',
+        onShowHistory: () => open(const TssHistoryScreen()),
+      ),
+    );
+    final tssWeek = StatTile(
+      // Actual load so far this week, against what the plan asks
+      // for — the number that says "am I on track".
+      label: l10n.tssWeek,
+      value: weekLoad.toString(),
+      subtitle: weekPlannedLoad > 0 ? l10n.ofPlanned(weekPlannedLoad) : null,
+      icon: Icons.calendar_view_week_outlined,
+      color: colorScheme.tertiary,
+      onTap: () => open(const WeeklyLoadScreen()),
+      compact: true,
+      sparkValues: _spark[TileMetric.tssWeek]?.values,
+      trend: _spark[TileMetric.tssWeek]?.trend,
+      hoverPreview: (_) => MetricPreview(
+        metric: TileMetric.tssWeek,
+        color: colorScheme.tertiary,
+      ),
+      onLongPress: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.tssWeek,
+        label: l10n.tssWeek,
+        value: weekLoad.toString(),
+        color: colorScheme.tertiary,
+        intervalsPath: 'fitness',
+        onShowHistory: () => open(const WeeklyLoadScreen()),
+      ),
+    );
+    final ctlTile = StatTile(
+      label: l10n.ctlLabel,
+      value: _format(ctl),
+      subtitle: _delta(ctl, wellnessWeekAgo?.ctl),
+      icon: Icons.trending_up,
+      color: colorScheme.tertiary,
+      onTap: () => open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
+      compact: true,
+      sparkValues: _spark[TileMetric.ctl]?.values,
+      trend: _spark[TileMetric.ctl]?.trend,
+      hoverPreview: (_) =>
+          MetricPreview(metric: TileMetric.ctl, color: colorScheme.tertiary),
+      onLongPress: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.ctl,
+        label: l10n.ctlLabel,
+        value: _format(ctl),
+        color: colorScheme.tertiary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
+      ),
+    );
+    final atlTile = StatTile(
+      label: l10n.atlLabel,
+      value: _format(atl),
+      subtitle: _delta(atl, wellnessWeekAgo?.atl),
+      icon: Icons.speed_outlined,
+      color: colorScheme.secondary,
+      onTap: () => open(const MetricHistoryScreen(metric: LoadMetric.atl)),
+      compact: true,
+      sparkValues: _spark[TileMetric.atl]?.values,
+      trend: _spark[TileMetric.atl]?.trend,
+      hoverPreview: (_) =>
+          MetricPreview(metric: TileMetric.atl, color: colorScheme.secondary),
+      onLongPress: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.atl,
+        label: l10n.atlLabel,
+        value: _format(atl),
+        color: colorScheme.secondary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.atl)),
+      ),
+    );
+    final formTile = StatTile(
+      label: l10n.formLabel,
+      value: _format(form),
+      subtitle: _delta(form, formWeekAgo),
+      icon: Icons.balance_outlined,
+      color: colorScheme.primary,
+      onTap: () => open(const MetricHistoryScreen(metric: LoadMetric.form)),
+      compact: true,
+      sparkValues: _spark[TileMetric.form]?.values,
+      trend: _spark[TileMetric.form]?.trend,
+      hoverPreview: (_) =>
+          MetricPreview(metric: TileMetric.form, color: colorScheme.primary),
+      onLongPress: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.form,
+        label: l10n.formLabel,
+        value: _format(form),
+        color: colorScheme.primary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.form)),
+      ),
+    );
+    final rampTile = StatTile(
+      label: l10n.rampRateLabel,
+      value: _format(wellness?.rampRate),
+      subtitle: _delta(wellness?.rampRate, wellnessWeekAgo?.rampRate),
+      icon: Icons.stacked_line_chart_outlined,
+      color: colorScheme.secondary,
+      onTap: () => open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
+      compact: true,
+      sparkValues: _spark[TileMetric.rampRate]?.values,
+      trend: _spark[TileMetric.rampRate]?.trend,
+      hoverPreview: (_) => MetricPreview(
+        metric: TileMetric.rampRate,
+        color: colorScheme.secondary,
+      ),
+      onLongPress: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.rampRate,
+        label: l10n.rampRateLabel,
+        value: _format(wellness?.rampRate),
+        color: colorScheme.secondary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
+      ),
+    );
+
+    final all = _expanded || widget.allTiles;
     return Column(
+      key: const ValueKey('load-tiles'),
       children: [
-        _TileRow(
-          children: [
-            StatTile(
-              label: l10n.tssToday,
-              value: todaysLoad?.toString() ?? '—',
-              subtitle: todaysPlannedLoad > 0
-                  ? l10n.ofPlanned(todaysPlannedLoad)
-                  : null,
-              icon: Icons.bolt_outlined,
-              color: colorScheme.primary,
-              onTap: () => open(const TssHistoryScreen()),
-              compact: true,
-              sparkValues: _spark[TileMetric.tssToday]?.values,
-              trend: _spark[TileMetric.tssToday]?.trend,
-              hoverPreview: (_) => MetricPreview(
-                metric: TileMetric.tssToday,
-                color: colorScheme.primary,
-              ),
-              onLongPress: () => showTileDetailsSheet(
-                context,
-                metric: TileMetric.tssToday,
-                label: l10n.tssToday,
-                value: todaysLoad?.toString() ?? '—',
-                color: colorScheme.primary,
-                intervalsPath: 'fitness',
-                onShowHistory: () => open(const TssHistoryScreen()),
+        if (all) ...[
+          _TileRow(children: [tssToday, tssWeek]),
+          const SizedBox(height: 6),
+          _TileRow(children: [ctlTile, atlTile]),
+          const SizedBox(height: 6),
+          _TileRow(children: [formTile, rampTile]),
+        ] else
+          _TileRow(children: [ctlTile, atlTile, formTile]),
+        if (!widget.allTiles)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              key: const ValueKey('more-metrics'),
+              onPressed: () => setState(() => _expanded = !_expanded),
+              icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+              label: Text(
+                _expanded ? l10n.todayFewerMetrics : l10n.todayMoreMetrics,
               ),
             ),
-            StatTile(
-              // Actual load so far this week, against what the plan asks
-              // for — the number that says "am I on track".
-              label: l10n.tssWeek,
-              value: weekLoad.toString(),
-              subtitle: weekPlannedLoad > 0
-                  ? l10n.ofPlanned(weekPlannedLoad)
-                  : null,
-              icon: Icons.calendar_view_week_outlined,
-              color: colorScheme.tertiary,
-              onTap: () => open(const WeeklyLoadScreen()),
-              compact: true,
-              sparkValues: _spark[TileMetric.tssWeek]?.values,
-              trend: _spark[TileMetric.tssWeek]?.trend,
-              hoverPreview: (_) => MetricPreview(
-                metric: TileMetric.tssWeek,
-                color: colorScheme.tertiary,
-              ),
-              onLongPress: () => showTileDetailsSheet(
-                context,
-                metric: TileMetric.tssWeek,
-                label: l10n.tssWeek,
-                value: weekLoad.toString(),
-                color: colorScheme.tertiary,
-                intervalsPath: 'fitness',
-                onShowHistory: () => open(const WeeklyLoadScreen()),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        _TileRow(
-          children: [
-            StatTile(
-              label: l10n.ctlLabel,
-              value: _format(ctl),
-              subtitle: _delta(ctl, wellnessWeekAgo?.ctl),
-              icon: Icons.trending_up,
-              color: colorScheme.tertiary,
-              onTap: () =>
-                  open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
-              compact: true,
-              sparkValues: _spark[TileMetric.ctl]?.values,
-              trend: _spark[TileMetric.ctl]?.trend,
-              hoverPreview: (_) => MetricPreview(
-                metric: TileMetric.ctl,
-                color: colorScheme.tertiary,
-              ),
-              onLongPress: () => showTileDetailsSheet(
-                context,
-                metric: TileMetric.ctl,
-                label: l10n.ctlLabel,
-                value: _format(ctl),
-                color: colorScheme.tertiary,
-                intervalsPath: 'fitness',
-                onShowHistory: () =>
-                    open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
-              ),
-            ),
-            StatTile(
-              label: l10n.atlLabel,
-              value: _format(atl),
-              subtitle: _delta(atl, wellnessWeekAgo?.atl),
-              icon: Icons.speed_outlined,
-              color: colorScheme.secondary,
-              onTap: () =>
-                  open(const MetricHistoryScreen(metric: LoadMetric.atl)),
-              compact: true,
-              sparkValues: _spark[TileMetric.atl]?.values,
-              trend: _spark[TileMetric.atl]?.trend,
-              hoverPreview: (_) => MetricPreview(
-                metric: TileMetric.atl,
-                color: colorScheme.secondary,
-              ),
-              onLongPress: () => showTileDetailsSheet(
-                context,
-                metric: TileMetric.atl,
-                label: l10n.atlLabel,
-                value: _format(atl),
-                color: colorScheme.secondary,
-                intervalsPath: 'fitness',
-                onShowHistory: () =>
-                    open(const MetricHistoryScreen(metric: LoadMetric.atl)),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        _TileRow(
-          children: [
-            StatTile(
-              label: l10n.formLabel,
-              value: _format(form),
-              subtitle: _delta(form, formWeekAgo),
-              icon: Icons.balance_outlined,
-              color: colorScheme.primary,
-              onTap: () =>
-                  open(const MetricHistoryScreen(metric: LoadMetric.form)),
-              compact: true,
-              sparkValues: _spark[TileMetric.form]?.values,
-              trend: _spark[TileMetric.form]?.trend,
-              hoverPreview: (_) => MetricPreview(
-                metric: TileMetric.form,
-                color: colorScheme.primary,
-              ),
-              onLongPress: () => showTileDetailsSheet(
-                context,
-                metric: TileMetric.form,
-                label: l10n.formLabel,
-                value: _format(form),
-                color: colorScheme.primary,
-                intervalsPath: 'fitness',
-                onShowHistory: () =>
-                    open(const MetricHistoryScreen(metric: LoadMetric.form)),
-              ),
-            ),
-            StatTile(
-              label: l10n.rampRateLabel,
-              value: _format(wellness?.rampRate),
-              subtitle: _delta(wellness?.rampRate, wellnessWeekAgo?.rampRate),
-              icon: Icons.stacked_line_chart_outlined,
-              color: colorScheme.secondary,
-              onTap: () =>
-                  open(const MetricHistoryScreen(metric: LoadMetric.rampRate)),
-              compact: true,
-              sparkValues: _spark[TileMetric.rampRate]?.values,
-              trend: _spark[TileMetric.rampRate]?.trend,
-              hoverPreview: (_) => MetricPreview(
-                metric: TileMetric.rampRate,
-                color: colorScheme.secondary,
-              ),
-              onLongPress: () => showTileDetailsSheet(
-                context,
-                metric: TileMetric.rampRate,
-                label: l10n.rampRateLabel,
-                value: _format(wellness?.rampRate),
-                color: colorScheme.secondary,
-                intervalsPath: 'fitness',
-                onShowHistory: () => open(
-                  const MetricHistoryScreen(metric: LoadMetric.rampRate),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
       ],
     );
   }
@@ -1119,49 +1339,6 @@ class _SetupRow extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         OutlinedButton(onPressed: onPressed, child: Text(buttonLabel)),
-      ],
-    );
-  }
-}
-
-/// This week's completed load against its planned total (the sum of every
-/// planned event in the week, [TodayScreen._weekPlannedLoad]) — the "goal"
-/// today's session is working toward.
-class _WeeklyGoalProgress extends StatelessWidget {
-  const _WeeklyGoalProgress({required this.completed, required this.planned});
-
-  final int completed;
-  final int planned;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final remaining = planned - completed;
-    final progress = (completed / planned).clamp(0.0, 1.0);
-    final accent = remaining > 0 ? colorScheme.primary : colorScheme.tertiary;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          remaining > 0
-              ? l10n.weeklyGoalProgress(completed, planned, remaining)
-              : l10n.weeklyGoalReached(completed, planned),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 6,
-            backgroundColor: colorScheme.surfaceContainerHighest,
-            color: accent,
-          ),
-        ),
       ],
     );
   }

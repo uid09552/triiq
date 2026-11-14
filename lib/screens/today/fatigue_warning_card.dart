@@ -74,102 +74,141 @@ class _FatigueWarningBannerState extends State<FatigueWarningBanner> {
   }
 
   Future<void> _load() async {
-    try {
-      final w = await _service.load();
-      final hidden =
-          w.level == FatigueLevel.none ||
-          await _dismissals.isDismissed(_now(), w.level);
-      if (mounted) setState(() => _warning = hidden ? null : w);
-    } catch (_) {
-      // Optional card: Today works without it.
-    }
+    final w = await loadVisibleFatigueWarning(
+      service: _service,
+      dismissals: _dismissals,
+      now: _now(),
+    );
+    if (mounted) setState(() => _warning = w);
   }
 
   @override
   Widget build(BuildContext context) {
     final w = _warning;
     if (w == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: FatigueWarningCard(
+        warning: w,
+        onDismiss: () async {
+          await _dismissals.dismiss(_now(), w.level);
+          if (mounted) setState(() => _warning = null);
+        },
+      ),
+    );
+  }
+}
+
+/// Today's fatigue warning when there is one the athlete hasn't put away
+/// ("Not now") for the day; `null` otherwise, or when it can't be read.
+Future<FatigueWarning?> loadVisibleFatigueWarning({
+  FatigueWarningService? service,
+  FatigueWarningDismissals? dismissals,
+  DateTime? now,
+}) async {
+  try {
+    final w = await (service ?? FatigueWarningService()).load();
+    if (w.level == FatigueLevel.none) return null;
+    final hidden = await (dismissals ?? FatigueWarningDismissals()).isDismissed(
+      now ?? DateTime.now(),
+      w.level,
+    );
+    return hidden ? null : w;
+  } catch (_) {
+    // Optional card: Today works without it.
+    return null;
+  }
+}
+
+/// The fatigue warning's card: what fires, the advice, "Ask the trainer"
+/// and "Not now" ([onDismiss]).
+class FatigueWarningCard extends StatelessWidget {
+  const FatigueWarningCard({
+    super.key,
+    required this.warning,
+    required this.onDismiss,
+  });
+
+  final FatigueWarning warning;
+  final Future<void> Function() onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final w = this.warning;
     final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final warning = w.level == FatigueLevel.warning;
     final bg = warning ? scheme.errorContainer : scheme.tertiaryContainer;
     final fg = warning ? scheme.onErrorContainer : scheme.onTertiaryContainer;
     final reasons = [for (final s in w.firing) fatigueSignalText(l10n, s)];
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Card(
-        key: const ValueKey('fatigue-card'),
-        color: bg,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    warning
-                        ? Icons.warning_amber_rounded
-                        : Icons.trending_down_rounded,
-                    color: fg,
+    return Card(
+      key: const ValueKey('fatigue-card'),
+      margin: EdgeInsets.zero,
+      color: bg,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  warning
+                      ? Icons.warning_amber_rounded
+                      : Icons.trending_down_rounded,
+                  color: fg,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    warning ? l10n.fatigueWarningTitle : l10n.fatigueWatchTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: fg,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      warning
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final r in reasons)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Text('• $r', style: TextStyle(color: fg)),
+              ),
+            const SizedBox(height: 8),
+            Text(
+              warning ? l10n.fatigueAdviceWarning : l10n.fatigueAdviceWatch,
+              style: TextStyle(color: fg),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                FilledButton(
+                  key: const ValueKey('fatigue-ask'),
+                  onPressed: () => askTrainer(
+                    context,
+                    ChatTopic(
+                      title: warning
                           ? l10n.fatigueWarningTitle
                           : l10n.fatigueWatchTitle,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: fg,
-                      ),
+                      context:
+                          'Fatigue early warning (${w.level.name}, last '
+                          '${w.window} days): ${reasons.join('; ')}.',
+                      draft: l10n.fatigueChatDraft(reasons.join('; ')),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              for (final r in reasons)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text('• $r', style: TextStyle(color: fg)),
+                  child: Text(l10n.fatigueAsk),
                 ),
-              const SizedBox(height: 8),
-              Text(
-                warning ? l10n.fatigueAdviceWarning : l10n.fatigueAdviceWatch,
-                style: TextStyle(color: fg),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  FilledButton(
-                    key: const ValueKey('fatigue-ask'),
-                    onPressed: () => askTrainer(
-                      context,
-                      ChatTopic(
-                        title: warning
-                            ? l10n.fatigueWarningTitle
-                            : l10n.fatigueWatchTitle,
-                        context:
-                            'Fatigue early warning (${w.level.name}, last '
-                            '${w.window} days): ${reasons.join('; ')}.',
-                        draft: l10n.fatigueChatDraft(reasons.join('; ')),
-                      ),
-                    ),
-                    child: Text(l10n.fatigueAsk),
-                  ),
-                  TextButton(
-                    key: const ValueKey('fatigue-dismiss'),
-                    onPressed: () async {
-                      await _dismissals.dismiss(_now(), w.level);
-                      if (mounted) setState(() => _warning = null);
-                    },
-                    child: Text(l10n.fatigueDismiss),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                TextButton(
+                  key: const ValueKey('fatigue-dismiss'),
+                  onPressed: onDismiss,
+                  child: Text(l10n.fatigueDismiss),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

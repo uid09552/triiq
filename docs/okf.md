@@ -58,7 +58,7 @@ athlete can:
 | Navigation shell (top bar, bottom nav) | ✅ Implemented |
 | Intervals.icu connection (Profile) | ✅ Implemented — two ways in: **Log in with Intervals.icu** (OAuth 2 with PKCE as a public client: the browser opens Intervals.icu's page, the app gets a bearer token back, no secret and no password in the app) or a pasted **API key**. Either is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch (`IntervalsSession.connect` / `connectWithToken`; one credential at a time). Disconnect forgets it, and revokes the token at Intervals.icu for an OAuth login |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, closed-app background sync on Android — nightly by default, or every 15 min / 1 h / 6 h — with a notification when something new arrived) |
-| Today screen | ✅ Real data once connected — a compact **header tile** (date badge, today's status — "Ready to train" until something is logged, or "Train with care" / "Take it easy today" in the readiness colour when readiness says Caution / Back off, so the header and the readiness card never disagree, done-vs-planned TSS / time / session count with a hairline progress bar, the refresh button and a ⋯ button; **long-press** or ⋯ opens quick actions: sync now, Train now, log fatigue & soreness, open the calendar on Intervals.icu, customize Today), a readiness card (a 0–100 score ring in the status colour, Ready / Caution / Back off from HRV, resting HR, sleep, form and fatigue/soreness against your own baselines, with small tinted pills for each signal's value plus CTL with its weekly trend, and a detail screen and a hint on hard-session days), six load tiles (TSS today/week, CTL, ATL, Form, Ramp), each with a tiny sparkline inside and a trend arrow (rising / steady / falling: CTL/ATL/Form/Ramp against a week earlier, TSS today as the last 7 days vs the 7 before, TSS week as the last finished week vs the one before), each tappable through to its own chart; optional a slim stacked bar of this week's total training hours (swim/ride/run/other, against the summed targets) above per-sport weekly target rings (swim/cycle/run, set in Settings); activities and planned sessions tappable through to full detail |
+| Today screen | ✅ Real data once connected — one **hero card** (`today_hero_card.dart`: date, status — "Ready to train", or "Train with care" / "Take it easy today" in the readiness colour —, the readiness ring (tap: a bottom sheet explaining each signal), today's session(s), **one primary action** that fits the day — *Start* (the session's steps), *Swap for easier* (Train now's Find alternative, on Caution / Back off with a hard session), *Log how it felt* once done, *Propose training* when nothing is planned —, a result view after the session (planned vs. actual, performance-trend arrow, feel), "Ask the trainer about today", and a tomorrow strip); swipe today's session right to log the feel, left to move it to tomorrow (calendar rule warnings, Undo; also in ⋯ and as screen-reader actions); an **attention stack** (illness return ramp, fatigue warning, plan adjustments, race countdown, threshold suggestions — only when they have something to say, most important first, two open, "+N more", each hidden for the day by a swipe or ×); **This week** (TSS against plan, sessions done / planned, hours per sport against the weekly targets, the year goals as one line); a Mon–Sun **week ribbon** (done / planned / missed / rest, tap opens the Calendar on that day); load tiles as a row of three (CTL, ATL, Form, "More metrics" for all six, or all six always via Customize Today), each with sparkline, trend arrow and its chart; **race week** (≤ 7 days to the plan's event) puts a header with countdown, taper phase and race-day form forecast in place of the tiles; a **sick / injured** day hides the training cards and shows the return-to-training plan; before the watch data is in the readiness slot says "Waiting for watch data" with a refresh. Hero and This week fit a 360 × 780 dp phone without scrolling (tested) |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → App → Notifications |
@@ -76,7 +76,7 @@ athlete can:
 | Load heatmap (Insights → Load heatmap) | ✅ Implemented — daily TSS, one square per day, coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`). Three layouts, chosen under the options button and remembered (shared_preferences `heatmap.style`): **Year grid** — the contribution graph, Monday first, cells sized from the available width so a year fits without sideways scrolling; on a narrow phone (360 dp) it turns into weeks-as-rows (seven columns, month labels on the left), and only a tiny width or very large text falls back to scrolling (`HeatmapGridLayout.fit`); **Months** — a small calendar per month, 2–4 across; **Week table** — weeks × weekdays with each week's total (over a bar of its share of the busiest week) and each weekday's total. Colour scale: theme colour or **Viridis** (`heatmap.scale`; ordered so more load always stands out further from the background, in light and dark). Views in `lib/screens/statistics/heatmap_views.dart`. Last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
 | Consent & your rights (Settings → Data & privacy → Consent & your rights) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
-| Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (under the header figures) and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
+| Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (on the hero card, next to "Ask the trainer about today") and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
 | More tab | ✅ Implemented — three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone |
 | Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
 | Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL, and a ring per sport with a weekly target (swim/ride/run, percent and hours done of the target; the ring stops at 100 %); resizable from 4×1 (one row: session + form) and 2×2 (session + form) up to 4×2 (adds the details) and 4×3+ (adds the target rings), with a layout chosen per size; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
@@ -90,7 +90,7 @@ athlete can:
 | Chat screen | ✅ Talks to the agent — streams replies, renders them as formatted markdown (incl. tables), shows which tool is running, starter questions on the empty state, **New chat** to start over; reads the training plan and proposes graph, plan and session changes as cards you **Apply** or **Dismiss** |
 | "Train now" | ✅ Implemented — shows today's planned sessions; **Find alternative** (today's session as reference, replace it or add alongside) or **Propose training** when nothing is planned; the agent uses the last 7 days of TSS/CTL/ATL plus the day's done/other-planned TSS and the next day's planned TSS. **Change training** (Calendar plan-session sheet, planned-workout detail) opens it on that session's day with the session preselected |
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
-| Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak, the layout, and the busiest weekday in the week table), the chart overview strip (the range shown) and tappable legend entries (toggle buttons: "CTL: shown. Tap to hide."), the readiness gauge ("Readiness 72 of 100") and the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
+| Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak, the layout, and the busiest weekday in the week table), the chart overview strip (the range shown) and tappable legend entries (toggle buttons: "CTL: shown. Tap to hide."), the readiness gauge ("Readiness 72 of 100"), the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"), Today's hero card as one summary (status, readiness, today's session, tomorrow) and each week-ribbon day ("Wed, Nov 4: done. Open in the calendar."). Every Today gesture has a button or menu path (swipe → screen-reader actions and the ⋯ menu; attention cards → ×). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`, Today at 360 dp and 2× in `test/today_states_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
 | Error and empty states | ✅ Implemented — one `StatusMessage` (`lib/widgets/status_message.dart`): icon, short title, plain reason, one action. `describeError` maps failures to text you can act on — offline (no response, socket, timeout) → "You're offline" + Retry; HTTP 401/403 → "Intervals.icu refused the request" + Open Profile; not connected → Open Profile; 429 / 5xx → wait and retry; SQLite → local data; else "Something went wrong". The exception text only behind an expandable **Details**. Empty states (`StatusMessage.needsSync`) say what is missing and offer Open Sync. Used on Insights, Performance curves, Durability, Best efforts, Compare periods, Wellness trends, the load heatmap, Weekly review, Activities and the activity page's chart |
 | First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key or Ollama server, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
 | Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Each opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
@@ -337,7 +337,7 @@ is asked for or after a newer activity of that sport was synced.
 | `get_daily_metrics` | Per day: CTL, ATL, TSB, ramp rate, resting HR, HRV, sleep, weight, subjective scores |
 | `get_plan_adjustments` | The current plan adjustments (missed sessions, week load, readiness conflicts) as **proposals** — the same keyed cards Today shows, so one Apply resolves both |
 | `get_weekly_review` | One Monday–Sunday week against its plan (defaults to the current one; `week_of` picks another) — load vs target TSS, time per sport vs weekly targets, planned / done / missed sessions and the key session, CTL change, form at week end, ramp-above-usual flag, readiness day counts, HRV / resting-HR direction and next week's target, phase, key sessions and races. The same `WeeklyReviewSummary` the weekly-review notification is composed from, so "how was my week" in chat and in the notification agree |
-| `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state (HRV / resting HR: the smoothed value, today's raw reading, the median / MADσ baseline and how many baseline days it has) — computed by the same rules as the readiness row on Today (`lib/evaluation/readiness.dart`) |
+| `get_readiness` | Today's readiness status, its reasons, each signal's value / baseline / rating and the missing-data state (HRV / resting HR: the smoothed value, today's raw reading, the median / MADσ baseline and how many baseline days it has) — computed by the same rules as the readiness ring on Today (`lib/evaluation/readiness.dart`) |
 | `get_activities` | Completed sessions with load, IF, HR, power, decoupling, RPE and time per intensity domain |
 | `get_planned_workouts` | Calendar entries: prescribed workouts, races, notes, illness markers |
 | `get_training_summary` | Weekly/monthly aggregates: completed vs planned load, per-sport totals, intensity split, CTL/ATL/TSB |
@@ -1109,12 +1109,93 @@ Sync) for complete numbers.
 
 ### Today
 
+Today answers "what should I do today, and am I fit for it?" at the top, and
+keeps everything else a scroll or a tap away.
+
+**The hero card** (`TodayHeroCard`, `lib/screens/today/today_hero_card.dart`)
+puts the day on one card: the date, the status, the readiness ring, today's
+planned session(s), one primary action, "Ask the trainer about today", and a
+strip for tomorrow ("Tomorrow: Long ride · 3h 00m · 120 TSS"; tap opens it, or
+the Calendar on tomorrow when nothing is planned). The status is "Ready to
+train" — or "Train with care" / "Take it easy today" in the readiness colour
+when readiness says Caution / Back off — until something is logged, then the
+count of today's activities; the line under it names what drives readiness
+("Due to HRV, Sleep"). The **primary action** follows the day
+(`heroActionFor`):
+
+- **Start** — a session is planned and readiness doesn't object: opens its
+  steps (the plan-session sheet for a TriIQ session, the planned-workout
+  detail screen for an Intervals.icu one). Nothing is sent to a watch from
+  here.
+- **Swap for easier** — Caution or Back off with an interval or long session
+  still to do: Train now on that session, for *Find alternative*.
+- **Log how it felt** — today's sessions are done (or you are sick): the
+  fatigue / soreness dialog, with a light haptic.
+- **Propose training** — nothing planned: Train now proposes one. On a rest
+  day the card names the week's next key session instead of an empty line.
+
+Once every planned session is matched by an activity (same sport, one to one,
+`matchAll`), the card flips to a **result view**: each activity with planned
+against actual ("1h 02m of 1h 05m · 80 of 78 TSS"), the performance-trend
+arrow, and what you logged for fatigue and soreness ("How did it feel? Not
+logged yet."). The flip animates unless the system asks for reduced motion.
+
+**Gestures, and the ways around them.** Swipe today's session right to log
+the feel, left to **move it to tomorrow** — the calendar's move
+(`moveWithUndo` / `CalendarMover`: plan rules warn on the snackbar, offline
+queue, Undo moves it back). Both are also screen-reader actions on the row,
+and *Move to tomorrow* is in the ⋯ menu (long-press the card or ⋯: sync now,
+Train now, fatigue & soreness, move to tomorrow, open in Intervals.icu,
+customize Today). **Tap the readiness ring** for a bottom sheet that explains
+the score signal by signal (rating, today's value, "3-day median 54 bpm vs
+usual 48 ± 1"), with *Details and trends* (the full readiness screen) and the
+signal options. Before today's wearable data is in, the ring's place shows
+"Waiting for watch data" with *Refresh* instead of a score from incomplete
+data. **"Ask the trainer about today"** opens Chat with today's readiness,
+planned and done sessions and tomorrow attached as context, and a question in
+the input field to send or edit. A screen reader reads the card as one
+summary ("Ready to train. Ready, Readiness 78 of 100. Today: VO2 intervals ·
+1h 05m · 78 TSS. Tomorrow: Long ride · 3h 00m").
+
+**Needs attention** (`AttentionStack`, `attention_stack.dart`): under the hero,
+only the cards that have something to say, most important first — the
+return-to-training ramp after an illness, the fatigue early warning (a
+*warning* before plan adjustments, a *watch* after), plan adjustments, the
+race countdown (more than a week out), threshold suggestions. Two are open,
+the rest behind "+N more". Swipe one away or tap its × to hide it for the
+rest of the day (`AttentionDismissals`, `today.attention_dismissed`, today's
+date only); each card's own buttons (Dismiss, Not now, Apply…) work as before.
+
+**This week** (`ThisWeekCard`): the week's TSS against what is planned ("240
+of 420 TSS this week · 180 to go", with a bar), sessions done of planned, the
+stacked hours bar against the summed weekly targets, one small ring per sport
+with a target (long-press lists that sport's activities), and the year goals
+as one line ("Year goals · Ride 62% ↗ · Run 48% ↘" — ahead of / behind an
+even pace). Sport rings and the goals line follow their *Show on Today*
+switches in Settings. Tap the header to fold it.
+
+**Week ribbon** (`WeekRibbon`): Mon–Sun as seven marks — done (check),
+planned (ring), missed (cross, an earlier day with a planned session and no
+activity) or rest (dash), today highlighted; tap a day to open it in the
+Calendar.
+
+**Race week and sick days.** Within 7 days of the active plan's event, a
+**race-week header** (countdown, the plan's phase this week — Taper / Race
+week — and the season forecast's form on race day) takes the load tiles'
+place. While a `SICK` / `INJURED` event is on, Today hides the training
+cards (attention stack, This week, ribbon, load tiles, tomorrow), the hero
+says so and offers *Log how it felt*, and the return-to-training card (the
+same one as on Season, nothing applied without confirming) sits right under
+it. In the return ramp afterwards the card moves into the attention stack.
+
 **Weekly-target rings.** Long-pressing a ring opens a sheet
 (`week_activities_sheet.dart`) listing this week's activities of that sport
 (date, duration, distance, TSS); the "All sports" chip widens it, and a row
 opens the activity.
 
-**Load tiles.** The six tiles (TSS today / week, CTL, ATL, form, ramp rate) are
+**Load tiles.** By default one row of three — CTL, ATL and Form — with
+"More metrics" opening all six (TSS today / week, CTL, ATL, form, ramp rate);
+*Show all six load tiles* in Customize Today keeps the full grid. They are
 compact `StatTile`s (`compact: true`): icon badge beside label and figure,
 animated value changes, soft hover/press states. Resting a mouse on a tile
 opens a floating graph card automatically (`HoverPreview` +
@@ -1123,26 +1204,32 @@ with its Ø). Long-press (touch) opens a sheet with the plain-language
 explanation, the zoomable graph, "Show history" and "Open in Intervals.icu".
 
 **Customize / delete.** The "Customize Today" button at the bottom opens a
-sheet (`customize_today_sheet.dart`) to drag the sections below the hero
-(readiness, adjustments, load tiles, weekly targets, threshold suggestions,
-activities, today's/tomorrow's training, athlete) into any order and switch
-each off; stored by `TodayLayoutSettings` (`shared_preferences`). A new
-install (and "Reset layout") starts lean: readiness, today's training,
-adjustments, load tiles and today's activities; weekly targets, year goals,
-thresholds, tomorrow and athlete are off. An existing install that never
-customized keeps every section (detected by other stored preferences, then
-saved). Cards with a header fold on a tap; the folded state is stored too.
-Long-pressing
+sheet (`customize_today_sheet.dart`) to drag the sections (hero, needs
+attention, This week, week ribbon, load tiles, activities, tomorrow's
+training, athlete) into any order and switch each off; stored by
+`TodayLayoutSettings` (`shared_preferences`). Two switches sit above the
+list: **Order by time of day** (off by default; in the morning the hero and
+the attention stack lead, from 17:00 the hero — by then today's result —,
+tomorrow and today's activities; `contextualTodayOrder`) and **Show all six
+load tiles**. A new install (and "Reset layout") shows hero, attention, This
+week, ribbon, tiles and activities; tomorrow and athlete are off. An existing
+install that never customized keeps every section on. A layout saved by an
+earlier version is migrated once (`TodayLayoutSettings.migrate`): readiness
+and today's training became the hero, adjustments and thresholds the
+attention stack, weekly targets and year goals This week — each takes the
+place of the first of its old sections, and is on when any of them was
+(today's training also keeps This week on, readiness the attention stack);
+the new week ribbon goes after This week; an order the athlete never changed
+takes the new default order. Folding This week, activities, tomorrow and
+athlete is stored too. Long-pressing
 today's planned training — or the selected day's card in the Calendar —
 offers to delete all of that day's Intervals.icu planned sessions
 (`confirmAndDeleteDaysWorkouts`); TriIQ plan sessions are left to the Plan
 screen.
 
-Shows today's date's cached data: a hero card with today's date and a
-summary of today's activity/activities (or "Ready to train" if none), a
-readiness row, six load tiles, a "Today's activities" card, today's and tomorrow's planned
-training, and an athlete card. Pull to refresh (or the refresh button in the
-hero) re-syncs the whole current month, so the Calendar and Statistics tabs
+Shows today's cached data. Pull to refresh (or the refresh button on the
+hero, which spins until every card has reloaded; the sync chip on the hero
+says when the last sync was) re-syncs the whole current month, so the Calendar and Statistics tabs
 are current too when you switch to them. Repeating the gesture is cheap: it
 never starts a second fetch next to one already running, does nothing at all
 within 10 seconds of the last one, and stops waiting after 10 seconds if the
@@ -1157,7 +1244,7 @@ bars, weekly completed-vs-planned bars, or the metric's own curve over 30,
 90 or 365 days with a note explaining what it means. Nothing there fetches,
 so it all works offline.
 
-**Weekly targets.** Below the tiles, a ring per sport (swim/cycle/run) with
+**Weekly targets.** In This week, a ring per sport (swim/cycle/run) with
 a weekly target set in Settings → Training → Weekly targets, each showing this week's
 achieved training time against that target — percentage in the middle,
 hours below ("3.0 / 2.0 h"), coloured the same way the rest of the app
@@ -1193,7 +1280,7 @@ disappears by itself once it no longer applies, for example when a late
 watch upload shows you did the session after all. The chat's trainer offers
 the same cards when you say you missed something.
 
-**Readiness.** The row above the tiles says **Ready**, **Caution** or **Back
+**Readiness.** The hero's ring and status say **Ready**, **Caution** or **Back
 off** for today and why ("Due to HRV, Sleep"). It is worked out on the
 device from today's Intervals.icu wellness record: HRV and resting HR against
 your own normal over the previous 60 days (a signal needs at least 21 days of
@@ -1211,15 +1298,13 @@ rated signals and half the weakest one, so a single signal that is off — a big
 session today, a low HRV — shows in the number instead of being averaged away;
 it never reads better than the status (at most 79 on Caution, 59 on Back off).
 The morning figures (HRV, resting HR, sleep) can't see a session you do later in
-the day; Load can. **Hold a pill** on the readiness row (the same press-and-hold peek as
+the day; Load can. **Hold a pill** in the readiness sheet (tap the ring on Today; the same press-and-hold peek as
 the Insights tiles, `ReadinessPeek` in `readiness_peek.dart`) to see what is
 behind it while you hold: the signal's name and rating, what it measures, its
 last 30 days as a small chart (HRV and resting HR against your normal band;
 sleep, load and fatigue/soreness as daily bars; form around zero), today's
 figure and the normal range in words; the Fitness pill shows CTL over time and
-its change against a week ago. Letting go hides it; a tap on a pill still opens
-the detail screen, and a long press elsewhere on the card still opens the
-signal options.
+its change against a week ago. Letting go hides it.
 **How HRV and resting HR are rated** (`lib/evaluation/wellness_baseline.dart`,
 shared by readiness, the fatigue early warning, the wellness trends and the
 trainer's `get_readiness` tool, so they agree on "usual"):
@@ -1255,11 +1340,12 @@ trainer's `get_readiness` tool, so they agree on "usual"):
 
 Without a wearable you get "No wellness data" (and a status from form
 alone); before today's data has arrived, "Waiting for today's data". Tap the
-row for each signal's value, normal range and rating and a 30-day HRV /
-resting-HR trend. When the status isn't Ready and today has an interval or
-long session, a **Consider an easier day** card appears; **Ask the trainer**
-opens the chat with the question filled in. Nothing changes the plan by
-itself. The thresholds are defaults in §5.1, not medical advice.
+ring for the explanation sheet, and from there the detail screen with each
+signal's value, normal range and rating and a 30-day HRV / resting-HR trend
+(the sheet also carries the signal pills with their press-and-hold peek). When the status isn't Ready and today has an interval or
+long session, the hero's main button becomes **Swap for easier**; "Ask the
+trainer about today" opens the chat with the day filled in. Nothing changes
+the plan by itself. The thresholds are defaults in §5.1, not medical advice.
 
 **The athlete card** shows your Intervals.icu profile picture and, once your
 sport settings have loaded, your ride and run FTP. Tap it for the full
@@ -1270,8 +1356,8 @@ current Intervals.icu sport settings, or the most recent activity that was
 analysed with it.
 
 Tap any activity in "Today's activities" for its full detail view — see
-Activities below. Tap a planned session in "Today's training" or
-"Tomorrow's training" for its own detail view (`PlannedWorkoutDetailScreen`
+Activities below. Tap a planned session on the hero or in "Tomorrow's
+training" for its own detail view (`PlannedWorkoutDetailScreen`
 — prescribed duration/distance/TSS and the workout description, the
 not-yet-happened counterpart to an activity's detail screen). That screen
 also offers **Add to Google Calendar** (pre-filled, all-day unless the
@@ -2080,6 +2166,15 @@ Each run shows how many wellness/activity records were synced, and the
 card at the top shows the currently cached date range.
 
 ## 4. Known gaps / next steps
+
+- Today follow-ups from issue #78 not built yet: a compact/comfortable
+  density toggle in Customize Today, haptics beyond the light tap on
+  "Log how it felt" and the move's selection click, recovery tips on rest
+  days (the hero names the next key session instead), skeleton placeholders
+  instead of the spinner while Today loads, and sending a session to the
+  watch from *Start* (it opens the steps). The attention stack hides a card
+  kind for the day as a whole; threshold suggestions no longer have their own
+  on/off switch (they follow the attention section).
 
 - Calendar follow-ups from issue #73 not built yet: a plan overlay (ghost of
   the original plan vs. moved / missed / extra), an agenda/list mode with
