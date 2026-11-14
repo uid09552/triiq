@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:langchain_core/chat_models.dart';
 
-import '../agent/chat_model_factory.dart';
+import '../agent/llm_gateway.dart';
 import '../agent/llm_settings.dart';
 import 'plan_models.dart';
 import 'strength.dart';
@@ -25,7 +25,9 @@ class SessionContentGenerator {
   }) : _settings = settings ?? LlmSettings.instance,
        _chatCall =
            chatCall ??
-           ((settings, messages) => createChatModel(settings).call(messages)),
+           ((settings, messages) => LlmGateway(
+             settings: settings,
+           ).invoke(messages).then((reply) => reply.message)),
        _timeout = timeout;
 
   final LlmSettings _settings;

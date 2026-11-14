@@ -92,6 +92,11 @@ dependencies:
   latlong2: ^0.10.1
   langchain_openai: ^0.9.0
   openai_dart: ^8.1.0
+  # Typed errors of the Claude / Ollama clients and the http client below
+  # langchain, for the failover policy (lib/agent/chat_model_factory.dart).
+  anthropic_sdk_dart: ^7.0.0
+  ollama_dart: ^2.6.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

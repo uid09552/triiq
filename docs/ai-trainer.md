@@ -1,9 +1,10 @@
 # AI trainer
 
-The chat, **Train now** and the AI-written session texts use the LLM you pick
-in **Settings → AI trainer → LLM provider**: Claude (your Anthropic key), Ollama Cloud, a
-model you run yourself with Ollama, or any OpenAI-compatible server (OpenAI,
-OpenRouter, LM Studio, vLLM, llama.cpp…).
+The chat, **Train now**, the AI-written session texts and the weekly-review
+sentence use the models you list in **Settings → AI trainer → Models**:
+Claude (your Anthropic key), Ollama Cloud, a model you run yourself with
+Ollama, or any OpenAI-compatible server (OpenAI, OpenRouter, LM Studio,
+vLLM, llama.cpp…) — one, or several in the order you prefer.
 
 ## How it works
 
@@ -27,6 +28,25 @@ no TriIQ server in between.
 - It **consults your own material**: Markdown or text documents imported
   under **More → Knowledge library**, quoted with the document's name and
   treated as information, never as instructions.
+
+## Several models and failover
+
+The list is a priority order. Every request goes to the first enabled model;
+if it cannot be reached, times out, is rate-limited or overloaded, or turns
+out misconfigured (key refused, model unknown, no tool support), the same
+request goes to the next one — at the start of a reply or between two tool
+steps. That is safe because the trainer's tools only read your data or make
+proposals you apply yourself. Text the failed model had started is dropped,
+not repeated; a note in the reply says "Switched to … — …: reason", and a
+small chip under each reply names the model that answered.
+
+It does **not** switch for things another model would answer the same way:
+a content-policy refusal, a conversation longer than the context window, or
+a request you cancelled. A model that failed twice in a row is paused for
+5 minutes so you don't wait for a dead server each message; **Test** in
+Settings (or a success) clears that. Each row shows OK / needs attention /
+paused, the reason and when it last answered. If every model fails, one
+message lists each model and why.
 
 ## Choosing a model
 

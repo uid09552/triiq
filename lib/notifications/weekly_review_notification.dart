@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:langchain_core/chat_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../agent/chat_model_factory.dart';
+import '../agent/llm_gateway.dart';
 import '../agent/llm_settings.dart';
 import '../data/privacy_settings.dart';
 import '../evaluation/weekly_review_summary.dart';
@@ -137,7 +137,9 @@ class WeeklyReviewComment {
   }) : _settings = settings ?? LlmSettings.instance,
        _chatCall =
            chatCall ??
-           ((settings, messages) => createChatModel(settings).call(messages));
+           ((settings, messages) => LlmGateway(
+             settings: settings,
+           ).invoke(messages).then((reply) => reply.message));
 
   final LlmSettings _settings;
   final Future<AIChatMessage> Function(LlmSettings, List<ChatMessage>)

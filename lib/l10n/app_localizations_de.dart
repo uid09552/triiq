@@ -526,7 +526,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get llmProviderTitle => 'LLM-Anbieter';
+  String get llmProviderTitle => 'Modelle';
 
   @override
   String get claudeLabel => 'Claude';
@@ -5665,7 +5665,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get llmErrUnauthorizedReason =>
-      'Prüfe den API-Schlüssel unter Einstellungen → LLM-Anbieter.';
+      'Prüfe den API-Schlüssel unter Einstellungen → KI-Trainer → Modelle.';
 
   @override
   String get llmErrNotFoundTitle =>
@@ -5673,7 +5673,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get llmErrNotFoundReason =>
-      'Prüfe die Basis-URL (sie endet meist auf /v1) und den Modellnamen unter Einstellungen → LLM-Anbieter.';
+      'Prüfe die Basis-URL (sie endet meist auf /v1) und den Modellnamen unter Einstellungen → KI-Trainer → Modelle.';
 
   @override
   String get llmErrRateTitle => 'Der KI-Server bittet, langsamer zu machen';
@@ -5723,4 +5723,187 @@ class AppLocalizationsDe extends AppLocalizations {
   String pvConsentDialogBodyLocal(String provider) {
     return 'Um zu antworten, sendet der KI-Trainer deine Fragen zusammen mit Trainings- und Gesundheitsdaten (Aktivitäten, Herzfrequenz, HRV, Schlaf, Gewicht, Befinden) an $provider. Dieser Server steht in deinem eigenen Netzwerk, die Daten bleiben bei dir. Du kannst das jederzeit unter Einstellungen → Daten & Datenschutz → Einwilligung & Rechte widerrufen.';
   }
+
+  @override
+  String get llmErrAllFailedTitle => 'Kein Modell hat geantwortet';
+
+  @override
+  String llmErrEntryLine(String name, String reason) {
+    return '$name: $reason';
+  }
+
+  @override
+  String get llmErrNotConfiguredTitle =>
+      'Das Modell ist nicht fertig eingerichtet';
+
+  @override
+  String get llmErrNotConfiguredReason =>
+      'Ergänze den fehlenden Schlüssel, die Server-URL oder den Modellnamen unter Einstellungen → KI-Trainer → Modelle.';
+
+  @override
+  String get llmErrNoConsentTitle => 'Wartet auf deine Einwilligung';
+
+  @override
+  String get llmErrNoConsentReason =>
+      'Erlaube zuerst, dass Daten an den Server dieses Modells gehen (Einstellungen → KI-Trainer).';
+
+  @override
+  String get llmErrCancelledTitle => 'Die Anfrage wurde abgebrochen';
+
+  @override
+  String get llmErrCancelledReason =>
+      'Sende die Nachricht erneut, wenn du so weit bist.';
+
+  @override
+  String get llmErrRefusedTitle => 'Das Modell hat die Antwort verweigert';
+
+  @override
+  String get llmErrRefusedReason =>
+      'Seine Inhaltsrichtlinien haben die Anfrage blockiert. Formuliere die Frage anders.';
+
+  @override
+  String get llmErrContextTitle => 'Das Gespräch ist zu lang für das Modell';
+
+  @override
+  String get llmErrContextReason =>
+      'Starte einen neuen Chat oder frage nach einem kürzeren Zeitraum.';
+
+  @override
+  String get llmErrBadRequestTitle => 'Der KI-Server hat die Anfrage abgelehnt';
+
+  @override
+  String get llmErrBadRequestReason =>
+      'Versuche es erneut oder wähle ein anderes Modell unter Einstellungen → KI-Trainer.';
+
+  @override
+  String pvProviderWithHost(String provider, String host) {
+    return '$provider ($host)';
+  }
+
+  @override
+  String pvProvidersList(String first, String last) {
+    return '$first und $last';
+  }
+
+  @override
+  String chatModelSwitched(String to, String from, String reason) {
+    return 'Zu $to gewechselt — $from: $reason';
+  }
+
+  @override
+  String chatAskingModel(String name) {
+    return 'Frage $name…';
+  }
+
+  @override
+  String chatAnsweredBy(String name) {
+    return 'Beantwortet von $name';
+  }
+
+  @override
+  String get llmAddModelTitle => 'Modell hinzufügen';
+
+  @override
+  String get llmEditModelTitle => 'Modell bearbeiten';
+
+  @override
+  String get llmModelNameLabel => 'Name (optional)';
+
+  @override
+  String get llmModelNameHelp =>
+      'So erscheint es in der Liste und unter Antworten, z. B. „Claude Sonnet“ oder „LM Studio lokal“.';
+
+  @override
+  String get llmSaveModelButton => 'Speichern';
+
+  @override
+  String get llmModelMissingModel => 'Kein Modellname';
+
+  @override
+  String get llmModelsIntro =>
+      'Der Trainer nutzt das erste Modell, das funktioniert. Fällt es aus (nicht erreichbar, Rate-Limit, Serverproblem, Schlüssel oder Modell abgelehnt), antwortet das nächste.';
+
+  @override
+  String get llmModelsEmpty =>
+      'Noch kein Modell. Füge eines hinzu, um den KI-Trainer zu nutzen.';
+
+  @override
+  String get llmAddModelButton => 'Modell hinzufügen';
+
+  @override
+  String get llmStatusOff => 'Aus';
+
+  @override
+  String llmStatusNeedsAttention(String reason) {
+    return 'Prüfen: $reason';
+  }
+
+  @override
+  String get llmProblemMissingKey => 'kein API-Schlüssel';
+
+  @override
+  String get llmProblemInvalidUrl => 'Server-URL nicht nutzbar';
+
+  @override
+  String get llmStatusAwaitingConsent => 'Wartet auf deine Einwilligung';
+
+  @override
+  String llmStatusCooling(String time, String reason) {
+    return 'Pausiert bis $time — $reason';
+  }
+
+  @override
+  String llmStatusLastFailed(String reason) {
+    return 'Letzter Aufruf fehlgeschlagen: $reason';
+  }
+
+  @override
+  String llmStatusOkLastUsed(String time) {
+    return 'OK · zuletzt geantwortet $time';
+  }
+
+  @override
+  String get llmStatusReady => 'Bereit';
+
+  @override
+  String get llmDeleteModelTitle => 'Modell löschen';
+
+  @override
+  String llmDeleteModelBody(String name) {
+    return '„$name“ und den gespeicherten API-Schlüssel von diesem Gerät entfernen?';
+  }
+
+  @override
+  String get llmDeleteModelConfirm => 'Löschen';
+
+  @override
+  String llmTestOk(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'verbunden, $count Modelle verfügbar.',
+      one: 'verbunden, 1 Modell verfügbar.',
+      zero: 'verbunden, keine Modelle gelistet.',
+    );
+    return '$name: $_temp0';
+  }
+
+  @override
+  String llmTestFailed(String name, String reason) {
+    return '$name: $reason';
+  }
+
+  @override
+  String llmModelSemantics(int position, int count, String name) {
+    return 'Modell $position von $count: $name';
+  }
+
+  @override
+  String get llmMoveUp => 'Nach oben';
+
+  @override
+  String get llmMoveDown => 'Nach unten';
+
+  @override
+  String get llmDragToReorder => 'Ziehen, um die Reihenfolge zu ändern';
 }

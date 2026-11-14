@@ -38,7 +38,7 @@ keys could not be decrypted on another device anyway.
 | Service | When | What is sent |
 |---|---|---|
 | **Intervals.icu** (https) | Logging in, sync, and when you create, move or delete planned workouts or apply a threshold | Your API key or access token and the requests themselves. With *Log in with Intervals.icu* you sign in on Intervals.icu's own page in your browser; TriIQ never receives your password and holds no client secret |
-| **Your LLM** (Claude / Ollama Cloud over https, an OpenAI-compatible service you configured, or your own Ollama / local model server) | Only when you use the chat, Train now or AI-written plan content | The conversation, including the results of the tools the trainer calls on your local data |
+| **Your LLMs** (each model you enabled in Settings → AI trainer → Models: Claude / Ollama Cloud over https, an OpenAI-compatible service you configured, or your own Ollama / local model server) | Only when you use the chat, Train now, AI-written plan content or the weekly-review sentence — and only the model that is asked: the first enabled one, or the next if it fails | The conversation, including the results of the tools the trainer calls on your local data |
 | **OpenStreetMap** tile servers (https) | Only when a route map is shown | Map tile requests |
 
 Nothing else — no analytics, no crash reporting, no TriIQ server.
@@ -62,7 +62,12 @@ Nothing else — no analytics, no crash reporting, no TriIQ server.
   trainer stays off until you agree — in **Settings → Data & privacy → Consent & your rights**, or
   when TriIQ asks the first time you use it — and you can **withdraw consent
   at any time** with the same switch; the AI features then switch off at
-  once. The date you agreed is kept on the device.
+  once. The date you agreed is kept on the device, **together with the
+  servers you agreed to**: the consent text names every third-party host of
+  your enabled models, and adding a model on a new third-party host asks
+  again for that host. Until you agree, that model is skipped — nothing is
+  sent to it. A server on your own network is covered by the consent itself.
+  The list of agreed hosts is never part of a backup.
 - **Map tiles** are fetched only to show the route map you opened. They are
   requested from OpenStreetMap, which sees your IP address and the area
   shown. **Settings → Data & privacy → Consent & your rights → Load map tiles** switches that off;

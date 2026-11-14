@@ -82,9 +82,8 @@ class DataEraser {
 
     // Keys first: nothing may keep talking to an account once it is erased.
     await step(_session.disconnect);
-    await step(() => _llm.setClaudeApiKey(''));
-    await step(() => _llm.setOllamaApiKey(''));
-    await step(() => _llm.setOpenAiApiKey(''));
+    // Every model entry's key, and the single-model app's three.
+    await step(_llm.eraseAllKeys);
     await step(_notifications.cancelBriefing);
     await step(_notifications.cancelDailyReminder);
     await step(_notifications.cancelWeeklyReview);

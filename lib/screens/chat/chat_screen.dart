@@ -12,7 +12,8 @@ import '../../notifications/app_lifecycle_tracker.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../widgets/markdown_reply.dart';
-import '../../widgets/status_message.dart' show describeAgentError;
+import '../../widgets/status_message.dart'
+    show describeAgentError, describeLlmFailureShort;
 import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
 import 'navigation_card.dart';
@@ -31,6 +32,15 @@ class _ChatMessage {
 
   /// App pages the agent offered to open (`open_app_page`), as buttons.
   final navigations = <String>[];
+
+  /// The reply as streamed, minus any failed attempt's partial text.
+  final buffer = AgentReplyBuffer();
+
+  /// "Switched to … — … unreachable" notes, in order.
+  final switchNotes = <String>[];
+
+  /// The model entry that gave this reply (shown as a chip under it).
+  String? answeredBy;
 }
 
 /// Chat with the training-analysis agent about your Intervals.icu data.
@@ -41,7 +51,10 @@ class _ChatMessage {
 /// arrives, and a line naming each tool while it runs, so a question that
 /// takes three round-trips doesn't look like a hang.
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.agentFactory});
+
+  /// Builds the agent (default [TrainingAgent.new]); for tests.
+  final TrainingAgent Function()? agentFactory;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -66,8 +79,8 @@ class _ChatScreenState extends State<ChatScreen> {
   /// The reply being streamed, so a withdrawn consent can end it.
   _ChatMessage? _streaming;
 
-  /// Sending is off while a provider is set up but not consented to.
-  bool get _canSend => !_isBusy && !_settings.needsConsent;
+  /// Sending is off while models are set up but none is consented to.
+  bool get _canSend => !_isBusy && !_settings.blockedByConsent;
 
   @override
   void initState() {
@@ -94,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Consent withdrawn mid-reply: stop it now rather than let the provider
     // keep receiving tool results.
     final streaming = _streaming;
-    if (_isBusy && streaming != null && _settings.needsConsent && mounted) {
+    if (_isBusy && streaming != null && _settings.blockedByConsent && mounted) {
       _finish(streaming, error: const AiConsentRequiredException());
       return;
     }
@@ -161,7 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
     _scrollToEnd();
 
-    final agent = _agent ??= TrainingAgent();
+    final agent = _agent ??= (widget.agentFactory ?? TrainingAgent.new)();
     agent.attachedContext = _topic?.context;
     _streaming = reply;
     try {
@@ -183,9 +196,20 @@ class _ChatScreenState extends State<ChatScreen> {
   void _onEvent(AgentEvent event, _ChatMessage reply) {
     final l10n = AppLocalizations.of(context)!;
     setState(() {
+      if (reply.buffer.apply(event)) reply.text = reply.buffer.text;
       switch (event) {
-        case AgentTextDelta(:final text):
-          reply.text += text;
+        case AgentModelAnswering(:final entry):
+          reply.answeredBy = entry.label;
+        case AgentModelSwitched(:final from, :final to, :final reason):
+          reply.switchNotes.add(
+            l10n.chatModelSwitched(
+              to.label,
+              from.label,
+              describeLlmFailureShort(reason, l10n),
+            ),
+          );
+          _activity = l10n.chatAskingModel(to.label);
+        case AgentTextDelta():
           _activity = null;
         case AgentToolStarted(:final name):
           _activity = _describeTool(l10n, name);
@@ -211,8 +235,10 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _activity = null;
       if (error != null) {
-        if (reply.text.isEmpty) {
+        if (reply.text.isEmpty && reply.switchNotes.isEmpty) {
           _messages.remove(reply);
+        } else if (reply.text.isEmpty) {
+          reply.answeredBy = null;
         }
         _messages.add(
           _ChatMessage(
@@ -545,7 +571,7 @@ class _ChatBubble extends StatelessWidget {
           ),
         ),
         child: !fromUser && !message.isError
-            ? MarkdownReply(text: message.text)
+            ? _ReplyContent(message: message)
             : SelectableText(
                 message.text,
                 style: message.isError
@@ -588,6 +614,86 @@ class _MessageWithProposals extends StatelessWidget {
         for (final p in message.proposals) ProposalCard(proposal: p),
         for (final id in message.navigations) NavigationCard(destinationId: id),
         const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+/// A reply's body: the switch notes (if the first model failed), the
+/// markdown, and the chip naming the model that answered.
+class _ReplyContent extends StatelessWidget {
+  const _ReplyContent({required this.message});
+
+  final _ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      fontStyle: FontStyle.italic,
+    );
+    final answeredBy = message.answeredBy;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final note in message.switchNotes)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              key: const ValueKey('chat-model-switched'),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.swap_horiz,
+                  size: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+                Expanded(child: Text(note, style: muted)),
+              ],
+            ),
+          ),
+        if (message.text.isNotEmpty || message.switchNotes.isEmpty)
+          MarkdownReply(text: message.text),
+        if (answeredBy != null && message.text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Semantics(
+              container: true,
+              label: l10n.chatAnsweredBy(answeredBy),
+              excludeSemantics: true,
+              child: Container(
+                key: const ValueKey('chat-answered-by'),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.auto_awesome_outlined,
+                      size: 12,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        answeredBy,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

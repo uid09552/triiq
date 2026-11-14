@@ -113,14 +113,14 @@ void main() {
         await settings.setOpenAiApiKey('sk-openai-secret');
 
         final prefs = await SharedPreferences.getInstance();
-        expect(
-          prefs.getKeys(),
-          containsAll([
-            'llm.provider',
-            'llm.openai_base_url',
-            'llm.openai_model',
-          ]),
+        // One entry in the model list carries provider, URL and model.
+        expect(prefs.getKeys(), contains(LlmSettings.modelsPref));
+        final stored = LlmModelEntry.decodeList(
+          prefs.getString(LlmSettings.modelsPref)!,
         );
+        expect(stored.single.provider, LlmProvider.openai);
+        expect(stored.single.baseUrl, 'http://192.168.1.20:1234/v1');
+        expect(stored.single.model, 'qwen2.5-14b-instruct');
         // The secret is nowhere in plain preferences, under any key.
         for (final key in prefs.getKeys()) {
           expect('${prefs.get(key)}', isNot(contains('sk-openai-secret')));
@@ -479,10 +479,11 @@ void main() {
         ),
         LlmFailureKind.toolsRejected,
       );
-      // An unrelated 400 and other providers' errors are left alone.
+      // An unrelated 400 is the request's own fault (no failover);
+      // errors that are not LLM failures at all are left alone.
       expect(
         classifyLlmError(const BadRequestException(message: 'bad json')),
-        isNull,
+        LlmFailureKind.badRequest,
       );
       expect(classifyLlmError(StateError('x')), isNull);
     });
@@ -652,7 +653,7 @@ void main() {
       await dir.delete(recursive: true);
     });
 
-    test('URL and model travel, the provider choice and key do not', () async {
+    test('URL and model travel in the model list, the key does not', () async {
       final settings = LlmSettings.forTesting();
       await settings.load();
       await settings.setProvider(LlmProvider.openai);
@@ -662,40 +663,59 @@ void main() {
 
       final service = BackupService(database: database);
       final json = jsonDecode(service.encode(await service.export()));
-      final exported = (json['settings'] as Map).keys;
-      expect(exported, contains('llm.openai_base_url'));
-      expect(exported, contains('llm.openai_model'));
-      expect(exported, isNot(contains('llm.provider')));
+      final exported = json['settings'] as Map;
+      expect(exported.keys, contains(LlmSettings.modelsPref));
+      expect(exported.keys, isNot(contains('llm.provider')));
+      final models = jsonDecode(
+        exported[LlmSettings.modelsPref]['v'] as String,
+      );
+      expect(models, [
+        {
+          'provider': 'openai',
+          'model': 'gpt-4o',
+          'base_url': 'https://llm.example.com/v1',
+          'enabled': true,
+        },
+      ]);
       expect(jsonEncode(json), isNot(contains('sk-openai-secret')));
+      expect(jsonEncode(json), isNot(contains('openai_api_key')));
       expect(BackupService.excludedPref('llm.ollama_base_url'), isTrue);
     });
 
-    test('import restores them, but never an unsafe URL', () async {
+    test('import restores the list, but never an unsafe URL', () async {
       final service = BackupService(database: database);
       final json = jsonDecode(service.encode(await service.export()));
 
-      Future<SharedPreferences> restoreWith(String url) async {
+      Future<List<LlmModelEntry>> restoreWith(String url) async {
         SharedPreferences.setMockInitialValues({});
-        (json['settings'] as Map)['llm.openai_base_url'] = {'t': 's', 'v': url};
-        (json['settings'] as Map)['llm.openai_model'] = {
+        (json['settings'] as Map)[LlmSettings.modelsPref] = {
           't': 's',
-          'v': 'restored-model',
+          'v': jsonEncode([
+            {'provider': 'openai', 'model': 'restored-model', 'base_url': url},
+            {'provider': 'claude', 'model': 'claude-sonnet-5'},
+          ]),
         };
         await service.restore(json);
-        return SharedPreferences.getInstance();
+        final prefs = await SharedPreferences.getInstance();
+        return LlmModelEntry.decodeList(
+          prefs.getString(LlmSettings.modelsPref)!,
+        );
       }
 
-      var prefs = await restoreWith('https://llm.example.com/v1');
-      expect(
-        prefs.getString('llm.openai_base_url'),
-        'https://llm.example.com/v1',
-      );
-      expect(prefs.getString('llm.openai_model'), 'restored-model');
+      var restored = await restoreWith('https://llm.example.com/v1');
+      expect(restored.map((e) => e.provider), [
+        LlmProvider.openai,
+        LlmProvider.claude,
+      ]);
+      expect(restored.first.baseUrl, 'https://llm.example.com/v1');
+      expect(restored.first.model, 'restored-model');
+      // No vault reference is taken from a file.
+      expect(restored.every((e) => !e.legacyKey), isTrue);
 
-      prefs = await restoreWith('http://evil.example.com/v1');
-      expect(prefs.getString('llm.openai_base_url'), isNull);
-      prefs = await restoreWith('https://me:pw@evil.example.com/v1');
-      expect(prefs.getString('llm.openai_base_url'), isNull);
+      restored = await restoreWith('http://evil.example.com/v1');
+      expect(restored.map((e) => e.provider), [LlmProvider.claude]);
+      restored = await restoreWith('https://me:pw@evil.example.com/v1');
+      expect(restored.map((e) => e.provider), [LlmProvider.claude]);
     });
   });
 
@@ -715,6 +735,13 @@ void main() {
       await tester.pump();
     }
 
+    /// Settings → AI trainer, then the primary entry's editor.
+    Future<void> openEditor(WidgetTester tester) async {
+      await pump(tester);
+      await tester.tap(find.byIcon(Icons.edit_outlined).first);
+      await tester.pumpAndSettle();
+    }
+
     const urlField = ValueKey('openai-url');
     const keyField = ValueKey('openai-key');
     const modelField = ValueKey('openai-model');
@@ -724,7 +751,7 @@ void main() {
       tester,
     ) async {
       await LlmSettings.instance.setProvider(LlmProvider.claude);
-      await pump(tester);
+      await openEditor(tester);
       expect(find.byKey(urlField), findsNothing);
       expect(find.text('OpenAI-compatible'), findsOneWidget); // the segment
 
@@ -747,7 +774,7 @@ void main() {
       tester,
     ) async {
       await LlmSettings.instance.setProvider(LlmProvider.openai);
-      await pump(tester);
+      await openEditor(tester);
 
       await tester.enterText(find.byKey(urlField), 'http://api.example.com/v1');
       await tester.pump();

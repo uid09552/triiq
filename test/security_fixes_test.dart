@@ -56,22 +56,23 @@ void main() {
     });
   });
 
-  group(
-    'backup carries no LLM connection settings except the OpenAI-compatible URL/model',
-    () {
-      test('llm.* keys are excluded on export and restore', () {
-        expect(BackupService.excludedPref('llm.ollama_base_url'), isTrue);
-        expect(BackupService.excludedPref('llm.provider'), isTrue);
-        // The OpenAI-compatible URL/model are the one deliberate exception
-        // (validated on restore); keys are never preferences at all.
-        expect(BackupService.excludedPref('llm.openai_base_url'), isFalse);
-        expect(BackupService.excludedPref('llm.openai_model'), isFalse);
-        expect(BackupService.excludedPref('llm.openai_api_key'), isTrue);
-        expect(BackupService.excludedPref('plan.goal'), isFalse);
-        expect(BackupService.excludedPref('agent.memory'), isFalse);
-      });
-    },
-  );
+  group('backup carries no LLM connection settings except the model list', () {
+    test('llm.* keys are excluded on export and restore', () {
+      expect(BackupService.excludedPref('llm.ollama_base_url'), isTrue);
+      expect(BackupService.excludedPref('llm.provider'), isTrue);
+      // The model list (non-secret fields, validated on restore) is the
+      // one deliberate exception; keys are never preferences at all, and
+      // the single-model app's URL/model prefs no longer travel.
+      expect(BackupService.excludedPref('llm.models'), isFalse);
+      expect(BackupService.excludedPref('llm.openai_base_url'), isTrue);
+      expect(BackupService.excludedPref('llm.openai_model'), isTrue);
+      expect(BackupService.excludedPref('llm.openai_api_key'), isTrue);
+      // A backup file never grants consent for a host.
+      expect(BackupService.excludedPref('privacy.ai_consent_hosts'), isTrue);
+      expect(BackupService.excludedPref('plan.goal'), isFalse);
+      expect(BackupService.excludedPref('agent.memory'), isFalse);
+    });
+  });
 
   group('desktop database moves out of the working directory', () {
     late Directory dir;

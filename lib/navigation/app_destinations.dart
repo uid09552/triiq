@@ -354,7 +354,7 @@ String _sectionAnchor(SettingsSection s) => switch (s) {
   SettingsSection.weeklyTargets => 'Settings#Weekly targets',
   SettingsSection.yearGoals => 'Year goals',
   SettingsSection.privacy => 'status:Consent & your rights',
-  SettingsSection.ai => 'Settings#LLM provider',
+  SettingsSection.ai => 'Settings#Models',
 };
 
 String _sectionDescription(AppLocalizations l, SettingsSection s) =>

@@ -99,7 +99,7 @@ athlete can:
 | First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key, Ollama server, or OpenAI-compatible URL + model + optional key, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
 | Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Each opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
 | Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → App → Appearance, applies instantly, persisted |
-| Settings — LLM provider | ✅ Implemented — provider (Claude / Ollama / OpenAI-compatible, chips), models, Ollama URL, OpenAI-compatible base URL, Claude, Ollama and OpenAI-compatible keys, all persisted; live Ollama model list + connection test; "Load models" (`GET {base}/models`) for the OpenAI-compatible server |
+| Settings — Models (LLM providers) | ✅ Implemented — an ordered list of model entries (any mix of Claude / Ollama / OpenAI-compatible) with priority failover (`LlmGateway`), per-entry keys in the vault, drag / Up / Down reorder, on/off, Test, Edit, Delete and status (OK / needs attention / paused); the editor has the provider chips, models, URLs, keys, live model list + connection test ("Load models" for OpenAI-compatible) |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
 | Knowledge library | ✅ Implemented — More → Knowledge library (Android/Windows): import Markdown/text documents, searched by `get_training_guidance` alongside the optional bundled reference, each match naming its source document; `okf-*` blocks stripped on import so imported text never reaches the plan engine |
 | MCP server/client | ❌ Not started — the agent calls its tools in-process instead |
@@ -337,8 +337,12 @@ answer.
 
 | File | Role |
 |---|---|
-| `llm_settings.dart` | The provider choice, model names, Ollama and OpenAI-compatible URLs, and the three API keys, persisted and shared with Settings |
-| `chat_model_factory.dart` | Builds the provider's `BaseChatModel` with the tools bound (`ChatAnthropic` / `ChatOllama` / `ChatOpenAI`), and `classifyLlmError()` for the OpenAI-compatible provider's failures. **The only file that names a provider's chat model** |
+| `llm_provider.dart`, `llm_model_entry.dart` | `LlmProvider`, and `LlmModelEntry` — one configured model (id, name, provider, model, base URL, enabled, vault key) with its JSON / backup forms and `restoreModelEntries()` |
+| `llm_settings.dart` | The ordered model list (priority) and each entry's key, persisted and shared with Settings; migration from the single-model app; the single-model API on the primary entry; consent per entry |
+| `llm_gateway.dart` | **The one entry point for every LLM call** (chat agent, session content, weekly-review sentence): tries entries in priority order with per-attempt timeouts and fails over |
+| `failover_policy.dart`, `model_health.dart` | Which failures fail over (pure table over `LlmFailureKind`), and the per-entry circuit breaker (2 failures → 5-minute cooldown) |
+| `model_connection.dart` | `testModelConnection()` — the free Test / Load models check for any provider (Claude `GET /v1/models`, Ollama `/api/tags`, OpenAI-compatible `/models`) |
+| `chat_model_factory.dart` | `createChatModelFor(entry)` builds an entry's `BaseChatModel` with the tools bound (`ChatAnthropic` / `ChatOllama` / `ChatOpenAI`), and `classifyLlmError()` maps every provider's exceptions to an `LlmFailureKind`. **The only file that names a provider's chat model or exception types** |
 | `openai_connection.dart` | OpenAI-compatible helpers: `checkOpenAiBaseUrl()` (https for any host, `http://` only for localhost/private/LAN), `isLocalServerUrl()`, `fetchOpenAiModels()` (`GET {base}/models`), `parseOpenAiModelList()`, and `LlmFailureKind` (401/404/429/5xx/tools/unreachable). Used by Settings, onboarding, the factory and backup restore |
 | `ollama_connection.dart` | `fetchOllamaModels()` — hits `/api/tags` to test a URL/key and list real models. Used by Settings, not by the agent path |
 | `system_prompt.dart` | The standing instructions, plus the per-message runtime context block |
@@ -354,6 +358,52 @@ stringified scratchpad), and lets partial replies stream to the UI. It stops
 after `maxIterations` (8) model turns and carries at most 40 messages of
 history, never cutting a tool result away from the assistant turn that asked
 for it — both providers reject an orphaned tool result.
+
+#### Several models: the gateway and failover
+
+The athlete keeps an **ordered list of model entries** (`LlmSettings.entries`,
+any mix of providers); the order is the priority. No caller builds a model
+itself: everything goes through `LlmGateway` — the agent loop via
+`gateway.stream()`, `SessionContentGenerator` and `WeeklyReviewComment` via
+`gateway.invoke()` (their outer 20 s / 15 s timeouts still bound the whole
+call).
+
+- **Candidates**: enabled entries in list order; entries in their cooldown
+  move to the back (tried only as a last resort, so the trainer is never
+  locked out), entries that already failed in this agent turn are left out.
+  An entry whose host lacks consent is skipped without sending anything.
+- **Attempt**: `createChatModelFor` (an incomplete entry throws
+  `LlmNotConfiguredException` before any request), then `stream()`. The
+  first chunk must arrive within 90 s, each next one within 60 s — otherwise
+  the SDKs' own 10-minute default would make failover useless.
+- **Policy** (`FailoverPolicy`, pure, tested as a table): fail over on
+  unreachable / DNS / TLS / timeouts / 408, 429, 5xx incl. Anthropic's 529
+  "overloaded"; also — flagged *needs attention* — on a missing key/URL/model,
+  401/403, 404 (model or URL), "model can't use tools" and an unparseable
+  reply. **No failover** (surfaced as is) on a cancelled request, a
+  content-policy refusal, context length exceeded / 413, any other 4xx, and
+  errors the classifier does not know (most likely our own bug) — those
+  would repeat identically elsewhere and only cost money.
+- **Circuit breaker** (`ModelHealth`, in memory, per entry): 2 consecutive
+  failover-worthy failures → skipped for 5 minutes; a success, **Test** in
+  Settings or editing the entry's endpoint clears it.
+- **Result**: with exactly one failure its own exception is rethrown (a
+  one-model setup reads exactly as before); with several,
+  `AllModelsFailedException` lists each entry and reason, worded by
+  `describeAgentError` ("No model answered. • Claude Sonnet: Can't reach…").
+
+**Mid-turn safety.** Tools only run after a model call has completed, and
+they are read-only or create proposals the athlete applies by hand, so
+retrying the *failed model call* on the next entry with the same history
+repeats no side effect. The agent emits `AgentModelAnswering(entry)` before
+each attempt and `AgentModelSwitched(from, to, reason, discardedText)` on a
+switch; `AgentReplyBuffer` (used by Chat and Train now) drops the text
+streamed since the last `AgentModelAnswering`, so a half sentence is never
+followed by the full answer. The partial `AIChatMessage` is never added to
+history. The runtime context (provider/model, small-model hints) is built
+per entry, so the next model is told who it is. Chat shows a subtle note
+("Switched to Ollama gpt-oss — Claude Sonnet: Can't reach the AI server")
+and an "answered by" chip under the reply (also as a Semantics label).
 
 **The tools read the cache, not the API.** Answering a question costs no
 Intervals.icu round-trips and works offline. `sync_from_intervals` is the
@@ -472,19 +522,27 @@ provider:** the same note is appended only when its base URL is local
 (`isLocalServerUrl`: loopback, private RFC 1918 / link-local address,
 single-label host or `.local`/`.lan`/`.home.arpa`/`.internal` name — LM Studio,
 llama.cpp on the LAN), not for a hosted service (OpenAI, OpenRouter…). The
-caller passes `localModel: settings.isOpenAiLocal`.
+caller passes `localModel: entry.isLocal` for the entry being asked (the context is rebuilt per failover attempt).
 
 ### Credential storage
 
 `SecureKeyStore` (`lib/data/secure_key_store.dart`) wraps
 `flutter_secure_storage` and is the only place a secret is written. One named
-secret per instance: `intervals_api_key` for Intervals.icu, `claude_api_key`
-for the Claude API, `ollama_api_key` for Ollama Cloud, `openai_api_key` for
-the OpenAI-compatible server (optional; cleared by *Delete all data*, never in
-`shared_preferences`, never in a backup, never logged). Non-secrets — the
-provider choice, model names, the Ollama and OpenAI-compatible URLs — go to `shared_preferences`
-instead (`LlmSettings`), because encrypting a hostname buys nothing and the
-vault is the thing most likely to be unavailable.
+secret per instance:
+
+| Vault name | Secret |
+|---|---|
+| `intervals_api_key` | Intervals.icu key / OAuth token |
+| `llm_model_key_<entry id>` | The API key of one model entry added in Settings (Claude, Ollama Cloud, OpenAI-compatible — optional for the last) |
+| `claude_api_key`, `ollama_api_key`, `openai_api_key` | The single-model app's keys; the entry an existing install was migrated into keeps using its provider's name (`LlmModelEntry.legacyKey`), so nothing is copied |
+
+LLM keys are cleared by *Delete all data* (`LlmSettings.eraseAllKeys`: every
+entry's plus the three old names), deleted with their entry, never in
+`shared_preferences`, never in a backup, never logged. Non-secrets — the
+ordered model list with providers, names, model names and URLs
+(`llm.models`) — go to `shared_preferences` instead, because encrypting a
+hostname buys nothing and the vault is the thing most likely to be
+unavailable.
 Each platform gets the OS credential vault rather than a file or shared
 preferences, and the ciphertext is bound to this app and this OS user:
 
@@ -510,17 +568,57 @@ A `HttpOnly` cookie would be the real answer, but that needs a backend to set
 it and the app talks to Intervals.icu directly. Profile's help text changes
 to say so when `IntervalsSession.remembersApiKey` is false.
 
+### LLM providers and the model list
+
+`LlmSettings` holds `List<LlmModelEntry>` (pref `llm.models`, JSON): `id`,
+`name` (optional display name), `provider`, `model`, `base_url` (Ollama /
+OpenAI-compatible), `enabled`, `legacy_key`. Order = priority (see the
+gateway above). Per entry: `problemOf()` (missing key / unusable URL / no
+model), `isUsable()` (enabled and complete), `isConsented()` (consent
+covers its host). `hasProvider` = some usable entry; `isConfigured` = some
+usable *and* consented entry; `needsConsent` = some usable entry awaits
+consent (card shows); `blockedByConsent` = nothing usable is consented
+(chat cannot send).
+
+- **Migration** (first `load()` without `llm.models`, idempotent because
+  the list is then written): the old `llm.provider`, that provider's model
+  and URL become one entry `primary` with `legacy_key: true`, so its key is
+  read from the old vault name — no visible change. A fresh install gets the
+  same thing the old app showed (Claude, no key). An existing consent is
+  recorded as covering that entry's host (`adoptLegacyConsentHosts`).
+- **Single-model API**: `provider`, `activeModel`, `claudeModel`,
+  `setOllamaBaseUrl`, `setOpenAiApiKey`… read/edit the *primary* entry (the
+  first), or the first entry of that provider; `setProvider` switches the
+  primary entry's provider (defaults + that provider's old vault name).
+  Onboarding uses it, so its simple one-model setup edits the first entry.
+- **Consent per host**: `PrivacySettings` records the third-party hosts the
+  consent was given for (`privacy.ai_consent_hosts`, device-only, never in a
+  backup). `askAiConsent` names every usable entry still waiting (one name as
+  before, or a list "Claude (Anthropic) (api.anthropic.com), Ollama Cloud
+  (ollama.com) and …"), and records all usable entries' hosts. Adding,
+  enabling or editing an entry onto an uncovered third-party host asks right
+  away; until then that entry is skipped and the card shows. Local hosts
+  (`isLocalServerUrl`) are covered by the consent itself. Withdrawing clears
+  all hosts.
+- **Backup**: `llm.models` is exported as `toBackupJson()` (no ids, no vault
+  names, no keys). `restoreModelEntries` drops entries whose URL fails
+  `checkOpenAiBaseUrl` (Ollama included), assigns fresh ids, and reuses an
+  on-device entry's id/key only for the same provider + URL + model, so a
+  file can never steer a stored key to another host. The old
+  `llm.openai_base_url` / `llm.openai_model` no longer travel. A reload after
+  restore deletes the keys of entries that went away.
+
 ### OpenAI-compatible provider
 
 `LlmProvider.openai` talks to any server that speaks the Chat Completions API
 (OpenAI, OpenRouter, Azure-style proxies, LM Studio, vLLM, llama.cpp's server,
 LiteLLM…) through `langchain_openai`'s `ChatOpenAI(baseUrl, apiKey,
-defaultOptions: model, temperature 0.2, tools)`. Settings: **Base URL**
-(default `https://api.openai.com/v1`, `llm.openai_base_url`), **Model name**
-(free text, `llm.openai_model`, default `gpt-4o-mini`; **Load models** does
-`GET {base}/models` and replaces the suggestion chips with the server's list)
-and an optional **API key** (vault, `openai_api_key`). Nothing is migrated:
-existing installs keep their provider.
+defaultOptions: model, temperature 0.2, tools)`. Per model entry (editor):
+**Base URL** (default `https://api.openai.com/v1`), **Model name** (free
+text, default `gpt-4o-mini`; **Load models** does `GET {base}/models` and
+replaces the suggestion chips with the server's list) and an optional **API
+key** (vault, the entry's key). A single-model install's `llm.openai_*`
+values and `openai_api_key` became its migrated entry.
 
 - **URL rule** (`checkOpenAiBaseUrl`): `https://` for any host; `http://` only
   for localhost, private/LAN addresses and local names (Settings shows the
@@ -542,11 +640,10 @@ existing installs keep their provider.
   `describeError` words them for this provider: 401/403 → key, 404 → base URL
   or model, 429 → rate limit/quota, 5xx → server trouble, no answer →
   unreachable. The chat screen uses the same text (`describeAgentError`).
-- **Backup**: the base URL and model are exported and restored (the one
-  exception to "`llm.*` stays out"); a restored URL must pass the same check,
-  the provider choice and the key are never exported. `session_content.dart`
-  and the weekly-review note go through `createChatModel`, so they work with
-  the new provider unchanged.
+- **Backup**: as part of the model list (see above) — URL and model travel,
+  the key never; a restored URL must pass the same check.
+  `session_content.dart` and the weekly-review note go through `LlmGateway`,
+  like the chat.
 
 ### Ollama: cloud vs. local, and the connection test
 
@@ -1576,7 +1673,7 @@ reading it through tools rather than guessing: while it works, a line under
 the transcript names what it's doing ("Reading your daily load and
 wellness…"), and the reply streams in as the model writes it.
 
-Set up a provider in **Settings → AI trainer → LLM provider** first; until then the
+Set up a model in **Settings → AI trainer → Models** first; until then the
 screen says so, with an **Open Settings** button straight there. What the
 agent can see is limited to what's been synced, so sync the range you want
 to ask about (it will offer to sync a missing range itself when connected).
@@ -2146,7 +2243,7 @@ load — is always the deterministic engine's; separately, each session's
 name and description (a short one-line summary, shown next to the name
 where the preview and the week grid otherwise show only it, and a detailed
 set-by-set description, as today) are written by whichever LLM provider
-you've configured in Settings → AI trainer → LLM provider (Claude, Ollama or an OpenAI-compatible server). No
+you've configured in Settings → AI trainer → Models (Claude, Ollama or OpenAI-compatible servers, with failover). No
 provider configured, a slow or failing one, or a response that doesn't
 parse: generation still succeeds, and the affected sessions keep the
 engine's own plain text instead — nothing about plan generation requires an
@@ -2244,7 +2341,20 @@ off under Settings → App → Notifications.
   for no target on that sport. **Show on Today** controls whether the
   rings appear on Today at all, separately from the targets themselves.
   Both persist across restarts.
-- **LLM provider**: choose Claude, Ollama or OpenAI-compatible, and configure it.
+- **Models** (AI trainer): the ordered list of models the trainer may use.
+  Each row shows its name, provider, model and host, a status (Ready / OK ·
+  last answered 14:02 / Needs attention: no API key / Paused until 14:10 —
+  reason / Waiting for your consent / Off), an on/off switch and Up, Down,
+  Test, Edit, Delete (Delete asks first and removes the stored key). Drag the
+  handle to reorder; screen readers get Move up / down / to start / to end.
+  **Add model** opens the same editor as Edit: a name, the provider chips and
+  that provider's fields below — nothing is stored until **Save**.
+- **Use several models and fail over**: put the one you prefer first. When it
+  is unreachable, rate-limited, overloaded or misconfigured, the next enabled
+  one answers the same message; the reply notes the switch and shows which
+  model answered. A model that failed twice is paused for 5 minutes (Test
+  resumes it). A new model on a third-party server asks for consent for that
+  server. Per provider:
   - **Claude** needs an API key from `console.anthropic.com`. It's stored in
     your OS credential vault (same place as the Intervals.icu key) and sent
     only to Anthropic; usage is billed to your own Anthropic account.
@@ -2271,7 +2381,8 @@ off under Settings → App → Notifications.
     address. The model must support tool calling; if the server rejects it
     the chat says so.
   All of this is remembered across restarts, and changing it takes effect on
-  your next message.
+  your next message. (The per-provider "Save key" buttons became the editor's
+  single **Save**; an Ollama Cloud key is still tested before it is stored.)
 
 ### Sync
 

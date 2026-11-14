@@ -516,7 +516,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get llmProviderTitle => 'LLM provider';
+  String get llmProviderTitle => 'Models';
 
   @override
   String get claudeLabel => 'Claude';
@@ -5616,7 +5616,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get llmErrUnauthorizedReason =>
-      'Check the API key in Settings → LLM provider.';
+      'Check the API key in Settings → AI trainer → Models.';
 
   @override
   String get llmErrNotFoundTitle =>
@@ -5624,7 +5624,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get llmErrNotFoundReason =>
-      'Check the base URL (it usually ends in /v1) and the model name in Settings → LLM provider.';
+      'Check the base URL (it usually ends in /v1) and the model name in Settings → AI trainer → Models.';
 
   @override
   String get llmErrRateTitle => 'The AI server asks to slow down';
@@ -5674,4 +5674,185 @@ class AppLocalizationsEn extends AppLocalizations {
   String pvConsentDialogBodyLocal(String provider) {
     return 'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to $provider. That server is on your own network, so the data stays with you. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.';
   }
+
+  @override
+  String get llmErrAllFailedTitle => 'No model answered';
+
+  @override
+  String llmErrEntryLine(String name, String reason) {
+    return '$name: $reason';
+  }
+
+  @override
+  String get llmErrNotConfiguredTitle => 'The model is not fully set up';
+
+  @override
+  String get llmErrNotConfiguredReason =>
+      'Add the missing key, server URL or model name in Settings → AI trainer → Models.';
+
+  @override
+  String get llmErrNoConsentTitle => 'Waiting for your consent';
+
+  @override
+  String get llmErrNoConsentReason =>
+      'Allow data to go to this model\'s server first (Settings → AI trainer).';
+
+  @override
+  String get llmErrCancelledTitle => 'The request was cancelled';
+
+  @override
+  String get llmErrCancelledReason =>
+      'Send the message again when you\'re ready.';
+
+  @override
+  String get llmErrRefusedTitle => 'The model declined to answer';
+
+  @override
+  String get llmErrRefusedReason =>
+      'Its content policy blocked the request. Rephrase the question.';
+
+  @override
+  String get llmErrContextTitle => 'The conversation is too long for the model';
+
+  @override
+  String get llmErrContextReason =>
+      'Start a new chat, or ask about a shorter date range.';
+
+  @override
+  String get llmErrBadRequestTitle => 'The AI server rejected the request';
+
+  @override
+  String get llmErrBadRequestReason =>
+      'Try again, or pick another model in Settings → AI trainer.';
+
+  @override
+  String pvProviderWithHost(String provider, String host) {
+    return '$provider ($host)';
+  }
+
+  @override
+  String pvProvidersList(String first, String last) {
+    return '$first and $last';
+  }
+
+  @override
+  String chatModelSwitched(String to, String from, String reason) {
+    return 'Switched to $to — $from: $reason';
+  }
+
+  @override
+  String chatAskingModel(String name) {
+    return 'Asking $name…';
+  }
+
+  @override
+  String chatAnsweredBy(String name) {
+    return 'Answered by $name';
+  }
+
+  @override
+  String get llmAddModelTitle => 'Add model';
+
+  @override
+  String get llmEditModelTitle => 'Edit model';
+
+  @override
+  String get llmModelNameLabel => 'Name (optional)';
+
+  @override
+  String get llmModelNameHelp =>
+      'How it\'s shown in the list and under replies, e.g. \"Claude Sonnet\" or \"LM Studio local\".';
+
+  @override
+  String get llmSaveModelButton => 'Save';
+
+  @override
+  String get llmModelMissingModel => 'No model name';
+
+  @override
+  String get llmModelsIntro =>
+      'The trainer uses the first model that works. If it fails (unreachable, rate limited, server trouble, a key or model refused), the next one answers instead.';
+
+  @override
+  String get llmModelsEmpty => 'No model yet. Add one to use the AI trainer.';
+
+  @override
+  String get llmAddModelButton => 'Add model';
+
+  @override
+  String get llmStatusOff => 'Off';
+
+  @override
+  String llmStatusNeedsAttention(String reason) {
+    return 'Needs attention: $reason';
+  }
+
+  @override
+  String get llmProblemMissingKey => 'no API key';
+
+  @override
+  String get llmProblemInvalidUrl => 'server URL not usable';
+
+  @override
+  String get llmStatusAwaitingConsent => 'Waiting for your consent';
+
+  @override
+  String llmStatusCooling(String time, String reason) {
+    return 'Paused until $time — $reason';
+  }
+
+  @override
+  String llmStatusLastFailed(String reason) {
+    return 'Last call failed: $reason';
+  }
+
+  @override
+  String llmStatusOkLastUsed(String time) {
+    return 'OK · last answered $time';
+  }
+
+  @override
+  String get llmStatusReady => 'Ready';
+
+  @override
+  String get llmDeleteModelTitle => 'Delete model';
+
+  @override
+  String llmDeleteModelBody(String name) {
+    return 'Remove \"$name\" and its stored API key from this device?';
+  }
+
+  @override
+  String get llmDeleteModelConfirm => 'Delete';
+
+  @override
+  String llmTestOk(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'connected, $count models available.',
+      one: 'connected, 1 model available.',
+      zero: 'connected, no models listed.',
+    );
+    return '$name: $_temp0';
+  }
+
+  @override
+  String llmTestFailed(String name, String reason) {
+    return '$name: $reason';
+  }
+
+  @override
+  String llmModelSemantics(int position, int count, String name) {
+    return 'Model $position of $count: $name';
+  }
+
+  @override
+  String get llmMoveUp => 'Move up';
+
+  @override
+  String get llmMoveDown => 'Move down';
+
+  @override
+  String get llmDragToReorder => 'Drag to change the order';
 }

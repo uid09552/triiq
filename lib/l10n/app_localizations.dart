@@ -983,7 +983,7 @@ abstract class AppLocalizations {
   /// No description provided for @llmProviderTitle.
   ///
   /// In en, this message translates to:
-  /// **'LLM provider'**
+  /// **'Models'**
   String get llmProviderTitle;
 
   /// No description provided for @claudeLabel.
@@ -9191,7 +9191,7 @@ abstract class AppLocalizations {
   /// No description provided for @llmErrUnauthorizedReason.
   ///
   /// In en, this message translates to:
-  /// **'Check the API key in Settings → LLM provider.'**
+  /// **'Check the API key in Settings → AI trainer → Models.'**
   String get llmErrUnauthorizedReason;
 
   /// No description provided for @llmErrNotFoundTitle.
@@ -9203,7 +9203,7 @@ abstract class AppLocalizations {
   /// No description provided for @llmErrNotFoundReason.
   ///
   /// In en, this message translates to:
-  /// **'Check the base URL (it usually ends in /v1) and the model name in Settings → LLM provider.'**
+  /// **'Check the base URL (it usually ends in /v1) and the model name in Settings → AI trainer → Models.'**
   String get llmErrNotFoundReason;
 
   /// No description provided for @llmErrRateTitle.
@@ -9283,6 +9283,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To answer, the AI trainer sends your questions together with training and health data (activities, heart rate, HRV, sleep, weight, how you feel) to {provider}. That server is on your own network, so the data stays with you. You can withdraw this at any time in Settings → Data & privacy → Consent & your rights.'**
   String pvConsentDialogBodyLocal(String provider);
+
+  /// No description provided for @llmErrAllFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No model answered'**
+  String get llmErrAllFailedTitle;
+
+  /// No description provided for @llmErrEntryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {reason}'**
+  String llmErrEntryLine(String name, String reason);
+
+  /// No description provided for @llmErrNotConfiguredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The model is not fully set up'**
+  String get llmErrNotConfiguredTitle;
+
+  /// No description provided for @llmErrNotConfiguredReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the missing key, server URL or model name in Settings → AI trainer → Models.'**
+  String get llmErrNotConfiguredReason;
+
+  /// No description provided for @llmErrNoConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your consent'**
+  String get llmErrNoConsentTitle;
+
+  /// No description provided for @llmErrNoConsentReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow data to go to this model\'s server first (Settings → AI trainer).'**
+  String get llmErrNoConsentReason;
+
+  /// No description provided for @llmErrCancelledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The request was cancelled'**
+  String get llmErrCancelledTitle;
+
+  /// No description provided for @llmErrCancelledReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the message again when you\'re ready.'**
+  String get llmErrCancelledReason;
+
+  /// No description provided for @llmErrRefusedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The model declined to answer'**
+  String get llmErrRefusedTitle;
+
+  /// No description provided for @llmErrRefusedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Its content policy blocked the request. Rephrase the question.'**
+  String get llmErrRefusedReason;
+
+  /// No description provided for @llmErrContextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation is too long for the model'**
+  String get llmErrContextTitle;
+
+  /// No description provided for @llmErrContextReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new chat, or ask about a shorter date range.'**
+  String get llmErrContextReason;
+
+  /// No description provided for @llmErrBadRequestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI server rejected the request'**
+  String get llmErrBadRequestTitle;
+
+  /// No description provided for @llmErrBadRequestReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again, or pick another model in Settings → AI trainer.'**
+  String get llmErrBadRequestReason;
+
+  /// No description provided for @pvProviderWithHost.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} ({host})'**
+  String pvProviderWithHost(String provider, String host);
+
+  /// No description provided for @pvProvidersList.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {last}'**
+  String pvProvidersList(String first, String last);
+
+  /// No description provided for @chatModelSwitched.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched to {to} — {from}: {reason}'**
+  String chatModelSwitched(String to, String from, String reason);
+
+  /// No description provided for @chatAskingModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking {name}…'**
+  String chatAskingModel(String name);
+
+  /// No description provided for @chatAnsweredBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered by {name}'**
+  String chatAnsweredBy(String name);
+
+  /// No description provided for @llmAddModelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add model'**
+  String get llmAddModelTitle;
+
+  /// No description provided for @llmEditModelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit model'**
+  String get llmEditModelTitle;
+
+  /// No description provided for @llmModelNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get llmModelNameLabel;
+
+  /// No description provided for @llmModelNameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How it\'s shown in the list and under replies, e.g. \"Claude Sonnet\" or \"LM Studio local\".'**
+  String get llmModelNameHelp;
+
+  /// No description provided for @llmSaveModelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get llmSaveModelButton;
+
+  /// No description provided for @llmModelMissingModel.
+  ///
+  /// In en, this message translates to:
+  /// **'No model name'**
+  String get llmModelMissingModel;
+
+  /// No description provided for @llmModelsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The trainer uses the first model that works. If it fails (unreachable, rate limited, server trouble, a key or model refused), the next one answers instead.'**
+  String get llmModelsIntro;
+
+  /// No description provided for @llmModelsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No model yet. Add one to use the AI trainer.'**
+  String get llmModelsEmpty;
+
+  /// No description provided for @llmAddModelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add model'**
+  String get llmAddModelButton;
+
+  /// No description provided for @llmStatusOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get llmStatusOff;
+
+  /// No description provided for @llmStatusNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention: {reason}'**
+  String llmStatusNeedsAttention(String reason);
+
+  /// No description provided for @llmProblemMissingKey.
+  ///
+  /// In en, this message translates to:
+  /// **'no API key'**
+  String get llmProblemMissingKey;
+
+  /// No description provided for @llmProblemInvalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'server URL not usable'**
+  String get llmProblemInvalidUrl;
+
+  /// No description provided for @llmStatusAwaitingConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your consent'**
+  String get llmStatusAwaitingConsent;
+
+  /// No description provided for @llmStatusCooling.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused until {time} — {reason}'**
+  String llmStatusCooling(String time, String reason);
+
+  /// No description provided for @llmStatusLastFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Last call failed: {reason}'**
+  String llmStatusLastFailed(String reason);
+
+  /// No description provided for @llmStatusOkLastUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'OK · last answered {time}'**
+  String llmStatusOkLastUsed(String time);
+
+  /// No description provided for @llmStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get llmStatusReady;
+
+  /// No description provided for @llmDeleteModelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete model'**
+  String get llmDeleteModelTitle;
+
+  /// No description provided for @llmDeleteModelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\" and its stored API key from this device?'**
+  String llmDeleteModelBody(String name);
+
+  /// No description provided for @llmDeleteModelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get llmDeleteModelConfirm;
+
+  /// No description provided for @llmTestOk.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {count, plural, =0{connected, no models listed.} =1{connected, 1 model available.} other{connected, {count} models available.}}'**
+  String llmTestOk(String name, int count);
+
+  /// No description provided for @llmTestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {reason}'**
+  String llmTestFailed(String name, String reason);
+
+  /// No description provided for @llmModelSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Model {position} of {count}: {name}'**
+  String llmModelSemantics(int position, int count, String name);
+
+  /// No description provided for @llmMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get llmMoveUp;
+
+  /// No description provided for @llmMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get llmMoveDown;
+
+  /// No description provided for @llmDragToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to change the order'**
+  String get llmDragToReorder;
 }
 
 class _AppLocalizationsDelegate
