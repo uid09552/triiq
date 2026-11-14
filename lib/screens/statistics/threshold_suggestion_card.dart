@@ -71,10 +71,19 @@ String _representativeType(CurveSport sport) => sport.apiType;
 /// when there are no suggestions. Reads only the cache — like the rest of
 /// the Performance screen, nothing here fetches.
 class ThresholdSuggestionsSection extends StatefulWidget {
-  ThresholdSuggestionsSection({super.key, ThresholdSuggestionsService? service})
-    : service = service ?? ThresholdSuggestionsService();
+  ThresholdSuggestionsSection({
+    super.key,
+    ThresholdSuggestionsService? service,
+    this.onLoaded,
+    this.bottomPadding = 16,
+  }) : service = service ?? ThresholdSuggestionsService();
 
   final ThresholdSuggestionsService service;
+
+  /// Told how many suggestions there are after every (re)load, e.g. so
+  /// Today's attention stack can drop the card once all are handled.
+  final ValueChanged<int>? onLoaded;
+  final double bottomPadding;
 
   @override
   State<ThresholdSuggestionsSection> createState() =>
@@ -95,6 +104,7 @@ class _ThresholdSuggestionsSectionState
     final suggestions = await widget.service.load();
     if (!mounted) return;
     setState(() => _suggestions = suggestions);
+    widget.onLoaded?.call(suggestions.length);
   }
 
   Future<void> _dismiss(ThresholdSuggestion s) async {
@@ -125,7 +135,7 @@ class _ThresholdSuggestionsSectionState
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: widget.bottomPadding),
       child: SectionCard(
         icon: Icons.trending_up_outlined,
         title: l10n.thresholdSuggestionsTitle,

@@ -60,9 +60,10 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final layout = TodayLayoutSettings.forTesting();
       await layout.load();
-      expect(layout.order.take(2), [
-        TodaySection.readiness,
-        TodaySection.todaysTraining,
+      expect(layout.order.take(3), [
+        TodaySection.hero,
+        TodaySection.attention,
+        TodaySection.thisWeek,
       ]);
       for (final s in TodayLayoutSettings.defaultHidden) {
         expect(layout.isVisible(s), isFalse, reason: s.name);
@@ -84,7 +85,7 @@ void main() {
 
     test('a saved layout is left alone', () async {
       SharedPreferences.setMockInitialValues({
-        'today.section_order': ['athlete', 'readiness'],
+        'today.section_order': ['athlete', 'hero'],
         'today.hidden_sections': <String>[],
       });
       final layout = TodayLayoutSettings.forTesting();
@@ -97,12 +98,12 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final layout = TodayLayoutSettings.forTesting();
       await layout.load();
-      await layout.setCollapsed(TodaySection.todaysTraining, true);
+      await layout.setCollapsed(TodaySection.thisWeek, true);
       final again = TodayLayoutSettings.forTesting();
       await again.load();
-      expect(again.isCollapsed(TodaySection.todaysTraining), isTrue);
+      expect(again.isCollapsed(TodaySection.thisWeek), isTrue);
       await again.reset();
-      expect(again.isCollapsed(TodaySection.todaysTraining), isFalse);
+      expect(again.isCollapsed(TodaySection.thisWeek), isFalse);
       expect(again.isVisible(TodaySection.athlete), isFalse);
     });
   });

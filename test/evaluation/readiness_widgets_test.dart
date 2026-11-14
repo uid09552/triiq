@@ -605,7 +605,7 @@ void main() {
         await tester.pump();
       }
 
-      expect(find.byType(ReadinessCard), findsOneWidget);
+      expect(find.byKey(const ValueKey('hero-readiness')), findsOneWidget);
       expect(find.text('Due to Resting HR'), findsOneWidget);
       // One verdict: the header above no longer says "Ready to train". A
       // high resting HR with HRV and sleep fine is capped at Caution.
@@ -661,7 +661,11 @@ void main() {
 
       expect(find.text('Take it easy today'), findsOneWidget);
       expect(find.text('Ready to train'), findsNothing);
-      expect(find.textContaining('Back off'), findsWidgets); // the card
+      // The ring in the hero carries the status as a shape.
+      expect(
+        find.byKey(const ValueKey('readiness-ring-backOff')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('a ready day still opens with "Ready to train"', (

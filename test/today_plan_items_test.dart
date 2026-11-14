@@ -97,12 +97,17 @@ void main() {
       find.textContaining('of $weekPlanned TSS this week'),
       findsOneWidget,
     );
-    for (final s in tomorrows) {
-      expect(find.text(s.name), findsWidgets, reason: 'tomorrow: ${s.name}');
-    }
+    // Tomorrow's first session is named on the hero's tomorrow strip.
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('hero-tomorrow')),
+        matching: find.textContaining(tomorrows.first.name),
+      ),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('long-pressing "nothing planned" offers Train now for today', (
+  testWidgets('nothing planned: the hero offers Propose training', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(800, 3000);
@@ -133,14 +138,8 @@ void main() {
       await tester.pump();
     }
 
-    final empty = find.byKey(const ValueKey('planned-empty'));
-    expect(empty, findsWidgets); // today's and tomorrow's
-    await tester.longPress(empty.first);
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
-    expect(find.byKey(const ValueKey('day-delete')), findsNothing);
-
-    await tester.tap(find.byKey(const ValueKey('day-propose')));
+    expect(find.byKey(const ValueKey('hero-rest')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('hero-primary-propose')));
     await tester.pumpAndSettle();
     expect(find.byType(TrainNowScreen), findsOneWidget);
   });

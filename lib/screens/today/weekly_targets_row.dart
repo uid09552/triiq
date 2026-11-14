@@ -217,19 +217,26 @@ class WeeklyHoursBar extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(
-              l10n.weeklyHoursLabel,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
+            Expanded(
+              child: Text(
+                l10n.weeklyHoursLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
             ),
-            const Spacer(),
-            Text(
-              text,
-              key: const ValueKey('weekly-hours-text'),
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                text,
+                key: const ValueKey('weekly-hours-text'),
+                textAlign: TextAlign.end,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+              ),
             ),
           ],
         ),

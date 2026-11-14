@@ -5343,4 +5343,152 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get durRadarOpen => 'Einheit öffnen';
+
+  @override
+  String get todaySectionHero =>
+      'Plan für heute (Status, Bereitschaft, Einheit)';
+
+  @override
+  String get todaySectionWeekRibbon => 'Wochenleiste';
+
+  @override
+  String get todaySectionAttention => 'Hinweise';
+
+  @override
+  String get todayThisWeekTitle => 'Diese Woche';
+
+  @override
+  String get customizeTodayTimeOfDay => 'Nach Tageszeit ordnen';
+
+  @override
+  String get customizeTodayTimeOfDayHint =>
+      'Morgens: heutige Einheit zuerst. Abends: heutiges Ergebnis und morgen zuerst.';
+
+  @override
+  String get customizeTodayAllTiles => 'Alle sechs Belastungskacheln zeigen';
+
+  @override
+  String get attentionHideToday => 'Für heute ausblenden';
+
+  @override
+  String get attentionShowLess => 'Weniger zeigen';
+
+  @override
+  String attentionMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count weitere',
+      one: '+1 weiterer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ribbonDone => 'erledigt';
+
+  @override
+  String get ribbonPlanned => 'geplant';
+
+  @override
+  String get ribbonMissed => 'verpasst';
+
+  @override
+  String get ribbonRest => 'Ruhetag';
+
+  @override
+  String ribbonDaySemantics(String day, String status) {
+    return '$day: $status. Im Kalender öffnen.';
+  }
+
+  @override
+  String todayThisWeekSessions(int done, int planned) {
+    return '$done / $planned Einheiten';
+  }
+
+  @override
+  String todayThisWeekLoad(int load) {
+    return '$load TSS diese Woche';
+  }
+
+  @override
+  String get raceWeekTitle => 'Wettkampfwoche';
+
+  @override
+  String raceWeekFormForecast(String form) {
+    return 'Form-Prognose am Wettkampftag $form';
+  }
+
+  @override
+  String get todayWaitingForWatch => 'Warte auf Uhrdaten';
+
+  @override
+  String get readinessExplainScore =>
+      'Der Wert ist zur Hälfte der Durchschnitt der bewerteten Signale und zur Hälfte das schwächste, damit ein einzelnes abweichendes Signal in der Zahl sichtbar wird. Keine medizinische Beratung.';
+
+  @override
+  String get readinessExplainDetails => 'Details und Verläufe';
+
+  @override
+  String get heroTomorrowRest => 'Morgen: Ruhetag';
+
+  @override
+  String heroTomorrow(String session) {
+    return 'Morgen: $session';
+  }
+
+  @override
+  String heroA11yToday(String session) {
+    return 'Heute: $session';
+  }
+
+  @override
+  String get heroMoveToTomorrow => 'Auf morgen verschieben';
+
+  @override
+  String get heroActionStart => 'Starten';
+
+  @override
+  String get heroActionSwap => 'Leichter tauschen';
+
+  @override
+  String get heroActionFeel => 'Befinden eintragen';
+
+  @override
+  String heroNextKeySession(String day, String name) {
+    return 'Ruhetag · nächste Schlüsseleinheit: $day, $name';
+  }
+
+  @override
+  String get heroAskTrainer => 'Trainer zu heute fragen';
+
+  @override
+  String get heroExplainReadiness => 'Bereitschaftswert erklären';
+
+  @override
+  String heroResultOf(String actual, String planned) {
+    return '$actual von $planned';
+  }
+
+  @override
+  String get heroFeelNotLogged =>
+      'Wie hat es sich angefühlt? Noch nicht eingetragen.';
+
+  @override
+  String heroFeelLogged(String fatigue, String soreness) {
+    return 'Befinden: Müdigkeit $fatigue/4 · Muskelkater $soreness/4';
+  }
+
+  @override
+  String get heroAskTrainerTopic => 'Heute';
+
+  @override
+  String get heroAskTrainerDraft =>
+      'Was soll ich heute trainieren, und bin ich fit dafür?';
+
+  @override
+  String get todayMoreMetrics => 'Mehr Werte';
+
+  @override
+  String get todayFewerMetrics => 'Weniger Werte';
 }

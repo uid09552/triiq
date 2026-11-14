@@ -5297,4 +5297,150 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get durRadarOpen => 'Open session';
+
+  @override
+  String get todaySectionHero => 'Today\'s plan (status, readiness, session)';
+
+  @override
+  String get todaySectionWeekRibbon => 'Week ribbon';
+
+  @override
+  String get todaySectionAttention => 'Needs attention';
+
+  @override
+  String get todayThisWeekTitle => 'This week';
+
+  @override
+  String get customizeTodayTimeOfDay => 'Order by time of day';
+
+  @override
+  String get customizeTodayTimeOfDayHint =>
+      'Morning: today\'s session first. Evening: today\'s result and tomorrow first.';
+
+  @override
+  String get customizeTodayAllTiles => 'Show all six load tiles';
+
+  @override
+  String get attentionHideToday => 'Hide for today';
+
+  @override
+  String get attentionShowLess => 'Show less';
+
+  @override
+  String attentionMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count more',
+      one: '+1 more',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ribbonDone => 'done';
+
+  @override
+  String get ribbonPlanned => 'planned';
+
+  @override
+  String get ribbonMissed => 'missed';
+
+  @override
+  String get ribbonRest => 'rest day';
+
+  @override
+  String ribbonDaySemantics(String day, String status) {
+    return '$day: $status. Open in the calendar.';
+  }
+
+  @override
+  String todayThisWeekSessions(int done, int planned) {
+    return '$done / $planned sessions';
+  }
+
+  @override
+  String todayThisWeekLoad(int load) {
+    return '$load TSS this week';
+  }
+
+  @override
+  String get raceWeekTitle => 'Race week';
+
+  @override
+  String raceWeekFormForecast(String form) {
+    return 'Race-day form forecast $form';
+  }
+
+  @override
+  String get todayWaitingForWatch => 'Waiting for watch data';
+
+  @override
+  String get readinessExplainScore =>
+      'The score is half the average of the rated signals and half the weakest one, so a single signal that is off shows in the number. Not medical advice.';
+
+  @override
+  String get readinessExplainDetails => 'Details and trends';
+
+  @override
+  String get heroTomorrowRest => 'Tomorrow: rest day';
+
+  @override
+  String heroTomorrow(String session) {
+    return 'Tomorrow: $session';
+  }
+
+  @override
+  String heroA11yToday(String session) {
+    return 'Today: $session';
+  }
+
+  @override
+  String get heroMoveToTomorrow => 'Move to tomorrow';
+
+  @override
+  String get heroActionStart => 'Start';
+
+  @override
+  String get heroActionSwap => 'Swap for easier';
+
+  @override
+  String get heroActionFeel => 'Log how it felt';
+
+  @override
+  String heroNextKeySession(String day, String name) {
+    return 'Rest day · next key session: $day, $name';
+  }
+
+  @override
+  String get heroAskTrainer => 'Ask the trainer about today';
+
+  @override
+  String get heroExplainReadiness => 'Explain the readiness score';
+
+  @override
+  String heroResultOf(String actual, String planned) {
+    return '$actual of $planned';
+  }
+
+  @override
+  String get heroFeelNotLogged => 'How did it feel? Not logged yet.';
+
+  @override
+  String heroFeelLogged(String fatigue, String soreness) {
+    return 'Felt: fatigue $fatigue/4 · soreness $soreness/4';
+  }
+
+  @override
+  String get heroAskTrainerTopic => 'Today';
+
+  @override
+  String get heroAskTrainerDraft =>
+      'What should I do today, and am I fit for it?';
+
+  @override
+  String get todayMoreMetrics => 'More metrics';
+
+  @override
+  String get todayFewerMetrics => 'Fewer metrics';
 }

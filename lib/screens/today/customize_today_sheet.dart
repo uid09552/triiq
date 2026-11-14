@@ -5,14 +5,12 @@ import 'today_layout_settings.dart';
 
 String todaySectionLabel(AppLocalizations l10n, TodaySection section) =>
     switch (section) {
-      TodaySection.readiness => l10n.todaySectionReadiness,
-      TodaySection.adjustments => l10n.todayAdjustmentsTitle,
+      TodaySection.hero => l10n.todaySectionHero,
+      TodaySection.weekRibbon => l10n.todaySectionWeekRibbon,
+      TodaySection.attention => l10n.todaySectionAttention,
+      TodaySection.thisWeek => l10n.todayThisWeekTitle,
       TodaySection.metrics => l10n.todaySectionMetrics,
-      TodaySection.weeklyTargets => l10n.weeklyTargetsSectionTitle,
-      TodaySection.yearGoals => l10n.todaySectionYearGoals,
-      TodaySection.thresholds => l10n.todaySectionThresholds,
       TodaySection.activities => l10n.todaysActivities,
-      TodaySection.todaysTraining => l10n.todaysTraining,
       TodaySection.tomorrowsTraining => l10n.tomorrowsTraining,
       TodaySection.athlete => l10n.titleAthlete,
     };
@@ -71,6 +69,22 @@ class _CustomizeTodaySheet extends StatelessWidget {
                 ),
               ),
             ),
+            SwitchListTile(
+              key: const ValueKey('customize-time-of-day'),
+              secondary: const Icon(Icons.schedule),
+              title: Text(l10n.customizeTodayTimeOfDay),
+              subtitle: Text(l10n.customizeTodayTimeOfDayHint),
+              value: layout.timeOfDayOrder,
+              onChanged: layout.setTimeOfDayOrder,
+            ),
+            SwitchListTile(
+              key: const ValueKey('customize-all-tiles'),
+              secondary: const Icon(Icons.grid_view_outlined),
+              title: Text(l10n.customizeTodayAllTiles),
+              value: layout.allLoadTiles,
+              onChanged: layout.setAllLoadTiles,
+            ),
+            const Divider(height: 1),
             Flexible(
               child: ReorderableListView(
                 shrinkWrap: true,

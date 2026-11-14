@@ -40,6 +40,7 @@ class YearGoalsProgress extends StatefulWidget {
     YearGoalsSettings? settings,
     ActivitiesRepository? activities,
     this.now,
+    this.compact = false,
   }) : settings = settings ?? YearGoalsSettings.instance,
        activities = activities ?? ActivitiesRepository();
 
@@ -48,6 +49,10 @@ class YearGoalsProgress extends StatefulWidget {
 
   /// Test seam for the date.
   final DateTime? now;
+
+  /// One line ("Year goals · Swim 40% · Ride 62% ✓") instead of the bars —
+  /// Today's This week card.
+  final bool compact;
 
   @override
   State<YearGoalsProgress> createState() => _YearGoalsProgressState();
@@ -94,6 +99,40 @@ class _YearGoalsProgressState extends State<YearGoalsProgress> {
     return ListenableBuilder(
       listenable: widget.settings,
       builder: (context, _) {
+        if (widget.compact) {
+          final parts = <String>[
+            for (final (sport, label) in [
+              ('swim', l10n.sportSwim),
+              ('cycle', l10n.sportRide),
+              ('run', l10n.sportRun),
+            ])
+              if (widget.settings.goalFor(sport) case final goal?)
+                '$label ${((_km[sport] ?? 0) / goal * 100).round()}%'
+                    '${(_km[sport] ?? 0) >= goal * elapsed ? ' ↗' : ' ↘'}',
+          ];
+          if (parts.isEmpty) return const SizedBox.shrink();
+          return Row(
+            key: const ValueKey('year-goals-line'),
+            children: [
+              Icon(
+                Icons.flag_outlined,
+                size: 14,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  '${l10n.yearGoalsTitle} · ${parts.join(' · ')}',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          );
+        }
         final rows = <Widget>[];
         for (final (sport, label, type) in [
           ('swim', l10n.sportSwim, 'Swim'),
