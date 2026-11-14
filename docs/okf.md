@@ -1284,6 +1284,11 @@ Settings — so a first launch isn't just a wall of "not connected" labels.
 
 ### Calendar
 
+**Pinned grid.** In Month and Week the grid stays fixed at the top
+whatever the number of sessions on the selected day; only the day card below
+it scrolls (the grid scrolls on its own, capped at 65 % of the height, only
+when it can't fit, e.g. at very large text sizes).
+
 **Compact layout.** The level buttons use a small single-line label (never
 wrapping, in English or German), the header rows and the month grid have
 tighter padding, and month cells are shorter, so the month grid plus the day

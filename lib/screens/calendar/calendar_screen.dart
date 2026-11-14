@@ -427,10 +427,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 child: KeyedSubtree(
                   key: ValueKey(_level),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: _body(context),
-                  ),
+                  child:
+                      _level == CalendarLevel.month ||
+                          _level == CalendarLevel.week
+                      ? _pinnedGridBody(context)
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _body(context),
+                        ),
                 ),
               ),
             ),
@@ -657,6 +661,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  /// Month and week: the grid stays pinned to the top whatever the number
+  /// of sessions on the selected day; only the day card below it scrolls.
+  /// The grid only scrolls itself (capped at 65 % of the height) when it
+  /// can't fit, e.g. at very large text sizes.
+  Widget _pinnedGridBody(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: constraints.maxHeight * 0.65,
+            ),
+            child: SingleChildScrollView(
+              key: const ValueKey('calendar-grid-scroll'),
+              child: _body(context),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              key: const ValueKey('calendar-day-scroll'),
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _dayDetail(context, _visible),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _body(BuildContext context) {
     final data = _visible;
     switch (_level) {
@@ -672,47 +705,37 @@ class _CalendarScreenState extends State<CalendarScreen> {
           onOpenMonth: _openMonth,
         );
       case CalendarLevel.month:
-        return Column(
-          children: [
-            MonthlyCalendarView(
-              month: _date,
-              selectedDate: _date,
-              eventsByDate: data.eventsByDate,
-              dayEventsByDate: data.dayEventsByDate,
-              activitiesByDate: data.activitiesByDate,
-              readinessByDate: data.readinessByDate,
-              onSelect: _tapDay,
-              onLongPress: _dayActions,
-              onOpenWeek: _openWeek,
-              onWeekLongPress: _weekActions,
-              onDrop: _drop,
-              mover: _mover,
-              compact: _compact,
-              today: widget.today,
-            ),
-            _dayDetail(context, data),
-          ],
+        return MonthlyCalendarView(
+          month: _date,
+          selectedDate: _date,
+          eventsByDate: data.eventsByDate,
+          dayEventsByDate: data.dayEventsByDate,
+          activitiesByDate: data.activitiesByDate,
+          readinessByDate: data.readinessByDate,
+          onSelect: _tapDay,
+          onLongPress: _dayActions,
+          onOpenWeek: _openWeek,
+          onWeekLongPress: _weekActions,
+          onDrop: _drop,
+          mover: _mover,
+          compact: _compact,
+          today: widget.today,
         );
       case CalendarLevel.week:
         final (monday, _) = calendarRange(CalendarLevel.week, _date);
-        return Column(
-          children: [
-            WeeklyCalendarView(
-              weekStart: monday,
-              selectedDate: _date,
-              eventsByDate: data.eventsByDate,
-              dayEventsByDate: data.dayEventsByDate,
-              activitiesByDate: data.activitiesByDate,
-              readinessByDate: data.readinessByDate,
-              onSelect: _tapDay,
-              onLongPress: _dayActions,
-              onDrop: _drop,
-              mover: _mover,
-              onWeekActions: () => _weekActions(monday),
-              today: widget.today,
-            ),
-            _dayDetail(context, data),
-          ],
+        return WeeklyCalendarView(
+          weekStart: monday,
+          selectedDate: _date,
+          eventsByDate: data.eventsByDate,
+          dayEventsByDate: data.dayEventsByDate,
+          activitiesByDate: data.activitiesByDate,
+          readinessByDate: data.readinessByDate,
+          onSelect: _tapDay,
+          onLongPress: _dayActions,
+          onDrop: _drop,
+          mover: _mover,
+          onWeekActions: () => _weekActions(monday),
+          today: widget.today,
         );
       case CalendarLevel.day:
         final key = isoDate(_date);

@@ -492,4 +492,33 @@ void main() {
       expect(t.getBottomLeft(last).dy, lessThanOrEqualTo(visible));
     });
   }
+
+  testWidgets('grid stays pinned while a long day list scrolls', (t) async {
+    t.view.physicalSize = const Size(720, 1560);
+    t.view.devicePixelRatio = 2; // 360 x 780 dp
+    addTearDown(t.view.reset);
+    await t.pumpWidget(
+      app(
+        CalendarScreen(
+          loader: FakeLoader(
+            const [],
+            activities: [
+              for (var i = 0; i < 9; i++) activity('a$i', '2026-11-13'),
+            ],
+          ),
+          mover: FakeMover(),
+          today: () => today,
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    final cell = find.byKey(const ValueKey('day-cell-2026-11-10'));
+    final before = t.getTopLeft(cell);
+    await t.drag(
+      find.byKey(const ValueKey('calendar-day-scroll')),
+      const Offset(0, -2000),
+    );
+    await t.pumpAndSettle();
+    expect(t.getTopLeft(cell), before);
+  });
 }
