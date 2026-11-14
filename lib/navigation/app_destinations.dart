@@ -8,6 +8,8 @@ import '../screens/statistics/insight_previews.dart' show insightDescription;
 import '../screens/statistics/insights_grid.dart';
 import '../widgets/main_navigation.dart';
 import 'app_search.dart';
+import 'nav_items.dart';
+import 'navigation_layout.dart';
 import 'okf_index.dart';
 
 typedef L10nText = String Function(AppLocalizations l10n);
@@ -52,9 +54,13 @@ class AppDestination {
   /// Takes the athlete there. Only ever called from a tap.
   final void Function(BuildContext context) open;
 
-  /// "Settings › App › Notifications".
-  String path(AppLocalizations l10n) =>
-      [for (final p in parents) p(l10n), title(l10n)].join(' › ');
+  /// "Settings › App › Notifications". A parent that resolves to an empty
+  /// string (a tab that is in the bottom bar right now) is left out.
+  String path(AppLocalizations l10n) => [
+    for (final p in parents)
+      if (p(l10n) case final s when s.isNotEmpty) s,
+    title(l10n),
+  ].join(' › ');
 
   /// The one-line description, from l10n or else the okf passage.
   String describe(AppLocalizations l10n, OkfIndex? okf) {
@@ -70,17 +76,15 @@ class AppDestination {
 void _push(BuildContext context, WidgetBuilder builder) =>
     Navigator.of(context).push(MaterialPageRoute<void>(builder: builder));
 
-/// Back to the shell, then the tab.
-void _openTab(BuildContext context, int tab) {
-  Navigator.of(context).popUntil((route) => route.isFirst);
-  MainNavigation.instance.openTab(tab);
-}
-
 String _settings(AppLocalizations l) => l.titleSettings;
 String _insights(AppLocalizations l) => l.navStatistics;
-String _more(AppLocalizations l) => l.navMore;
 
-const _tabKeywords = <int, List<String>>{
+/// "More" while [id] lives in More, nothing while it is in the bottom bar —
+/// the athlete arranges the two (`NavigationLayout`).
+L10nText _whereIs(String id) =>
+    (l) => NavigationLayout.instance.isInBar(id) ? '' : l.navMore;
+
+const _tabKeywords = <String, List<String>>{
   MainNavigation.todayTab: [
     'home',
     'dashboard',
@@ -355,6 +359,7 @@ String _sectionAnchor(SettingsSection s) => switch (s) {
   SettingsSection.yearGoals => 'Year goals',
   SettingsSection.privacy => 'status:Consent & your rights',
   SettingsSection.ai => 'Settings#Models',
+  SettingsSection.navigation => 'Arrange the menu',
 };
 
 String _sectionDescription(AppLocalizations l, SettingsSection s) =>
@@ -370,10 +375,11 @@ String _sectionDescription(AppLocalizations l, SettingsSection s) =>
       SettingsSection.yearGoals => l.searchDescYearGoals,
       SettingsSection.privacy => l.pvSubtitle,
       SettingsSection.ai => l.searchDescAi,
+      SettingsSection.navigation => l.searchDescNavigation,
     };
 
 AppDestination _tab(
-  int tab,
+  String tab,
   String id,
   IconData icon,
   L10nText title,
@@ -384,9 +390,10 @@ AppDestination _tab(
   icon: icon,
   title: title,
   description: description,
+  parents: [_whereIs(tab)],
   keywords: _tabKeywords[tab]!,
   okfAnchor: anchor,
-  open: (context) => _openTab(context, tab),
+  open: (context) => openNavItem(context, tab),
 );
 
 AppDestination _notification(
@@ -472,10 +479,10 @@ final List<AppDestination> appDestinations = [
         icon: e.icon,
         title: e.title,
         description: e.subtitle,
-        parents: const [_more],
+        parents: [_whereIs(e.id)],
         keywords: _moreMeta[e.id]?.$2 ?? const [],
         okfAnchor: _moreMeta[e.id]?.$1 ?? 'More',
-        open: (context) => _push(context, e.builder),
+        open: (context) => openNavItem(context, e.id),
       ),
   AppDestination(
     id: 'profile',

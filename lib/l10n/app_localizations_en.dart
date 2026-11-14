@@ -5855,4 +5855,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get llmDragToReorder => 'Drag to change the order';
+
+  @override
+  String get navCustomizeTitle => 'Customize navigation';
+
+  @override
+  String get navCustomizeHelp =>
+      'Drag an item to reorder it or to move it between the bottom bar and More — or use its buttons. You can also long-press the bottom bar to get here.';
+
+  @override
+  String get navCustomizeReset => 'Reset to default';
+
+  @override
+  String get navSectionBar => 'In the bottom bar';
+
+  @override
+  String get navSectionMore => 'In More';
+
+  @override
+  String get navMoreFixed => 'More — always the last item';
+
+  @override
+  String navBarCount(int count, int max, int min) {
+    return 'Bottom bar: $count of $max places used besides More (at least $min)';
+  }
+
+  @override
+  String navBarFull(int max) {
+    return 'The bottom bar is full ($max items plus More). Move an item to More first.';
+  }
+
+  @override
+  String navBarMinimum(int min) {
+    return 'The bottom bar needs at least $min items besides More.';
+  }
+
+  @override
+  String get navMoveUp => 'Move up';
+
+  @override
+  String get navMoveDown => 'Move down';
+
+  @override
+  String get navMoveToMore => 'Move to More';
+
+  @override
+  String get navPinToBar => 'Pin to bar';
+
+  @override
+  String navPreviewLabel(String items) {
+    return 'Preview of the bottom bar: $items';
+  }
+
+  @override
+  String navItemPosition(
+    String title,
+    String section,
+    int position,
+    int count,
+  ) {
+    return '$title, $section, position $position of $count';
+  }
+
+  @override
+  String navSettingsCurrent(String items) {
+    return 'Bottom bar now: $items';
+  }
+
+  @override
+  String get navigationSettingsTitle => 'Navigation';
+
+  @override
+  String get searchDescNavigation =>
+      'Reorder the bottom bar and move pages between it and More';
+
+  @override
+  String get moreGroupMain => 'Main sections';
+
+  @override
+  String get navShortPlan => 'Plan';
+
+  @override
+  String get navShortSeason => 'Season';
+
+  @override
+  String get navShortEvents => 'Events';
+
+  @override
+  String get navShortMemory => 'Memory';
+
+  @override
+  String get navShortKnowledge => 'Library';
+
+  @override
+  String get navShortSync => 'Sync';
 }

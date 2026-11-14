@@ -1,23 +1,28 @@
 import 'package:flutter/foundation.dart';
 
 /// Lets any screen — including one pushed on top of the shell, like the
-/// Plan screen — switch the main view's tab and point the Calendar at a
-/// date. `MainShell` and `CalendarScreen` listen.
+/// Plan screen — open a main destination and point the Calendar at a date.
+/// `MainShell` and `CalendarScreen` listen.
+///
+/// Destinations are named by id, not by position: the athlete arranges the
+/// bottom bar (`NavigationLayout`), so "Chat" may be the second tab, the
+/// fourth, or live in More. The shell resolves the id — it selects the tab
+/// when the item is in the bar, and otherwise pushes its page.
 class MainNavigation extends ChangeNotifier {
   MainNavigation._();
 
   static final MainNavigation instance = MainNavigation._();
 
-  static const todayTab = 0;
-  static const calendarTab = 1;
-  static const chatTab = 2;
-  static const insightsTab = 3;
-  static const moreTab = 4;
+  static const todayTab = 'today';
+  static const calendarTab = 'calendar';
+  static const chatTab = 'chat';
+  static const insightsTab = 'insights';
+  static const moreTab = 'more';
 
-  int? _requestedTab;
+  String? _requestedTab;
 
-  /// The tab last asked for; the shell applies it and keeps its own index.
-  int? get requestedTab => _requestedTab;
+  /// The destination last asked for; the shell applies it.
+  String? get requestedTab => _requestedTab;
 
   /// The date the Calendar should show, with a sequence number so asking
   /// for the same date twice still moves it.
@@ -33,8 +38,9 @@ class MainNavigation extends ChangeNotifier {
     notifyListeners();
   }
 
-  void openTab(int tab) {
-    _requestedTab = tab;
+  /// Opens [id] (a core tab or a More entry id) wherever it lives.
+  void openTab(String id) {
+    _requestedTab = id;
     notifyListeners();
   }
 

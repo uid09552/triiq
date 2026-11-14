@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../agent/agent_memory.dart';
 import '../../l10n/app_localizations.dart';
+import '../../navigation/shell_tab.dart';
 
 /// More → Trainer memory: everything the trainer remembers across chats,
 /// with add and remove. Nothing is remembered that isn't listed here.
@@ -94,6 +95,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               icon: const Icon(Icons.delete_sweep_outlined),
               onPressed: _clear,
             ),
+          ...shellTabActions(context),
         ],
       ),
       body: ListView(

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../navigation/app_destinations.dart';
+import '../../navigation/nav_items.dart';
+import '../../navigation/navigation_layout.dart';
 import '../../navigation/okf_index.dart';
 import '../events/events_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
@@ -105,13 +107,17 @@ String moreGroupTitle(AppLocalizations l10n, MoreGroup group) =>
 /// Insights hub, the activity list too; sync is also one tap away from the
 /// status chip on Today and Insights.
 class MoreScreen extends StatefulWidget {
-  const MoreScreen({super.key, this.okf, this.destinations});
+  const MoreScreen({super.key, this.okf, this.destinations, this.layout});
 
   /// Test seam: where the okf text the search also matches comes from.
   final Future<OkfIndex>? okf;
 
   /// Test seam: what the search covers (default: [appDestinations]).
   final List<AppDestination>? destinations;
+
+  /// Test seam (default: [NavigationLayout.instance]): what More lists and
+  /// in which order — everything that is not in the bottom bar.
+  final NavigationLayout? layout;
 
   @override
   State<MoreScreen> createState() => _MoreScreenState();
@@ -168,23 +174,60 @@ class _MoreScreenState extends State<MoreScreen> {
         if (searching)
           ..._results(context, l10n)
         else
-          for (final group in MoreGroup.values) ...[
-            _GroupHeader(moreGroupTitle(l10n, group)),
-            for (final e in moreEntries)
-              if (e.group == group && e.available)
-                _MoreTile(
-                  key: ValueKey('more-${e.id}'),
-                  icon: e.icon,
-                  title: e.title(l10n),
-                  subtitle: e.subtitle(l10n),
-                  onTap: () => Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute<void>(builder: e.builder)),
-                ),
-          ],
+          ListenableBuilder(
+            listenable: _layout,
+            builder: (context, _) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _entries(context, l10n),
+            ),
+          ),
       ],
     );
   }
+
+  NavigationLayout get _layout => widget.layout ?? NavigationLayout.instance;
+
+  /// Everything not in the bottom bar, in the athlete's order. The group
+  /// headers (Main sections, Plan, Trainer, Data) show while each group's
+  /// items stay together — as shipped; an order that mixes them is one
+  /// plain list.
+  List<Widget> _entries(BuildContext context, AppLocalizations l10n) {
+    final items = [for (final id in _layout.more) navItem(id)];
+    String? groupOf(NavItem i) => i.entry?.group.name;
+    final groups = [for (final i in items) groupOf(i)];
+    var grouped = true;
+    for (var i = 0; i < groups.length; i++) {
+      final first = groups.indexOf(groups[i]);
+      if (first != i && groups[i - 1] != groups[i]) grouped = false;
+    }
+    return [
+      for (var i = 0; i < items.length; i++) ...[
+        if (grouped && (i == 0 || groups[i - 1] != groups[i]))
+          _GroupHeader(
+            items[i].entry == null
+                ? l10n.moreGroupMain
+                : moreGroupTitle(l10n, items[i].entry!.group),
+          ),
+        _MoreTile(
+          key: ValueKey('more-${items[i].id}'),
+          icon: items[i].icon,
+          title: items[i].title(l10n),
+          subtitle: _subtitle(l10n, items[i]),
+          onTap: () => openNavItem(context, items[i].id, layout: _layout),
+        ),
+      ],
+    ];
+  }
+
+  static String _subtitle(AppLocalizations l10n, NavItem item) =>
+      item.entry?.subtitle(l10n) ??
+      switch (item.id) {
+        'today' => l10n.searchDescToday,
+        'calendar' => l10n.searchDescCalendar,
+        'chat' => l10n.searchDescChat,
+        'insights' => l10n.searchDescInsights,
+        _ => '',
+      };
 
   List<Widget> _results(BuildContext context, AppLocalizations l10n) {
     final results = searchDestinations(

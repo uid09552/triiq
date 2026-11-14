@@ -9559,6 +9559,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drag to change the order'**
   String get llmDragToReorder;
+
+  /// No description provided for @navCustomizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize navigation'**
+  String get navCustomizeTitle;
+
+  /// No description provided for @navCustomizeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag an item to reorder it or to move it between the bottom bar and More — or use its buttons. You can also long-press the bottom bar to get here.'**
+  String get navCustomizeHelp;
+
+  /// No description provided for @navCustomizeReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get navCustomizeReset;
+
+  /// No description provided for @navSectionBar.
+  ///
+  /// In en, this message translates to:
+  /// **'In the bottom bar'**
+  String get navSectionBar;
+
+  /// No description provided for @navSectionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'In More'**
+  String get navSectionMore;
+
+  /// No description provided for @navMoreFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'More — always the last item'**
+  String get navMoreFixed;
+
+  /// No description provided for @navBarCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom bar: {count} of {max} places used besides More (at least {min})'**
+  String navBarCount(int count, int max, int min);
+
+  /// No description provided for @navBarFull.
+  ///
+  /// In en, this message translates to:
+  /// **'The bottom bar is full ({max} items plus More). Move an item to More first.'**
+  String navBarFull(int max);
+
+  /// No description provided for @navBarMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'The bottom bar needs at least {min} items besides More.'**
+  String navBarMinimum(int min);
+
+  /// No description provided for @navMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get navMoveUp;
+
+  /// No description provided for @navMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get navMoveDown;
+
+  /// No description provided for @navMoveToMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to More'**
+  String get navMoveToMore;
+
+  /// No description provided for @navPinToBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to bar'**
+  String get navPinToBar;
+
+  /// No description provided for @navPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of the bottom bar: {items}'**
+  String navPreviewLabel(String items);
+
+  /// No description provided for @navItemPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {section}, position {position} of {count}'**
+  String navItemPosition(String title, String section, int position, int count);
+
+  /// No description provided for @navSettingsCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom bar now: {items}'**
+  String navSettingsCurrent(String items);
+
+  /// No description provided for @navigationSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation'**
+  String get navigationSettingsTitle;
+
+  /// No description provided for @searchDescNavigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder the bottom bar and move pages between it and More'**
+  String get searchDescNavigation;
+
+  /// No description provided for @moreGroupMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Main sections'**
+  String get moreGroupMain;
+
+  /// No description provided for @navShortPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get navShortPlan;
+
+  /// No description provided for @navShortSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get navShortSeason;
+
+  /// No description provided for @navShortEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get navShortEvents;
+
+  /// No description provided for @navShortMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory'**
+  String get navShortMemory;
+
+  /// No description provided for @navShortKnowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get navShortKnowledge;
+
+  /// No description provided for @navShortSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get navShortSync;
 }
 
 class _AppLocalizationsDelegate
