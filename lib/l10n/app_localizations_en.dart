@@ -5443,4 +5443,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayFewerMetrics => 'Fewer metrics';
+
+  @override
+  String get appSearchHint => 'Search the app';
+
+  @override
+  String appSearchNoResults(String query) {
+    return 'Nothing in the app matches “$query”.';
+  }
+
+  @override
+  String get appSearchOpenHint => 'Opens this page';
+
+  @override
+  String get chatToolAppSearch => 'Looking up where that is in the app…';
+
+  @override
+  String get chatToolOpenPage => 'Preparing a link…';
+
+  @override
+  String navCardOpen(String title) {
+    return 'Open $title';
+  }
+
+  @override
+  String navCardHint(String path) {
+    return 'Opens $path. Nothing happens until you tap.';
+  }
+
+  @override
+  String get navCardUnknown =>
+      'This page isn\'t available in this version of the app.';
+
+  @override
+  String get searchDescToday =>
+      'Today\'s session, readiness, this week and your load tiles';
+
+  @override
+  String get searchDescCalendar =>
+      'Planned and completed sessions by year, month, week or day';
+
+  @override
+  String get searchDescChat => 'Ask the AI trainer about your training';
+
+  @override
+  String get searchDescInsights =>
+      'Every analysis view, plus fitness trend and volume charts';
+
+  @override
+  String get searchDescMore =>
+      'Plan, season, events, trainer memory, knowledge, sync';
+
+  @override
+  String get searchDescProfile =>
+      'Connect or disconnect your Intervals.icu account';
+
+  @override
+  String get searchDescSettings =>
+      'Training, AI trainer, data & privacy, app settings';
+
+  @override
+  String get searchDescAppearance => 'System, light, dark or developer theme';
+
+  @override
+  String get searchDescLanguage => 'System, English or German';
+
+  @override
+  String get searchDescNotifications =>
+      'Sync and trainer notifications, reminder, briefing, weekly review';
+
+  @override
+  String get searchDescSync =>
+      'How often the app refreshes, and background sync';
+
+  @override
+  String get searchDescCalendarSettings =>
+      'Send the plan to Intervals.icu, copy planned events from it';
+
+  @override
+  String get searchDescBackup =>
+      'Export or restore your TriIQ data as one file';
+
+  @override
+  String get searchDescFeel =>
+      'Ask how a recent session felt (fatigue, soreness)';
+
+  @override
+  String get searchDescWeeklyTargets =>
+      'Weekly hours goal for swim, bike and run';
+
+  @override
+  String get searchDescYearGoals => 'Distance or time goals for the year';
+
+  @override
+  String get searchDescAi => 'Claude or Ollama, model, API key and AI consent';
+
+  @override
+  String get searchDescDailyReminder =>
+      'A daily notification at the time you choose';
+
+  @override
+  String get searchDescMorningBriefing =>
+      'Today\'s session, readiness and form as a morning notification';
+
+  @override
+  String get searchDescWeeklyReviewNotification =>
+      'Your week against the plan, once a week as a notification';
 }

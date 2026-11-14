@@ -109,6 +109,51 @@ void main() {
     );
   });
 
+  test('open_app_page makes the agent emit a navigation offer', () async {
+    final a = agent([
+      AIChatMessage.text(
+        '',
+        toolCalls: const [
+          AIChatMessageToolCall(
+            id: 'n1',
+            name: 'open_app_page',
+            argumentsRaw: '{"destination_id":"insights.durability"}',
+            arguments: {'destination_id': 'insights.durability'},
+          ),
+        ],
+      ),
+      AIChatMessage.text('Insights › Durability — tap the button to open it.'),
+    ]);
+
+    final events = await a.send('Where is durability?').toList();
+
+    expect(
+      events.whereType<AgentNavigation>().single.destinationId,
+      'insights.durability',
+    );
+    expect(events.whereType<AgentProposal>(), isEmpty);
+  });
+
+  test('an unknown page id emits no navigation offer', () async {
+    final a = agent([
+      AIChatMessage.text(
+        '',
+        toolCalls: const [
+          AIChatMessageToolCall(
+            id: 'n1',
+            name: 'open_app_page',
+            argumentsRaw: '{"destination_id":"nope"}',
+            arguments: {'destination_id': 'nope'},
+          ),
+        ],
+      ),
+      AIChatMessage.text('There is no such page.'),
+    ]);
+
+    final events = await a.send('Open nope').toList();
+    expect(events.whereType<AgentNavigation>(), isEmpty);
+  });
+
   test('what the athlete did with it reaches the next turn', () async {
     final a = agent([
       AIChatMessage.text(

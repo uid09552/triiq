@@ -172,19 +172,8 @@ class _InsightPreviewState extends State<InsightPreview> {
     );
   }
 
-  static String _describe(AppLocalizations l10n, String id) => switch (id) {
-    'analytics' => l10n.insPeekAnalytics,
-    'explorer' => l10n.insPeekExplorer,
-    'heatmap' => l10n.insPeekHeatmap,
-    'curves' => l10n.insPeekCurves,
-    'best-efforts' => l10n.insPeekBestEfforts,
-    'durability' => l10n.insPeekDurability,
-    'wellness' => l10n.insPeekWellness,
-    'compare' => l10n.insPeekCompare,
-    'weekly-review' => l10n.insPeekWeeklyReview,
-    'activities' => l10n.insPeekActivities,
-    _ => '',
-  };
+  static String _describe(AppLocalizations l10n, String id) =>
+      insightDescription(l10n, id);
 
   Widget _content(
     BuildContext context,
@@ -644,3 +633,19 @@ class _Week {
     return _Week(dateOnly(from), tss, secs, n);
   }
 }
+
+/// One line on what the Insights destination [id] is — the peek's subtitle
+/// and the app search's description.
+String insightDescription(AppLocalizations l10n, String id) => switch (id) {
+  'analytics' => l10n.insPeekAnalytics,
+  'explorer' => l10n.insPeekExplorer,
+  'heatmap' => l10n.insPeekHeatmap,
+  'curves' => l10n.insPeekCurves,
+  'best-efforts' => l10n.insPeekBestEfforts,
+  'durability' => l10n.insPeekDurability,
+  'wellness' => l10n.insPeekWellness,
+  'compare' => l10n.insPeekCompare,
+  'weekly-review' => l10n.insPeekWeeklyReview,
+  'activities' => l10n.insPeekActivities,
+  _ => '',
+};

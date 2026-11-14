@@ -51,6 +51,14 @@ class AgentProposal extends AgentEvent {
   final PlanProposal proposal;
 }
 
+/// A tool offered the athlete a way to an app page (`open_app_page`).
+/// The chat shows it as a card; nothing navigates until it is tapped.
+class AgentNavigation extends AgentEvent {
+  const AgentNavigation(this.destinationId);
+
+  final String destinationId;
+}
+
 /// The training-analysis agent: a chat model, the training-data tools, and
 /// the loop that lets the model call them until it can answer.
 ///
@@ -172,6 +180,8 @@ class TrainingAgent {
           for (final proposal in _proposalsIn(result)) {
             yield AgentProposal(proposal);
           }
+          final navigation = _navigationIn(result);
+          if (navigation != null) yield AgentNavigation(navigation);
         }
       }
       _trimHistory();
@@ -227,6 +237,19 @@ class TrainingAgent {
       return [for (final id in ids) ?_proposals[id]];
     } catch (_) {
       return const [];
+    }
+  }
+
+  /// The page an `open_app_page` result offers, if any.
+  static String? _navigationIn(String result) {
+    if (!result.contains('navigation_id')) return null;
+    try {
+      final json = jsonDecode(result);
+      if (json is! Map) return null;
+      final id = json['navigation_id'];
+      return id is String ? id : null;
+    } catch (_) {
+      return null;
     }
   }
 

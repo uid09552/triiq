@@ -34,6 +34,7 @@ import '../knowledge_sections.dart';
 import '../plan_proposals.dart';
 import '../../evaluation/fatigue_warning_service.dart';
 import '../agent_memory.dart';
+import 'app_feature_tools.dart';
 import 'plan_assistant_tools.dart';
 import 'season_tools.dart';
 
@@ -68,7 +69,9 @@ class TrainingDataTools {
     ReadinessService? readinessService,
     ThresholdSuggestionsService? thresholdSuggestions,
     AgentMemoryStore? memory,
-  }) : _memory = memory ?? AgentMemoryStore.instance,
+    AppFeatureTools? appFeatures,
+  }) : _appFeatures = appFeatures ?? AppFeatureTools(),
+       _memory = memory ?? AgentMemoryStore.instance,
        _readinessOverride = readinessService,
        _thresholdSuggestions =
            thresholdSuggestions ?? ThresholdSuggestionsService(),
@@ -100,6 +103,7 @@ class TrainingDataTools {
            knowledgeLibraryRepository ?? KnowledgeLibraryRepository();
 
   final AgentMemoryStore _memory;
+  final AppFeatureTools _appFeatures;
   final IntervalsSession _session;
   final PerformanceCurvesRepository _performanceCurves;
   final WellnessRepository _wellnessRepository;
@@ -698,6 +702,48 @@ class TrainingDataTools {
         'required': ['sport', 'metric'],
       },
       run: (args) => _performanceCurve(args),
+    ),
+    _tool(
+      name: 'search_app_features',
+      description:
+          'Searches the TriIQ app itself: its pages, tabs and settings. For '
+          '"how do I…", "where is…", "can the app…" questions. Returns up to '
+          '5 matches, best first, each with an id, the localized title, the '
+          'breadcrumb path (e.g. "Insights › Durability") and `docs`, the '
+          'matching part of the app\'s own documentation. Answer from '
+          '`docs`; never describe a feature it does not mention.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'query': {
+            'type': 'string',
+            'description':
+                'A few words for the feature, English or German, e.g. '
+                '"durability", "dark mode", "Wochenrückblick '
+                'Benachrichtigung".',
+          },
+        },
+        'required': ['query'],
+      },
+      run: (args) => _appFeatures.search(args),
+    ),
+    _tool(
+      name: 'open_app_page',
+      description:
+          'Offers the athlete a button under your reply that opens one app '
+          'page (an id from search_app_features). It does not navigate: '
+          'the page opens only when the athlete taps the button.',
+      schema: const {
+        'type': 'object',
+        'properties': {
+          'destination_id': {
+            'type': 'string',
+            'description': 'An id from search_app_features.',
+          },
+        },
+        'required': ['destination_id'],
+      },
+      run: (args) => _appFeatures.open(args),
     ),
     _tool(
       name: 'sync_from_intervals',
