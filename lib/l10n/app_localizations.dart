@@ -9709,6 +9709,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync'**
   String get navShortSync;
+
+  /// No description provided for @peekShowPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Show preview'**
+  String get peekShowPreview;
+
+  /// No description provided for @peekClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get peekClose;
+
+  /// No description provided for @dayPeekPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get dayPeekPlanned;
+
+  /// No description provided for @dayPeekCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get dayPeekCompleted;
+
+  /// No description provided for @dayPeekMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String dayPeekMore(int count);
+
+  /// No description provided for @dayPeekEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty day'**
+  String get dayPeekEmpty;
+
+  /// No description provided for @dayPeekEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest — nothing planned or done.'**
+  String get dayPeekEmptyHint;
+
+  /// No description provided for @dayPeekLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {planned} TSS'**
+  String dayPeekLoad(int done, int planned);
+
+  /// No description provided for @dayPeekLoadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} TSS done'**
+  String dayPeekLoadDone(int done);
+
+  /// No description provided for @dayPeekReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness: {level}'**
+  String dayPeekReadiness(String level);
+
+  /// No description provided for @peekDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get peekDistance;
+
+  /// No description provided for @peekDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get peekDuration;
+
+  /// No description provided for @peekAvgHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg HR'**
+  String get peekAvgHr;
+
+  /// No description provided for @peekAvgPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg power'**
+  String get peekAvgPower;
+
+  /// No description provided for @peekClimb.
+  ///
+  /// In en, this message translates to:
+  /// **'Climb'**
+  String get peekClimb;
+
+  /// No description provided for @peekNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'No further details cached.'**
+  String get peekNoDetails;
 }
 
 class _AppLocalizationsDelegate

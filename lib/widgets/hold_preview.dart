@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 /// Press and hold [child] to peek: [preview] appears in a floating card
@@ -81,6 +82,13 @@ class _HoldPreviewState extends State<HoldPreview> {
         .clamp(12.0, math.max(12.0, _screen.width - width - 12))
         .toDouble();
     final fitsAbove = _anchor.top - top - 8 >= widget.estimatedHeight;
+    // The card never grows past the room on its side of the child; what does
+    // not fit is clipped, not overflowed (a peek cannot scroll).
+    final room = fitsAbove
+        ? _anchor.top - top - 16
+        : _screen.height - _anchor.bottom - 16;
+    final maxHeight = math.max(120.0, room);
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     return Stack(
       key: const ValueKey('hold-preview'),
@@ -98,7 +106,9 @@ class _HoldPreviewState extends State<HoldPreview> {
           child: IgnorePointer(
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
-              duration: const Duration(milliseconds: 150),
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 150),
               curve: Curves.easeOutCubic,
               builder: (context, t, child) => Opacity(
                 opacity: t,
@@ -115,15 +125,68 @@ class _HoldPreviewState extends State<HoldPreview> {
                 color: scheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(20),
                 clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: widget.preview(context),
+                child: _Capped(
+                  maxHeight: maxHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: widget.preview(context),
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Lays [child] out at its natural height, but is itself at most
+/// [maxHeight] tall and clips the rest — so content that is too tall is cut
+/// off instead of overflowing, and content that fits keeps its own size.
+class _Capped extends SingleChildRenderObjectWidget {
+  const _Capped({required this.maxHeight, required super.child});
+
+  final double maxHeight;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderCapped(maxHeight);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderCapped renderObject) =>
+      renderObject.maxHeight = maxHeight;
+}
+
+class _RenderCapped extends RenderProxyBox {
+  _RenderCapped(this._maxHeight);
+
+  double _maxHeight;
+  set maxHeight(double v) {
+    if (v == _maxHeight) return;
+    _maxHeight = v;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final c = child!;
+    c.layout(
+      constraints.copyWith(minHeight: 0, maxHeight: double.infinity),
+      parentUsesSize: true,
+    );
+    size = constraints.constrain(
+      Size(c.size.width, c.size.height.clamp(0.0, _maxHeight)),
+    );
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    context.pushClipRect(
+      needsCompositing,
+      offset,
+      Offset.zero & size,
+      super.paint,
     );
   }
 }

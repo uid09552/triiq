@@ -6,6 +6,8 @@ import '../../navigation/app_destinations.dart';
 import '../../navigation/nav_items.dart';
 import '../../navigation/navigation_layout.dart';
 import '../../navigation/okf_index.dart';
+import '../../widgets/peek_cards.dart';
+import '../../widgets/peekable.dart';
 import '../events/events_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
 import '../memory/memory_screen.dart';
@@ -265,32 +267,51 @@ class DestinationTile extends StatelessWidget {
     final theme = Theme.of(context);
     final path = destination.path(l10n);
     final description = destination.describe(l10n, okf);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Semantics(
-        hint: l10n.appSearchOpenHint,
-        child: ListTile(
-          key: ValueKey('search-result-${destination.id}'),
-          onTap: () => destination.open(context),
-          leading: Icon(destination.icon, color: theme.colorScheme.primary),
-          title: Text(
-            destination.title(l10n),
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                path,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.primary,
+    // Hold a result to read more of what the app docs say about it.
+    final excerpt = okf == null
+        ? description
+        : OkfIndex.trimToSentence(
+            OkfIndex.userText(okf!.resolve(destination.okfAnchor) ?? ''),
+            520,
+          );
+    return Peekable(
+      preview: (_) => TextPeek(
+        icon: destination.icon,
+        title: destination.title(l10n),
+        path: path,
+        text: excerpt.isEmpty ? description : excerpt,
+      ),
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 8),
+        child: Semantics(
+          hint: l10n.appSearchOpenHint,
+          child: ListTile(
+            key: ValueKey('search-result-${destination.id}'),
+            onTap: () => destination.open(context),
+            leading: Icon(destination.icon, color: theme.colorScheme.primary),
+            title: Text(
+              destination.title(l10n),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  path,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
-              ),
-              if (description.isNotEmpty)
-                Text(description, maxLines: 2, overflow: TextOverflow.ellipsis),
-            ],
+                if (description.isNotEmpty)
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+            trailing: const Icon(Icons.chevron_right),
           ),
-          trailing: const Icon(Icons.chevron_right),
         ),
       ),
     );

@@ -5,7 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../activities/activities_screen.dart';
 import '../analysis/analysis_screen.dart';
 import '../compare/compare_screen.dart';
-import '../../widgets/hold_preview.dart';
+import '../../widgets/peekable.dart';
 import 'analytics_screen.dart';
 import 'best_efforts_screen.dart';
 import 'durability_screen.dart';
@@ -155,7 +155,7 @@ class InsightsGrid extends StatelessWidget {
               SizedBox(
                 width: width,
                 // Hold a tile to peek at what is behind it; a tap opens it.
-                child: HoldPreview(
+                child: Peekable(
                   preview: (context) => InsightPreview(
                     id: d.id,
                     icon: d.icon,

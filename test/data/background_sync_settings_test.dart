@@ -57,9 +57,6 @@ void main() {
       );
       expect(interval.freshFor, lessThan(interval.frequency));
     }
-    expect(
-      BackgroundSyncInterval.nightly.freshFor,
-      const Duration(hours: 6),
-    );
+    expect(BackgroundSyncInterval.nightly.freshFor, const Duration(hours: 6));
   });
 }

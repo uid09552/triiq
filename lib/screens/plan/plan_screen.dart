@@ -16,6 +16,8 @@ import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/load_curve_editor.dart';
+import '../../widgets/peek_cards.dart';
+import '../../widgets/peekable.dart';
 import '../activities/activity_icons.dart';
 import '../profile/profile_screen.dart';
 import 'goal_editor_screen.dart';
@@ -946,44 +948,49 @@ class _SessionTile extends StatelessWidget {
     final small = theme.textTheme.labelSmall;
     final failed = session.status == PlanSessionStatus.failed;
 
-    return Semantics(
-      button: true,
-      label:
-          '${sportLabel(label, session.sport)}, ${session.name}, '
-          '${label.planSessionMinutes(session.minutes, session.load)}, '
-          '${session.shortDescription}',
-      excludeSemantics: true,
-      child: Material(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(8),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: color, width: 3)),
-            ),
-            padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-            child: Column(
-              children: [
-                Icon(
-                  failed
-                      ? Icons.error_outline
-                      : activityTypeIcon(session.sport),
-                  size: 16,
-                  color: failed ? scheme.error : color,
-                ),
-                Text(
-                  '${session.minutes}′',
-                  style: small?.copyWith(fontWeight: FontWeight.w700),
-                  maxLines: 1,
-                ),
-                Text(
-                  '${session.load}',
-                  style: small?.copyWith(color: scheme.onSurfaceVariant),
-                  maxLines: 1,
-                ),
-              ],
+    // Hold a tile to peek at the session's steps; a tap opens its sheet.
+    return Peekable(
+      width: 320,
+      preview: (_) => PlanSessionPeek(session: session),
+      child: Semantics(
+        button: true,
+        label:
+            '${sportLabel(label, session.sport)}, ${session.name}, '
+            '${label.planSessionMinutes(session.minutes, session.load)}, '
+            '${session.shortDescription}',
+        excludeSemantics: true,
+        child: Material(
+          color: color.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(8),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: color, width: 3)),
+              ),
+              padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+              child: Column(
+                children: [
+                  Icon(
+                    failed
+                        ? Icons.error_outline
+                        : activityTypeIcon(session.sport),
+                    size: 16,
+                    color: failed ? scheme.error : color,
+                  ),
+                  Text(
+                    '${session.minutes}′',
+                    style: small?.copyWith(fontWeight: FontWeight.w700),
+                    maxLines: 1,
+                  ),
+                  Text(
+                    '${session.load}',
+                    style: small?.copyWith(color: scheme.onSurfaceVariant),
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

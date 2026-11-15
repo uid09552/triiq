@@ -298,7 +298,18 @@ void main() {
     final lowCard = tester.getRect(
       find.byKey(const ValueKey('insight-preview-analytics')),
     );
-    expect(lowCard.bottom, lessThan(low.top));
+    // The card itself (content taller than the room is clipped, not moved).
+    final lowMaterial = tester.getRect(
+      find
+          .descendant(
+            of: find.byKey(const ValueKey('hold-preview')),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    expect(lowMaterial.bottom, lessThan(low.top));
+    expect(lowMaterial.top, greaterThanOrEqualTo(0));
+    expect(lowCard.left, greaterThanOrEqualTo(12));
     await _release(tester);
     expect(tester.takeException(), isNull);
   });

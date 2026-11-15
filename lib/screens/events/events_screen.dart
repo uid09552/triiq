@@ -9,6 +9,8 @@ import '../../data/sync/sync_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../navigation/shell_tab.dart';
 import '../../util/dates.dart';
+import '../../widgets/peek_cards.dart';
+import '../../widgets/peekable.dart';
 import 'event_editor_screen.dart';
 import 'event_labels.dart';
 
@@ -187,21 +189,27 @@ class _EventsScreenState extends State<EventsScreen> {
     final range = end != null && isoDate(end).compareTo(event.date) > 0
         ? '${event.date} – ${isoDate(end)}'
         : event.date;
-    return Card(
-      child: ListTile(
-        title: Text(
-          event.name ?? eventCategoryLabel(l10n, event.category),
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          '${eventCategoryLabel(l10n, event.category)} · $range'
-          '${event.type != null ? ' · ${event.type}' : ''}',
-        ),
-        onTap: () => _edit(event),
-        trailing: IconButton(
-          tooltip: l10n.deleteTooltip,
-          icon: const Icon(Icons.delete_outline),
-          onPressed: () => _delete(event),
+    // Hold an entry to peek at it; a tap opens the editor. The trailing
+    // delete button is a separate target.
+    return Peekable(
+      preview: (_) => EventPeek(event: event),
+      child: Card(
+        child: ListTile(
+          key: ValueKey('event-tile-${event.id}'),
+          title: Text(
+            event.name ?? eventCategoryLabel(l10n, event.category),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(
+            '${eventCategoryLabel(l10n, event.category)} · $range'
+            '${event.type != null ? ' · ${event.type}' : ''}',
+          ),
+          onTap: () => _edit(event),
+          trailing: IconButton(
+            tooltip: l10n.deleteTooltip,
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () => _delete(event),
+          ),
         ),
       ),
     );

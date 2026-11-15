@@ -5949,4 +5949,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navShortSync => 'Sync';
+
+  @override
+  String get peekShowPreview => 'Show preview';
+
+  @override
+  String get peekClose => 'Close';
+
+  @override
+  String get dayPeekPlanned => 'Planned';
+
+  @override
+  String get dayPeekCompleted => 'Completed';
+
+  @override
+  String dayPeekMore(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get dayPeekEmpty => 'Empty day';
+
+  @override
+  String get dayPeekEmptyHint => 'Rest — nothing planned or done.';
+
+  @override
+  String dayPeekLoad(int done, int planned) {
+    return '$done of $planned TSS';
+  }
+
+  @override
+  String dayPeekLoadDone(int done) {
+    return '$done TSS done';
+  }
+
+  @override
+  String dayPeekReadiness(String level) {
+    return 'Readiness: $level';
+  }
+
+  @override
+  String get peekDistance => 'Distance';
+
+  @override
+  String get peekDuration => 'Time';
+
+  @override
+  String get peekAvgHr => 'Avg HR';
+
+  @override
+  String get peekAvgPower => 'Avg power';
+
+  @override
+  String get peekClimb => 'Climb';
+
+  @override
+  String get peekNoDetails => 'No further details cached.';
 }
