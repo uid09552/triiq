@@ -11,6 +11,7 @@ import 'activity_detail_screen.dart';
 import 'activity_icons.dart';
 import 'planned_workout_actions.dart';
 import 'session_analysis.dart';
+import 'year_sport_widgets.dart';
 
 /// A *planned* calendar entry's details — the counterpart to
 /// [ActivityDetailScreen] for something that hasn't happened yet.
@@ -147,6 +148,12 @@ class _PlannedWorkoutDetailScreenState
               ],
             ),
           ),
+          if (event.isTraining && event.type != null)
+            YearContextLine(
+              type: event.type,
+              date: event.date,
+              padding: const EdgeInsets.only(top: 10, left: 4),
+            ),
           if (tiles.isNotEmpty) ...[
             const SizedBox(height: 16),
             GridView.count(

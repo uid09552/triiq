@@ -398,6 +398,13 @@ void main() {
       final g = await hold(t, row);
       expect(find.byKey(overlay), findsOneWidget);
       expect(find.byKey(const ValueKey('activity-peek-act1')), findsOneWidget);
+      // The peek's "this year" line reads the cache; let that finish.
+      for (var i = 0; i < 4; i++) {
+        await t.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 40)),
+        );
+        await t.pump();
+      }
       await g.up();
       await t.pump();
       expect(find.byKey(overlay), findsNothing);

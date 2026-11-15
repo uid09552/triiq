@@ -12,6 +12,7 @@ import '../../plan/plan_changes.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/chart_theme.dart';
 import '../../widgets/main_navigation.dart';
+import '../../widgets/period_stats_peek.dart';
 import '../statistics/heatmap_views.dart' show HeatmapPrefs;
 import 'calendar_data.dart';
 import 'calendar_day_detail.dart';
@@ -518,33 +519,44 @@ class _CalendarScreenState extends State<CalendarScreen> {
         fontWeight: current ? FontWeight.w700 : FontWeight.w500,
         color: current ? null : theme.colorScheme.primary,
       );
-      children.add(
-        current
-            ? Semantics(
-                header: true,
-                child: Text(
-                  label,
-                  key: ValueKey('crumb-${level.name}'),
-                  style: style,
-                ),
-              )
-            : Semantics(
-                button: true,
-                label: l10n.calGoTo(label),
-                excludeSemantics: true,
-                child: InkWell(
-                  key: ValueKey('crumb-${level.name}'),
-                  borderRadius: BorderRadius.circular(6),
-                  onTap: () => _go(level, _date),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 2,
-                      vertical: 6,
-                    ),
-                    child: Text(label, style: style),
+      final crumb = current
+          ? Semantics(
+              header: true,
+              child: Text(
+                label,
+                key: ValueKey('crumb-${level.name}'),
+                style: style,
+              ),
+            )
+          : Semantics(
+              button: true,
+              label: l10n.calGoTo(label),
+              excludeSemantics: true,
+              child: InkWell(
+                key: ValueKey('crumb-${level.name}'),
+                borderRadius: BorderRadius.circular(6),
+                onTap: () => _go(level, _date),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 2,
+                    vertical: 6,
                   ),
+                  child: Text(label, style: style),
                 ),
               ),
+            );
+      // Press and hold the year or the month for the period's statistics;
+      // the week and the day have their own menus elsewhere.
+      final peeks = level == CalendarLevel.year || level == CalendarLevel.month;
+      children.add(
+        peeks
+            ? PeriodStatsCrumb(
+                date: _date,
+                includeMonth: _level != CalendarLevel.year,
+                today: widget.today,
+                child: crumb,
+              )
+            : crumb,
       );
     }
     return Wrap(
