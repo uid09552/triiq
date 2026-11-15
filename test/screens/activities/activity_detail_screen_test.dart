@@ -19,6 +19,7 @@ import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/data/repositories/wellness_repository.dart';
 import 'package:triiq/data/wellness_actions.dart';
 import 'package:triiq/evaluation/activity_route.dart';
+import 'package:triiq/evaluation/year_stats_service.dart';
 import 'package:triiq/evaluation/session_streams.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/data/planned_items.dart';
@@ -250,5 +251,48 @@ void main() {
     await open(tester, activityOn(old, id: 'new4'));
 
     expect(find.text('How did it feel?'), findsNothing);
+  });
+
+  group('This year card', () {
+    final year = DateTime.now().year;
+
+    LocalActivity run(String id, String date, double km) => LocalActivity(
+      id: id,
+      date: date,
+      type: 'Run',
+      name: 'Run $id',
+      movingTime: 3600,
+      distance: km * 1000,
+      trainingLoad: 60,
+      raw: {'id': id, 'start_date_local': '${date}T07:00:00'},
+      syncedAt: DateTime.now(),
+    );
+
+    testWidgets('sits on the overview with the sport\'s year to date', (
+      tester,
+    ) async {
+      YearStatsService.instance.invalidate();
+      final runs = [
+        run('r1', '$year-01-01', 10),
+        run('r2', '$year-01-01', 30),
+        run('r3', '$year-01-01', 20),
+      ];
+      await tester.runAsync(() => ActivitiesRepository().upsertAll(runs));
+      await open(tester, runs[2]);
+
+      expect(find.byKey(const ValueKey('year-sport-card')), findsOneWidget);
+      expect(find.text('This year · Run'), findsOneWidget);
+      expect(find.text('3 sessions · 3.0 h · 60 km · 180 TSS'), findsOneWidget);
+      expect(find.text('This session is 33 % of your 60 km'), findsOneWidget);
+      expect(find.text('No. 2 of 3 by distance this year'), findsOneWidget);
+    });
+
+    testWidgets('is left out when the cache has nothing for the sport', (
+      tester,
+    ) async {
+      YearStatsService.instance.invalidate();
+      await open(tester, run('lonely', '$year-01-01', 10));
+      expect(find.byKey(const ValueKey('year-sport-card')), findsNothing);
+    });
   });
 }

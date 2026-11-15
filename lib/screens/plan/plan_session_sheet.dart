@@ -4,8 +4,10 @@ import '../../data/models/local_event.dart';
 import '../../data/planned_items.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/plan_models.dart';
+import '../../util/dates.dart';
 import '../../util/calendar_export.dart';
 import '../activities/activity_icons.dart';
+import '../activities/year_sport_widgets.dart';
 import '../today/train_now_screen.dart';
 
 /// Opens Train Now on [e]'s day with [e] preselected, to swap it for a
@@ -71,6 +73,11 @@ Future<void> showPlanSessionSheet(
               const SizedBox(height: 4),
               Text(l10n.planSessionMinutes(minutes, load)),
               const SizedBox(height: 4),
+              YearContextLine(
+                type: sport,
+                date: isoDate(date),
+                padding: const EdgeInsets.only(bottom: 4),
+              ),
               Row(
                 children: [
                   Icon(

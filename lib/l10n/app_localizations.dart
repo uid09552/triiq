@@ -9806,6 +9806,150 @@ abstract class AppLocalizations {
   /// **'No further details cached.'**
   String get peekNoDetails;
 
+  /// No description provided for @psYearToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{year} so far'**
+  String psYearToDate(int year);
+
+  /// No description provided for @psYearFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full year {year}'**
+  String psYearFull(int year);
+
+  /// No description provided for @psTssDonePlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'TSS done / planned'**
+  String get psTssDonePlanned;
+
+  /// No description provided for @psHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get psHours;
+
+  /// No description provided for @psSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get psSessions;
+
+  /// No description provided for @psCtlChange.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL change'**
+  String get psCtlChange;
+
+  /// No description provided for @psTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get psTotal;
+
+  /// No description provided for @psNotInTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'not in total'**
+  String get psNotInTotal;
+
+  /// No description provided for @psChangeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Change in time vs. the same period in {year}'**
+  String psChangeNote(int year);
+
+  /// No description provided for @psNoLastYear.
+  ///
+  /// In en, this message translates to:
+  /// **'No comparison: {year} isn\'t fully synced.'**
+  String psNoLastYear(int year);
+
+  /// No description provided for @psPartialNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on synced data since {date} — sync the year in Settings → Data & privacy → Sync'**
+  String psPartialNote(String date);
+
+  /// No description provided for @psNoYearData.
+  ///
+  /// In en, this message translates to:
+  /// **'No training synced for {year}.'**
+  String psNoYearData(int year);
+
+  /// No description provided for @psNoMonthData.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions this month.'**
+  String get psNoMonthData;
+
+  /// No description provided for @psSemMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month {month}: {summary}'**
+  String psSemMonth(String month, String summary);
+
+  /// No description provided for @psSemYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year {year} per sport: {summary}'**
+  String psSemYear(int year, String summary);
+
+  /// No description provided for @psSemSport.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport}: {sessions}, {hours} h, {km} km, {tss} TSS'**
+  String psSemSport(
+    String sport,
+    String sessions,
+    String hours,
+    String km,
+    String tss,
+  );
+
+  /// No description provided for @yearCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This year · {sport}'**
+  String yearCardTitle(String sport);
+
+  /// No description provided for @yearCardShare.
+  ///
+  /// In en, this message translates to:
+  /// **'This session is {percent} % of your {total}'**
+  String yearCardShare(String percent, String total);
+
+  /// No description provided for @yearCardRankDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'No. {rank} of {count} by distance this year'**
+  String yearCardRankDistance(int rank, int count);
+
+  /// No description provided for @yearCardRankTss.
+  ///
+  /// In en, this message translates to:
+  /// **'No. {rank} of {count} by TSS this year'**
+  String yearCardRankTss(int rank, int count);
+
+  /// No description provided for @yearCardVsLast.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} in time vs. the same date in {year}'**
+  String yearCardVsLast(String change, int year);
+
+  /// No description provided for @yearContextLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} this year: {hours} h · {km} km'**
+  String yearContextLine(String sport, String hours, String km);
+
+  /// No description provided for @yearContextLineNoDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} this year: {hours} h'**
+  String yearContextLineNoDistance(String sport, String hours);
+
   /// No description provided for @infoTitle.
   ///
   /// In en, this message translates to:

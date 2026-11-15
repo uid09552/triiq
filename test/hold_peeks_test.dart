@@ -506,6 +506,14 @@ void main() {
       expect(find.byKey(_overlay), findsOneWidget);
       expect(find.byKey(const ValueKey('activity-peek-77')), findsOneWidget);
       expect(find.text('148'), findsOneWidget); // avg HR
+      // The peek's "this year" line reads the cache; let that finish.
+      for (var i = 0; i < 6; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 40)),
+        );
+        await tester.pump();
+      }
+      expect(find.text('Run this year: 0.8 h · 9 km'), findsOneWidget);
       await g.up();
       await tester.pump();
       expect(find.byKey(_overlay), findsNothing);
@@ -621,10 +629,36 @@ void main() {
       }
     });
 
+    test('the calendar peeks only on the year and month crumbs', () {
+      final source = File(
+        'lib/screens/calendar/calendar_screen.dart',
+      ).readAsStringSync();
+      expect(RegExp('PeriodStatsCrumb\\(').allMatches(source).length, 1);
+      expect(source, contains('level == CalendarLevel.year'));
+      expect(source, contains('level == CalendarLevel.month'));
+      // Day cells, week numbers and session cards keep their long-press
+      // menus: none of their files peek (see `excluded` above).
+      for (final path in [
+        'lib/screens/calendar/monthly_calendar_view.dart',
+        'lib/screens/calendar/weekly_calendar_view.dart',
+        'lib/screens/calendar/day_cell_parts.dart',
+        'lib/screens/calendar/calendar_day_detail.dart',
+      ]) {
+        expect(
+          File(path).readAsStringSync(),
+          isNot(contains('PeriodStatsCrumb')),
+        );
+      }
+    });
+
     test('only the documented places use a peek', () {
       const allowed = {
         'lib/widgets/peekable.dart',
         'lib/widgets/hold_preview.dart',
+        // The Calendar header's year and month crumbs (they had no long
+        // press before). The screen itself stays free of peeks and reaches
+        // this through PeriodStatsCrumb.
+        'lib/widgets/period_stats_peek.dart',
         'lib/screens/statistics/insights_grid.dart',
         'lib/screens/today/readiness_card.dart',
         'lib/screens/today/week_ribbon.dart',

@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../plan/plan_models.dart';
 import '../screens/activities/activity_icons.dart';
 import '../screens/calendar/performance_trend_icon.dart';
+import '../screens/activities/year_sport_widgets.dart';
 import '../screens/events/event_labels.dart';
 import 'peek_parts.dart';
 import 'workout_steps.dart';
@@ -113,6 +114,12 @@ class ActivityPeek extends StatelessWidget {
           PeekHint(l10n.peekNoDetails)
         else
           PeekFigures(figures),
+        YearContextLine(
+          type: a.type,
+          date: a.date,
+          hideWhenPartial: true,
+          padding: const EdgeInsets.only(top: 8),
+        ),
       ],
     );
   }

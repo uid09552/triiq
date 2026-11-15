@@ -6058,6 +6058,113 @@ class AppLocalizationsDe extends AppLocalizations {
   String get peekNoDetails => 'Keine weiteren Details gespeichert.';
 
   @override
+  String psYearToDate(int year) {
+    return '$year bis heute';
+  }
+
+  @override
+  String psYearFull(int year) {
+    return 'Ganzes Jahr $year';
+  }
+
+  @override
+  String get psTssDonePlanned => 'TSS erledigt / geplant';
+
+  @override
+  String get psHours => 'Stunden';
+
+  @override
+  String get psSessions => 'Einheiten';
+
+  @override
+  String get psCtlChange => 'CTL-Änderung';
+
+  @override
+  String get psTotal => 'Gesamt';
+
+  @override
+  String get psNotInTotal => 'nicht in Gesamt';
+
+  @override
+  String psChangeNote(int year) {
+    return 'Zeitänderung gegenüber dem gleichen Zeitraum $year';
+  }
+
+  @override
+  String psNoLastYear(int year) {
+    return 'Kein Vergleich: $year ist nicht vollständig synchronisiert.';
+  }
+
+  @override
+  String psPartialNote(String date) {
+    return 'Basiert auf synchronisierten Daten seit $date — synchronisiere das Jahr unter Einstellungen → Daten & Datenschutz → Sync';
+  }
+
+  @override
+  String psNoYearData(int year) {
+    return 'Kein Training für $year synchronisiert.';
+  }
+
+  @override
+  String get psNoMonthData => 'Keine Einheiten in diesem Monat.';
+
+  @override
+  String psSemMonth(String month, String summary) {
+    return 'Monat $month: $summary';
+  }
+
+  @override
+  String psSemYear(int year, String summary) {
+    return 'Jahr $year nach Sportart: $summary';
+  }
+
+  @override
+  String psSemSport(
+    String sport,
+    String sessions,
+    String hours,
+    String km,
+    String tss,
+  ) {
+    return '$sport: $sessions, $hours h, $km km, $tss TSS';
+  }
+
+  @override
+  String yearCardTitle(String sport) {
+    return 'Dieses Jahr · $sport';
+  }
+
+  @override
+  String yearCardShare(String percent, String total) {
+    return 'Diese Einheit macht $percent % deiner $total aus';
+  }
+
+  @override
+  String yearCardRankDistance(int rank, int count) {
+    return 'Platz $rank von $count nach Distanz in diesem Jahr';
+  }
+
+  @override
+  String yearCardRankTss(int rank, int count) {
+    return 'Platz $rank von $count nach TSS in diesem Jahr';
+  }
+
+  @override
+  String yearCardVsLast(String change, int year) {
+    return '$change Zeit gegenüber dem gleichen Datum $year';
+  }
+
+  @override
+  String yearContextLine(String sport, String hours, String km) {
+    return '$sport dieses Jahr: $hours h · $km km';
+  }
+
+  @override
+  String yearContextLineNoDistance(String sport, String hours) {
+    return '$sport dieses Jahr: $hours h';
+  }
+
+  @override
   String get infoTitle => 'Info';
 
   @override
