@@ -700,6 +700,11 @@ class _TodayScreenState extends State<TodayScreen> {
           onFeel: _logFeel,
           onCustomize: () => showCustomizeTodaySheet(context, _layout),
           onOpenPlanned: _openPlanned,
+          onOpenActivity: (a) => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ActivityDetailScreen(activity: a),
+            ),
+          ),
           onMoveToTomorrow: sick ? null : _moveToTomorrow,
           onAskTrainer: () => _askTrainerAboutToday(l10n),
           onOpenTomorrow: () => _tomorrowsPlan.isEmpty

@@ -9,6 +9,8 @@ import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
 import '../../evaluation/session_evaluator.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/peek_cards.dart';
+import '../../widgets/peekable.dart';
 import '../../season/illness_mode.dart'
     show HealthIssue, HealthKind, HealthPhase;
 import '../activities/activity_icons.dart';
@@ -93,6 +95,7 @@ class TodayHeroCard extends StatelessWidget {
     required this.onFeel,
     required this.onCustomize,
     required this.onOpenPlanned,
+    required this.onOpenActivity,
     required this.onAskTrainer,
     required this.onOpenTomorrow,
     this.onSwapEasier,
@@ -132,6 +135,9 @@ class TodayHeroCard extends StatelessWidget {
   final VoidCallback onFeel;
   final VoidCallback onCustomize;
   final ValueChanged<LocalEvent> onOpenPlanned;
+
+  /// Tap on a completed session in the result view: open its page.
+  final ValueChanged<LocalActivity> onOpenActivity;
 
   /// Null when the session can't be moved (e.g. on a sick day).
   final ValueChanged<LocalEvent>? onMoveToTomorrow;
@@ -410,6 +416,7 @@ class TodayHeroCard extends StatelessWidget {
             key: const ValueKey('hero-result'),
             activities: activities,
             planned: todaysPlan,
+            onOpenActivity: onOpenActivity,
             fatigue: fatigue,
             soreness: soreness,
           )
@@ -421,6 +428,7 @@ class TodayHeroCard extends StatelessWidget {
                 _ResultView(
                   activities: activities,
                   planned: todaysPlan,
+                  onOpenActivity: onOpenActivity,
                   fatigue: fatigue,
                   soreness: soreness,
                   showFeel: false,
@@ -453,89 +461,83 @@ class TodayHeroCard extends StatelessWidget {
       key: const ValueKey('today-hero'),
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onLongPress: () => _showActions(context),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 8, 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              header,
-              const SizedBox(height: 6),
-              AnimatedSwitcher(
-                duration: reduceMotion
-                    ? Duration.zero
-                    : const Duration(milliseconds: 250),
-                child: body,
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      key: ValueKey('hero-primary-${primary.name}'),
-                      onPressed: _primary,
-                      icon: Icon(primaryIcon),
-                      label: Text(
-                        primaryLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 8, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            const SizedBox(height: 6),
+            AnimatedSwitcher(
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 250),
+              child: body,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    key: ValueKey('hero-primary-${primary.name}'),
+                    onPressed: _primary,
+                    icon: Icon(primaryIcon),
+                    label: Text(
+                      primaryLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  // 48 dp: the minimum touch target. Doubles as the
-                  // refresh affordance with a mouse on Windows.
-                  SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: loading
-                        ? const Padding(
-                            padding: EdgeInsets.all(14),
-                            child: CircularProgressIndicator(strokeWidth: 2.2),
-                          )
-                        : IconButton(
-                            key: const ValueKey('hero-refresh'),
-                            onPressed: onRefresh,
-                            tooltip: l10n.refreshTooltip,
-                            icon: Icon(Icons.refresh, color: scheme.primary),
-                          ),
-                  ),
-                  IconButton(
-                    key: const ValueKey('hero-more'),
-                    onPressed: () => _showActions(context),
-                    tooltip: l10n.heroMoreTooltip,
-                    icon: Icon(
-                      Icons.more_horiz,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-              Wrap(
-                spacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  ActionChip(
-                    key: const ValueKey('hero-ask-trainer'),
-                    avatar: const Icon(Icons.chat_bubble_outline, size: 16),
-                    label: Text(l10n.heroAskTrainer),
-                    visualDensity: VisualDensity.compact,
-                    onPressed: onAskTrainer,
-                  ),
-                  ?statusChip,
-                ],
-              ),
-              if (!_sick) ...[
-                const Divider(height: 8),
-                _TomorrowStrip(
-                  text: _tomorrowText(l10n),
-                  event: tomorrowsPlan.firstOrNull,
-                  onTap: onOpenTomorrow,
                 ),
-              ] else
-                const SizedBox(height: 6),
-            ],
-          ),
+                // 48 dp: the minimum touch target. Doubles as the
+                // refresh affordance with a mouse on Windows.
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: loading
+                      ? const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: CircularProgressIndicator(strokeWidth: 2.2),
+                        )
+                      : IconButton(
+                          key: const ValueKey('hero-refresh'),
+                          onPressed: onRefresh,
+                          tooltip: l10n.refreshTooltip,
+                          icon: Icon(Icons.refresh, color: scheme.primary),
+                        ),
+                ),
+                IconButton(
+                  key: const ValueKey('hero-more'),
+                  onPressed: () => _showActions(context),
+                  tooltip: l10n.heroMoreTooltip,
+                  icon: Icon(Icons.more_horiz, color: scheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+            Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                ActionChip(
+                  key: const ValueKey('hero-ask-trainer'),
+                  avatar: const Icon(Icons.chat_bubble_outline, size: 16),
+                  label: Text(l10n.heroAskTrainer),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: onAskTrainer,
+                ),
+                ?statusChip,
+              ],
+            ),
+            if (!_sick) ...[
+              const Divider(height: 8),
+              _TomorrowStrip(
+                text: _tomorrowText(l10n),
+                event: tomorrowsPlan.firstOrNull,
+                onTap: onOpenTomorrow,
+              ),
+            ] else
+              const SizedBox(height: 6),
+          ],
         ),
       ),
     );
@@ -682,8 +684,22 @@ class _SessionRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
         child: Row(
           children: [
-            Icon(activityTypeIcon(event.type), color: color, size: 22),
-            const SizedBox(width: 10),
+            // Hold the icon to see the session's details (type, dates, notes);
+            // a tap anywhere on the row opens it as before.
+            Peekable(
+              preview: (_) => EventPeek(event: event),
+              child: SizedBox(
+                key: ValueKey('hero-icon-${event.id}'),
+                width: 40,
+                height: 40,
+                child: Icon(
+                  activityTypeIcon(event.type),
+                  color: color,
+                  size: 22,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -785,11 +801,13 @@ class _ResultView extends StatelessWidget {
     super.key,
     required this.activities,
     required this.planned,
+    required this.onOpenActivity,
     this.fatigue,
     this.soreness,
     this.showFeel = true,
   });
 
+  final ValueChanged<LocalActivity> onOpenActivity;
   final List<LocalActivity> activities;
   final List<LocalEvent> planned;
   final int? fatigue;
@@ -822,34 +840,53 @@ class _ResultView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final a in activities)
-          Padding(
+          InkWell(
             key: ValueKey('hero-result-${a.id}'),
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Icon(Icons.check_circle, color: scheme.primary, size: 22),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        a.name ?? a.type ?? l10n.activityFallback,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+            onTap: () => onOpenActivity(a),
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  // Hold the icon for the session's key figures; a tap on the
+                  // row opens the activity.
+                  Peekable(
+                    preview: (_) => ActivityPeek(activity: a),
+                    child: SizedBox(
+                      key: ValueKey('hero-result-icon-${a.id}'),
+                      width: 40,
+                      height: 40,
+                      child: Icon(
+                        Icons.check_circle,
+                        color: scheme.primary,
+                        size: 22,
                       ),
-                      Text(
-                        actual(a),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                PerformanceTrendIcon(activity: a),
-              ],
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          a.name ?? a.type ?? l10n.activityFallback,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          actual(a),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PerformanceTrendIcon(activity: a),
+                  Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+                ],
+              ),
             ),
           ),
         if (showFeel)

@@ -412,15 +412,10 @@ void main() {
       });
       await pumpToday(t);
 
-      // Hero: quick-actions menu. Load tiles and This week: details sheets.
-      // (The readiness card inside the hero has its own pill peeks.)
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('today-hero')),
-          matching: find.byType(Peekable),
-        ),
-        findsNothing,
-      );
+      // Load tiles and This week: details sheets. (The hero peeks only on
+      // its session icons, and the readiness card inside it has its own
+      // pill peeks; the hero card itself has no long press — see
+      // test/today_hero_card_test.dart.)
       for (final key in const ['load-tiles', 'this-week-card']) {
         final area = find.byKey(ValueKey(key));
         expect(area, findsOneWidget);
