@@ -58,7 +58,7 @@ Future<void> showDayActions(
             ),
             if (onOpenDay != null)
               ListTile(
-                key: const ValueKey('day-open'),
+                key: const ValueKey('day-action-open'),
                 leading: const Icon(Icons.calendar_view_day),
                 title: Text(l10n.calDayOpen),
                 onTap: () => Navigator.of(context).pop('open'),

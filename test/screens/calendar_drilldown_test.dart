@@ -156,11 +156,16 @@ void main() {
     expect(crumb(t, 'week'), 'Week 10');
     expect(find.byKey(const ValueKey('week-summary')), findsOneWidget);
 
-    // First tap selects a day, the second opens it.
+    // Tapping a day (even twice) only selects it; the long-press sheet
+    // opens it.
+    await t.tap(find.byKey(const ValueKey('week-day-2026-03-04')));
+    await t.pumpAndSettle();
     await t.tap(find.byKey(const ValueKey('week-day-2026-03-04')));
     await t.pumpAndSettle();
     expect(find.byKey(const ValueKey('crumb-day')), findsNothing);
-    await t.tap(find.byKey(const ValueKey('week-day-2026-03-04')));
+    await t.longPress(find.byKey(const ValueKey('week-day-2026-03-04')));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('day-action-open')));
     await t.pumpAndSettle();
     expect(crumb(t, 'day'), 'Wed, Mar 4');
 
