@@ -58,7 +58,7 @@ athlete can:
 
 | Area | Status |
 |---|---|
-| Navigation shell (top bar, bottom nav) | ✅ Implemented |
+| Navigation shell (top bar, bottom nav) | ✅ Implemented — the bottom bar is the athlete's to arrange (*Arrange the menu*): reorder it, pin More entries to it, move tabs into More; More is always last |
 | Intervals.icu connection (Profile) | ✅ Implemented — two ways in: **Log in with Intervals.icu** (OAuth 2 with PKCE as a public client: the browser opens Intervals.icu's page, the app gets a bearer token back, no secret and no password in the app) or a pasted **API key**. Either is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch (`IntervalsSession.connect` / `connectWithToken`; one credential at a time). Disconnect forgets it, and revokes the token at Intervals.icu for an OAuth login |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, closed-app background sync on Android — nightly by default, or every 15 min / 1 h / 6 h — with a notification when something new arrived) |
 | Today screen | ✅ Real data once connected — one **hero card** (`today_hero_card.dart`: date, status — "Ready to train", or "Train with care" / "Take it easy today" in the readiness colour —, the readiness ring (tap: a bottom sheet explaining each signal), today's session(s), **one primary action** that fits the day — *Start* (the session's steps), *Swap for easier* (Train now's Find alternative, on Caution / Back off with a hard session), *Log how it felt* once done, *Propose training* when nothing is planned —, a result view after the session (planned vs. actual, performance-trend arrow, feel), "Ask the trainer about today", and a tomorrow strip); swipe today's session right to log the feel, left to move it to tomorrow (calendar rule warnings, Undo; also in ⋯ and as screen-reader actions); an **attention stack** (illness return ramp, fatigue warning, plan adjustments, race countdown, threshold suggestions — only when they have something to say, most important first, two open, "+N more", each hidden for the day by a swipe or ×); **This week** (TSS against plan, sessions done / planned, hours per sport against the weekly targets, the year goals as one line); a Mon–Sun **week ribbon** (done / planned / missed / rest, tap opens the Calendar on that day); load tiles as a row of three (CTL, ATL, Form, "More metrics" for all six, or all six always via Customize Today), each with sparkline, trend arrow and its chart; **race week** (≤ 7 days to the plan's event) puts a header with countdown, taper phase and race-day form forecast in place of the tiles; a **sick / injured** day hides the training cards and shows the return-to-training plan; before the watch data is in the readiness slot says "Waiting for watch data" with a refresh. Hero and This week fit a 360 × 780 dp phone without scrolling (tested) |
@@ -81,7 +81,7 @@ athlete can:
 | Consent & your rights (Settings → Data & privacy → Consent & your rights) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
 | Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (on the hero card, next to "Ask the trainer about today") and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
 | App search (More → search field) | ✅ Implemented — one search over every tab, Insights view, More entry, Settings group and section (and the three scheduled notifications): type a few words in English or German and tap a result to go there. Each result shows its icon, title, breadcrumb (e.g. "Insights › Durability", "Settings › App › Notifications › Weekly review") and a one-line description. Matches titles, synonyms (e.g. "dark mode" → Appearance, "Ruhepuls" → Wellness trends), descriptions and this document's user-facing text, tolerating a typo or two ("durabilty"), umlauts typed or not ("Müdigkeit" / "mudigkeit") and the filler of a question ("where is the heatmap"). No recent-searches list yet. The trainer uses the same search (`search_app_features`) |
-| More tab | ✅ Implemented — a **search field** at the top (App search, above), then three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone |
+| More tab | ✅ Implemented — a **search field** at the top (App search, above), then three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone. That is the default: More lists whatever is not in the bottom bar, in the athlete's order, with **Customize navigation** at its top right (*Arrange the menu*) |
 | Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
 | Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL, and a ring per sport with a weekly target (swim/ride/run, percent and hours done of the target; the ring stops at 100 %); resizable from 4×1 (one row: session + form) and 2×2 (session + form) up to 4×2 (adds the details) and 4×3+ (adds the target rings), with a layout chosen per size; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
 | Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
@@ -144,10 +144,11 @@ the single read path for the UI.
   Intervals.icu profile picture once connected, their initial otherwise —
   pushes `ProfileScreen` (connect/disconnect Intervals.icu, link to
   Settings);
-- five destinations, kept alive via `IndexedStack`: **Today**, **Calendar**,
-  **Chat**, **Insights**, **More** — a bottom `NavigationBar` on phones, a
-  `NavigationRail` from 840 px wide (`railBreakpoint`), extended with labels
-  from 1,200 px (Windows, tablets);
+- the destinations of the athlete's `NavigationLayout` (below) — by default
+  **Today**, **Calendar**, **Chat**, **Insights**, **More** — each built the
+  first time it is shown and then kept alive via `IndexedStack`: a bottom
+  `NavigationBar` on phones, a `NavigationRail` from 840 px wide
+  (`railBreakpoint`), extended with labels from 1,200 px (Windows, tablets);
 - wide windows: Today goes two columns from 900 px (what to do today on the
   left, figures and the rest on the right), Insights lays its charts out two
   by two (`ResponsiveColumns`, `lib/widgets/responsive.dart`), Chat and More
@@ -155,11 +156,80 @@ the single read path for the UI.
 - **More** is grouped into Plan, Trainer and Data, under a search over the
   whole app.
 
+**Configurable navigation** (`lib/navigation/navigation_layout.dart`,
+`nav_items.dart`, `shell_tab.dart`, `lib/screens/more/customize_navigation_sheet.dart`).
+Destinations are named by **id**, never by position: the core tabs `today`,
+`calendar`, `chat`, `insights`, the fixed `more`, and every More entry id
+(`plan`, `season`, `events`, `memory`, `knowledge`, `sync` — taken from
+`moreEntries`, so a new entry is arrangeable by construction).
+`NavigationLayout` (a `ChangeNotifier` singleton like `ThemeController`,
+`load()` in `main.dart`, `forTesting()` for tests) holds two ordered lists,
+`bar` and `more`; every arrangeable id is in exactly one of them, More is in
+neither — it is always the bar's last item. The bar holds **2–4 items besides
+More** (`minBar` / `maxBar`, 3–5 slots in all; five is what a 360 dp phone
+fits with labels). `place(id, inBar:, index:)` is the one move (drag, Up /
+Down, Move to More, Pin to bar all go through it) and returns `barFull` /
+`barMinimum` instead of breaking a limit. Persisted as two string lists in
+shared preferences (`nav.bar`, `nav.more`); nothing is written until the
+athlete changes something, so the default is exactly the five tabs that
+shipped before. `normalize` repairs whatever is stored (or restored): unknown
+and duplicate ids are dropped, an id new in this version joins the bar if it
+is a core tab and there is room (else the top of More), a new More entry is
+appended to More, a bar over 4 spills onto More and one under 2 takes More's
+first core tab back. **Pinned entries leave More's list** rather than showing
+there with a marker — one place per item is easier to read and to drag. A core
+tab moved out of the bar shows in More (group *Main sections*); More keeps its
+group headers while each group's items stay together, and becomes one plain
+list once the athlete mixes them.
+
+`MainShell` builds the bar, the rail and the `IndexedStack` from the layout,
+each child keyed by id, so the **selection follows the item** when the bar is
+reordered. An item moved out of the bar while selected hands the selection to
+More (where it now lives); before the athlete picked a tab the shell sits on
+the bar's first item. Routing: `MainNavigation.openTab(id)` /
+`openCalendar(date)` (ids, not indices — `todayTab` … `moreTab` are the id
+constants) select the tab when the item is in the bar, and otherwise the shell
+pops to its root and pushes the item's page (`NavItem.route()`). The app
+search registry, the trainer's **Open …** card, More's own tiles and the
+Settings tile use `openNavItem(context, id)`, which does the same from a
+`BuildContext` (in the bar: back to the shell, switch; in More: push). So
+Take as plan → Calendar, Ask the trainer → Chat, the week ribbon and the
+Today hero's calendar links reach their page wherever it lives; a core tab
+opened from More gets a plain top bar with a back button (Calendar and Chat
+are then fresh instances — Chat's conversation lives in the agent, the
+draft hand-off in `ChatHandoff` is taken on open). The weekly-review
+notification opens an Insights sub-page (pushed, not a nav item), so it is
+unaffected; the Android home-screen widget only launches the app (no deep
+link), which then opens on the bar's first item.
+
+**Every More entry can be pinned.** Each of their screens is a `Scaffold`
+with its own `AppBar` and only pops its own dialogs, never itself
+(`Navigator.pop` calls are all inside dialogs; `popUntil(isFirst)` in Take as
+plan works from a tab too). Shown as a tab, the page is wrapped in
+`ShellTabScope`: the shell hides its own top bar (no double bar), the page's
+`AppBar` has no back button (the shell is the root route) and appends
+`shellTabActions(context)` — the profile button the shell normally shows — so
+every tab has it in the same corner. The Knowledge library is not on web, so
+it is not arrangeable there. Bar labels use short names for More entries
+(*Plan, Season, Events, Memory, Library, Sync*; full titles elsewhere).
+
+The arranger opens from three places: the swap icon at the top right of More,
+Settings › App › Navigation, and a **long-press on the bottom bar** (or rail;
+the destinations carry no tooltips so the long-press is free; screen readers
+get it as the bar's long-press action). It mirrors Customize Today: one
+`ReorderableListView` with the sections *In the bottom bar* and *In More*
+(dragging across the section header moves an item between them), a live,
+non-interactive preview of the bar, the slots used, and an inline message
+(live region) when a move would break a limit. Every row has Up / Down / Move
+to More (or Pin to bar) buttons (48 dp) and the same as screen-reader custom
+actions, a label with its section and position, and **Reset to default**.
+
 **Destinations registry and app search** (`lib/navigation/`). Every place
 the app search and the trainer can send the athlete is one `AppDestination`
 in `app_destinations.dart`: a stable id (`tab.today`, `insights.durability`,
-`more.plan`, `settings.notifications`, …), how to open it (switch tab via
-`MainNavigation`, push a screen, or `openSettingsSection`), the localized
+`more.plan`, `settings.notifications`, …), how to open it (`openNavItem` for
+tabs and More entries — wherever the athlete put them —, push a screen, or
+`openSettingsSection`), the localized
 title and breadcrumb, English + German keywords, and an **okf anchor** — the
 passage of *this file* that describes it. The registry is the source of
 truth for navigation and is built from the same lists the UI draws
@@ -1852,7 +1922,9 @@ A search field over the whole app (see *Search the app*), then three
 groups: **Plan** (Training plans, Season, Events), **Trainer** (Trainer
 memory, Knowledge library — hidden on web) and **Data** (Sync). Profile and
 Settings are behind your avatar in the top bar; the analysis views and
-Activities live under Insights.
+Activities live under Insights. What More lists is everything that is not in
+the bottom bar, in your order — see *Arrange the menu* to pin a page to the
+bar or move a tab into More.
 
 **Knowledge library** (More, Android/Windows only) lets you import your own
 Markdown or plain-text coaching documents — swim sets, taper notes, articles
@@ -1891,7 +1963,35 @@ Notifications › Weekly review") and one line on what it is. Tap a result to
 go straight there; a setting opens its Settings page scrolled to it.
 Synonyms count ("dark mode" finds Appearance, "HRV" finds Wellness trends,
 "FTP" finds Performance curves), so do small typos and umlauts typed
-without dots. Clear the field (×) to get the More list back.
+without dots. Clear the field (×) to get the More list back. The path follows
+your menu: a page you pinned to the bottom bar shows without "More ›", a tab
+you moved into More with it.
+
+### Arrange the menu
+
+The bottom bar is yours to arrange. Open **Customize navigation** with the
+swap icon at the top right of **More**, from Settings › App › Navigation, or
+by long-pressing the bottom bar.
+
+- **Reorder**: drag an item by its handle (or long-press the row and drag),
+  or use its **Up** / **Down** buttons.
+- **Move between the bar and More**: drag an item across the *In More*
+  header, or use **Move to More** / **Pin to bar**. Any More page can go in
+  the bar — Training plans, Season, Events, Trainer memory, Knowledge
+  library, Sync — and Today, Calendar, Chat or Insights can go into More;
+  nothing becomes unreachable. A page in the bar opens as a tab (with the
+  profile button in its top bar); one in More opens on top with a back
+  button.
+- **Limits**: the bar holds 2 to 4 items plus **More**, which is always last
+  and can't be moved. A move that would break that is refused with a note
+  saying why — make room first.
+- The preview at the top shows the bar as it will look; **Reset to default**
+  brings back Today, Calendar, Chat, Insights, More.
+- The order of More is yours too: its group headers stay while you keep each
+  group together.
+- Search, the trainer's **Open …** buttons and links such as "Open calendar"
+  go to a page wherever it lives. Your arrangement is kept across restarts
+  and included in a backup.
 
 ### Ask the trainer where something is
 
@@ -1979,7 +2079,11 @@ app, core tables present, only plain values), shows what it holds, and after
 confirmation **replaces** the synced data, plans and knowledge library in one
 database transaction — a bad row rolls everything back. Unknown columns from
 a newer schema are skipped. Settings are applied afterwards; restart the app
-to pick them up, and reconnect Intervals.icu (Profile) on the new device.
+to pick them up, and reconnect Intervals.icu (Profile) on the new device. The
+menu arrangement (`nav.bar`, `nav.more`, non-secret) travels too; on restore
+it is repaired like at start (`NavigationLayout.normalize`: unknown ids
+dropped, limits enforced, a value of the wrong type discarded) and applied at
+once.
 
 ### Offline queue and home-screen widget
 
@@ -2311,6 +2415,8 @@ off under Settings → App → Notifications.
 - **Fatigue & soreness**: whether opening a recent activity asks once how
   the day felt (fatigue and soreness), when that day has nothing logged
   yet. Logging it by hand from any activity's page works either way.
+- **Navigation**: what the bottom bar holds now, and **Customize
+  navigation** to arrange it (see *Arrange the menu*).
 - **Notifications**: the master toggle prompts for the OS notification
   permission (Android 13+/iOS) and, once granted, turns on sync-completion
   and training-agent-reply notifications. With it on and on a platform that

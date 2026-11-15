@@ -14,6 +14,7 @@ import 'data/sync/auto_sync_service.dart';
 import 'data/sync/background_sync.dart';
 import 'data/sync/sync_settings.dart';
 import 'locale_controller.dart';
+import 'navigation/navigation_layout.dart';
 import 'plan/plan_changes.dart';
 import 'notifications/app_lifecycle_tracker.dart';
 import 'notifications/morning_briefing.dart';
@@ -58,6 +59,8 @@ void main() {
   unawaited(WeeklyTargetsSettings.instance.load());
   unawaited(YearGoalsSettings.instance.load());
   unawaited(TodayLayoutSettings.instance.load());
+  // What the bottom bar holds and in which order — MainShell listens.
+  unawaited(NavigationLayout.instance.load());
   // Which signals count toward readiness.
   unawaited(ReadinessSettings.instance.load());
   // AI consent and the map-tile choice (GDPR): the AI trainer stays off until

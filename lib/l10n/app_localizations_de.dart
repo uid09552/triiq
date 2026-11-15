@@ -5906,4 +5906,98 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get llmDragToReorder => 'Ziehen, um die Reihenfolge zu ändern';
+
+  @override
+  String get navCustomizeTitle => 'Navigation anpassen';
+
+  @override
+  String get navCustomizeHelp =>
+      'Ziehe einen Eintrag, um ihn umzusortieren oder zwischen unterer Leiste und „Mehr“ zu verschieben – oder nutze seine Schaltflächen. Hierher kommst du auch mit langem Drücken auf die untere Leiste.';
+
+  @override
+  String get navCustomizeReset => 'Standard wiederherstellen';
+
+  @override
+  String get navSectionBar => 'In der unteren Leiste';
+
+  @override
+  String get navSectionMore => 'In „Mehr“';
+
+  @override
+  String get navMoreFixed => 'Mehr – immer der letzte Eintrag';
+
+  @override
+  String navBarCount(int count, int max, int min) {
+    return 'Untere Leiste: $count von $max Plätzen neben „Mehr“ belegt (mindestens $min)';
+  }
+
+  @override
+  String navBarFull(int max) {
+    return 'Die untere Leiste ist voll ($max Einträge plus „Mehr“). Verschiebe zuerst einen Eintrag nach „Mehr“.';
+  }
+
+  @override
+  String navBarMinimum(int min) {
+    return 'Die untere Leiste braucht neben „Mehr“ mindestens $min Einträge.';
+  }
+
+  @override
+  String get navMoveUp => 'Nach oben';
+
+  @override
+  String get navMoveDown => 'Nach unten';
+
+  @override
+  String get navMoveToMore => 'Nach „Mehr“ verschieben';
+
+  @override
+  String get navPinToBar => 'An Leiste anheften';
+
+  @override
+  String navPreviewLabel(String items) {
+    return 'Vorschau der unteren Leiste: $items';
+  }
+
+  @override
+  String navItemPosition(
+    String title,
+    String section,
+    int position,
+    int count,
+  ) {
+    return '$title, $section, Position $position von $count';
+  }
+
+  @override
+  String navSettingsCurrent(String items) {
+    return 'Untere Leiste jetzt: $items';
+  }
+
+  @override
+  String get navigationSettingsTitle => 'Navigation';
+
+  @override
+  String get searchDescNavigation =>
+      'Untere Leiste umsortieren und Seiten zwischen ihr und „Mehr“ verschieben';
+
+  @override
+  String get moreGroupMain => 'Hauptbereiche';
+
+  @override
+  String get navShortPlan => 'Plan';
+
+  @override
+  String get navShortSeason => 'Saison';
+
+  @override
+  String get navShortEvents => 'Ereignisse';
+
+  @override
+  String get navShortMemory => 'Gedächtnis';
+
+  @override
+  String get navShortKnowledge => 'Wissen';
+
+  @override
+  String get navShortSync => 'Sync';
 }

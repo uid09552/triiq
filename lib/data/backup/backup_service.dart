@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../agent/llm_settings.dart';
+import '../../navigation/navigation_layout.dart';
 import '../privacy_settings.dart';
 import '../db/app_database.dart';
 
@@ -283,6 +284,11 @@ class BackupService {
             await prefs.setStringList(key, [for (final x in value) '$x']);
         }
       }
+      // The menu layout is non-secret and travels, but a file may hold ids
+      // this version doesn't know (or lack new ones): repaired the same way
+      // as at start, then applied straight away.
+      await NavigationLayout.sanitizeStored(prefs);
+      await NavigationLayout.instance.load();
     }
     return summary;
   }

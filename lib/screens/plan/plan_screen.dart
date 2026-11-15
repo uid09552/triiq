@@ -7,6 +7,7 @@ import '../../data/intervals_session.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
+import '../../navigation/shell_tab.dart';
 import '../../plan/knowledge.dart';
 import '../../plan/load_curve.dart';
 import '../../plan/load_curve_controller.dart';
@@ -334,7 +335,10 @@ class _PlanScreenState extends State<PlanScreen> {
         0;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.trainingPlansTitle)),
+      appBar: AppBar(
+        title: Text(l10n.trainingPlansTitle),
+        actions: shellTabActions(context),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(

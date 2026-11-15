@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/data/backup/backup_service.dart';
 import 'package:triiq/data/db/app_database.dart';
+import 'package:triiq/navigation/navigation_layout.dart';
 
 void main() {
   late Directory dir;
@@ -228,5 +229,59 @@ void main() {
     good['tables']['activities'][0]['future_column'] = 'x';
     await BackupService(database: target).restore(good);
     expect(await (await target.database).query('activities'), hasLength(1));
+  });
+
+  test('the menu layout travels and is repaired on restore', () async {
+    await seed(source);
+    SharedPreferences.setMockInitialValues({
+      NavigationLayout.barPref: ['plan', 'today', 'calendar'],
+      NavigationLayout.morePref: ['chat', 'insights', 'season'],
+    });
+    final json =
+        jsonDecode(jsonEncode(await BackupService(database: source).export()))
+            as Map<String, dynamic>;
+    expect(json['settings'][NavigationLayout.barPref]['v'], [
+      'plan',
+      'today',
+      'calendar',
+    ]);
+
+    SharedPreferences.setMockInitialValues({});
+    await BackupService(database: target).restore(json);
+    var prefs = await SharedPreferences.getInstance();
+    expect(prefs.getStringList(NavigationLayout.barPref), [
+      'plan',
+      'today',
+      'calendar',
+    ]);
+    // Entries the file didn't list are added.
+    expect(prefs.getStringList(NavigationLayout.morePref), [
+      'chat',
+      'insights',
+      'season',
+      'events',
+      'memory',
+      'knowledge',
+      'sync',
+    ]);
+    expect(NavigationLayout.instance.bar, ['plan', 'today', 'calendar']);
+
+    // A tampered file: unknown ids, too many items, the wrong type.
+    json['settings'][NavigationLayout.barPref] = {
+      't': 'l',
+      'v': ['gear', 'sync', 'sync', 'plan', 'today', 'chat', 'events'],
+    };
+    json['settings'][NavigationLayout.morePref] = {'t': 's', 'v': 'x'};
+    SharedPreferences.setMockInitialValues({});
+    await BackupService(database: target).restore(json);
+    prefs = await SharedPreferences.getInstance();
+    expect(prefs.getStringList(NavigationLayout.barPref), [
+      'sync',
+      'plan',
+      'today',
+      'chat',
+    ]);
+    expect(prefs.getStringList(NavigationLayout.morePref)!.first, 'events');
+    await NavigationLayout.instance.reset();
   });
 }

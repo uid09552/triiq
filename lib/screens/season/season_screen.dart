@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../navigation/shell_tab.dart';
 import '../../season/fitness_forecast.dart';
 import '../../season/season_service.dart';
 import '../../season/season_timeline.dart';
@@ -50,7 +51,10 @@ class _SeasonScreenState extends State<SeasonScreen> {
     final l10n = AppLocalizations.of(context)!;
     final s = _snapshot;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.seasonTitle)),
+      appBar: AppBar(
+        title: Text(l10n.seasonTitle),
+        actions: shellTabActions(context),
+      ),
       body: _error != null
           ? Center(child: Text(l10n.seasonLoadError('$_error')))
           : s == null

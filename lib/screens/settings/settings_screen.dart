@@ -11,6 +11,7 @@ import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
 import '../../theme_controller.dart';
 import '../../widgets/section_card.dart';
+import '../more/customize_navigation_sheet.dart';
 import 'backup_settings_section.dart';
 import 'calendar_settings_section.dart';
 import 'ai_consent.dart';
@@ -177,6 +178,11 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
                   child: const LlmModelsSection(),
                 ),
               ],
+            ),
+            SettingsSection.navigation: SectionCard(
+              icon: Icons.swap_vert,
+              title: l10n.navigationSettingsTitle,
+              child: const NavigationSettingsTile(),
             ),
           };
           final sections = widget.group.sections;

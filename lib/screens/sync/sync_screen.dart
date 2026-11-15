@@ -5,6 +5,7 @@ import '../../data/repositories/sync_state_repository.dart';
 import '../../data/sync/sync_scope.dart';
 import '../../data/sync/sync_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../navigation/shell_tab.dart';
 import '../../widgets/pending_changes_card.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
@@ -79,7 +80,10 @@ class _SyncScreenState extends State<SyncScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.titleSync)),
+      appBar: AppBar(
+        title: Text(l10n.titleSync),
+        actions: shellTabActions(context),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

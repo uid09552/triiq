@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/repositories/knowledge_library_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../../navigation/shell_tab.dart';
 
 /// More → Knowledge library: the athlete's own imported coaching
 /// documents, searched by the chat agent's `get_training_guidance` tool
@@ -164,6 +165,7 @@ class _KnowledgeLibraryScreenState extends State<KnowledgeLibraryScreen> {
                 : const Icon(Icons.upload_file_outlined),
             onPressed: _importing ? null : _import,
           ),
+          ...shellTabActions(context),
         ],
       ),
       body: docs == null

@@ -7,6 +7,7 @@ import '../../data/repositories/events_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../navigation/shell_tab.dart';
 import '../../util/dates.dart';
 import 'event_editor_screen.dart';
 import 'event_labels.dart';
@@ -133,7 +134,10 @@ class _EventsScreenState extends State<EventsScreen> {
     final connected = IntervalsSession.instance.isConnected;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.eventsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.eventsTitle),
+        actions: shellTabActions(context),
+      ),
       floatingActionButton: connected
           ? FloatingActionButton(
               tooltip: l10n.eventAddTooltip,
