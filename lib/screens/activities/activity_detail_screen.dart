@@ -34,6 +34,7 @@ import '../compare/compare_screen.dart';
 import 'activity_extras_card.dart';
 import 'route_card.dart';
 import 'session_analysis.dart';
+import 'year_sport_widgets.dart';
 
 /// One activity's stats, its evaluation against the plan, its streams over
 /// time, and a way out to the full analysis on
@@ -195,6 +196,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       ),
       const SizedBox(height: 16),
       _StatGrid(activity: activity, full: full),
+      YearSportCard(activity: activity),
       if (_hasZoneData(full)) ...[
         const SizedBox(height: 16),
         SectionCard(

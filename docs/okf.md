@@ -65,7 +65,7 @@ athlete can:
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → App → Notifications |
-| Calendar screen | ✅ Implemented — **year / month / week / day** levels (drill down by tap, pinch, the level buttons or the breadcrumb `2026 › November › Week 46 › Fri 13`; level and date remembered; zoom animation off under reduced motion), swipe to change period, swipe down on the header for today; **drag a planned session to another day** (plan rules warn, Undo), swipe a session in the day list (left = delete with undo, right = "How did it feel?"), "Move to…" as the gesture-free path; richer cells (load fill, per-sport minutes bar, readiness dot, key/strength badges, week-number column, compact/comfortable density); filter chips (sport, planned/completed) and the period's TSS / hours / sessions / CTL change in the header — `lib/screens/calendar/`; of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
+| Calendar screen | ✅ Implemented — **year / month / week / day** levels (drill down by tap, pinch, the level buttons or the breadcrumb `2026 › November › Week 46 › Fri 13`; level and date remembered; zoom animation off under reduced motion), swipe to change period, swipe down on the header for today; **drag a planned session to another day** (plan rules warn, Undo), swipe a session in the day list (left = delete with undo, right = "How did it feel?"), "Move to…" as the gesture-free path; richer cells (load fill, per-sport minutes bar, readiness dot, key/strength badges, week-number column, compact/comfortable density); filter chips (sport, planned/completed) and the period's TSS / hours / sessions / CTL change in the header (hold the year or month crumb for the month's and the year's per-sport statistics) — `lib/screens/calendar/`; of TriIQ plan sessions, Intervals.icu planned events (copying switchable in Settings) and completed activities from the cache, colour-coded, tap-through to detail; completed activities in the day list show a small trending-up/down icon when their efficiency factor (Intervals.icu EF) is ≥2% above/below the mean of the previous ≤8 same-sport sessions in the last 42 days (needs ≥3, ≥20 min; otherwise no icon — `lib/evaluation/performance_trend.dart`) |
 | Insights (was Statistics) | ✅ Implemented — the **Insights hub** (bottom-nav tab, `lib/screens/statistics/`): a compact grid of every analysis view, one tap each and accented by group — *Fitness* (Training analytics, Metric explorer — formerly "Analysis" in More —, Load heatmap), *Performance* (Performance curves, Best efforts, Durability), *Health* (Wellness trends), *Compare*, *Review* (Weekly review, Activities) — with the sync status and the range option in one slim row above and the overview charts right below, so the first chart is on the first screen. **Hold a tile** (long press, or hold the mouse button) to peek: a card floats over the dimmed screen — above the tile when there is room, else below — with the destination's name, a line on what it is and a small chart or a few figures from your own cached data (`HoldPreview`, `lib/widgets/hold_preview.dart`; content in `insight_previews.dart`): CTL/ATL and form for Training analytics, weekly load bars for Metric explorer, a 12-week grid for Load heatmap, season or six-week best power for Performance curves and Best efforts, the count of long rides for Durability, the HRV trend with resting HR and sleep for Wellness trends, the last four weeks against the four before for Compare, last week against the week before for Weekly review, and the latest sessions for Activities. Letting go (or a touch that turns into a scroll) hides it again; a quick tap still opens the screen. Peeks read the local cache only, so they are instant and work offline. Then: CTL/ATL trend, completed-vs-planned load per week, week/month/year volume and a per-sport breakdown, all from the cache; **Performance** sub-screen (content centred and capped at 840 px on wide windows; the model card shows FTP / CP / W′ / Pmax and the settings value as tiles across its width, with the model-vs-settings gap beneath) with power/pace/HR curves per sport (season vs season, key efforts, model fit vs settings), fetched on open and cached; **threshold suggestions** (derived ride FTP / run / swim threshold pace, Review/Dismiss, a confirm sheet that writes the one changed field to Intervals.icu on Apply, with Undo) |
 | Fatigue early warning | ✅ Implemented — a Today card (and `get_fatigue_warning`) when HRV, resting HR, sleep, form, CTL ramp or the fatigue/soreness scores stay off on enough of the last 5 days: **watch** (two signals) or **warning** (three, or HRV/resting HR plus a load or feel signal); "Ask the trainer" or "Not now" (hidden for the day unless it worsens) |
 | Morning briefing | ✅ Implemented (Android/iOS) — Settings → App → Notifications: a notification at a chosen time with today's sessions, readiness (only if the watch data is already in), fatigue level, illness note and form/CTL; prepared from the last sync and re-armed after syncs, plan changes and the nightly background sync |
@@ -1002,6 +1002,16 @@ both reading straight from the SQLite cache (no separate network call).
   result count. All of it is `ActivityFilter` (`activity_filter.dart`),
   applied to the local cache only. Tapping a row
   pushes `ActivityDetailScreen`.
+- **Year per sport** — `YearStatsService` (`lib/evaluation/year_stats_service.dart`)
+  is the single source of "this year per sport" for the Calendar header peek,
+  the activity detail's *This year* card (`year_sport_widgets.dart`:
+  `YearSportCard`, `YearContextLine`) and the context lines: it reads the
+  cached activities of the year and the one before plus the sync coverage once
+  per (year, day), keeps the result in memory (`YearSnapshot`: `YearStats` +
+  light `StatRow`s for ranking) and forgets it — notifying its listeners so
+  open cards reload — when `AutoSyncService.notifyCacheChanged` or a sync
+  announces a cache change. The peek asks for a fresh read. Pure maths:
+  `lib/evaluation/period_stats.dart`.
 - `activity_detail_screen.dart` — `ActivityDetailScreen(activity: LocalActivity)`.
   Layout: a summary header (name, date, sport, key figures) above a pinned
   tab bar — **Overview** (verdict against the plan, stat grid, zones, brick,
@@ -1631,9 +1641,12 @@ only, so they are instant and work offline. Where it works:
 - **Today**: a day in the week ribbon (the day's plan, activities, load and
   readiness) and the rows of Today's activities (key figures).
 - **Insights**: every tile of the hub.
+- **Calendar header**: the **year** and the **month** crumb of the
+  breadcrumb (`2026 › November`) — the month's and the year's statistics, see
+  *Calendar → Period statistics*. A short tap still jumps up to that level.
 - **Readiness**: the signal pills (see Today).
 - **Activities**: every row (distance, time, TSS, average heart rate and power,
-  climb, trend arrow).
+  climb, trend arrow, and one line of the sport's year so far).
 - **Training plan**: a session tile in a week (its steps).
 - **Events**: an entry (type, dates, the start of its notes).
 - **Search** (More): a result (the app documentation's passage on it).
@@ -1646,7 +1659,9 @@ motion", is capped to the screen and truncates instead of growing, so it fits a
 **For contributors: where not to add a peek.** Never put a peek (`HoldPreview`
 / `Peekable`) on an item whose long press already does something, or a drag
 would be lost: Calendar day cells, week numbers and session cards (day actions,
-week actions, drag and drop), the Today hero (quick actions), Today's load
+week actions, drag and drop; only the header's year and month crumbs, which had
+no long press, peek — through `PeriodStatsCrumb`, so `calendar_screen.dart`
+itself stays free of peeks), the Today hero (quick actions), Today's load
 tiles, the This week card and its sport rings and Weekly targets (details
 sheets), the readiness ring (options), tomorrow's plan (delete), Insights'
 "open in Intervals.icu" lines, chart brushes, the bottom bar (customise), and
@@ -1711,6 +1726,41 @@ hours done, sessions done / planned and (for a year, month or week) the CTL
 change. The filter button opens **filter chips**: sports (swim, ride, run,
 strength, other — none selected = all) and *Planned* / *Completed*. Day
 events (sick days, races, …) are never filtered out.
+
+**Period statistics (hold the year or month crumb).** Press and hold the
+**year** or the **month** in the breadcrumb for an overlay with the period's
+statistics (`PeriodStatsPeek`, `lib/widgets/period_stats_peek.dart`; a
+`Peekable`, so screen readers get the **Show preview** action too; the week
+and day crumbs do nothing on hold). From the local cache only:
+
+- **Month** (on top; absent when the year crumb of the *Year* level is held):
+  TSS done / planned, hours, sessions done / planned, distance and CTL change
+  — the same `PeriodSummary` maths as the header line — and per sport (swim,
+  ride, run, other, strength) its sessions, hours and distance.
+- **Year** — the year to date (or the whole year for a past year) **per
+  sport**: sessions, hours, distance and TSS, with the change in time against
+  the **same period last year** (↑ / ↓ and percent; a 29 February compares
+  with 28 February of a normal year), a **Total** row and, for the current
+  year with year goals set, the one-line year-goals progress
+  (`YearGoalsProgress`, compact). Strength & mobility (WeightTraining, Yoga,
+  Pilates) is listed with sessions and time only and is **not in the total**,
+  as in the weekly review. Sport grouping is the Calendar filter's
+  (`statSportOf`).
+- **Never misleading.** Totals come from what is cached. If the sync state
+  (`SyncStateRepository`, scope `activities`) says the cache starts after 1
+  January, the card says "Based on synced data since <date> — sync the year
+  in Settings → Data & privacy → Sync" and shows no comparison; if only last
+  year is missing it says "No comparison: <year> isn't fully synced."; a
+  sport without sessions last year shows no percentage (never an invented
+  one).
+- It reads as one summary to a screen reader ("Month November 2026: …; Year
+  2026 per sport: Swim: …"), fits 360 dp at 2x text (the card height cap of
+  *Hold to peek* clips the year table's tail, never the month on top), and
+  follows the theme and reduced motion like every peek.
+
+The maths lives in `lib/evaluation/period_stats.dart` (pure, unit-tested:
+`totalsBySport`, `computeYearStats`, `sessionYearContext`); the cache read in
+`YearStatsService` (below) and `PeriodStatsLoader`.
 
 **Moving sessions.** Long-press a planned session — in the day card, a week
 row, or a month cell's icon — and **drag** it to another day (month cell or
@@ -2408,6 +2458,19 @@ activity actually has), and a time-in-zone chart when zone data is
 present. **Open in Intervals.icu** at the bottom goes to that activity's
 full page on intervals.icu — for what this screen doesn't show (the map,
 power curves, comments).
+
+**This year (Overview tab).** Under the figures, a compact card **"This year
+· Ride"** (`YearSportCard`) puts the session in its year: the sport's sessions,
+hours, distance and TSS so far (a past year: the whole year), what share of
+the sport's distance this session is ("This session is 3 % of your 4,210 km";
+for strength, or a session without distance, of the time), where it ranks
+among the year's sessions of that sport by distance (by TSS without distance)
+when it is in the top ten ("No. 4 of 31 by distance this year"), and the
+change in time against the same date last year. A year that isn't fully
+synced says so instead of comparing. The planned session's detail screen and
+the plan session sheet carry a one-line version ("Run this year: 82 h · 1,034
+km"), and the hold-peek of an Activities row too (left out there when the
+year isn't fully synced, to keep the card small).
 
 **Evaluation.** Above the time series, the session is judged against the
 planned session it matches (same day and sport; of several, the nearest in
