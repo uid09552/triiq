@@ -29,13 +29,14 @@ Future<void> showDayActions(
   bool offerEvents = true,
   List<LocalActivity> activities = const [],
   void Function(BuildContext context, ChatTopic topic)? onAskTrainer,
+  VoidCallback? onOpenDay,
 }) async {
   final now = (today ?? DateTime.now)();
   final day = DateTime(date.year, date.month, date.day);
   final canPropose = !day.isBefore(DateTime(now.year, now.month, now.day));
   final planned = events.where((e) => e.isTraining).toList();
   final canDelete = planned.any(canDeletePlannedWorkout);
-  if (!canPropose && !canDelete && !offerEvents) return;
+  if (!canPropose && !canDelete && !offerEvents && onOpenDay == null) return;
 
   final l10n = AppLocalizations.of(context)!;
   final locale = Localizations.localeOf(context).toString();
@@ -55,6 +56,13 @@ Future<void> showDayActions(
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
+            if (onOpenDay != null)
+              ListTile(
+                key: const ValueKey('day-action-open'),
+                leading: const Icon(Icons.calendar_view_day),
+                title: Text(l10n.calDayOpen),
+                onTap: () => Navigator.of(context).pop('open'),
+              ),
             if (canPropose)
               ListTile(
                 key: const ValueKey('day-propose'),
@@ -134,6 +142,8 @@ Future<void> showDayActions(
   }
 
   switch (choice) {
+    case 'open':
+      onOpenDay?.call();
     case 'SICK' || 'HOLIDAY':
       // Creates the Intervals.icu event through the editor, preset.
       await openEditor(choice!);

@@ -5168,6 +5168,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calDayActions => 'Day actions';
 
   @override
+  String get calDayOpen => 'Open day';
+
+  @override
   String get calOpenDay => 'Open day';
 
   @override

@@ -1580,6 +1580,7 @@
   "calWeekAskDraft": "Wie sieht meine Woche {range} aus?",
   "calWeekActions": "Wochenaktionen",
   "calDayActions": "Tagesaktionen",
+  "calDayOpen": "Tag öffnen",
   "calOpenDay": "Tag öffnen",
   "calReadiness": "Bereitschaft: {level}",
   "calSemNothing": "nichts geplant oder erledigt",

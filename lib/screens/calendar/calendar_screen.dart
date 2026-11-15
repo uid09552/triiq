@@ -232,15 +232,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (outer != null) _go(outer, _date);
   }
 
-  /// A day was tapped: the first tap selects it, tapping the selected day
-  /// again opens it.
-  void _tapDay(DateTime date) {
-    if (dateOnly(date) == _date) {
-      _go(CalendarLevel.day, date);
-    } else {
-      _go(_level, date);
-    }
-  }
+  /// A day was tapped: it is selected. Opening the day view is a long-press
+  /// action ("Open day"), never a repeated tap.
+  void _tapDay(DateTime date) => _go(_level, date);
 
   void _openWeek(DateTime monday) {
     final inWeek =
@@ -268,6 +262,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       events,
       today: widget.today,
       activities: _visible.activitiesByDate[key] ?? const [],
+      onOpenDay: () => _go(CalendarLevel.day, date),
     );
   }
 
