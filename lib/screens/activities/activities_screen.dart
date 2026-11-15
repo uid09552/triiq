@@ -4,6 +4,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../widgets/peek_cards.dart';
+import '../../widgets/peekable.dart';
 import '../../widgets/skeleton.dart';
 
 import '../../data/intervals_session.dart';
@@ -553,53 +555,61 @@ class _ActivityRow extends StatelessWidget {
         formatDurationSecs(activity.movingTime!),
     ];
 
-    return Card(
-      child: ListTile(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ActivityDetailScreen(activity: activity),
+    // Hold a row to peek at its key figures; a tap opens the activity.
+    return Peekable(
+      preview: (_) => ActivityPeek(activity: activity),
+      child: Card(
+        child: ListTile(
+          key: ValueKey('activity-row-${activity.id}'),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ActivityDetailScreen(activity: activity),
+            ),
           ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
           ),
-          child: Icon(
-            activityTypeIcon(activity.type),
-            color: colorScheme.primary,
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              activityTypeIcon(activity.type),
+              color: colorScheme.primary,
+            ),
           ),
-        ),
-        title: Text(
-          activity.name ?? activity.type ?? l10n.activityFallback,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(details.join(' · ')),
-        trailing: activity.trainingLoad == null
-            ? const Icon(Icons.chevron_right)
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${activity.trainingLoad}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: colorScheme.primary,
+          title: Text(
+            activity.name ?? activity.type ?? l10n.activityFallback,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(details.join(' · ')),
+          trailing: activity.trainingLoad == null
+              ? const Icon(Icons.chevron_right)
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${activity.trainingLoad}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: colorScheme.primary,
+                      ),
                     ),
-                  ),
-                  Text(
-                    l10n.tssSuffix,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
+                    Text(
+                      l10n.tssSuffix,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+        ),
       ),
     );
   }

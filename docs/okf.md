@@ -61,7 +61,7 @@ athlete can:
 | Navigation shell (top bar, bottom nav) | ✅ Implemented — the bottom bar is the athlete's to arrange (*Arrange the menu*): reorder it, pin More entries to it, move tabs into More; More is always last |
 | Intervals.icu connection (Profile) | ✅ Implemented — two ways in: **Log in with Intervals.icu** (OAuth 2 with PKCE as a public client: the browser opens Intervals.icu's page, the app gets a bearer token back, no secret and no password in the app) or a pasted **API key**. Either is auth-tested against Intervals.icu, then persisted to secure storage and restored on relaunch (`IntervalsSession.connect` / `connectWithToken`; one credential at a time). Disconnect forgets it, and revokes the token at Intervals.icu for an OAuth login |
 | Local SQLite cache + sync | ✅ Implemented (Today auto-sync, manual Sync screen, closed-app background sync on Android — nightly by default, or every 15 min / 1 h / 6 h — with a notification when something new arrived) |
-| Today screen | ✅ Real data once connected — one **hero card** (`today_hero_card.dart`: date, status — "Ready to train", or "Train with care" / "Take it easy today" in the readiness colour —, the readiness ring (tap: a bottom sheet explaining each signal), today's session(s), **one primary action** that fits the day — *Start* (the session's steps), *Swap for easier* (Train now's Find alternative, on Caution / Back off with a hard session), *Log how it felt* once done, *Propose training* when nothing is planned —, a result view after the session (planned vs. actual, performance-trend arrow, feel), "Ask the trainer about today", and a tomorrow strip); swipe today's session right to log the feel, left to move it to tomorrow (calendar rule warnings, Undo; also in ⋯ and as screen-reader actions); an **attention stack** (illness return ramp, fatigue warning, plan adjustments, race countdown, threshold suggestions — only when they have something to say, most important first, two open, "+N more", each hidden for the day by a swipe or ×); **This week** (TSS against plan, sessions done / planned, hours per sport against the weekly targets, the year goals as one line); a Mon–Sun **week ribbon** (done / planned / missed / rest, tap opens the Calendar on that day); load tiles as a row of three (CTL, ATL, Form, "More metrics" for all six, or all six always via Customize Today), each with sparkline, trend arrow and its chart; **race week** (≤ 7 days to the plan's event) puts a header with countdown, taper phase and race-day form forecast in place of the tiles; a **sick / injured** day hides the training cards and shows the return-to-training plan; before the watch data is in the readiness slot says "Waiting for watch data" with a refresh. Hero and This week fit a 360 × 780 dp phone without scrolling (tested) |
+| Today screen | ✅ Real data once connected — one **hero card** (`today_hero_card.dart`: date, status — "Ready to train", or "Train with care" / "Take it easy today" in the readiness colour —, the readiness ring (tap: a bottom sheet explaining each signal), today's session(s), **one primary action** that fits the day — *Start* (the session's steps), *Swap for easier* (Train now's Find alternative, on Caution / Back off with a hard session), *Log how it felt* once done, *Propose training* when nothing is planned —, a result view after the session (planned vs. actual, performance-trend arrow, feel), "Ask the trainer about today", and a tomorrow strip); swipe today's session right to log the feel, left to move it to tomorrow (calendar rule warnings, Undo; also in ⋯ and as screen-reader actions); an **attention stack** (illness return ramp, fatigue warning, plan adjustments, race countdown, threshold suggestions — only when they have something to say, most important first, two open, "+N more", each hidden for the day by a swipe or ×); **This week** (TSS against plan, sessions done / planned, hours per sport against the weekly targets, the year goals as one line); a Mon–Sun **week ribbon** (done / planned / missed / rest, tap opens the Calendar on that day, hold peeks at the day — see *Hold to peek*); load tiles as a row of three (CTL, ATL, Form, "More metrics" for all six, or all six always via Customize Today), each with sparkline, trend arrow and its chart; **race week** (≤ 7 days to the plan's event) puts a header with countdown, taper phase and race-day form forecast in place of the tiles; a **sick / injured** day hides the training cards and shows the return-to-training plan; before the watch data is in the readiness slot says "Waiting for watch data" with a refresh. Hero and This week fit a 360 × 780 dp phone without scrolling (tested) |
 | Athlete details | ✅ Implemented — profile picture, location/age, body stats and per-sport thresholds (FTP, LTHR, max HR, threshold pace) from the live Intervals.icu athlete record |
 | Activities screen | ✅ Implemented — every cached activity, filterable by sport (from Statistics), tap through to detail with an evaluation against the plan, the streams over time with intervals, "Ask the trainer" and "Open in Intervals.icu"; insights (personal bests, efficiency trend, recovery hint); Weekly review in More |
 | New-training pop-up | ✅ Implemented — after the open-time sync, today's sessions not yet seen pop up once (one page each, **OK** marks them seen); switchable in Settings → App → Notifications |
@@ -1422,7 +1422,14 @@ switches in Settings. Tap the header to fold it.
 **Week ribbon** (`WeekRibbon`): Mon–Sun as seven marks — done (check),
 planned (ring), missed (cross, an earlier day with a planned session and no
 activity) or rest (dash), today highlighted; tap a day to open it in the
-Calendar.
+Calendar, **hold a day** to peek at it (`DayPeek`, `lib/widgets/day_peek.dart`):
+the date, the planned sessions (sport, name, minutes, planned TSS), the
+completed activities (name, time, TSS, performance-trend arrow), done-versus-
+planned TSS on a thin bar, the day's readiness dot when the watch data is in,
+or "Empty day · Rest". Lists show three rows and "+N more". The ribbon passes
+the week Today already holds, so the card appears at once; only readiness is
+read (from the cache) while the card is up. `DayPeekSource.load` reads a
+whole day from the cache for other callers.
 
 **Race week and sick days.** Within 7 days of the active plan's event, a
 **race-week header** (countdown, the plan's phase this week — Taper / Race
@@ -1612,6 +1619,40 @@ Intervals.icu after a confirmation.
 If Intervals.icu isn't connected and/or no LLM provider is configured yet, a
 **Finish setting up** card appears with a button straight to Profile and/or
 Settings — so a first launch isn't just a wall of "not connected" labels.
+
+### Hold to peek
+
+Press and hold (finger or mouse button) on an item that opens a detail page to
+see what is behind it without leaving the list. A card floats over the dimmed
+screen and goes away the moment you let go (or if the touch turns into a
+scroll); a quick tap opens the page as always. Peeks read the local cache
+only, so they are instant and work offline. Where it works:
+
+- **Today**: a day in the week ribbon (the day's plan, activities, load and
+  readiness) and the rows of Today's activities (key figures).
+- **Insights**: every tile of the hub.
+- **Readiness**: the signal pills (see Today).
+- **Activities**: every row (distance, time, TSS, average heart rate and power,
+  climb, trend arrow).
+- **Training plan**: a session tile in a week (its steps).
+- **Events**: an entry (type, dates, the start of its notes).
+- **Search** (More): a result (the app documentation's passage on it).
+
+Screen readers and keyboard users get the same card from the **Show preview**
+action on those items (a dialog, closed with Close). The card respects "reduce
+motion", is capped to the screen and truncates instead of growing, so it fits a
+360 dp phone at 2x text.
+
+**For contributors: where not to add a peek.** Never put a peek (`HoldPreview`
+/ `Peekable`) on an item whose long press already does something, or a drag
+would be lost: Calendar day cells, week numbers and session cards (day actions,
+week actions, drag and drop), the Today hero (quick actions), Today's load
+tiles, the This week card and its sport rings and Weekly targets (details
+sheets), the readiness ring (options), tomorrow's plan (delete), Insights'
+"open in Intervals.icu" lines, chart brushes, the bottom bar (customise), and
+any list you can drag to reorder. Use `Peekable` (not a bare `HoldPreview`) so
+the "Show preview" action comes with it. `test/hold_peeks_test.dart` lists the
+excluded files and the files allowed to peek; add to its lists consciously.
 
 ### Calendar
 

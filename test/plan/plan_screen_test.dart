@@ -26,6 +26,8 @@ import 'package:triiq/screens/plan/plan_screen.dart';
 import 'package:triiq/screens/today/train_now_screen.dart';
 import 'package:triiq/util/dates.dart';
 import 'package:triiq/widgets/main_navigation.dart';
+import 'package:triiq/widgets/peek_cards.dart';
+import 'package:triiq/widgets/peekable.dart';
 
 class _RecordingWorkouts implements PlannedWorkoutWriter {
   final created = <PlannedWorkoutDraft>[];
@@ -174,6 +176,38 @@ void main() {
     expect(find.text('This week'), findsOneWidget);
     expect(find.text('Regenerate'), findsOneWidget);
     expect(find.text('110% of proposal'), findsOneWidget);
+  });
+
+  testWidgets('holding a session tile peeks at its steps', (tester) async {
+    final monday = startOfWeek(DateTime.now());
+    final plan = PlanEngine(knowledge)
+        .generate(
+          goal: const Goal(
+            targetType: 'long_distance',
+            weekdays: {1, 2, 4, 6},
+            weeklyHours: 12,
+            baselineWeeklyLoad: 300,
+            weeks: 4,
+            loadFactors: [1, 1, 1.1, 0.8],
+          ),
+          startDate: monday,
+          recentWeeklyLoads: null,
+          today: DateTime.now(),
+        )
+        .plan!;
+    await tester.runAsync(() => plans.save(plan));
+    await open(tester);
+
+    final tile = find.byType(Peekable).first;
+    final g = await tester.startGesture(tester.getCenter(tile));
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const ValueKey('hold-preview')), findsOneWidget);
+    expect(find.byType(PlanSessionPeek), findsOneWidget);
+    await g.up();
+    await tester.pump();
+    expect(find.byKey(const ValueKey('hold-preview')), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a goal shows the load graph; a drag is saved into the goal', (

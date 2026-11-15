@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/data/db/app_database.dart';
+import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/models/local_wellness.dart';
 import 'package:triiq/data/planned_items.dart';
@@ -25,6 +26,8 @@ import 'package:triiq/screens/settings/weekly_targets_settings.dart';
 import 'package:triiq/screens/settings/year_goals_settings.dart';
 import 'package:triiq/screens/today/today_screen.dart';
 import 'package:triiq/util/dates.dart';
+import 'package:triiq/widgets/hold_preview.dart';
+import 'package:triiq/widgets/peekable.dart';
 
 class _FakeMover extends CalendarMover {
   final moves = <(String, String, DateTime)>[];
@@ -336,5 +339,100 @@ void main() {
     expect(mover.moves.last.$1, '501');
     expect(mover.moves.last.$2, isoDate(tomorrow));
     expect(mover.moves.last.$3, today);
+  });
+
+  group('hold to peek', () {
+    const overlay = ValueKey('hold-preview');
+
+    Future<void> seedActivity() =>
+        ActivitiesRepository(database: database).upsertAll([
+          LocalActivity(
+            id: 'act1',
+            date: todayIso,
+            type: 'Run',
+            name: 'Easy run',
+            movingTime: 2700,
+            distance: 8000,
+            trainingLoad: 42,
+            raw: const {'id': 'act1', 'average_heartrate': 141},
+            syncedAt: DateTime.now(),
+          ),
+        ]);
+
+    Future<TestGesture> hold(WidgetTester t, Finder f) async {
+      final g = await t.startGesture(t.getCenter(f));
+      await t.pump(const Duration(milliseconds: 700));
+      await t.pump(const Duration(milliseconds: 300));
+      return g;
+    }
+
+    testWidgets('the week ribbon day peeks with its plan and activities', (
+      t,
+    ) async {
+      await t.runAsync(() async {
+        await planToday();
+        await seedActivity();
+      });
+      await pumpToday(t);
+
+      final day = find.byKey(ValueKey('ribbon-$todayIso'));
+      expect(day, findsOneWidget);
+      final g = await hold(t, day);
+      expect(find.byKey(overlay), findsOneWidget);
+      expect(find.byKey(ValueKey('day-peek-$todayIso')), findsOneWidget);
+      expect(find.text('Easy run'), findsWidgets);
+      expect(find.text('Tempo ride'), findsWidgets);
+      await g.up();
+      await t.pump();
+      expect(find.byKey(overlay), findsNothing);
+      expect(t.takeException(), isNull);
+    });
+
+    testWidgets('today\'s activity rows peek, a tap is unchanged', (t) async {
+      await t.runAsync(seedActivity);
+      await pumpToday(t);
+
+      final row = find.byKey(const ValueKey('today-activity-act1'));
+      await t.ensureVisible(row);
+      await t.pump();
+      final g = await hold(t, row);
+      expect(find.byKey(overlay), findsOneWidget);
+      expect(find.byKey(const ValueKey('activity-peek-act1')), findsOneWidget);
+      await g.up();
+      await t.pump();
+      expect(find.byKey(overlay), findsNothing);
+    });
+
+    testWidgets('places whose long press does something have no peek', (
+      t,
+    ) async {
+      await t.runAsync(() async {
+        await planToday();
+        await seedActivity();
+      });
+      await pumpToday(t);
+
+      // Hero: quick-actions menu. Load tiles and This week: details sheets.
+      // (The readiness card inside the hero has its own pill peeks.)
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('today-hero')),
+          matching: find.byType(Peekable),
+        ),
+        findsNothing,
+      );
+      for (final key in const ['load-tiles', 'this-week-card']) {
+        final area = find.byKey(ValueKey(key));
+        expect(area, findsOneWidget);
+        expect(
+          find.descendant(of: area, matching: find.byType(Peekable)),
+          findsNothing,
+        );
+        expect(
+          find.descendant(of: area, matching: find.byType(HoldPreview)),
+          findsNothing,
+        );
+      }
+    });
   });
 }

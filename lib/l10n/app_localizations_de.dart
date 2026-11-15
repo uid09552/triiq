@@ -6000,4 +6000,60 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get navShortSync => 'Sync';
+
+  @override
+  String get peekShowPreview => 'Vorschau anzeigen';
+
+  @override
+  String get peekClose => 'Schließen';
+
+  @override
+  String get dayPeekPlanned => 'Geplant';
+
+  @override
+  String get dayPeekCompleted => 'Absolviert';
+
+  @override
+  String dayPeekMore(int count) {
+    return '+$count weitere';
+  }
+
+  @override
+  String get dayPeekEmpty => 'Leerer Tag';
+
+  @override
+  String get dayPeekEmptyHint => 'Ruhetag – nichts geplant oder trainiert.';
+
+  @override
+  String dayPeekLoad(int done, int planned) {
+    return '$done von $planned TSS';
+  }
+
+  @override
+  String dayPeekLoadDone(int done) {
+    return '$done TSS absolviert';
+  }
+
+  @override
+  String dayPeekReadiness(String level) {
+    return 'Bereitschaft: $level';
+  }
+
+  @override
+  String get peekDistance => 'Distanz';
+
+  @override
+  String get peekDuration => 'Zeit';
+
+  @override
+  String get peekAvgHr => 'Ø Puls';
+
+  @override
+  String get peekAvgPower => 'Ø Leistung';
+
+  @override
+  String get peekClimb => 'Anstieg';
+
+  @override
+  String get peekNoDetails => 'Keine weiteren Details gespeichert.';
 }

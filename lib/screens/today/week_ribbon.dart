@@ -3,9 +3,12 @@ import 'package:intl/intl.dart';
 
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
+import '../../evaluation/readiness.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
+import '../../widgets/day_peek.dart';
 import '../../widgets/main_navigation.dart';
+import '../../widgets/peekable.dart';
 
 enum RibbonDay { done, planned, missed, rest }
 
@@ -28,18 +31,24 @@ RibbonDay ribbonDayStatus(
 }
 
 /// Mon–Sun as seven dots under the hero: done, planned, missed or rest,
-/// today ringed. A tap opens that day in the Calendar.
+/// today ringed. A tap opens that day in the Calendar; press and hold
+/// peeks at the day ([DayPeek]) from the week Today already holds, with
+/// the day's readiness read from the cache alongside.
 class WeekRibbon extends StatelessWidget {
   const WeekRibbon({
     super.key,
     required this.today,
     required this.activities,
     required this.events,
+    this.readinessFor,
   });
 
   final DateTime today;
   final List<LocalActivity> activities;
   final List<LocalEvent> events;
+
+  /// Reads a day's readiness for its peek; the cache by default.
+  final Future<Readiness?> Function(DateTime day)? readinessFor;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +80,35 @@ class WeekRibbon extends StatelessWidget {
                         DateTime(monday.year, monday.month, monday.day + i),
                       ) ==
                       isoDate(today),
+                  peek: DayPeekData(
+                    day: DateTime(monday.year, monday.month, monday.day + i),
+                    planned: [
+                      for (final e in events)
+                        if (e.isTraining &&
+                            e.date ==
+                                isoDate(
+                                  DateTime(
+                                    monday.year,
+                                    monday.month,
+                                    monday.day + i,
+                                  ),
+                                ))
+                          e,
+                    ],
+                    activities: [
+                      for (final a in activities)
+                        if (a.date ==
+                            isoDate(
+                              DateTime(
+                                monday.year,
+                                monday.month,
+                                monday.day + i,
+                              ),
+                            ))
+                          a,
+                    ],
+                  ),
+                  readinessFor: readinessFor,
                   locale: locale,
                   l10n: l10n,
                   scheme: scheme,
@@ -89,6 +127,8 @@ class _DayDot extends StatelessWidget {
     required this.day,
     required this.status,
     required this.isToday,
+    required this.peek,
+    required this.readinessFor,
     required this.locale,
     required this.l10n,
     required this.scheme,
@@ -98,6 +138,8 @@ class _DayDot extends StatelessWidget {
   final DateTime day;
   final RibbonDay status;
   final bool isToday;
+  final DayPeekData peek;
+  final Future<Readiness?> Function(DateTime day)? readinessFor;
   final String locale;
   final AppLocalizations l10n;
   final ColorScheme scheme;
@@ -131,45 +173,52 @@ class _DayDot extends StatelessWidget {
       RibbonDay.rest => Icon(Icons.remove, size: 16, color: scheme.outline),
     };
     final weekday = DateFormat.E(locale).format(day);
-    return Semantics(
-      button: true,
-      selected: isToday,
-      label: l10n.ribbonDaySemantics(
-        DateFormat.MMMEd(locale).format(day),
-        label,
-      ),
-      excludeSemantics: true,
-      child: InkWell(
-        key: ValueKey('ribbon-${isoDate(day)}'),
-        borderRadius: BorderRadius.circular(10),
-        onTap: () => MainNavigation.instance.openCalendar(day),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          decoration: isToday
-              ? BoxDecoration(
-                  color: scheme.primaryContainer.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(10),
-                )
-              : null,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                weekday,
-                maxLines: 1,
-                overflow: TextOverflow.clip,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
-                  color: isToday
-                      ? scheme.onPrimaryContainer
-                      : scheme.onSurfaceVariant,
+    final loadReadiness = readinessFor ?? DayPeekSource().readiness;
+    return Peekable(
+      width: 320,
+      estimatedHeight: 260,
+      preview: (_) =>
+          DayPeek(data: peek, readinessLoader: () => loadReadiness(day)),
+      child: Semantics(
+        button: true,
+        selected: isToday,
+        label: l10n.ribbonDaySemantics(
+          DateFormat.MMMEd(locale).format(day),
+          label,
+        ),
+        excludeSemantics: true,
+        child: InkWell(
+          key: ValueKey('ribbon-${isoDate(day)}'),
+          borderRadius: BorderRadius.circular(10),
+          onTap: () => MainNavigation.instance.openCalendar(day),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            decoration: isToday
+                ? BoxDecoration(
+                    color: scheme.primaryContainer.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(10),
+                  )
+                : null,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  weekday,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                    color: isToday
+                        ? scheme.onPrimaryContainer
+                        : scheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              dot,
-            ],
+                const SizedBox(height: 2),
+                dot,
+              ],
+            ),
           ),
         ),
       ),

@@ -34,6 +34,8 @@ import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/main_navigation.dart';
+import '../../widgets/peek_cards.dart';
+import '../../widgets/peekable.dart';
 import '../../widgets/pending_changes_card.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
@@ -1463,32 +1465,37 @@ class _TodayActivities extends StatelessWidget {
       children: [
         for (final activity in activities) ...[
           if (activity != activities.first) const Divider(height: 1),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ActivityDetailScreen(activity: activity),
+          // Hold a row to peek at its key figures; a tap opens the activity.
+          Peekable(
+            preview: (_) => ActivityPeek(activity: activity),
+            child: ListTile(
+              key: ValueKey('today-activity-${activity.id}'),
+              contentPadding: EdgeInsets.zero,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ActivityDetailScreen(activity: activity),
+                ),
               ),
+              leading: Icon(
+                activityTypeIcon(activity.type),
+                color: colorScheme.primary,
+              ),
+              title: Text(
+                activity.name ?? activity.type ?? l10n.activityFallback,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                [
+                  if (activity.distance != null && activity.distance! > 0)
+                    formatDistanceMeters(activity.distance!),
+                  if (activity.movingTime != null && activity.movingTime! > 0)
+                    formatDurationSecs(activity.movingTime!),
+                  if (activity.trainingLoad != null)
+                    '${activity.trainingLoad} ${l10n.tssSuffix}',
+                ].join(' · '),
+              ),
+              trailing: const Icon(Icons.chevron_right),
             ),
-            leading: Icon(
-              activityTypeIcon(activity.type),
-              color: colorScheme.primary,
-            ),
-            title: Text(
-              activity.name ?? activity.type ?? l10n.activityFallback,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              [
-                if (activity.distance != null && activity.distance! > 0)
-                  formatDistanceMeters(activity.distance!),
-                if (activity.movingTime != null && activity.movingTime! > 0)
-                  formatDurationSecs(activity.movingTime!),
-                if (activity.trainingLoad != null)
-                  '${activity.trainingLoad} ${l10n.tssSuffix}',
-              ].join(' · '),
-            ),
-            trailing: const Icon(Icons.chevron_right),
           ),
         ],
       ],
