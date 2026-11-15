@@ -86,6 +86,7 @@ void main() {
             onFeel: () => calls.add('feel'),
             onCustomize: () => calls.add('customize'),
             onOpenPlanned: (e) => calls.add('open:${e.id}'),
+            onOpenActivity: (a) => calls.add('activity:${a.id}'),
             onMoveToTomorrow: (e) => calls.add('move:${e.id}'),
             onAskTrainer: () => calls.add('ask'),
             onOpenTomorrow: () => calls.add('tomorrow'),
@@ -259,7 +260,7 @@ void main() {
 
   testWidgets('the ⋯ menu has the gesture-free paths', (t) async {
     await t.pumpWidget(hero(plan: [_planned('12', 'Tempo ride')]));
-    await t.longPress(find.byKey(const ValueKey('today-hero')));
+    await t.tap(find.byKey(const ValueKey('hero-more')));
     await t.pumpAndSettle();
     for (final k in [
       'sync',
@@ -304,5 +305,73 @@ void main() {
       findsOneWidget,
     );
     handle.dispose();
+  });
+
+  group('long press and taps on today\'s sessions', () {
+    const overlay = ValueKey('hold-preview');
+
+    testWidgets('a long press on the card opens no menu; ⋯ still does', (
+      t,
+    ) async {
+      await t.pumpWidget(hero(plan: [_planned('20', 'Tempo ride')]));
+      await t.longPress(find.byKey(const ValueKey('hero-ask-trainer')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('hero-action-sync')), findsNothing);
+      await t.longPressAt(
+        t.getTopLeft(find.byKey(const ValueKey('today-hero'))) +
+            const Offset(150, 6),
+      );
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('hero-action-sync')), findsNothing);
+
+      await t.tap(find.byKey(const ValueKey('hero-more')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const ValueKey('hero-action-sync')), findsOneWidget);
+    });
+
+    testWidgets('holding a planned session\'s icon shows its details', (
+      t,
+    ) async {
+      await t.pumpWidget(hero(plan: [_planned('21', 'Tempo ride')]));
+      final icon = find.byKey(const ValueKey('hero-icon-21'));
+      final g = await t.startGesture(t.getCenter(icon));
+      await t.pump(const Duration(milliseconds: 700));
+      expect(find.byKey(overlay), findsOneWidget);
+      expect(find.byKey(const ValueKey('event-peek-21')), findsOneWidget);
+      await g.up();
+      await t.pumpAndSettle();
+      expect(find.byKey(overlay), findsNothing);
+      // The hold was not a tap: nothing opened.
+      expect(calls, isEmpty);
+    });
+
+    testWidgets('a tap on a planned session still opens it', (t) async {
+      await t.pumpWidget(hero(plan: [_planned('22', 'Tempo ride')]));
+      await t.tap(find.text('Tempo ride'));
+      await t.pumpAndSettle();
+      expect(calls, ['open:22']);
+    });
+
+    testWidgets('tapping a completed session opens it', (t) async {
+      await t.pumpWidget(hero(activities: [_done('a1')]));
+      await t.tap(find.byKey(const ValueKey('hero-result-a1')));
+      await t.pumpAndSettle();
+      expect(calls, ['activity:a1']);
+    });
+
+    testWidgets('holding a completed session\'s icon shows its figures', (
+      t,
+    ) async {
+      await t.pumpWidget(hero(activities: [_done('a2')]));
+      final icon = find.byKey(const ValueKey('hero-result-icon-a2'));
+      final g = await t.startGesture(t.getCenter(icon));
+      await t.pump(const Duration(milliseconds: 700));
+      expect(find.byKey(overlay), findsOneWidget);
+      expect(find.byKey(const ValueKey('activity-peek-a2')), findsOneWidget);
+      await g.up();
+      await t.pumpAndSettle();
+      expect(find.byKey(overlay), findsNothing);
+      expect(calls, isEmpty);
+    });
   });
 }

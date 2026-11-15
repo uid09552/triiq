@@ -596,7 +596,8 @@ void main() {
     // Peeks must never sit on an item whose long press means something else
     // (menus, sheets, drag). These files own such long presses, so they
     // must not use HoldPreview or Peekable at all. today_screen.dart is
-    // listed apart: its activity rows peek, its load tiles do not (that is
+    // listed apart: its activity rows peek, its load tiles do not (the hero card
+    // is allowed to peek, but only on its session icons) (that is
     // asserted on the rendered screen in test/today_states_test.dart).
     const excluded = [
       'lib/screens/calendar/calendar_screen.dart',
@@ -606,7 +607,6 @@ void main() {
       'lib/screens/calendar/calendar_drag.dart',
       'lib/screens/calendar/calendar_day_detail.dart',
       'lib/screens/calendar/day_cell_parts.dart',
-      'lib/screens/today/today_hero_card.dart',
       'lib/screens/today/this_week_card.dart',
       'lib/screens/today/weekly_targets_row.dart',
       'lib/screens/today/customize_today_sheet.dart',
@@ -661,6 +661,8 @@ void main() {
         'lib/widgets/period_stats_peek.dart',
         'lib/screens/statistics/insights_grid.dart',
         'lib/screens/today/readiness_card.dart',
+        // Only the icons of today's sessions: the card's long press is gone.
+        'lib/screens/today/today_hero_card.dart',
         'lib/screens/today/week_ribbon.dart',
         'lib/screens/today/today_screen.dart',
         'lib/screens/activities/activities_screen.dart',
