@@ -41,7 +41,8 @@ void main() {
         known,
       );
       expect(roomy.bar, ['today', 'calendar', 'chat', 'insights']);
-      expect(roomy.more.last, 'sync');
+      expect(roomy.more.last, 'info');
+      expect(roomy.more, contains('sync'));
 
       final full = NavigationLayout.normalize(
         ['today', 'calendar', 'chat', 'plan'],

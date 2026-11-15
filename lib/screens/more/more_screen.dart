@@ -9,6 +9,7 @@ import '../../navigation/okf_index.dart';
 import '../../widgets/peek_cards.dart';
 import '../../widgets/peekable.dart';
 import '../events/events_screen.dart';
+import '../info/info_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
 import '../memory/memory_screen.dart';
 import '../plan/plan_screen.dart';
@@ -93,6 +94,14 @@ final List<MoreEntry> moreEntries = [
     title: (l) => l.titleSync,
     subtitle: (l) => l.moreSyncSubtitle,
     builder: (_) => const SyncScreen(),
+  ),
+  MoreEntry(
+    id: 'info',
+    group: MoreGroup.data,
+    icon: Icons.info_outline,
+    title: (l) => l.infoTitle,
+    subtitle: (l) => l.moreInfoSubtitle,
+    builder: (_) => const InfoScreen(),
   ),
 ];
 

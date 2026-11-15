@@ -8993,7 +8993,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchDescMore.
   ///
   /// In en, this message translates to:
-  /// **'Plan, season, events, trainer memory, knowledge, sync'**
+  /// **'Plan, season, events, trainer memory, knowledge, sync, info'**
   String get searchDescMore;
 
   /// No description provided for @searchDescProfile.
@@ -9805,6 +9805,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No further details cached.'**
   String get peekNoDetails;
+
+  /// No description provided for @infoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get infoTitle;
+
+  /// No description provided for @moreInfoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Version, licenses and the software bill of materials'**
+  String get moreInfoSubtitle;
+
+  /// No description provided for @navShortInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get navShortInfo;
+
+  /// No description provided for @infoVersionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ {version} (build {build})'**
+  String infoVersionLine(String version, String build);
+
+  /// No description provided for @infoVersionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ (version unavailable)'**
+  String get infoVersionUnavailable;
+
+  /// No description provided for @infoFooterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Version and info'**
+  String get infoFooterTooltip;
+
+  /// No description provided for @infoAppSection.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get infoAppSection;
+
+  /// No description provided for @infoNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get infoNameLabel;
+
+  /// No description provided for @infoVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get infoVersionLabel;
+
+  /// No description provided for @infoBuildLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get infoBuildLabel;
+
+  /// No description provided for @infoPlatformLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform'**
+  String get infoPlatformLabel;
+
+  /// No description provided for @infoOsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating system'**
+  String get infoOsLabel;
+
+  /// No description provided for @infoDartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart'**
+  String get infoDartLabel;
+
+  /// No description provided for @infoLinksSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get infoLinksSection;
+
+  /// No description provided for @infoGithub.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code on GitHub'**
+  String get infoGithub;
+
+  /// No description provided for @infoReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'Releases'**
+  String get infoReleases;
+
+  /// No description provided for @infoLicenseLink.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ license'**
+  String get infoLicenseLink;
+
+  /// No description provided for @infoLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open {url}'**
+  String infoLinkFailed(String url);
+
+  /// No description provided for @infoLicensesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licenses'**
+  String get infoLicensesSection;
+
+  /// No description provided for @infoLicensesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The licenses of the libraries TriIQ is built from.'**
+  String get infoLicensesBody;
+
+  /// No description provided for @infoLicensesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'View licenses'**
+  String get infoLicensesButton;
+
+  /// No description provided for @infoSbomSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Software Bill of Materials (SBOM)'**
+  String get infoSbomSection;
+
+  /// No description provided for @infoSbomBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every package this version of TriIQ is built from, as a CycloneDX list for security and licence checks.'**
+  String get infoSbomBody;
+
+  /// No description provided for @infoSbomButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the SBOM'**
+  String get infoSbomButton;
+
+  /// No description provided for @infoCopyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy version info'**
+  String get infoCopyButton;
+
+  /// No description provided for @infoCopyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For bug reports: version, build, platform, language and theme. No personal data.'**
+  String get infoCopyHint;
+
+  /// No description provided for @infoCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Version info copied.'**
+  String get infoCopied;
+
+  /// No description provided for @sbomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SBOM'**
+  String get sbomTitle;
+
+  /// No description provided for @sbomSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} packages: {direct} direct, {dev} dev, {transitive} transitive'**
+  String sbomSummary(int count, int direct, int dev, int transitive);
+
+  /// No description provided for @sbomFormatLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Format: CycloneDX {spec} · generated for TriIQ {version}'**
+  String sbomFormatLine(String spec, String version);
+
+  /// No description provided for @sbomNotCovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Not covered: native Android (Gradle) libraries and the Flutter engine.'**
+  String get sbomNotCovered;
+
+  /// No description provided for @sbomSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search packages'**
+  String get sbomSearchHint;
+
+  /// No description provided for @sbomNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No package matches “{query}”.'**
+  String sbomNoMatch(String query);
+
+  /// No description provided for @sbomKindDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get sbomKindDirect;
+
+  /// No description provided for @sbomKindDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Dev'**
+  String get sbomKindDev;
+
+  /// No description provided for @sbomKindTransitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Transitive'**
+  String get sbomKindTransitive;
+
+  /// No description provided for @sbomExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Share / export SBOM (JSON)'**
+  String get sbomExport;
+
+  /// No description provided for @sbomExported.
+  ///
+  /// In en, this message translates to:
+  /// **'SBOM saved to {path}.'**
+  String sbomExported(String path);
+
+  /// No description provided for @sbomShared.
+  ///
+  /// In en, this message translates to:
+  /// **'SBOM ready to share.'**
+  String get sbomShared;
+
+  /// No description provided for @sbomExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String sbomExportFailed(String error);
+
+  /// No description provided for @sbomLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The SBOM could not be loaded: {error}'**
+  String sbomLoadFailed(String error);
+
+  /// No description provided for @sbomRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get sbomRetry;
+
+  /// No description provided for @sbomDetailVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get sbomDetailVersion;
+
+  /// No description provided for @sbomDetailKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get sbomDetailKind;
+
+  /// No description provided for @sbomDetailSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get sbomDetailSource;
+
+  /// No description provided for @sbomDetailScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Scope'**
+  String get sbomDetailScope;
+
+  /// No description provided for @sbomDetailPurl.
+  ///
+  /// In en, this message translates to:
+  /// **'Package URL'**
+  String get sbomDetailPurl;
+
+  /// No description provided for @sbomDetailHash.
+  ///
+  /// In en, this message translates to:
+  /// **'SHA-256'**
+  String get sbomDetailHash;
+
+  /// No description provided for @sbomOpenPubDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on pub.dev'**
+  String get sbomOpenPubDev;
 }
 
 class _AppLocalizationsDelegate

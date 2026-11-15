@@ -8,6 +8,10 @@
 #                       pubspec.lock: version, direct / dev / transitive,
 #                       source and content hash
 #
+# Separately, the SBOM the app bundles (assets/sbom/triiq.cdx.json, shown under
+# Info -> SBOM) is regenerated from pubspec.lock by tool/pubspec_lock_to_cdx.py
+# and must equal the committed file - the run fails with the command to run.
+#
 # Generated with Syft (one scan, both formats) from the repository: pubspec.lock
 # (all direct, dev and transitive Dart/Flutter packages at the exact locked
 # versions) and the GitHub Actions the workflows use. The scan is checked
@@ -31,7 +35,9 @@ on:
       - 'pubspec.lock'
       - 'android/**'
       - 'tool/pubspec_lock_to_csv.py'
+      - 'tool/pubspec_lock_to_cdx.py'
       - 'tool/check_sbom.py'
+      - 'assets/sbom/**'
       - '.github/workflows/sbom.yml'
   pull_request:
     paths:
@@ -39,7 +45,9 @@ on:
       - 'pubspec.lock'
       - 'android/**'
       - 'tool/pubspec_lock_to_csv.py'
+      - 'tool/pubspec_lock_to_cdx.py'
       - 'tool/check_sbom.py'
+      - 'assets/sbom/**'
       - '.github/workflows/sbom.yml'
   schedule:
     - cron: '17 5 * * 1'
@@ -58,6 +66,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+
+      # The SBOM the app bundles (Info -> SBOM) must match pubspec.lock and the
+      # pubspec version. The script is deterministic, so any difference means
+      # the committed file is stale.
+      - name: In-app SBOM is up to date
+        run: |
+          python3 tool/pubspec_lock_to_cdx.py pubspec.lock pubspec.yaml > "$RUNNER_TEMP/triiq.cdx.json"
+          if ! diff -u assets/sbom/triiq.cdx.json "$RUNNER_TEMP/triiq.cdx.json"; then
+            echo "::error file=assets/sbom/triiq.cdx.json::The bundled SBOM is out of date. Run: python3 tool/pubspec_lock_to_cdx.py pubspec.lock pubspec.yaml > assets/sbom/triiq.cdx.json  and commit the result."
+            exit 1
+          fi
 
       - name: Dependency inventory (pubspec.lock)
         run: |

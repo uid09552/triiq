@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/navigation/app_destinations.dart';
+import 'package:triiq/navigation/navigation_layout.dart';
 import 'package:triiq/navigation/okf_index.dart';
 import 'package:triiq/screens/more/more_screen.dart';
 import 'package:triiq/screens/settings/settings_screen.dart';
@@ -93,6 +94,34 @@ void main() {
     expect(
       destinationById('insights.durability')!.path(de),
       'Einblicke › Ermüdungsresistenz',
+    );
+  });
+
+  test('Info is found by version, sbom and licence words, in both languages '
+      'and is a More entry that can be pinned to the bar', () {
+    for (final q in const [
+      'version',
+      'sbom',
+      'bill of materials',
+      'licenses',
+      'build',
+      'open source',
+      'about',
+      'lizenzen',
+      'stückliste',
+    ]) {
+      expect(
+        searchDestinations(q, okf: okf).map((d) => d.id),
+        contains('more.info'),
+        reason: q,
+      );
+    }
+    expect(NavigationLayout.defaultKnown(), contains('info'));
+    expect(
+      destinationById('more.info')!.path(
+        lookupAppLocalizations(const Locale('en')),
+      ),
+      'More › Info',
     );
   });
 

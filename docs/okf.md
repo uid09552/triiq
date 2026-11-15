@@ -53,6 +53,7 @@ athlete can:
 | LLM provider (Claude API; Ollama — Ollama Cloud by default, or a local/self-hosted server; or an OpenAI-compatible server) | Powers the chat/agent | Claude: API key. Ollama Cloud: API key (`ollama.com/settings/keys`). Local Ollama: none. OpenAI-compatible: optional API key (OpenAI, OpenRouter, Azure-style proxies, LiteLLM need one; LM Studio, vLLM, llama.cpp usually none) |
 | `langchain_openai` (+ `openai_dart`) | The chat model behind the OpenAI-compatible provider (`ChatOpenAI`, Chat Completions, configurable `baseUrl`) | — (the provider's key is passed to it) |
 | `langchain_anthropic`, `langchain_ollama` | The chat models behind the Claude and Ollama providers | — |
+| `package_info_plus` | The running app's version and build number, shown in Settings and on the Info screen (`lib/info/app_info.dart`); tests use `PackageInfo.setMockInitialValues` | — |
 
 ### Status matrix
 
@@ -81,7 +82,7 @@ athlete can:
 | Consent & your rights (Settings → Data & privacy → Consent & your rights) | ✅ Implemented — the in-app privacy notice (what is processed incl. health data, where it is stored, recipients, transfers outside the EU/EEA, legal basis, retention, rights, contact; mirrored in `docs/privacy.md`) with the controls that apply it: **AI consent** (`PrivacySettings`, `lib/data/privacy_settings.dart`, stored with the date on the device) — a configured provider is *not usable* until the athlete agrees, `LlmSettings.isConfigured` requires it, a consent card appears in Chat and Settings, and withdrawing switches the AI off at once; **map tiles** from OpenStreetMap can be switched off (routes then draw without a map); **Delete all data** (`DataEraser`: every table emptied, saved keys and preferences removed, Intervals.icu disconnected). Export is Settings → Data & privacy → Backup |
 | Skeletons, undo and sync status | ✅ Implemented — **skeleton loading** (`lib/widgets/skeleton.dart`): the statistics screens, Analytics, Wellness trends, Load heatmap, Best efforts, Weekly review, the Compare periods tab and the Activities list show pulsing placeholders in the shape of their content instead of a spinner (steady when the system asks for reduced motion). **Undo**: deleting a single planned session hides it at once (`PendingDeletes`, honoured by every calendar list) and offers *Undo* for 6 s; only when the snackbar goes away is it deleted for real (Intervals.icu, cache, plan), and a failed delete brings it back. Nothing is written inside the window, so quitting the app keeps the session. Deleting a whole day's sessions still asks first. Replacing a session in Train now offers *Undo* for 8 s, which swaps the old session back through the same replace. **Sync status chip** (`SyncStatusChip`) on Today (on the hero card, next to "Ask the trainer about today") and Statistics: "Synced 5 min ago", "3 waiting to send", "2 failed to send" or "Not connected"; amber when over a day old or needing attention; tap opens Sync |
 | App search (More → search field) | ✅ Implemented — one search over every tab, Insights view, More entry, Settings group and section (and the three scheduled notifications): type a few words in English or German and tap a result to go there. Each result shows its icon, title, breadcrumb (e.g. "Insights › Durability", "Settings › App › Notifications › Weekly review") and a one-line description. Matches titles, synonyms (e.g. "dark mode" → Appearance, "Ruhepuls" → Wellness trends), descriptions and this document's user-facing text, tolerating a typo or two ("durabilty"), umlauts typed or not ("Müdigkeit" / "mudigkeit") and the filler of a question ("where is the heatmap"). No recent-searches list yet. The trainer uses the same search (`search_app_features`) |
-| More tab | ✅ Implemented — a **search field** at the top (App search, above), then three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone. That is the default: More lists whatever is not in the bottom bar, in the athlete's order, with **Customize navigation** at its top right (*Arrange the menu*) |
+| More tab | ✅ Implemented — a **search field** at the top (App search, above), then three groups with headers: *Plan* (Training plans, Season, Events), *Trainer* (Trainer memory, Knowledge library), *Data* (Sync — also one tap from the sync status chip on Today and Insights —, and Info). The analysis screens and the Activities list moved to Insights; the "Gear – coming soon" placeholder is gone. That is the default: More lists whatever is not in the bottom bar, in the athlete's order, with **Customize navigation** at its top right (*Arrange the menu*) |
 | Offline-first write queue | ✅ Implemented — moving or deleting a sent session, deleting a planned workout, and sending a plan to Intervals.icu while it is unreachable are applied locally at once and stored (SQLite v8 `pending_writes`), replayed in order before every sync, with a "N changes waiting to sync" card on Today and Sync (Send now / Retry / Discard). "Replace with alternative" too: offline it shows the new session at once and queues create-new + delete-old (a retry never creates twice) |
 | Home-screen widget (Android) | ✅ Implemented, not yet device-tested — today's planned sessions (two lines, "+N"), completed TSS, form and CTL/ATL, and a ring per sport with a weekly target (swim/ride/run, percent and hours done of the target; the ring stops at 100 %); resizable from 4×1 (one row: session + form) and 2×2 (session + form) up to 4×2 (adds the details) and 4×3+ (adds the target rings), with a layout chosen per size; tap opens the app; refreshed at start, after syncs, on plan changes and after the nightly background sync |
 | Trainer memory (More → Trainer memory) | ✅ Implemented — standing preferences ("no hard sessions on Fridays", "swim only mornings") kept on the device and added to the trainer's context every turn; add/remove them in the app, or the trainer saves/removes one via `remember_preference` / `forget_preference` only when you ask it to (marked "saved by the trainer"). Prompt-level: the plan engine does not enforce them |
@@ -97,7 +98,8 @@ athlete can:
 | Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak, the layout, and the busiest weekday in the week table), the chart overview strip (the range shown) and tappable legend entries (toggle buttons: "CTL: shown. Tap to hide."), the readiness gauge ("Readiness 72 of 100"), the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"), Today's hero card as one summary (status, readiness, today's session, tomorrow) and each week-ribbon day ("Wed, Nov 4: done. Open in the calendar."). Every Today gesture has a button or menu path (swipe → screen-reader actions and the ⋯ menu; attention cards → ×). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`, Today at 360 dp and 2× in `test/today_states_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
 | Error and empty states | ✅ Implemented — one `StatusMessage` (`lib/widgets/status_message.dart`): icon, short title, plain reason, one action. `describeError` maps failures to text you can act on — offline (no response, socket, timeout) → "You're offline" + Retry; HTTP 401/403 → "Intervals.icu refused the request" + Open Profile; not connected → Open Profile; 429 / 5xx → wait and retry; SQLite → local data; else "Something went wrong". The exception text only behind an expandable **Details**. Empty states (`StatusMessage.needsSync`) say what is missing and offer Open Sync. Used on Insights, Performance curves, Durability, Best efforts, Compare periods, Wellness trends, the load heatmap, Weekly review, Activities and the activity page's chart |
 | First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sports and weekly hours (saved to `WeeklyTargetsSettings`), AI trainer (Claude key, Ollama server, or OpenAI-compatible URL + model + optional key, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
-| Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Each opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
+| Info / version / SBOM | ✅ Implemented — More → Info (and Settings → Info, plus the version in small type at the bottom of Settings): `InfoScreen` (`lib/screens/info/`) shows **TriIQ 0.9.5 (build 1)** read at runtime with `package_info_plus`, the platform, OS and Dart version, links (GitHub, Releases, the in-app privacy screen, the licence), Flutter's **open-source licenses** page, a **Copy version info** button (version, build, platform, OS, locale, theme — no personal data) and the **SBOM**: `assets/sbom/triiq.cdx.json`, a CycloneDX 1.5 list of every Dart/Flutter package, generated by `tool/pubspec_lock_to_cdx.py` from `pubspec.lock` and kept in sync by `test/info/sbom_sync_test.dart` and the SBOM workflow. `SbomScreen` shows the counts (direct / dev / transitive), a searchable list, a details sheet per package with a pub.dev link and **Share / export SBOM (JSON)** (share sheet on phones, save dialog on desktop, like Backup). Not covered: native Android (Gradle) libraries and the Flutter engine |
+| Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Below the groups: an **Info** row and the version in small type, both opening the Info screen. Each group opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
 | Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → App → Appearance, applies instantly, persisted |
 | Settings — Models (LLM providers) | ✅ Implemented — an ordered list of model entries (any mix of Claude / Ollama / OpenAI-compatible) with priority failover (`LlmGateway`), per-entry keys in the vault, drag / Up / Down reorder, on/off, Test, Edit, Delete and status (OK / needs attention / paused); the editor has the provider chips, models, URLs, keys, live model list + connection test ("Load models" for OpenAI-compatible) |
 | LangChain agent | ✅ Implemented — tool-calling loop over the local cache (`lib/agent`) |
@@ -211,7 +213,7 @@ plan works from a tab too). Shown as a tab, the page is wrapped in
 `shellTabActions(context)` — the profile button the shell normally shows — so
 every tab has it in the same corner. The Knowledge library is not on web, so
 it is not arrangeable there. Bar labels use short names for More entries
-(*Plan, Season, Events, Memory, Library, Sync*; full titles elsewhere).
+(*Plan, Season, Events, Memory, Library, Sync, Info*; full titles elsewhere). Info is pinnable like the rest: its page is a `Scaffold` with its own `AppBar` and `shellTabActions`.
 
 The arranger opens from three places: the swap icon at the top right of More,
 Settings › App › Navigation, and a **long-press on the bottom bar** (or rail;
@@ -248,7 +250,7 @@ prefix, compound part, or within 1–2 edits — in both languages, after
 folding case and umlauts and dropping question filler; at least half the
 words must hit. `test/navigation/app_destinations_test.dart` fails when an
 anchor resolves to nothing or a tile / entry / group is missing from the
-registry.
+registry. Info is a More entry (`more.info`, anchor *About / Info and the SBOM*), so it is searchable (version, build, sbom, licenses, open source …) and pinnable like the others; the Settings row and version footer are plain shortcuts to the same screen, not separate destinations.
 
 ### Session & sync
 
@@ -1961,7 +1963,7 @@ set.
 
 A search field over the whole app (see *Search the app*), then three
 groups: **Plan** (Training plans, Season, Events), **Trainer** (Trainer
-memory, Knowledge library — hidden on web) and **Data** (Sync). Profile and
+memory, Knowledge library — hidden on web) and **Data** (Sync, Info). Profile and
 Settings are behind your avatar in the top bar; the analysis views and
 Activities live under Insights. What More lists is everything that is not in
 the bottom bar, in your order — see *Arrange the menu* to pin a page to the
@@ -2019,7 +2021,7 @@ by long-pressing the bottom bar.
 - **Move between the bar and More**: drag an item across the *In More*
   header, or use **Move to More** / **Pin to bar**. Any More page can go in
   the bar — Training plans, Season, Events, Trainer memory, Knowledge
-  library, Sync — and Today, Calendar, Chat or Insights can go into More;
+  library, Sync, Info — and Today, Calendar, Chat or Insights can go into More;
   nothing becomes unreachable. A page in the bar opens as a tab (with the
   profile button in its top bar); one in More opens on top with a back
   button.
@@ -2207,14 +2209,43 @@ doesn't appear. Tiles come from `tile.openstreetmap.org` with the app's
 user agent; that server is for light use, so if TriIQ is distributed widely
 point `_tileUrl` in `route_card.dart` at a tile provider with an API key.
 
+### About / Info and the SBOM
+
+**Info** answers "which TriIQ is this?". Open it from **More → Info**,
+from the **Info** row at the bottom of **Settings**, or by tapping the version
+line in small type under it ("TriIQ 0.9.5 (build 1) · Android"). Like every More
+entry it can be pinned to the bottom bar (*Arrange the menu*).
+
+- **App**: name, version, build number, platform, operating system and the Dart
+  version. **Copy version info** puts exactly that — plus the language and the
+  active theme — on the clipboard, ready to paste into a bug report. It holds
+  nothing about you, your account or your training.
+- **Links**: the source code and the releases page on GitHub, the in-app
+  privacy screen (*Consent & your rights*) and the licence of TriIQ.
+- **Open-source licenses**: the licence text of every library TriIQ is built
+  from, on Flutter's standard licence page.
+- **Software Bill of Materials (SBOM)**: the list of packages this version was
+  built from, in the CycloneDX 1.5 format that security and licence tools read.
+  The SBOM screen opens with a summary ("187 packages: 37 direct, 6 dev, 144
+  transitive", the format and the app version it was generated for), then a
+  search field and the list — name, version, source and a chip that says
+  *Direct*, *Dev* (only used to build and test, never shipped) or *Transitive*
+  (pulled in by another package). Tap a package for its details (version,
+  kind, source, scope, package URL, SHA-256 of the package) and **Open on
+  pub.dev**. **Share / export SBOM (JSON)** hands the file out: the share sheet
+  on a phone (Drive, Files, mail), a save dialog on Windows. It does not cover
+  the native Android (Gradle) libraries or the Flutter engine — the same as the
+  SBOM the build pipeline publishes. If the bundled file cannot be read the
+  screen says so and offers *Try again*; nothing else in the app is affected.
+
 ### Releases
 
 `.github/workflows/android-release.yml` builds the signed Android APK and
 publishes it as a GitHub release.
 
 - **Merge to `main`** → automatic **pre-release**, tagged
-  `v<version>-rc<short commit hash>` (e.g. `v0.9.1-rc1a2b3c4`). `<version>` is the
-  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.1+1`); bump it there to start
+  `v<version>-rc<short commit hash>` (e.g. `v0.9.5-rc1a2b3c4`). `<version>` is the
+  `x.y.z` of `version:` in `pubspec.yaml` (now `0.9.5+1`); bump it there to start
   a new line. Put `[skip release]` in the merge commit message to skip it.
 - **Your own tag** (`git tag v1.0.0 && git push origin v1.0.0`) → a release for
   exactly that tag, built with that version; a tag containing `-` is a
@@ -2458,6 +2489,7 @@ off under Settings → App → Notifications.
   yet. Logging it by hand from any activity's page works either way.
 - **Navigation**: what the bottom bar holds now, and **Customize
   navigation** to arrange it (see *Arrange the menu*).
+- **Info**: below the four groups, an **Info** row and the version in small type ("TriIQ 0.9.5 (build 1) · Android"). Both open *About / Info and the SBOM*.
 - **Notifications**: the master toggle prompts for the OS notification
   permission (Android 13+/iOS) and, once granted, turns on sync-completion
   and training-agent-reply notifications. With it on and on a platform that
