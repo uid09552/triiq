@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../info/info_screen.dart';
+import '../info/version_footer.dart';
 import 'privacy_screen.dart';
 import 'settings_screen.dart';
 
@@ -355,6 +357,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
+          if (!searching) ...[
+            Card(
+              child: ListTile(
+                key: const ValueKey('settings-info'),
+                leading: const Icon(Icons.info_outline),
+                title: Text(
+                  l10n.infoTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(l10n.moreInfoSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const InfoScreen()),
+                ),
+              ),
+            ),
+            const VersionFooter(),
+          ],
         ],
       ),
     );

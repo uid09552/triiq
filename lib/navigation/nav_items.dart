@@ -84,6 +84,7 @@ String _entryLabel(AppLocalizations l, String id) => switch (id) {
   'memory' => l.navShortMemory,
   'knowledge' => l.navShortKnowledge,
   'sync' => l.navShortSync,
+  'info' => l.navShortInfo,
   _ => moreEntries.firstWhere((e) => e.id == id).title(l),
 };
 

@@ -263,6 +263,7 @@ void main() {
       'memory',
       'knowledge',
       'sync',
+      'info',
     ]);
     expect(NavigationLayout.instance.bar, ['plan', 'today', 'calendar']);
 
