@@ -5540,7 +5540,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get searchDescMore =>
-      'Plan, Saison, Ereignisse, Trainer-Gedächtnis, Wissen, Synchronisierung';
+      'Plan, Saison, Ereignisse, Trainer-Gedächtnis, Wissen, Synchronisierung, Info';
 
   @override
   String get searchDescProfile => 'Intervals.icu-Konto verbinden oder trennen';
@@ -6163,4 +6163,172 @@ class AppLocalizationsDe extends AppLocalizations {
   String yearContextLineNoDistance(String sport, String hours) {
     return '$sport dieses Jahr: $hours h';
   }
+
+  @override
+  String get infoTitle => 'Info';
+
+  @override
+  String get moreInfoSubtitle =>
+      'Version, Lizenzen und Software-Stückliste (SBOM)';
+
+  @override
+  String get navShortInfo => 'Info';
+
+  @override
+  String infoVersionLine(String version, String build) {
+    return 'TriIQ $version (Build $build)';
+  }
+
+  @override
+  String get infoVersionUnavailable => 'TriIQ (Version nicht verfügbar)';
+
+  @override
+  String get infoFooterTooltip => 'Version und Info';
+
+  @override
+  String get infoAppSection => 'App';
+
+  @override
+  String get infoNameLabel => 'Name';
+
+  @override
+  String get infoVersionLabel => 'Version';
+
+  @override
+  String get infoBuildLabel => 'Build';
+
+  @override
+  String get infoPlatformLabel => 'Plattform';
+
+  @override
+  String get infoOsLabel => 'Betriebssystem';
+
+  @override
+  String get infoDartLabel => 'Dart';
+
+  @override
+  String get infoLinksSection => 'Links';
+
+  @override
+  String get infoGithub => 'Quellcode auf GitHub';
+
+  @override
+  String get infoReleases => 'Veröffentlichungen (Releases)';
+
+  @override
+  String get infoLicenseLink => 'Lizenz von TriIQ';
+
+  @override
+  String infoLinkFailed(String url) {
+    return '$url konnte nicht geöffnet werden';
+  }
+
+  @override
+  String get infoLicensesSection => 'Open-Source-Lizenzen';
+
+  @override
+  String get infoLicensesBody =>
+      'Die Lizenzen der Bibliotheken, aus denen TriIQ gebaut ist.';
+
+  @override
+  String get infoLicensesButton => 'Lizenzen anzeigen';
+
+  @override
+  String get infoSbomSection => 'Software-Stückliste (SBOM)';
+
+  @override
+  String get infoSbomBody =>
+      'Alle Pakete, aus denen diese Version von TriIQ gebaut ist, als CycloneDX-Liste für Sicherheits- und Lizenzprüfungen.';
+
+  @override
+  String get infoSbomButton => 'SBOM öffnen';
+
+  @override
+  String get infoCopyButton => 'Versionsinfo kopieren';
+
+  @override
+  String get infoCopyHint =>
+      'Für Fehlerberichte: Version, Build, Plattform, Sprache und Design. Keine persönlichen Daten.';
+
+  @override
+  String get infoCopied => 'Versionsinfo kopiert.';
+
+  @override
+  String get sbomTitle => 'SBOM';
+
+  @override
+  String sbomSummary(int count, int direct, int dev, int transitive) {
+    return '$count Pakete: $direct direkt, $dev Entwicklung, $transitive transitiv';
+  }
+
+  @override
+  String sbomFormatLine(String spec, String version) {
+    return 'Format: CycloneDX $spec · erzeugt für TriIQ $version';
+  }
+
+  @override
+  String get sbomNotCovered =>
+      'Nicht enthalten: native Android-Bibliotheken (Gradle) und die Flutter-Engine.';
+
+  @override
+  String get sbomSearchHint => 'Pakete suchen';
+
+  @override
+  String sbomNoMatch(String query) {
+    return 'Kein Paket passt zu „$query“.';
+  }
+
+  @override
+  String get sbomKindDirect => 'Direkt';
+
+  @override
+  String get sbomKindDev => 'Entwicklung';
+
+  @override
+  String get sbomKindTransitive => 'Transitiv';
+
+  @override
+  String get sbomExport => 'SBOM teilen / exportieren (JSON)';
+
+  @override
+  String sbomExported(String path) {
+    return 'SBOM gespeichert unter $path.';
+  }
+
+  @override
+  String get sbomShared => 'SBOM zum Teilen bereit.';
+
+  @override
+  String sbomExportFailed(String error) {
+    return 'Export fehlgeschlagen: $error';
+  }
+
+  @override
+  String sbomLoadFailed(String error) {
+    return 'Die SBOM konnte nicht geladen werden: $error';
+  }
+
+  @override
+  String get sbomRetry => 'Erneut versuchen';
+
+  @override
+  String get sbomDetailVersion => 'Version';
+
+  @override
+  String get sbomDetailKind => 'Art';
+
+  @override
+  String get sbomDetailSource => 'Quelle';
+
+  @override
+  String get sbomDetailScope => 'Geltungsbereich';
+
+  @override
+  String get sbomDetailPurl => 'Paket-URL';
+
+  @override
+  String get sbomDetailHash => 'SHA-256';
+
+  @override
+  String get sbomOpenPubDev => 'Auf pub.dev öffnen';
 }

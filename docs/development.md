@@ -81,3 +81,23 @@ writes the CSV and needs only Python 3.
 Not covered: native Android libraries (the project keeps no Gradle lockfile, so
 there is nothing exact to scan) and the Flutter engine.
 
+### The SBOM inside the app
+
+The app bundles its own CycloneDX 1.5 SBOM as `assets/sbom/triiq.cdx.json` and
+shows it under **Info → SBOM** (see *About / Info and the SBOM* in the
+[specification](okf.md)). The file is generated from `pubspec.lock` and
+`pubspec.yaml` and is deterministic (no timestamp, no serial number), so a diff
+means something changed. **Whenever you change a dependency or bump `version:`
+in `pubspec.yaml`, regenerate and commit it:**
+
+```bash
+python3 tool/pubspec_lock_to_cdx.py pubspec.lock pubspec.yaml > assets/sbom/triiq.cdx.json
+```
+
+Two checks keep it honest: `test/info/sbom_sync_test.dart` (`flutter test`)
+compares the asset with `pubspec.lock` and `pubspec.yaml` and, when Python 3 is
+available, regenerates it and compares byte for byte; and the SBOM workflow
+runs the script and fails on `git diff --exit-code assets/sbom/triiq.cdx.json`
+with the command above in the message. Python 3 and the standard library are
+all it needs.
+

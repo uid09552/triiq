@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.9.1+1
+version: 0.9.5+1
 
 environment:
   sdk: ^3.11.5
@@ -98,6 +98,10 @@ dependencies:
   ollama_dart: ^2.6.0
   http: ^1.6.0
 
+  # The running app's version and build number (lib/info) — read from the
+  # platform at runtime, so pubspec.yaml's `version:` stays the only place.
+  package_info_plus: ^9.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -159,6 +163,9 @@ flutter:
     # The app spec doubles as the plan engine's rule and session-template
     # source (section 5, "Training knowledge") — see lib/plan/knowledge.dart.
     - docs/okf.md
+    # The bundled CycloneDX SBOM (Info -> SBOM), generated from pubspec.lock by
+    # tool/pubspec_lock_to_cdx.py; CI and a test keep it in sync.
+    - assets/sbom/triiq.cdx.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

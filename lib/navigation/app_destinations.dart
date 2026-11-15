@@ -345,6 +345,31 @@ const _moreMeta = <String, (String, List<String>)>{
       'abrufen',
     ],
   ),
+  'info': (
+    'About / Info and the SBOM',
+    [
+      'info',
+      'about',
+      'version',
+      'build',
+      'sbom',
+      'bill of materials',
+      'licenses',
+      'licences',
+      'open source',
+      'dependencies',
+      'packages',
+      'release',
+      'bug report',
+      'ueber',
+      'lizenzen',
+      'stueckliste',
+      'softwarestueckliste',
+      'abhaengigkeiten',
+      'fehlerbericht',
+      'versionsnummer',
+    ],
+  ),
 };
 
 String _sectionAnchor(SettingsSection s) => switch (s) {

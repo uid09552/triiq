@@ -5492,7 +5492,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchDescMore =>
-      'Plan, season, events, trainer memory, knowledge, sync';
+      'Plan, season, events, trainer memory, knowledge, sync, info';
 
   @override
   String get searchDescProfile =>
@@ -6112,4 +6112,172 @@ class AppLocalizationsEn extends AppLocalizations {
   String yearContextLineNoDistance(String sport, String hours) {
     return '$sport this year: $hours h';
   }
+
+  @override
+  String get infoTitle => 'Info';
+
+  @override
+  String get moreInfoSubtitle =>
+      'Version, licenses and the software bill of materials';
+
+  @override
+  String get navShortInfo => 'Info';
+
+  @override
+  String infoVersionLine(String version, String build) {
+    return 'TriIQ $version (build $build)';
+  }
+
+  @override
+  String get infoVersionUnavailable => 'TriIQ (version unavailable)';
+
+  @override
+  String get infoFooterTooltip => 'Version and info';
+
+  @override
+  String get infoAppSection => 'App';
+
+  @override
+  String get infoNameLabel => 'Name';
+
+  @override
+  String get infoVersionLabel => 'Version';
+
+  @override
+  String get infoBuildLabel => 'Build';
+
+  @override
+  String get infoPlatformLabel => 'Platform';
+
+  @override
+  String get infoOsLabel => 'Operating system';
+
+  @override
+  String get infoDartLabel => 'Dart';
+
+  @override
+  String get infoLinksSection => 'Links';
+
+  @override
+  String get infoGithub => 'Source code on GitHub';
+
+  @override
+  String get infoReleases => 'Releases';
+
+  @override
+  String get infoLicenseLink => 'TriIQ license';
+
+  @override
+  String infoLinkFailed(String url) {
+    return 'Could not open $url';
+  }
+
+  @override
+  String get infoLicensesSection => 'Open-source licenses';
+
+  @override
+  String get infoLicensesBody =>
+      'The licenses of the libraries TriIQ is built from.';
+
+  @override
+  String get infoLicensesButton => 'View licenses';
+
+  @override
+  String get infoSbomSection => 'Software Bill of Materials (SBOM)';
+
+  @override
+  String get infoSbomBody =>
+      'Every package this version of TriIQ is built from, as a CycloneDX list for security and licence checks.';
+
+  @override
+  String get infoSbomButton => 'Open the SBOM';
+
+  @override
+  String get infoCopyButton => 'Copy version info';
+
+  @override
+  String get infoCopyHint =>
+      'For bug reports: version, build, platform, language and theme. No personal data.';
+
+  @override
+  String get infoCopied => 'Version info copied.';
+
+  @override
+  String get sbomTitle => 'SBOM';
+
+  @override
+  String sbomSummary(int count, int direct, int dev, int transitive) {
+    return '$count packages: $direct direct, $dev dev, $transitive transitive';
+  }
+
+  @override
+  String sbomFormatLine(String spec, String version) {
+    return 'Format: CycloneDX $spec · generated for TriIQ $version';
+  }
+
+  @override
+  String get sbomNotCovered =>
+      'Not covered: native Android (Gradle) libraries and the Flutter engine.';
+
+  @override
+  String get sbomSearchHint => 'Search packages';
+
+  @override
+  String sbomNoMatch(String query) {
+    return 'No package matches “$query”.';
+  }
+
+  @override
+  String get sbomKindDirect => 'Direct';
+
+  @override
+  String get sbomKindDev => 'Dev';
+
+  @override
+  String get sbomKindTransitive => 'Transitive';
+
+  @override
+  String get sbomExport => 'Share / export SBOM (JSON)';
+
+  @override
+  String sbomExported(String path) {
+    return 'SBOM saved to $path.';
+  }
+
+  @override
+  String get sbomShared => 'SBOM ready to share.';
+
+  @override
+  String sbomExportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String sbomLoadFailed(String error) {
+    return 'The SBOM could not be loaded: $error';
+  }
+
+  @override
+  String get sbomRetry => 'Try again';
+
+  @override
+  String get sbomDetailVersion => 'Version';
+
+  @override
+  String get sbomDetailKind => 'Kind';
+
+  @override
+  String get sbomDetailSource => 'Source';
+
+  @override
+  String get sbomDetailScope => 'Scope';
+
+  @override
+  String get sbomDetailPurl => 'Package URL';
+
+  @override
+  String get sbomDetailHash => 'SHA-256';
+
+  @override
+  String get sbomOpenPubDev => 'Open on pub.dev';
 }
