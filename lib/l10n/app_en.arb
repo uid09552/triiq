@@ -1879,7 +1879,6 @@
   "@calWeekAskDraft": {"placeholders": {"range": {"type": "String"}}},
   "calWeekActions": "Week actions",
   "calDayActions": "Day actions",
-  "calDayOpen": "Open day",
   "calOpenDay": "Open day",
   "calReadiness": "Readiness: {level}",
   "@calReadiness": {"placeholders": {"level": {"type": "String"}}},

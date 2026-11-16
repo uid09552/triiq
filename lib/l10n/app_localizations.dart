@@ -8510,12 +8510,6 @@ abstract class AppLocalizations {
   /// **'Day actions'**
   String get calDayActions;
 
-  /// No description provided for @calDayOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'Open day'**
-  String get calDayOpen;
-
   /// No description provided for @calOpenDay.
   ///
   /// In en, this message translates to:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../agent/chat_handoff.dart';
@@ -38,6 +39,7 @@ Future<void> showDayActions(
   final canDelete = planned.any(canDeletePlannedWorkout);
   if (!canPropose && !canDelete && !offerEvents && onOpenDay == null) return;
 
+  HapticFeedback.selectionClick();
   final l10n = AppLocalizations.of(context)!;
   final locale = Localizations.localeOf(context).toString();
   final choice = await showModalBottomSheet<String>(
@@ -60,7 +62,7 @@ Future<void> showDayActions(
               ListTile(
                 key: const ValueKey('day-action-open'),
                 leading: const Icon(Icons.calendar_view_day),
-                title: Text(l10n.calDayOpen),
+                title: Text(l10n.calOpenDay),
                 onTap: () => Navigator.of(context).pop('open'),
               ),
             if (canPropose)
