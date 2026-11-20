@@ -2275,5 +2275,6 @@
   "calMonthPeekThrough": "By the end of {month}: {pct}% of the {goal} year goal",
   "@calMonthPeekThrough": {"placeholders": {"month": {"type": "String"}, "pct": {"type": "int"}, "goal": {"type": "String"}}},
   "calMonthPeekNoGoals": "Set year goals in Settings to compare against them.",
-  "calMonthPeekNothing": "No swim, ride or run this month."
+  "calMonthPeekNothing": "No swim, ride or run this month.",
+  "memoryCareNote": "Use with care: preferences like these can push your training further than is wise. The trainer can be wrong and cannot guarantee that a plan is safe or correct — watch for signs of overtraining (lasting fatigue, poor sleep, a rising resting heart rate, falling mood or performance) and for any health problem, and talk to a doctor or coach when in doubt."
 }

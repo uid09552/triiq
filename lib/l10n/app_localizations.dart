@@ -10369,6 +10369,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No swim, ride or run this month.'**
   String get calMonthPeekNothing;
+
+  /// No description provided for @memoryCareNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Use with care: preferences like these can push your training further than is wise. The trainer can be wrong and cannot guarantee that a plan is safe or correct — watch for signs of overtraining (lasting fatigue, poor sleep, a rising resting heart rate, falling mood or performance) and for any health problem, and talk to a doctor or coach when in doubt.'**
+  String get memoryCareNote;
 }
 
 class _AppLocalizationsDelegate

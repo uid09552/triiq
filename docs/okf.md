@@ -1609,7 +1609,7 @@ signal's value, normal range and rating and a 30-day HRV / resting-HR trend
 (the sheet also carries the signal pills with their press-and-hold peek). When the status isn't Ready and today has an interval or
 long session, the hero's main button becomes **Swap for easier**; "Ask the
 trainer about today" opens the chat with the day filled in. Nothing changes
-the plan by itself. The thresholds are defaults in §5.1, not medical advice.
+the plan by itself. The thresholds are defaults in §5.1, not medical advice, and nothing in the app — readiness, the fatigue warning, plans, the trainer's answers or your own custom instructions — is guaranteed to be correct or safe: overtraining and health problems are easy to miss in numbers, so check against how you feel and see a doctor or coach when in doubt.
 
 **The athlete card** shows your Intervals.icu profile picture and, once your
 sport settings have loaded, your ride and run FTP. Tap it for the full
@@ -2176,7 +2176,12 @@ instructions*: the trainer respects them when suggesting or changing
 training, says so when one shapes an answer, and flags a clash with safety or
 the data instead of ignoring it. The trainer saves one only when you state or
 ask for it, says it did, and it appears in the list tagged "saved by the
-trainer"; you can delete any item or all of them. It is advice-level: the plan
+trainer"; you can delete any item or all of them. The screen carries a
+**use-with-care** note: preferences can push training further than is wise,
+the trainer can be wrong and guarantees no plan is safe or correct (watch for
+overtraining and health problems; see a doctor or coach when in doubt), and
+the trainer's memory block tells it not to push training further because of a
+preference when the data points to overtraining, illness or injury. It is advice-level: the plan
 engine and adaptation rules do not enforce a preference (set training days
 and long/interval days in the goal for that).
 

@@ -6403,4 +6403,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get calMonthPeekNothing =>
       'Kein Schwimmen, Rad oder Laufen in diesem Monat.';
+
+  @override
+  String get memoryCareNote =>
+      'Mit Vorsicht verwenden: Vorlieben wie diese können dein Training weiter treiben, als klug ist. Der Trainer kann sich irren und kann nicht garantieren, dass ein Plan sicher oder richtig ist – achte auf Anzeichen von Übertraining (anhaltende Müdigkeit, schlechter Schlaf, steigender Ruhepuls, sinkende Stimmung oder Leistung) und auf gesundheitliche Probleme und sprich im Zweifel mit einer Ärztin, einem Arzt oder einem Coach.';
 }

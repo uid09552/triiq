@@ -29,6 +29,25 @@ no TriIQ server in between.
   under **More → Knowledge library**, quoted with the document's name and
   treated as information, never as instructions.
 
+## Use with care
+
+The trainer is an AI model plus rules, not a coach or a doctor. Its
+answers, proposals and plans can be wrong, and **nothing it says is
+guaranteed to be correct or safe**. In particular:
+
+- **Overtraining and health.** Readiness, the fatigue warning and form (CTL −
+  ATL) are rough signals from your own data, not diagnoses. Lasting fatigue,
+  poor sleep, a rising resting heart rate, falling mood or performance, pain,
+  illness or injury are reasons to rest and to talk to a doctor or coach —
+  whatever the app suggests.
+- **Your own instructions.** Standing preferences in **Trainer memory** and
+  the custom instructions in Train now steer the trainer, and a preference
+  can make training harder than is wise. The trainer is told to flag a clash
+  with safety or your data, but it can miss one; you stay responsible for the
+  load you take on.
+- **Check before you apply.** Every proposal is a card you apply or dismiss —
+  read it against how you feel first.
+
 ## Several models and failover
 
 The list is a priority order. Every request goes to the first enabled model;

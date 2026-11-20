@@ -6351,4 +6351,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calMonthPeekNothing => 'No swim, ride or run this month.';
+
+  @override
+  String get memoryCareNote =>
+      'Use with care: preferences like these can push your training further than is wise. The trainer can be wrong and cannot guarantee that a plan is safe or correct — watch for signs of overtraining (lasting fatigue, poor sleep, a rising resting heart rate, falling mood or performance) and for any health problem, and talk to a doctor or coach when in doubt.';
 }
