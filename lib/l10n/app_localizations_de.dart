@@ -6359,4 +6359,30 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get searchDescHomeWidget => 'Festlegen, was das Android-Widget zeigt';
+
+  @override
+  String get sportStrengthShort => 'Kraft';
+
+  @override
+  String get strengthTargetsLabel => 'Krafttraining für';
+
+  @override
+  String get strengthBodyweightHint =>
+      'Nur Körpergewicht – keine Geräte nötig.';
+
+  @override
+  String get dayAddStrength => 'Krafttraining hinzufügen';
+
+  @override
+  String get dayAddStrengthHelp =>
+      'Übungen mit Körpergewicht für Schwimmen, Rad oder Laufen.';
+
+  @override
+  String get strengthSheetAdd => 'In den Kalender';
+
+  @override
+  String get strengthSheetAskTrainer => 'Vom Trainer vorschlagen lassen';
+
+  @override
+  String get strengthPickOne => 'Wähle mindestens eine Sportart.';
 }

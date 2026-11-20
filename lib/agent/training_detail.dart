@@ -26,6 +26,11 @@ String exerciseMenu(String sport) => switch (sport) {
     'Named drills (catch-up, fingertip drag, fist drill, bilateral '
         'breathing, 6-kick switch), kick sets (with fins or a board), pull '
         'sets (pull buoy, paddles), the main set, and an easy cool-down.',
+  'WeightTraining' =>
+    'Bodyweight exercises only, no equipment: a short dynamic warm-up, the '
+        'main set as 2-3 rounds of a circuit (sets x reps or time with the '
+        'rest between rounds), a core finisher and a few minutes of '
+        'mobility as the cool-down.',
   _ =>
     'Warm-up drills, the main set, and a short mobility or strength '
         'finisher when time allows.',

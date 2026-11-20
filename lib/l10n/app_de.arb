@@ -1887,5 +1887,13 @@
   "homeWidgetFitness": "CTL / ATL",
   "homeWidgetRings": "Wochenziel-Ringe",
   "homeWidgetUpdated": "Aktualisierungszeit",
-  "searchDescHomeWidget": "Festlegen, was das Android-Widget zeigt"
+  "searchDescHomeWidget": "Festlegen, was das Android-Widget zeigt",
+  "sportStrengthShort": "Kraft",
+  "strengthTargetsLabel": "Krafttraining für",
+  "strengthBodyweightHint": "Nur Körpergewicht – keine Geräte nötig.",
+  "dayAddStrength": "Krafttraining hinzufügen",
+  "dayAddStrengthHelp": "Übungen mit Körpergewicht für Schwimmen, Rad oder Laufen.",
+  "strengthSheetAdd": "In den Kalender",
+  "strengthSheetAskTrainer": "Vom Trainer vorschlagen lassen",
+  "strengthPickOne": "Wähle mindestens eine Sportart."
 }

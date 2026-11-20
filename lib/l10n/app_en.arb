@@ -2261,5 +2261,13 @@
   "homeWidgetFitness": "CTL / ATL",
   "homeWidgetRings": "Weekly target rings",
   "homeWidgetUpdated": "Update time",
-  "searchDescHomeWidget": "Choose what the Android home-screen widget shows"
+  "searchDescHomeWidget": "Choose what the Android home-screen widget shows",
+  "sportStrengthShort": "Strength",
+  "strengthTargetsLabel": "Strength for",
+  "strengthBodyweightHint": "Bodyweight only — no equipment needed.",
+  "dayAddStrength": "Add strength training",
+  "dayAddStrengthHelp": "Bodyweight exercises for swim, bike or run.",
+  "strengthSheetAdd": "Add to calendar",
+  "strengthSheetAskTrainer": "Let the trainer propose",
+  "strengthPickOne": "Pick at least one sport."
 }

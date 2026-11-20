@@ -11,6 +11,7 @@ import '../chat/ask_trainer.dart';
 import '../events/event_editor_screen.dart';
 import '../events/event_labels.dart';
 import '../today/train_now_screen.dart';
+import 'add_strength_sheet.dart';
 import 'day_events.dart';
 
 /// Long-press on a calendar day: a sheet with "Propose training" (Train Now
@@ -31,6 +32,7 @@ Future<void> showDayActions(
   List<LocalActivity> activities = const [],
   void Function(BuildContext context, ChatTopic topic)? onAskTrainer,
   VoidCallback? onOpenDay,
+  void Function(BuildContext context, DateTime day)? openAddStrength,
 }) async {
   final now = (today ?? DateTime.now)();
   final day = DateTime(date.year, date.month, date.day);
@@ -72,6 +74,15 @@ Future<void> showDayActions(
                 title: Text(l10n.dayProposeTraining),
                 subtitle: Text(l10n.dayProposeTrainingHelp),
                 onTap: () => Navigator.of(context).pop('propose'),
+              ),
+            if (canPropose)
+              ListTile(
+                key: const ValueKey('day-add-strength'),
+                leading: const Icon(Icons.fitness_center),
+                title: Text(l10n.dayAddStrength),
+                subtitle: Text(l10n.dayAddStrengthHelp),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).pop('strength'),
               ),
             if (offerEvents)
               ListTile(
@@ -164,6 +175,12 @@ Future<void> showDayActions(
         await Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => TrainNowScreen(today: () => day)),
         );
+      }
+    case 'strength':
+      if (openAddStrength != null) {
+        openAddStrength(context, day);
+      } else {
+        await showAddStrengthSheet(context, day);
       }
     case 'delete':
       await confirmAndDeleteDaysWorkouts(context, planned);

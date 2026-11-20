@@ -10297,6 +10297,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose what the Android home-screen widget shows'**
   String get searchDescHomeWidget;
+
+  /// No description provided for @sportStrengthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get sportStrengthShort;
+
+  /// No description provided for @strengthTargetsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength for'**
+  String get strengthTargetsLabel;
+
+  /// No description provided for @strengthBodyweightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight only — no equipment needed.'**
+  String get strengthBodyweightHint;
+
+  /// No description provided for @dayAddStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Add strength training'**
+  String get dayAddStrength;
+
+  /// No description provided for @dayAddStrengthHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight exercises for swim, bike or run.'**
+  String get dayAddStrengthHelp;
+
+  /// No description provided for @strengthSheetAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to calendar'**
+  String get strengthSheetAdd;
+
+  /// No description provided for @strengthSheetAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Let the trainer propose'**
+  String get strengthSheetAskTrainer;
+
+  /// No description provided for @strengthPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one sport.'**
+  String get strengthPickOne;
 }
 
 class _AppLocalizationsDelegate

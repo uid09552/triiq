@@ -6309,4 +6309,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get searchDescHomeWidget =>
       'Choose what the Android home-screen widget shows';
+
+  @override
+  String get sportStrengthShort => 'Strength';
+
+  @override
+  String get strengthTargetsLabel => 'Strength for';
+
+  @override
+  String get strengthBodyweightHint => 'Bodyweight only — no equipment needed.';
+
+  @override
+  String get dayAddStrength => 'Add strength training';
+
+  @override
+  String get dayAddStrengthHelp =>
+      'Bodyweight exercises for swim, bike or run.';
+
+  @override
+  String get strengthSheetAdd => 'Add to calendar';
+
+  @override
+  String get strengthSheetAskTrainer => 'Let the trainer propose';
+
+  @override
+  String get strengthPickOne => 'Pick at least one sport.';
 }
