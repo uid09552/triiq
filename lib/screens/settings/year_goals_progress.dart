@@ -5,6 +5,7 @@ import '../../data/repositories/activities_repository.dart';
 import '../../data/sync/auto_sync_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
+import '../../widgets/peekable.dart';
 import '../activities/activity_icons.dart';
 import 'year_goals_settings.dart';
 
@@ -91,124 +92,146 @@ class _YearGoalsProgressState extends State<YearGoalsProgress> {
 
   @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: widget.settings,
+      builder: (context, _) =>
+          widget.compact ? _compactLine(context) : _details(context),
+    );
+  }
+
+  /// One line, with the details a long press away: held (or via the "Show
+  /// preview" action) it floats the full bars over the screen.
+  Widget _compactLine(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final elapsed = yearElapsedFraction(_now);
-
-    return ListenableBuilder(
-      listenable: widget.settings,
-      builder: (context, _) {
-        if (widget.compact) {
-          final parts = <String>[
-            for (final (sport, label) in [
-              ('swim', l10n.sportSwim),
-              ('cycle', l10n.sportRide),
-              ('run', l10n.sportRun),
-            ])
-              if (widget.settings.goalFor(sport) case final goal?)
-                '$label ${((_km[sport] ?? 0) / goal * 100).round()}%'
-                    '${(_km[sport] ?? 0) >= goal * elapsed ? ' ↗' : ' ↘'}',
-          ];
-          if (parts.isEmpty) return const SizedBox.shrink();
-          return Row(
-            key: const ValueKey('year-goals-line'),
-            children: [
-              Icon(
-                Icons.flag_outlined,
-                size: 14,
+    final parts = <String>[
+      for (final (sport, label) in [
+        ('swim', l10n.sportSwim),
+        ('cycle', l10n.sportRide),
+        ('run', l10n.sportRun),
+      ])
+        if (widget.settings.goalFor(sport) case final goal?)
+          '$label ${((_km[sport] ?? 0) / goal * 100).round()}%'
+              '${(_km[sport] ?? 0) >= goal * elapsed ? ' ↗' : ' ↘'}',
+    ];
+    if (parts.isEmpty) return const SizedBox.shrink();
+    return Peekable(
+      key: const ValueKey('year-goals-peek'),
+      estimatedHeight: 70.0 + 62 * parts.length,
+      preview: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.yearGoalsTitle,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _details(context),
+        ],
+      ),
+      child: Row(
+        key: const ValueKey('year-goals-line'),
+        children: [
+          Icon(Icons.flag_outlined, size: 14, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              '${l10n.yearGoalsTitle} · ${parts.join(' · ')}',
+              style: theme.textTheme.labelMedium?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  '${l10n.yearGoalsTitle} · ${parts.join(' · ')}',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          );
-        }
-        final rows = <Widget>[];
-        for (final (sport, label, type) in [
-          ('swim', l10n.sportSwim, 'Swim'),
-          ('cycle', l10n.sportRide, 'Ride'),
-          ('run', l10n.sportRun, 'Run'),
-        ]) {
-          final goal = widget.settings.goalFor(sport);
-          if (goal == null) continue;
-          final done = _km[sport] ?? 0;
-          final color = sportColor(type, scheme);
-          final progress = done / goal;
-          final expected = goal * elapsed;
-          final diff = done - expected;
-          final onTrack = diff.abs() <= goal * 0.02;
-          final projected = elapsed > 0.03 ? done / elapsed : null;
-          final status = onTrack
-              ? l10n.yearGoalOnTrack
-              : diff > 0
-              ? l10n.yearGoalAhead(diff.round().toString())
-              : l10n.yearGoalBehind((-diff).round().toString());
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-          rows.add(
-            Padding(
-              key: ValueKey('year-goal-$sport'),
-              padding: EdgeInsets.only(top: rows.isEmpty ? 0 : 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  /// The bars: goal, distance so far, a marker for an even pace, how far
+  /// ahead or behind that is, and the projected year-end.
+  Widget _details(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final elapsed = yearElapsedFraction(_now);
+    final rows = <Widget>[];
+    for (final (sport, label, type) in [
+      ('swim', l10n.sportSwim, 'Swim'),
+      ('cycle', l10n.sportRide, 'Ride'),
+      ('run', l10n.sportRun, 'Run'),
+    ]) {
+      final goal = widget.settings.goalFor(sport);
+      if (goal == null) continue;
+      final done = _km[sport] ?? 0;
+      final color = sportColor(type, scheme);
+      final progress = done / goal;
+      final expected = goal * elapsed;
+      final diff = done - expected;
+      final onTrack = diff.abs() <= goal * 0.02;
+      final projected = elapsed > 0.03 ? done / elapsed : null;
+      final status = onTrack
+          ? l10n.yearGoalOnTrack
+          : diff > 0
+          ? l10n.yearGoalAhead(diff.round().toString())
+          : l10n.yearGoalBehind((-diff).round().toString());
+
+      rows.add(
+        Padding(
+          key: ValueKey('year-goal-$sport'),
+          padding: EdgeInsets.only(top: rows.isEmpty ? 0 : 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(activityTypeIcon(type), size: 18, color: color),
-                      const SizedBox(width: 6),
-                      Text(
-                        label,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${done.round()} / ${goal.round()} km',
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  _Bar(
-                    progress: progress,
-                    pace: elapsed,
-                    color: progress >= 1 ? scheme.tertiary : color,
-                    track: scheme.surfaceContainerHighest,
-                    marker: scheme.onSurface,
-                  ),
-                  const SizedBox(height: 4),
+                  Icon(activityTypeIcon(type), size: 18, color: color),
+                  const SizedBox(width: 6),
                   Text(
-                    [
-                      '${(progress * 100).round()}%',
-                      status,
-                      if (projected != null && progress < 1)
-                        l10n.yearGoalProjection(projected.round().toString()),
-                    ].join(' · '),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${done.round()} / ${goal.round()} km',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
               ),
-            ),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: rows,
-        );
-      },
-    );
+              const SizedBox(height: 6),
+              _Bar(
+                progress: progress,
+                pace: elapsed,
+                color: progress >= 1 ? scheme.tertiary : color,
+                track: scheme.surfaceContainerHighest,
+                marker: scheme.onSurface,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                [
+                  '${(progress * 100).round()}%',
+                  status,
+                  if (projected != null && progress < 1)
+                    l10n.yearGoalProjection(projected.round().toString()),
+                ].join(' · '),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
   }
 }
 

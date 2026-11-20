@@ -1644,6 +1644,7 @@ only, so they are instant and work offline. Where it works:
   readiness), the icon of a session on the hero card (planned: type, dates,
   notes; completed: key figures) and the rows of Today's activities (key
   figures).
+- **Today, year goals**: the *Year goals* line on the This week card — per sport the goal, the distance so far, the % of it, how far ahead or behind an even pace you are, and the projected year-end.
 - **Insights**: every tile of the hub.
 - **Calendar header**: the **year** and the **month** crumb of the
   breadcrumb (`2026 › November`) — the month's and the year's statistics, see
