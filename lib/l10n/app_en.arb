@@ -2269,5 +2269,11 @@
   "dayAddStrengthHelp": "Bodyweight exercises for swim, bike or run.",
   "strengthSheetAdd": "Add to calendar",
   "strengthSheetAskTrainer": "Let the trainer propose",
-  "strengthPickOne": "Pick at least one sport."
+  "strengthPickOne": "Pick at least one sport.",
+  "calMonthPeekShare": "{pct}% of the monthly share ({share})",
+  "@calMonthPeekShare": {"placeholders": {"pct": {"type": "int"}, "share": {"type": "String"}}},
+  "calMonthPeekThrough": "By the end of {month}: {pct}% of the {goal} year goal",
+  "@calMonthPeekThrough": {"placeholders": {"month": {"type": "String"}, "pct": {"type": "int"}, "goal": {"type": "String"}}},
+  "calMonthPeekNoGoals": "Set year goals in Settings to compare against them.",
+  "calMonthPeekNothing": "No swim, ride or run this month."
 }

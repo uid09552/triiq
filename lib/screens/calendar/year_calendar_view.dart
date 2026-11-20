@@ -9,13 +9,17 @@ import '../../plan/load_curve.dart';
 import '../../plan/plan_models.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/chart_theme.dart';
+import '../../widgets/peekable.dart';
+import '../settings/year_goals_settings.dart';
 import '../plan/plan_labels.dart';
 import 'calendar_level.dart';
 import 'day_events.dart';
+import 'month_goals_peek.dart';
 
 /// Twelve mini-months, each day tinted by its load on the load heatmap's
 /// colour scale, with markers for races, sick/injured days and holidays and
-/// the plan's phase as a band beside each week. Tap a month to open it.
+/// the plan's phase as a band beside each week. Tap a month to open it,
+/// hold it to peek at its distances against the year goals.
 class YearCalendarView extends StatelessWidget {
   const YearCalendarView({
     super.key,
@@ -27,7 +31,11 @@ class YearCalendarView extends StatelessWidget {
     this.scale = HeatScale.theme,
     this.selectedDate,
     this.today,
+    this.yearGoals,
   });
+
+  /// Test seam; the app uses [YearGoalsSettings.instance].
+  final YearGoalsSettings? yearGoals;
 
   final int year;
   final Map<String, List<LocalActivity>> activitiesByDate;
@@ -70,18 +78,28 @@ class YearCalendarView extends StatelessWidget {
                   for (var m = 1; m <= 12; m++)
                     SizedBox(
                       width: width,
-                      child: _MiniMonth(
-                        month: DateTime(year, m, 1),
-                        heatmap: heatmap,
-                        dayEventsByDate: dayEventsByDate,
-                        plan: plan,
-                        scale: scale,
-                        now: now,
-                        selected:
-                            selectedDate != null &&
-                            selectedDate!.year == year &&
-                            selectedDate!.month == m,
-                        onTap: () => onOpenMonth(DateTime(year, m, 1)),
+                      // Hold: the month's distances, its share of the year
+                      // goals and the year's progress so far.
+                      child: Peekable(
+                        estimatedHeight: 420,
+                        preview: (context) => MonthGoalsPeek(
+                          month: DateTime(year, m, 1),
+                          activitiesByDate: activitiesByDate,
+                          goals: yearGoals,
+                        ),
+                        child: _MiniMonth(
+                          month: DateTime(year, m, 1),
+                          heatmap: heatmap,
+                          dayEventsByDate: dayEventsByDate,
+                          plan: plan,
+                          scale: scale,
+                          now: now,
+                          selected:
+                              selectedDate != null &&
+                              selectedDate!.year == year &&
+                              selectedDate!.month == m,
+                          onTap: () => onOpenMonth(DateTime(year, m, 1)),
+                        ),
                       ),
                     ),
                 ],

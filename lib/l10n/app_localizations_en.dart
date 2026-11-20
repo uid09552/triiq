@@ -6334,4 +6334,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get strengthPickOne => 'Pick at least one sport.';
+
+  @override
+  String calMonthPeekShare(int pct, String share) {
+    return '$pct% of the monthly share ($share)';
+  }
+
+  @override
+  String calMonthPeekThrough(String month, int pct, String goal) {
+    return 'By the end of $month: $pct% of the $goal year goal';
+  }
+
+  @override
+  String get calMonthPeekNoGoals =>
+      'Set year goals in Settings to compare against them.';
+
+  @override
+  String get calMonthPeekNothing => 'No swim, ride or run this month.';
 }

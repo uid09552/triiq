@@ -1646,6 +1646,7 @@ only, so they are instant and work offline. Where it works:
   figures).
 - **Today, year goals**: the *Year goals* line on the This week card — per sport the goal, the distance so far, the % of it, how far ahead or behind an even pace you are, and the projected year-end.
 - **Insights**: every tile of the hub.
+- **Calendar year view**: a **month** — per sport (swim / ride / run) the month's distance and time; with a year goal also the month's distance as a % of an even twelfth of the goal, and a 12-bar chart of the goal's cumulative progress to 100 % up to that month (a tick per bar marks an even pace, the held month is highlighted). A tap still opens the month.
 - **Calendar header**: the **year** and the **month** crumb of the
   breadcrumb (`2026 › November`) — the month's and the year's statistics, see
   *Calendar → Period statistics*. A short tap still jumps up to that level.

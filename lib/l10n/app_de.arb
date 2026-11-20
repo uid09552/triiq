@@ -1895,5 +1895,9 @@
   "dayAddStrengthHelp": "Übungen mit Körpergewicht für Schwimmen, Rad oder Laufen.",
   "strengthSheetAdd": "In den Kalender",
   "strengthSheetAskTrainer": "Vom Trainer vorschlagen lassen",
-  "strengthPickOne": "Wähle mindestens eine Sportart."
+  "strengthPickOne": "Wähle mindestens eine Sportart.",
+  "calMonthPeekShare": "{pct} % des Monatsanteils ({share})",
+  "calMonthPeekThrough": "Bis Ende {month}: {pct} % des Jahresziels von {goal}",
+  "calMonthPeekNoGoals": "Lege in den Einstellungen Jahresziele fest, um damit zu vergleichen.",
+  "calMonthPeekNothing": "Kein Schwimmen, Rad oder Laufen in diesem Monat."
 }

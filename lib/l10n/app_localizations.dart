@@ -10345,6 +10345,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick at least one sport.'**
   String get strengthPickOne;
+
+  /// No description provided for @calMonthPeekShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% of the monthly share ({share})'**
+  String calMonthPeekShare(int pct, String share);
+
+  /// No description provided for @calMonthPeekThrough.
+  ///
+  /// In en, this message translates to:
+  /// **'By the end of {month}: {pct}% of the {goal} year goal'**
+  String calMonthPeekThrough(String month, int pct, String goal);
+
+  /// No description provided for @calMonthPeekNoGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Set year goals in Settings to compare against them.'**
+  String get calMonthPeekNoGoals;
+
+  /// No description provided for @calMonthPeekNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No swim, ride or run this month.'**
+  String get calMonthPeekNothing;
 }
 
 class _AppLocalizationsDelegate
