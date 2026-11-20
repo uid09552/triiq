@@ -6385,4 +6385,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get strengthPickOne => 'Wähle mindestens eine Sportart.';
+
+  @override
+  String calMonthPeekShare(int pct, String share) {
+    return '$pct % des Monatsanteils ($share)';
+  }
+
+  @override
+  String calMonthPeekThrough(String month, int pct, String goal) {
+    return 'Bis Ende $month: $pct % des Jahresziels von $goal';
+  }
+
+  @override
+  String get calMonthPeekNoGoals =>
+      'Lege in den Einstellungen Jahresziele fest, um damit zu vergleichen.';
+
+  @override
+  String get calMonthPeekNothing =>
+      'Kein Schwimmen, Rad oder Laufen in diesem Monat.';
+
+  @override
+  String get memoryCareNote =>
+      'Mit Vorsicht verwenden: Vorlieben wie diese können dein Training weiter treiben, als klug ist. Der Trainer kann sich irren und kann nicht garantieren, dass ein Plan sicher oder richtig ist – achte auf Anzeichen von Übertraining (anhaltende Müdigkeit, schlechter Schlaf, steigender Ruhepuls, sinkende Stimmung oder Leistung) und auf gesundheitliche Probleme und sprich im Zweifel mit einer Ärztin, einem Arzt oder einem Coach.';
 }

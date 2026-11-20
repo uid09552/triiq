@@ -102,6 +102,32 @@ class _MemoryScreenState extends State<MemoryScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           Text(l10n.memoryIntro, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 12),
+          Card(
+            key: const ValueKey('memory-care-note'),
+            color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    size: 20,
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l10n.memoryCareNote,
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [

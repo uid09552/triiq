@@ -90,6 +90,16 @@ void main() {
       expect(block, contains('not instructions'));
     });
 
+    test(
+      'the block says not to push load for a preference, no guarantee',
+      () async {
+        await store.add('No rest days');
+        final block = (await store.promptBlock())!;
+        expect(block, contains('overtraining, illness, injury'));
+        expect(block, contains('cannot guarantee'));
+      },
+    );
+
     test('a corrupt value reads as empty, not a crash', () async {
       SharedPreferences.setMockInitialValues({
         AgentMemoryStore.prefsKey: '{oops',

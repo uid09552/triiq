@@ -92,8 +92,11 @@ key.
 ## Disclaimer
 
 TriIQ is not affiliated with Intervals.icu. It is not medical advice: training
-suggestions come from rules and an AI model, so check them against how you
-feel and consult a professional when in doubt.
+suggestions come from rules and an AI model and are not guaranteed to be
+correct or safe. Overtraining and health problems are easy to miss in numbers,
+so check every suggestion — including anything shaped by your own custom
+instructions or the trainer's memory — against how you feel, and consult a
+doctor or coach when in doubt.
 
 ## License
 

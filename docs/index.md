@@ -74,7 +74,11 @@ German and English are supported.
 - [Specification](okf.md) — the complete app specification, architecture
   and training rules.
 
-!!! warning "Not medical advice"
+!!! warning "Use with care — not medical advice"
     TriIQ is not affiliated with Intervals.icu. Training suggestions come from
-    rules and an AI model — check them against how you feel and consult a
-    professional when in doubt.
+    rules and an AI model and are **not guaranteed to be correct or safe**.
+    Overtraining and health problems are easy to miss in numbers: check every
+    suggestion against how you feel, stop and rest when something is off, and
+    consult a doctor or coach when in doubt. The same goes for standing
+    preferences and custom instructions you give the trainer — they can make a
+    plan harder than is wise.
