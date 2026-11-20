@@ -385,6 +385,7 @@ String _sectionAnchor(SettingsSection s) => switch (s) {
   SettingsSection.privacy => 'status:Consent & your rights',
   SettingsSection.ai => 'Settings#Models',
   SettingsSection.navigation => 'Arrange the menu',
+  SettingsSection.homeWidget => 'Settings#Home-screen widget',
 };
 
 String _sectionDescription(AppLocalizations l, SettingsSection s) =>
@@ -401,6 +402,7 @@ String _sectionDescription(AppLocalizations l, SettingsSection s) =>
       SettingsSection.privacy => l.pvSubtitle,
       SettingsSection.ai => l.searchDescAi,
       SettingsSection.navigation => l.searchDescNavigation,
+      SettingsSection.homeWidget => l.searchDescHomeWidget,
     };
 
 AppDestination _tab(

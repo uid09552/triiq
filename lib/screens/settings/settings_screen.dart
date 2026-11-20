@@ -19,6 +19,7 @@ import 'feel_settings_section.dart';
 import 'llm_models_section.dart';
 import 'privacy_screen.dart';
 import 'settings_hub.dart';
+import 'home_widget_section.dart';
 import 'weekly_targets_section.dart';
 import 'year_goals_section.dart';
 
@@ -139,6 +140,11 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
               icon: Icons.track_changes_outlined,
               title: l10n.weeklyTargetsSectionTitle,
               child: WeeklyTargetsSection(),
+            ),
+            SettingsSection.homeWidget: SectionCard(
+              icon: Icons.widgets_outlined,
+              title: l10n.homeWidgetTitle,
+              child: HomeWidgetSection(),
             ),
             SettingsSection.yearGoals: SectionCard(
               icon: Icons.flag_outlined,

@@ -8510,12 +8510,6 @@ abstract class AppLocalizations {
   /// **'Day actions'**
   String get calDayActions;
 
-  /// No description provided for @calDayOpen.
-  ///
-  /// In en, this message translates to:
-  /// **'Open day'**
-  String get calDayOpen;
-
   /// No description provided for @calOpenDay.
   ///
   /// In en, this message translates to:
@@ -10249,6 +10243,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open on pub.dev'**
   String get sbomOpenPubDev;
+
+  /// No description provided for @homeWidgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home-screen widget'**
+  String get homeWidgetTitle;
+
+  /// No description provided for @homeWidgetHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the Android widget shows. Layouts that are too small for a block leave it out anyway.'**
+  String get homeWidgetHelp;
+
+  /// No description provided for @homeWidgetSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sessions'**
+  String get homeWidgetSessions;
+
+  /// No description provided for @homeWidgetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed TSS'**
+  String get homeWidgetDone;
+
+  /// No description provided for @homeWidgetForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get homeWidgetForm;
+
+  /// No description provided for @homeWidgetFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL / ATL'**
+  String get homeWidgetFitness;
+
+  /// No description provided for @homeWidgetRings.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly target rings'**
+  String get homeWidgetRings;
+
+  /// No description provided for @homeWidgetUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Update time'**
+  String get homeWidgetUpdated;
+
+  /// No description provided for @searchDescHomeWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the Android home-screen widget shows'**
+  String get searchDescHomeWidget;
+
+  /// No description provided for @sportStrengthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get sportStrengthShort;
+
+  /// No description provided for @strengthTargetsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength for'**
+  String get strengthTargetsLabel;
+
+  /// No description provided for @strengthBodyweightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight only — no equipment needed.'**
+  String get strengthBodyweightHint;
+
+  /// No description provided for @dayAddStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Add strength training'**
+  String get dayAddStrength;
+
+  /// No description provided for @dayAddStrengthHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight exercises for swim, bike or run.'**
+  String get dayAddStrengthHelp;
+
+  /// No description provided for @strengthSheetAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to calendar'**
+  String get strengthSheetAdd;
+
+  /// No description provided for @strengthSheetAskTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Let the trainer propose'**
+  String get strengthSheetAskTrainer;
+
+  /// No description provided for @strengthPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one sport.'**
+  String get strengthPickOne;
 }
 
 class _AppLocalizationsDelegate

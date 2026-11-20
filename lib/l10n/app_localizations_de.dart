@@ -5214,9 +5214,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get calDayActions => 'Tagesaktionen';
 
   @override
-  String get calDayOpen => 'Tag öffnen';
-
-  @override
   String get calOpenDay => 'Tag öffnen';
 
   @override
@@ -6334,4 +6331,58 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sbomOpenPubDev => 'Auf pub.dev öffnen';
+
+  @override
+  String get homeWidgetTitle => 'Startbildschirm-Widget';
+
+  @override
+  String get homeWidgetHelp =>
+      'Lege fest, was das Android-Widget zeigt. Zu kleine Layouts lassen einen Block ohnehin weg.';
+
+  @override
+  String get homeWidgetSessions => 'Heutige Einheiten';
+
+  @override
+  String get homeWidgetDone => 'Absolvierte TSS';
+
+  @override
+  String get homeWidgetForm => 'Form';
+
+  @override
+  String get homeWidgetFitness => 'CTL / ATL';
+
+  @override
+  String get homeWidgetRings => 'Wochenziel-Ringe';
+
+  @override
+  String get homeWidgetUpdated => 'Aktualisierungszeit';
+
+  @override
+  String get searchDescHomeWidget => 'Festlegen, was das Android-Widget zeigt';
+
+  @override
+  String get sportStrengthShort => 'Kraft';
+
+  @override
+  String get strengthTargetsLabel => 'Krafttraining für';
+
+  @override
+  String get strengthBodyweightHint =>
+      'Nur Körpergewicht – keine Geräte nötig.';
+
+  @override
+  String get dayAddStrength => 'Krafttraining hinzufügen';
+
+  @override
+  String get dayAddStrengthHelp =>
+      'Übungen mit Körpergewicht für Schwimmen, Rad oder Laufen.';
+
+  @override
+  String get strengthSheetAdd => 'In den Kalender';
+
+  @override
+  String get strengthSheetAskTrainer => 'Vom Trainer vorschlagen lassen';
+
+  @override
+  String get strengthPickOne => 'Wähle mindestens eine Sportart.';
 }

@@ -19,7 +19,8 @@ enum SettingsSection {
   yearGoals,
   privacy,
   ai,
-  navigation;
+  navigation,
+  homeWidget;
 
   String title(AppLocalizations l10n) => switch (this) {
     appearance => l10n.appearanceTitle,
@@ -34,6 +35,7 @@ enum SettingsSection {
     privacy => l10n.pvTitle,
     ai => l10n.llmProviderTitle,
     navigation => l10n.navigationSettingsTitle,
+    homeWidget => l10n.homeWidgetTitle,
   };
 
   IconData get icon => switch (this) {
@@ -49,6 +51,7 @@ enum SettingsSection {
     privacy => Icons.privacy_tip_outlined,
     ai => Icons.auto_awesome_outlined,
     navigation => Icons.swap_vert,
+    homeWidget => Icons.widgets_outlined,
   };
 
   /// Words a search matches besides the title — English and German both,
@@ -195,6 +198,13 @@ enum SettingsSection {
       'anheften',
       'anordnen',
     ],
+    homeWidget => const [
+      'home screen',
+      'widget',
+      'android',
+      'homescreen',
+      'startbildschirm',
+    ],
   };
 
   SettingsGroup get group =>
@@ -227,6 +237,7 @@ enum SettingsGroup {
     SettingsSection.language,
     SettingsSection.notifications,
     SettingsSection.navigation,
+    SettingsSection.homeWidget,
   ]);
 
   const SettingsGroup(this.sections);

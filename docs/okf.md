@@ -1889,7 +1889,7 @@ session, these open straight into a quick sheet with **Change Training**
 right there; a synced Intervals.icu event on Today still opens the fuller
 planned-workout screen first, which also has the button.
 
-Otherwise, pick a sport (run/ride/swim), duration and
+Otherwise, pick a sport (run/ride/swim/strength), duration and
 intensity (recovery/endurance/intervals) and a **Detail** level, then
 **Propose training**. **Detailed** (the default) asks for a coach-written
 session: a one-line purpose, then a section per block (Warm-up, Main set,
@@ -1952,6 +1952,24 @@ Once a session has been proposed there are two ways to keep it:
   the planned session as it is.
 - **Add to Google Calendar** opens a pre-filled event in your browser
   instead, for when you just want it in your day.
+
+**Strength (bodyweight).** Picking **Strength** in Train now swaps the
+intensity choice for **Strength for** — swim, ride and/or run (at least
+one). The trainer is asked for a bodyweight-only session (no weights, bands
+or machines; floor, wall and a chair are fine — kneeling and half-kneeling
+variations included) whose exercises carry over to those sports, e.g.
+push-ups and Y-T-W raises for swimming, squats, wall sits and kneeling hip
+hinges for cycling, single-leg calf raises, split squats and pogo hops for
+running. It is created as an Intervals.icu `WeightTraining` session.
+
+The same is in the Calendar: long-press a day (today or later) →
+**Add strength training**. Pick the sports and 20 / 30 / 45 min; the sheet
+lists the exercises (warm-up, the sports' exercises in turn, a dead-bug
+core finisher; 2 rounds at 20 min, else 3) with sets × reps and a cue.
+**Add to calendar** writes it straight to Intervals.icu (needs a
+connection) — no LLM involved (`lib/plan/bodyweight_strength.dart`);
+**Let the trainer propose** opens Train now on that day with Strength and
+the same sports preselected.
 
 ### Statistics
 
@@ -2203,8 +2221,9 @@ event back, so they still ask for a connection.
 `TriiqWidgetProvider.kt`, `res/layout/triiq_widget.xml`). Long-press the home
 screen → Widgets → TriIQ. It shows today's planned workouts, what was done
 (TSS), form (CTL − ATL) with CTL/ATL, and the update time; tapping opens the
-app. Flutter writes the strings through the `home_widget` plugin; the native
-provider only lays them out.
+app. Settings → App → **Home-screen widget** (`home_widget_settings.dart`) switches each
+block on or off; Flutter writes the strings plus `w_show_*` flags through the
+`home_widget` plugin and the native provider only lays them out, dropping views whose flag is `0`.
 
 ### Fatigue early warning and morning briefing
 
@@ -2557,6 +2576,7 @@ off under Settings → App → Notifications.
 - **Navigation**: what the bottom bar holds now, and **Customize
   navigation** to arrange it (see *Arrange the menu*).
 - **Info**: below the four groups, an **Info** row and the version in small type ("TriIQ 0.9.6 (build 1) · Android"). Both open *About / Info and the SBOM*.
+- **Home-screen widget**: choose what the Android widget shows — today's sessions, completed TSS, form, CTL/ATL, the weekly target rings and the update time. All are on by default; a change reaches the widget at once. Widget sizes too small for a block leave it out anyway.
 - **Notifications**: the master toggle prompts for the OS notification
   permission (Android 13+/iOS) and, once granted, turns on sync-completion
   and training-agent-reply notifications. With it on and on a platform that

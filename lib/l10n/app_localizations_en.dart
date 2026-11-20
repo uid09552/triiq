@@ -5168,9 +5168,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calDayActions => 'Day actions';
 
   @override
-  String get calDayOpen => 'Open day';
-
-  @override
   String get calOpenDay => 'Open day';
 
   @override
@@ -6283,4 +6280,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sbomOpenPubDev => 'Open on pub.dev';
+
+  @override
+  String get homeWidgetTitle => 'Home-screen widget';
+
+  @override
+  String get homeWidgetHelp =>
+      'Choose what the Android widget shows. Layouts that are too small for a block leave it out anyway.';
+
+  @override
+  String get homeWidgetSessions => 'Today\'s sessions';
+
+  @override
+  String get homeWidgetDone => 'Completed TSS';
+
+  @override
+  String get homeWidgetForm => 'Form';
+
+  @override
+  String get homeWidgetFitness => 'CTL / ATL';
+
+  @override
+  String get homeWidgetRings => 'Weekly target rings';
+
+  @override
+  String get homeWidgetUpdated => 'Update time';
+
+  @override
+  String get searchDescHomeWidget =>
+      'Choose what the Android home-screen widget shows';
+
+  @override
+  String get sportStrengthShort => 'Strength';
+
+  @override
+  String get strengthTargetsLabel => 'Strength for';
+
+  @override
+  String get strengthBodyweightHint => 'Bodyweight only — no equipment needed.';
+
+  @override
+  String get dayAddStrength => 'Add strength training';
+
+  @override
+  String get dayAddStrengthHelp =>
+      'Bodyweight exercises for swim, bike or run.';
+
+  @override
+  String get strengthSheetAdd => 'Add to calendar';
+
+  @override
+  String get strengthSheetAskTrainer => 'Let the trainer propose';
+
+  @override
+  String get strengthPickOne => 'Pick at least one sport.';
 }

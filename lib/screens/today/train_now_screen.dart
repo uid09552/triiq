@@ -17,6 +17,7 @@ import '../../data/sync/auto_sync_service.dart';
 import '../../data/sync/sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plan/bodyweight_strength.dart';
 import '../../plan/plan_actions.dart';
 import '../../plan/plan_changes.dart';
 import '../../util/calendar_export.dart';
@@ -26,6 +27,7 @@ import '../../widgets/workout_steps.dart';
 import '../settings/settings_screen.dart';
 import '../plan/plan_labels.dart';
 import 'planned_session_card.dart';
+import 'strength_target_chips.dart';
 
 enum _Intensity { recovery, endurance, intervals }
 
@@ -51,7 +53,7 @@ extension on _Intensity {
   };
 }
 
-const _sports = ['Run', 'Ride', 'Swim'];
+const _sports = ['Run', 'Ride', 'Swim', bodyweightStrengthSport];
 
 /// "Train now": pick a sport, duration and intensity, and let the training
 /// agent propose a session — reusing [TrainingAgent] exactly as Chat does,
@@ -68,7 +70,16 @@ class TrainNowScreen extends StatefulWidget {
     this.syncService,
     this.activities,
     this.initialEventId,
+    this.initialSport,
+    this.initialStrengthTargets,
   });
+
+  /// The sport to start on (`Run`, `Ride`, `Swim` or `WeightTraining`);
+  /// a planned session's presets still win.
+  final String? initialSport;
+
+  /// For strength: which sports it should carry over to.
+  final Set<StrengthTarget>? initialStrengthTargets;
 
   /// Test seams; the app uses the defaults.
   final PlannedItemsRepository? plannedItems;
@@ -100,6 +111,7 @@ class TrainNowScreen extends StatefulWidget {
     String loadContext = '',
     String? dayLabel,
     TrainingDetail detail = TrainingDetail.detailed,
+    Set<StrengthTarget> strengthTargets = const {},
   }) {
     final ref = reference;
     var refText = '';
@@ -119,8 +131,9 @@ class TrainNowScreen extends StatefulWidget {
           'and say why. The alternative must last about $minutes minutes. ';
     }
     return '$refText'
-        'Propose $intensityWord $sport session lasting about '
-        '$minutes minutes for me to do ${dayLabel == null ? 'right now' : 'on $dayLabel'}. Before proposing, check my '
+        '${sport == bodyweightStrengthSport ? '${bodyweightStrengthRequest(strengthTargets, minutes)} It is for me to do ' : 'Propose $intensityWord $sport session lasting about '
+                  '$minutes minutes for me to do '}'
+        '${dayLabel == null ? 'right now' : 'on $dayLabel'}. Before proposing, check my '
         'training load from the last 7 days (TSS, CTL, ATL, ramp rate) with '
         'your tools and take it into account — back off the prescription if '
         "the data suggests I'm not recovered, and say so. "
@@ -155,8 +168,18 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       widget.workoutWriter ?? IntervalsWorkoutService();
   late final _syncService = widget.syncService ?? SyncService();
 
-  String _sport = _sports.first;
-  double _durationMinutes = 60;
+  late String _sport = _sports.contains(widget.initialSport)
+      ? widget.initialSport!
+      : _sports.first;
+  late double _durationMinutes = _sport == bodyweightStrengthSport ? 30 : 60;
+
+  /// Strength only: the sports it should carry over to (at least one).
+  late Set<StrengthTarget> _strengthTargets =
+      widget.initialStrengthTargets?.isNotEmpty == true
+      ? {...widget.initialStrengthTargets!}
+      : {...StrengthTarget.values};
+
+  bool get _isStrength => _sport == bodyweightStrengthSport;
   _Intensity _intensity = _Intensity.endurance;
 
   /// Short: one compact table. Detailed: named exercises and a full set
@@ -264,6 +287,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     reference: _reference,
     loadContext: _loadContext,
     dayLabel: _isTargetToday ? null : isoDate(_targetDay),
+    strengthTargets: _strengthTargets,
   );
 
   bool get _isTargetToday => isoDate(_targetDay) == isoDate(DateTime.now());
@@ -339,6 +363,8 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
         ? 'Run'
         : type.contains('swim')
         ? 'Swim'
+        : type.contains('weight') || type.contains('strength')
+        ? bodyweightStrengthSport
         : _sport;
     final minutes = (e.plannedTime ?? 0) / 60;
     final name = (e.name ?? '').toLowerCase();
@@ -422,10 +448,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
         structured,
         date: _targetDay,
         fallbackSport: _sport,
-        fallbackName: l10n.trainNowEventTitle(
-          _intensity.label(l10n),
-          _sportLabel(l10n, _sport),
-        ),
+        fallbackName: _eventTitle(l10n),
       );
     } catch (error) {
       if (!mounted) return;
@@ -586,10 +609,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
   Future<void> _addToCalendar() async {
     final l10n = AppLocalizations.of(context)!;
     final launched = await launchGoogleCalendarEvent(
-      title: l10n.trainNowEventTitle(
-        _intensity.label(l10n),
-        _sportLabel(l10n, _sport),
-      ),
+      title: _eventTitle(l10n),
       description: _reply,
       start: _targetDay,
       duration: Duration(minutes: _durationMinutes.round()),
@@ -600,6 +620,13 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       ).showSnackBar(SnackBar(content: Text(l10n.couldNotOpenGoogleCalendar)));
     }
   }
+
+  String _eventTitle(AppLocalizations l10n) => _isStrength
+      ? bodyweightStrengthName(_strengthTargets)
+      : l10n.trainNowEventTitle(
+          _intensity.label(l10n),
+          _sportLabel(l10n, _sport),
+        );
 
   static String _describeTool(AppLocalizations l10n, String name) =>
       switch (name) {
@@ -618,6 +645,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
         'Run' => l10n.sportRun,
         'Ride' => l10n.sportRide,
         'Swim' => l10n.sportSwim,
+        bodyweightStrengthSport => l10n.sportStrengthShort,
         _ => sport,
       };
 
@@ -651,6 +679,8 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
           Text(l10n.sportLabel, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),
           SegmentedButton<String>(
+            key: const ValueKey('train-sport'),
+            showSelectedIcon: false,
             segments: [
               for (final sport in _sports)
                 ButtonSegment(
@@ -662,7 +692,13 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
             selected: {_sport},
             onSelectionChanged: _isBusy
                 ? null
-                : (selection) => setState(() => _sport = selection.first),
+                : (selection) => setState(() {
+                    final wasStrength = _isStrength;
+                    _sport = selection.first;
+                    if (_isStrength && !wasStrength && _durationMinutes > 45) {
+                      _durationMinutes = 30;
+                    }
+                  }),
           ),
           const SizedBox(height: 20),
           Text(
@@ -680,22 +716,39 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
                 : (value) => setState(() => _durationMinutes = value),
           ),
           const SizedBox(height: 12),
-          Text(l10n.intensityLabel, style: theme.textTheme.titleSmall),
-          const SizedBox(height: 8),
-          SegmentedButton<_Intensity>(
-            segments: [
-              for (final intensity in _Intensity.values)
-                ButtonSegment(
-                  value: intensity,
-                  label: Text(intensity.label(l10n)),
-                  icon: Icon(intensity.icon),
-                ),
-            ],
-            selected: {_intensity},
-            onSelectionChanged: _isBusy
-                ? null
-                : (selection) => setState(() => _intensity = selection.first),
-          ),
+          if (_isStrength) ...[
+            Text(l10n.strengthTargetsLabel, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            StrengthTargetChips(
+              selected: _strengthTargets,
+              enabled: !_isBusy,
+              onChanged: (s) => setState(() => _strengthTargets = s),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.strengthBodyweightHint,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ] else ...[
+            Text(l10n.intensityLabel, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            SegmentedButton<_Intensity>(
+              segments: [
+                for (final intensity in _Intensity.values)
+                  ButtonSegment(
+                    value: intensity,
+                    label: Text(intensity.label(l10n)),
+                    icon: Icon(intensity.icon),
+                  ),
+              ],
+              selected: {_intensity},
+              onSelectionChanged: _isBusy
+                  ? null
+                  : (selection) => setState(() => _intensity = selection.first),
+            ),
+          ],
           const SizedBox(height: 16),
           Text(l10n.trainDetailLabel, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),
@@ -905,6 +958,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     'Run' => Icons.directions_run_outlined,
     'Ride' => Icons.directions_bike_outlined,
     'Swim' => Icons.pool_outlined,
+    bodyweightStrengthSport => Icons.fitness_center,
     _ => Icons.sports_score_outlined,
   };
 }

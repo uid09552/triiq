@@ -123,8 +123,13 @@ class CalendarDayDetail extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onLongPress: () =>
-          showDayActions(context, date, plannedEvents, activities: activities),
+      onLongPress: () => showDayActions(
+        context,
+        date,
+        plannedEvents,
+        activities: activities,
+        onOpenDay: onOpenDay,
+      ),
       child: Card(
         key: const ValueKey('day-detail-card'),
         margin: EdgeInsets.zero,
@@ -133,64 +138,69 @@ class CalendarDayDetail extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        DateFormat.MMMEd(locale).format(date),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    if (_isToday()) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        key: const ValueKey('day-today-pill'),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+              InkWell(
+                key: const ValueKey('day-header'),
+                borderRadius: BorderRadius.circular(8),
+                onTap: onOpenDay,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Row(
+                    children: [
+                      Flexible(
                         child: Text(
-                          l10n.dayCardToday,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: colorScheme.primary,
+                          DateFormat.MMMEd(locale).format(date),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                    ],
-                    const Spacer(),
-                    if (load != null)
-                      Flexible(
-                        child: Text(
-                          load,
-                          key: const ValueKey('day-load'),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
+                      if (_isToday()) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          key: const ValueKey('day-today-pill'),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            l10n.dayCardToday,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                      ),
-                    if (onOpenDay != null)
-                      IconButton(
-                        key: const ValueKey('day-open'),
-                        tooltip: l10n.calOpenDay,
-                        visualDensity: VisualDensity.compact,
-                        onPressed: onOpenDay,
-                        icon: const Icon(Icons.open_in_full, size: 18),
-                      ),
-                  ],
+                      ],
+                      const Spacer(),
+                      if (load != null)
+                        Flexible(
+                          child: Text(
+                            load,
+                            key: const ValueKey('day-load'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      if (onOpenDay != null)
+                        IconButton(
+                          key: const ValueKey('day-open'),
+                          tooltip: l10n.calOpenDay,
+                          visualDensity: VisualDensity.compact,
+                          onPressed: onOpenDay,
+                          icon: const Icon(Icons.open_in_full, size: 18),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               if (plannedTss > 0)

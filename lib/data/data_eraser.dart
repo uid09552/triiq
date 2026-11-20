@@ -10,6 +10,7 @@ import '../locale_controller.dart';
 import '../notifications/notification_service.dart';
 import '../notifications/notification_settings.dart';
 import '../plan/plan_changes.dart';
+import '../screens/settings/home_widget_settings.dart';
 import '../screens/settings/weekly_targets_settings.dart';
 import '../screens/settings/year_goals_settings.dart';
 import '../screens/today/today_layout_settings.dart';
@@ -133,6 +134,7 @@ class DataEraser {
     () => LocaleController.instance.load(),
     () => ThemeController.instance.load(),
     () => WeeklyTargetsSettings.instance.load(),
+    () => HomeWidgetSettings.instance.load(),
     () => YearGoalsSettings.instance.load(),
     () => TodayLayoutSettings.instance.load(),
     () => ReadinessSettings.instance.load(),
