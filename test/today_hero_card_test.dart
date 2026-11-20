@@ -184,6 +184,21 @@ void main() {
       expect(calls, ['feel']);
     });
 
+    testWidgets('feel already logged: no primary button, refresh stays', (
+      t,
+    ) async {
+      await t.pumpWidget(
+        hero(
+          plan: [_planned('9', 'Endurance ride')],
+          activities: [_done('a')],
+          fatigue: 2,
+        ),
+      );
+      expect(find.byKey(const ValueKey('hero-primary-logFeel')), findsNothing);
+      expect(find.byKey(const ValueKey('hero-refresh')), findsOneWidget);
+      expect(find.byKey(const ValueKey('hero-more')), findsOneWidget);
+    });
+
     testWidgets('nothing planned: Propose training', (t) async {
       await t.pumpWidget(hero());
       expect(find.byKey(const ValueKey('hero-rest')), findsOneWidget);
