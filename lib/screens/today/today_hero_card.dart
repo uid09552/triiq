@@ -163,6 +163,10 @@ class TodayHeroCard extends StatelessWidget {
     sick: _sick,
   );
 
+  /// The day's primary action is to log how it felt, and that is done.
+  bool get _feelDone =>
+      action == HeroAction.logFeel && (fatigue != null || soreness != null);
+
   String _title(AppLocalizations l10n) {
     if (_sick) {
       return health!.issue.kind == HealthKind.sick
@@ -477,18 +481,23 @@ class TodayHeroCard extends StatelessWidget {
             const SizedBox(height: 6),
             Row(
               children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    key: ValueKey('hero-primary-${primary.name}'),
-                    onPressed: _primary,
-                    icon: Icon(primaryIcon),
-                    label: Text(
-                      primaryLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                // Once the feel is logged there is nothing left to do for
+                // the day: no primary button, only refresh and more.
+                if (_feelDone)
+                  const Spacer()
+                else
+                  Expanded(
+                    child: FilledButton.icon(
+                      key: ValueKey('hero-primary-${primary.name}'),
+                      onPressed: _primary,
+                      icon: Icon(primaryIcon),
+                      label: Text(
+                        primaryLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                ),
                 // 48 dp: the minimum touch target. Doubles as the
                 // refresh affordance with a mouse on Windows.
                 SizedBox(
