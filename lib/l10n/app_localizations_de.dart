@@ -6331,4 +6331,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sbomOpenPubDev => 'Auf pub.dev öffnen';
+
+  @override
+  String get homeWidgetTitle => 'Startbildschirm-Widget';
+
+  @override
+  String get homeWidgetHelp =>
+      'Lege fest, was das Android-Widget zeigt. Zu kleine Layouts lassen einen Block ohnehin weg.';
+
+  @override
+  String get homeWidgetSessions => 'Heutige Einheiten';
+
+  @override
+  String get homeWidgetDone => 'Absolvierte TSS';
+
+  @override
+  String get homeWidgetForm => 'Form';
+
+  @override
+  String get homeWidgetFitness => 'CTL / ATL';
+
+  @override
+  String get homeWidgetRings => 'Wochenziel-Ringe';
+
+  @override
+  String get homeWidgetUpdated => 'Aktualisierungszeit';
+
+  @override
+  String get searchDescHomeWidget => 'Festlegen, was das Android-Widget zeigt';
 }

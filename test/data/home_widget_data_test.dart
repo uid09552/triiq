@@ -3,6 +3,7 @@ import 'package:triiq/data/home_widget_data.dart';
 import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/models/local_wellness.dart';
+import 'package:triiq/screens/settings/home_widget_settings.dart';
 
 LocalEvent ev(
   String name, {
@@ -36,6 +37,7 @@ LocalWellness well(double ctl, double atl) => LocalWellness(
 );
 
 void main() {
+  homeWidgetSettingsTests();
   final now = DateTime(2026, 5, 10, 7, 5);
 
   test('lists two sessions, counts the rest, shows form', () {
@@ -143,6 +145,40 @@ void main() {
         buildWidgetRings({'swim': null, 'cycle': 0.0, 'run': null}, const []),
         isEmpty,
       );
+    });
+  });
+}
+
+void homeWidgetSettingsTests() {
+  group('HomeWidgetData.toEntries with settings', () {
+    final data = buildHomeWidgetData(
+      planned: [ev('Easy run', load: 40, secs: 2700)],
+      done: const [],
+      latest: well(50, 40),
+      now: DateTime(2026, 5, 10, 7, 5),
+    );
+
+    test('everything on by default', () {
+      final e = data.toEntries();
+      expect(e['w_session1'], isNotEmpty);
+      expect(e['w_form'], '+10');
+      expect(e['w_show_form'], '1');
+    });
+
+    test('hidden blocks are blanked and flagged', () {
+      final s = HomeWidgetSettings.forTesting()
+        ..showForm = false
+        ..showFitness = false
+        ..showUpdated = false
+        ..showRings = false;
+      final e = data.toEntries(show: s);
+      expect(e['w_form'], '');
+      expect(e['w_fitness'], '');
+      expect(e['w_updated'], '');
+      expect(e['w_show_form'], '0');
+      expect(e['w_show_rings'], '0');
+      expect(e['w_session1'], isNotEmpty);
+      expect(e['w_show_sessions'], '1');
     });
   });
 }

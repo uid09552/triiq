@@ -10243,6 +10243,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open on pub.dev'**
   String get sbomOpenPubDev;
+
+  /// No description provided for @homeWidgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home-screen widget'**
+  String get homeWidgetTitle;
+
+  /// No description provided for @homeWidgetHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the Android widget shows. Layouts that are too small for a block leave it out anyway.'**
+  String get homeWidgetHelp;
+
+  /// No description provided for @homeWidgetSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sessions'**
+  String get homeWidgetSessions;
+
+  /// No description provided for @homeWidgetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed TSS'**
+  String get homeWidgetDone;
+
+  /// No description provided for @homeWidgetForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get homeWidgetForm;
+
+  /// No description provided for @homeWidgetFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL / ATL'**
+  String get homeWidgetFitness;
+
+  /// No description provided for @homeWidgetRings.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly target rings'**
+  String get homeWidgetRings;
+
+  /// No description provided for @homeWidgetUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Update time'**
+  String get homeWidgetUpdated;
+
+  /// No description provided for @searchDescHomeWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the Android home-screen widget shows'**
+  String get searchDescHomeWidget;
 }
 
 class _AppLocalizationsDelegate

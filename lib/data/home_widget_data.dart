@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../screens/activities/activity_icons.dart' show canonicalSport;
+import '../screens/settings/home_widget_settings.dart';
 import '../screens/settings/weekly_targets_settings.dart';
 import 'models/local_activity.dart';
 import 'models/local_event.dart';
@@ -64,21 +65,46 @@ class HomeWidgetData {
         '${load == null ? '' : ' · $load TSS'}';
   }
 
-  /// The widget's storage entries.
-  Map<String, String> toEntries() => {
-    for (final sport in const ['swim', 'cycle', 'run']) ..._ringEntries(sport),
-    'w_session1': sessions.isNotEmpty ? sessions[0] : '',
-    'w_session2': sessions.length > 1 ? sessions[1] : '',
-    'w_extra': extra > 0 ? '+$extra' : '',
-    'w_done': doneLoad > 0 ? '$doneLoad TSS' : '',
-    'w_form': form == null ? '' : '${form! >= 0 ? '+' : ''}${form!.round()}',
-    'w_fitness': ctl == null || atl == null
-        ? ''
-        : 'CTL ${ctl!.round()} · ATL ${atl!.round()}',
-    'w_updated':
-        '${updated.hour.toString().padLeft(2, '0')}:'
-        '${updated.minute.toString().padLeft(2, '0')}',
-  };
+  /// The widget's storage entries. [show] picks the blocks to display
+  /// (default: all): a hidden block's text is left empty and its
+  /// `w_show_*` flag is `0`, which the native side uses to drop the view.
+  Map<String, String> toEntries({HomeWidgetSettings? show}) {
+    final sessionsOn = show?.showSessions ?? true;
+    final doneOn = show?.showDone ?? true;
+    final formOn = show?.showForm ?? true;
+    final fitnessOn = show?.showFitness ?? true;
+    final ringsOn = show?.showRings ?? true;
+    final updatedOn = show?.showUpdated ?? true;
+    String flag(bool on) => on ? '1' : '0';
+    return {
+      for (final sport in const ['swim', 'cycle', 'run'])
+        if (ringsOn)
+          ..._ringEntries(sport)
+        else ...{
+          'w_${sport}_pct': '',
+          'w_${sport}_val': '',
+        },
+      'w_session1': sessionsOn && sessions.isNotEmpty ? sessions[0] : '',
+      'w_session2': sessionsOn && sessions.length > 1 ? sessions[1] : '',
+      'w_extra': sessionsOn && extra > 0 ? '+$extra' : '',
+      'w_done': doneOn && doneLoad > 0 ? '$doneLoad TSS' : '',
+      'w_form': formOn && form != null
+          ? '${form! >= 0 ? '+' : ''}${form!.round()}'
+          : '',
+      'w_fitness': fitnessOn && ctl != null && atl != null
+          ? 'CTL ${ctl!.round()} · ATL ${atl!.round()}'
+          : '',
+      'w_updated': updatedOn
+          ? '${updated.hour.toString().padLeft(2, '0')}:'
+                '${updated.minute.toString().padLeft(2, '0')}'
+          : '',
+      'w_show_sessions': flag(sessionsOn),
+      'w_show_form': flag(formOn),
+      'w_show_fitness': flag(fitnessOn),
+      'w_show_updated': flag(updatedOn),
+      'w_show_rings': flag(ringsOn),
+    };
+  }
 }
 
 /// A weekly target and how far this week has got towards it.
@@ -155,8 +181,10 @@ class HomeWidgetUpdater {
     ActivitiesRepository? activities,
     WellnessRepository? wellness,
     WeeklyTargetsSettings? targets,
+    HomeWidgetSettings? settings,
     DateTime Function()? clock,
-  }) : _targets = targets ?? WeeklyTargetsSettings.instance,
+  }) : _settings = settings ?? HomeWidgetSettings.instance,
+       _targets = targets ?? WeeklyTargetsSettings.instance,
        _planned = planned ?? PlannedItemsRepository(hidePendingDeletes: false),
        _activities = activities ?? ActivitiesRepository(),
        _wellness = wellness ?? WellnessRepository(),
@@ -168,6 +196,7 @@ class HomeWidgetUpdater {
   final ActivitiesRepository _activities;
   final WellnessRepository _wellness;
   final WeeklyTargetsSettings _targets;
+  final HomeWidgetSettings _settings;
   final DateTime Function() _clock;
 
   static bool get supported => !kIsWeb && Platform.isAndroid;
@@ -211,7 +240,8 @@ class HomeWidgetUpdater {
     if (!supported) return;
     try {
       final data = await load();
-      for (final e in data.toEntries().entries) {
+      if (!_settings.isLoaded) await _settings.load();
+      for (final e in data.toEntries(show: _settings).entries) {
         await HomeWidget.saveWidgetData<String>(e.key, e.value);
       }
       await HomeWidget.updateWidget(androidName: androidName);

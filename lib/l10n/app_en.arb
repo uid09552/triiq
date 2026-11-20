@@ -2252,5 +2252,14 @@
   "sbomDetailScope": "Scope",
   "sbomDetailPurl": "Package URL",
   "sbomDetailHash": "SHA-256",
-  "sbomOpenPubDev": "Open on pub.dev"
+  "sbomOpenPubDev": "Open on pub.dev",
+  "homeWidgetTitle": "Home-screen widget",
+  "homeWidgetHelp": "Choose what the Android widget shows. Layouts that are too small for a block leave it out anyway.",
+  "homeWidgetSessions": "Today's sessions",
+  "homeWidgetDone": "Completed TSS",
+  "homeWidgetForm": "Form",
+  "homeWidgetFitness": "CTL / ATL",
+  "homeWidgetRings": "Weekly target rings",
+  "homeWidgetUpdated": "Update time",
+  "searchDescHomeWidget": "Choose what the Android home-screen widget shows"
 }

@@ -1878,5 +1878,14 @@
   "sbomDetailScope": "Geltungsbereich",
   "sbomDetailPurl": "Paket-URL",
   "sbomDetailHash": "SHA-256",
-  "sbomOpenPubDev": "Auf pub.dev öffnen"
+  "sbomOpenPubDev": "Auf pub.dev öffnen",
+  "homeWidgetTitle": "Startbildschirm-Widget",
+  "homeWidgetHelp": "Lege fest, was das Android-Widget zeigt. Zu kleine Layouts lassen einen Block ohnehin weg.",
+  "homeWidgetSessions": "Heutige Einheiten",
+  "homeWidgetDone": "Absolvierte TSS",
+  "homeWidgetForm": "Form",
+  "homeWidgetFitness": "CTL / ATL",
+  "homeWidgetRings": "Wochenziel-Ringe",
+  "homeWidgetUpdated": "Aktualisierungszeit",
+  "searchDescHomeWidget": "Festlegen, was das Android-Widget zeigt"
 }

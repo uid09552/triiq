@@ -2203,8 +2203,9 @@ event back, so they still ask for a connection.
 `TriiqWidgetProvider.kt`, `res/layout/triiq_widget.xml`). Long-press the home
 screen → Widgets → TriIQ. It shows today's planned workouts, what was done
 (TSS), form (CTL − ATL) with CTL/ATL, and the update time; tapping opens the
-app. Flutter writes the strings through the `home_widget` plugin; the native
-provider only lays them out.
+app. Settings → App → **Home-screen widget** (`home_widget_settings.dart`) switches each
+block on or off; Flutter writes the strings plus `w_show_*` flags through the
+`home_widget` plugin and the native provider only lays them out, dropping views whose flag is `0`.
 
 ### Fatigue early warning and morning briefing
 
@@ -2557,6 +2558,7 @@ off under Settings → App → Notifications.
 - **Navigation**: what the bottom bar holds now, and **Customize
   navigation** to arrange it (see *Arrange the menu*).
 - **Info**: below the four groups, an **Info** row and the version in small type ("TriIQ 0.9.6 (build 1) · Android"). Both open *About / Info and the SBOM*.
+- **Home-screen widget**: choose what the Android widget shows — today's sessions, completed TSS, form, CTL/ATL, the weekly target rings and the update time. All are on by default; a change reaches the widget at once. Widget sizes too small for a block leave it out anyway.
 - **Notifications**: the master toggle prompts for the OS notification
   permission (Android 13+/iOS) and, once granted, turns on sync-completion
   and training-agent-reply notifications. With it on and on a platform that

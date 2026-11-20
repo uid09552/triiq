@@ -72,6 +72,11 @@ class TriiqWidgetProvider : HomeWidgetProvider() {
 
     private fun str(data: SharedPreferences, key: String): String = data.getString(key, "") ?: ""
 
+    /** A block is shown unless Flutter wrote `0` for it (settings → Home-screen widget). */
+    private fun shows(data: SharedPreferences, block: String): Boolean = str(data, "w_show_$block") != "0"
+
+    private fun visible(on: Boolean) = if (on) View.VISIBLE else View.GONE
+
     /** "Easy run · 45 min · 40 TSS", or the no-session text. */
     private fun session(context: Context, data: SharedPreferences): String {
         val s1 = str(data, "w_session1")
@@ -86,6 +91,8 @@ class TriiqWidgetProvider : HomeWidgetProvider() {
             if (extra.isEmpty()) session(context, data) else "${session(context, data)} $extra",
         )
         views.setTextViewText(R.id.wide_form, str(data, "w_form").ifEmpty { "–" })
+        views.setViewVisibility(R.id.wide_session, visible(shows(data, "sessions")))
+        views.setViewVisibility(R.id.wide_form, visible(shows(data, "form")))
         return views
     }
 
@@ -100,6 +107,8 @@ class TriiqWidgetProvider : HomeWidgetProvider() {
         }
         views.setTextViewText(R.id.small_session, text)
         views.setTextViewText(R.id.small_form, str(data, "w_form").ifEmpty { "–" })
+        views.setViewVisibility(R.id.small_session, visible(shows(data, "sessions")))
+        views.setViewVisibility(R.id.small_form, visible(shows(data, "form")))
         return views
     }
 
@@ -121,11 +130,21 @@ class TriiqWidgetProvider : HomeWidgetProvider() {
         views.setTextViewText(R.id.widget_fitness, str(widgetData, "w_fitness"))
         views.setTextViewText(R.id.widget_updated, str(widgetData, "w_updated"))
 
+        val sessionsOn = shows(widgetData, "sessions")
+        if (!sessionsOn) {
+            views.setViewVisibility(R.id.widget_session2, View.GONE)
+            views.setViewVisibility(R.id.widget_extra, View.GONE)
+        }
+        views.setViewVisibility(R.id.widget_session1, visible(sessionsOn))
+        views.setViewVisibility(R.id.widget_form, visible(shows(widgetData, "form")))
+        views.setViewVisibility(R.id.widget_fitness, visible(shows(widgetData, "fitness")))
+        views.setViewVisibility(R.id.widget_updated, visible(shows(widgetData, "updated")))
+
         bindRing(views, widgetData, "swim", R.id.ring_swim_box, R.id.ring_swim, R.id.ring_swim_pct, R.id.ring_swim_val)
         bindRing(views, widgetData, "cycle", R.id.ring_cycle_box, R.id.ring_cycle, R.id.ring_cycle_pct, R.id.ring_cycle_val)
         bindRing(views, widgetData, "run", R.id.ring_run_box, R.id.ring_run, R.id.ring_run_pct, R.id.ring_run_val)
         val anyRing = listOf("swim", "cycle", "run").any { str(widgetData, "w_${it}_pct").isNotEmpty() }
-        views.setViewVisibility(R.id.widget_rings, if (rings && anyRing) View.VISIBLE else View.GONE)
+        views.setViewVisibility(R.id.widget_rings, if (rings && anyRing && shows(widgetData, "rings")) View.VISIBLE else View.GONE)
         return views
     }
 
