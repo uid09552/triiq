@@ -1936,5 +1936,19 @@
   "statPeekMax": "max",
   "statPeekMostTime": "Am längsten bei {range} ({share} %)",
   "statPeekRecorded": "{duration} aufgezeichnet",
-  "statPeekNoStream": "Keine Messwerte für diese Aktivität – das Gerät hat keine aufgezeichnet, oder die Streams ließen sich nicht laden."
+  "statPeekNoStream": "Keine Messwerte für diese Aktivität – das Gerät hat keine aufgezeichnet, oder die Streams ließen sich nicht laden.",
+  "calDayStatsLoad": "Belastung",
+  "calDayStatsTime": "Zeit",
+  "calDayStatsSessions": "Einheiten",
+  "calDayStatsWeek": "Woche bisher: {done} von {planned} TSS · {hours} h",
+  "calDayStatsRest": "Ruhetag – nichts geplant oder absolviert.",
+  "calDayPeekSports": "Nach Sportart",
+  "calDayPeekMinutes": "{done} von {planned} min",
+  "calDayPeekPlanned": "Geplant",
+  "calDayPeekDone": "Absolviert",
+  "calDayPeekFitness": "Fitness",
+  "calDayPeekForm": "CTL {ctl} · ATL {atl} · Form {form}",
+  "calDayPeekRamp": "Rampenrate {ramp} / Woche",
+  "calDayPeekWeek": "Diese Woche",
+  "calDayPeekWeekLine": "{done} von {planned} TSS · {hours} von {plannedHours} h · {doneCount} von {plannedCount} Einheiten"
 }

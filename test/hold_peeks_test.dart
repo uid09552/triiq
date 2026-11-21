@@ -662,6 +662,9 @@ void main() {
         'lib/screens/statistics/insights_grid.dart',
         // The Calendar's year view: a month tile had no long press before.
         'lib/screens/calendar/year_calendar_view.dart',
+        // The day view's statistics card (no long press before; the day
+        // view itself, whose sessions drag, stays free of peeks).
+        'lib/screens/calendar/day_summary_card.dart',
         // The Year goals line on Today's This week card (no long press
         // before); the card file itself stays free of peeks.
         'lib/screens/settings/year_goals_progress.dart',

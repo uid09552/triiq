@@ -10591,6 +10591,97 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No samples for this activity — the device recorded none, or the streams could not be loaded.'**
   String get statPeekNoStream;
+
+  /// No description provided for @calDayStatsLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load'**
+  String get calDayStatsLoad;
+
+  /// No description provided for @calDayStatsTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get calDayStatsTime;
+
+  /// No description provided for @calDayStatsSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get calDayStatsSessions;
+
+  /// No description provided for @calDayStatsWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week so far: {done} of {planned} TSS · {hours} h'**
+  String calDayStatsWeek(int done, int planned, String hours);
+
+  /// No description provided for @calDayStatsRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day — nothing planned or done.'**
+  String get calDayStatsRest;
+
+  /// No description provided for @calDayPeekSports.
+  ///
+  /// In en, this message translates to:
+  /// **'By sport'**
+  String get calDayPeekSports;
+
+  /// No description provided for @calDayPeekMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {planned} min'**
+  String calDayPeekMinutes(int done, int planned);
+
+  /// No description provided for @calDayPeekPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get calDayPeekPlanned;
+
+  /// No description provided for @calDayPeekDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get calDayPeekDone;
+
+  /// No description provided for @calDayPeekFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness'**
+  String get calDayPeekFitness;
+
+  /// No description provided for @calDayPeekForm.
+  ///
+  /// In en, this message translates to:
+  /// **'CTL {ctl} · ATL {atl} · Form {form}'**
+  String calDayPeekForm(int ctl, int atl, String form);
+
+  /// No description provided for @calDayPeekRamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Ramp rate {ramp} / week'**
+  String calDayPeekRamp(String ramp);
+
+  /// No description provided for @calDayPeekWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get calDayPeekWeek;
+
+  /// No description provided for @calDayPeekWeekLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {planned} TSS · {hours} of {plannedHours} h · {doneCount} of {plannedCount} sessions'**
+  String calDayPeekWeekLine(
+    int done,
+    int planned,
+    String hours,
+    String plannedHours,
+    int doneCount,
+    int plannedCount,
+  );
 }
 
 class _AppLocalizationsDelegate

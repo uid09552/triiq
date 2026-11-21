@@ -6490,4 +6490,63 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get statPeekNoStream =>
       'No samples for this activity — the device recorded none, or the streams could not be loaded.';
+
+  @override
+  String get calDayStatsLoad => 'Load';
+
+  @override
+  String get calDayStatsTime => 'Time';
+
+  @override
+  String get calDayStatsSessions => 'Sessions';
+
+  @override
+  String calDayStatsWeek(int done, int planned, String hours) {
+    return 'Week so far: $done of $planned TSS · $hours h';
+  }
+
+  @override
+  String get calDayStatsRest => 'Rest day — nothing planned or done.';
+
+  @override
+  String get calDayPeekSports => 'By sport';
+
+  @override
+  String calDayPeekMinutes(int done, int planned) {
+    return '$done of $planned min';
+  }
+
+  @override
+  String get calDayPeekPlanned => 'Planned';
+
+  @override
+  String get calDayPeekDone => 'Done';
+
+  @override
+  String get calDayPeekFitness => 'Fitness';
+
+  @override
+  String calDayPeekForm(int ctl, int atl, String form) {
+    return 'CTL $ctl · ATL $atl · Form $form';
+  }
+
+  @override
+  String calDayPeekRamp(String ramp) {
+    return 'Ramp rate $ramp / week';
+  }
+
+  @override
+  String get calDayPeekWeek => 'This week';
+
+  @override
+  String calDayPeekWeekLine(
+    int done,
+    int planned,
+    String hours,
+    String plannedHours,
+    int doneCount,
+    int plannedCount,
+  ) {
+    return '$done of $planned TSS · $hours of $plannedHours h · $doneCount of $plannedCount sessions';
+  }
 }

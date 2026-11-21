@@ -110,7 +110,9 @@ class SportMinutesBar extends StatelessWidget {
       final total = minutes.values.fold(0, (a, b) => a + b);
       return SizedBox(
         height: height,
+        // Stretch: a ColoredBox without a child is otherwise 0 px tall.
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final sport in CalendarSport.values)
               if ((minutes[sport] ?? 0) > 0)

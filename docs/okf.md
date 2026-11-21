@@ -1646,6 +1646,7 @@ only, so they are instant and work offline. Where it works:
   figures).
 - **Today, year goals**: the *Year goals* line on the This week card — per sport the goal, the distance so far, the % of it, how far ahead or behind an even pace you are, and the projected year-end.
 - **Insights**: every tile of the hub.
+- **Calendar day view**: the day's **statistics card** — the day's sessions planned against done, its fitness (CTL, ATL, form, ramp rate) and the week so far (TSS, hours, sessions, planned against done).
 - **Calendar year view**: a **month** — per sport (swim / ride / run) the month's distance and time; with a year goal also the month's distance as a % of an even twelfth of the goal, and a 12-bar chart of the goal's cumulative progress to 100 % up to that month (a tick per bar marks an even pace, the held month is highlighted). A tap still opens the month.
 - **Calendar header**: the **year** and the **month** crumb of the
   breadcrumb (`2026 › November`) — the month's and the year's statistics, see
@@ -1717,6 +1718,7 @@ for reduced motion.
   current plan's phase (build, recovery, peak, taper, race — legend below).
   Each month reads to a screen reader as "November: 640 TSS, 18 sessions".
 - **Day selection**: tapping a day in Month or Week only selects it (the card below follows); tapping it again does *not* open the day view. **Open day** is the first entry of the long-press day-actions sheet.
+- **Day**: readiness and wellness pills, then a **statistics card** like a month cell's, larger: done against planned load (TSS, with a % chip and a progress bar), time and sessions, the per-sport minutes bar (planned faint above, done solid below) and the week so far. A rest day says so in one line. Hold the card for the details (see *Hold to peek*). The card sits right under the header; the level change no longer centres a short day.
 - **Month**: the grid with an ISO **week-number column** (tap = open the
   week, long-press = week actions). Each cell: a **fill** for done against
   planned load (faint = planned, not done yet; stronger = partial < 80 % /
