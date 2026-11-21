@@ -1607,7 +1607,7 @@ abstract class AppLocalizations {
   /// No description provided for @metricFormTitle.
   ///
   /// In en, this message translates to:
-  /// **'Form (TSB)'**
+  /// **'Form (CTL − ATL)'**
   String get metricFormTitle;
 
   /// No description provided for @metricRampTitle.
@@ -1631,19 +1631,19 @@ abstract class AppLocalizations {
   /// No description provided for @metricCtlExplainer.
   ///
   /// In en, this message translates to:
-  /// **'CTL is a 42-day weighted average of your training load: how much training you have absorbed, not a measure of fitness or health. It can keep rising while you dig yourself into a hole.'**
+  /// **'Fitness (CTL) is a 42-day weighted average of your training load: the training you have built up over about six weeks. It measures load, not health, and it can keep rising while you dig yourself into a hole.'**
   String get metricCtlExplainer;
 
   /// No description provided for @metricAtlExplainer.
   ///
   /// In en, this message translates to:
-  /// **'ATL is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.'**
+  /// **'Fatigue (ATL) is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.'**
   String get metricAtlExplainer;
 
   /// No description provided for @metricFormExplainer.
   ///
   /// In en, this message translates to:
-  /// **'Form is CTL minus ATL. Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.'**
+  /// **'Form is Fitness minus Fatigue (CTL − ATL). Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.'**
   String get metricFormExplainer;
 
   /// No description provided for @metricRampExplainer.
@@ -8111,7 +8111,7 @@ abstract class AppLocalizations {
   /// No description provided for @readinessPeekFitness.
   ///
   /// In en, this message translates to:
-  /// **'Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.'**
+  /// **'Fitness (CTL): the training load you have built up over the last weeks. The arrow compares it with a week ago.'**
   String get readinessPeekFitness;
 
   /// No description provided for @readinessPeekToday.
@@ -10682,6 +10682,66 @@ abstract class AppLocalizations {
     int doneCount,
     int plannedCount,
   );
+
+  /// No description provided for @tileFitnessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness · CTL'**
+  String get tileFitnessLabel;
+
+  /// No description provided for @tileFatigueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue · ATL'**
+  String get tileFatigueLabel;
+
+  /// No description provided for @tileFormLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get tileFormLabel;
+
+  /// No description provided for @metricInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'What does {metric} mean?'**
+  String metricInfoTooltip(String metric);
+
+  /// No description provided for @formStateTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Very fresh'**
+  String get formStateTransition;
+
+  /// No description provided for @formStateFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh'**
+  String get formStateFresh;
+
+  /// No description provided for @formStateGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get formStateGrey;
+
+  /// No description provided for @formStateOptimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimal'**
+  String get formStateOptimal;
+
+  /// No description provided for @formStateHighRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy'**
+  String get formStateHighRisk;
+
+  /// No description provided for @formStateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Form zones follow Intervals.icu: form as a percentage of fitness.'**
+  String get formStateHint;
 }
 
 class _AppLocalizationsDelegate

@@ -1645,6 +1645,7 @@ only, so they are instant and work offline. Where it works:
   readiness), the icon of a session on the hero card (planned: type, dates,
   notes; completed: key figures) and the rows of Today's activities (key
   figures).
+- **Today, load tiles**: the CTL / ATL / Form tiles are labelled **Fitness · CTL**, **Fatigue · ATL** and **Form**, and carry a visible **ⓘ** beside the label that opens the metric's explainer (the same sheet a long-press opens). Form also shows its named zone — *Very fresh*, *Fresh*, *Neutral*, *Optimal* or *Heavy* — from form as a percentage of fitness (`(CTL − ATL) / CTL`: above +20 %, +5…+20 %, −10…+5 %, −30…−10 %, below −30 %; the Intervals.icu zones, `lib/evaluation/form_zone.dart`). One framing everywhere: Fitness (CTL) is the training load you have built up over about six weeks — a load measure, not a health measure.
 - **Today, year goals**: the *Year goals* line on the This week card — per sport the goal, the distance so far, the % of it, how far ahead or behind an even pace you are, and the projected year-end.
 - **Insights**: every tile of the hub.
 - **Calendar day view**: the day's **statistics card** — the day's sessions planned against done, its fitness (CTL, ATL, form, ramp rate) and the week so far (TSS, hours, sessions, planned against done).

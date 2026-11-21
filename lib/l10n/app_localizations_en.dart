@@ -901,7 +901,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricAtlTitle => 'Fatigue (ATL)';
 
   @override
-  String get metricFormTitle => 'Form (TSB)';
+  String get metricFormTitle => 'Form (CTL − ATL)';
 
   @override
   String get metricRampTitle => 'Ramp rate';
@@ -914,15 +914,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricCtlExplainer =>
-      'CTL is a 42-day weighted average of your training load: how much training you have absorbed, not a measure of fitness or health. It can keep rising while you dig yourself into a hole.';
+      'Fitness (CTL) is a 42-day weighted average of your training load: the training you have built up over about six weeks. It measures load, not health, and it can keep rising while you dig yourself into a hole.';
 
   @override
   String get metricAtlExplainer =>
-      'ATL is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.';
+      'Fatigue (ATL) is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.';
 
   @override
   String get metricFormExplainer =>
-      'Form is CTL minus ATL. Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.';
+      'Form is Fitness minus Fatigue (CTL − ATL). Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.';
 
   @override
   String get metricRampExplainer =>
@@ -4903,7 +4903,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessPeekFitness =>
-      'Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.';
+      'Fitness (CTL): the training load you have built up over the last weeks. The arrow compares it with a week ago.';
 
   @override
   String get readinessPeekToday => 'Today';
@@ -6549,4 +6549,37 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$done of $planned TSS · $hours of $plannedHours h · $doneCount of $plannedCount sessions';
   }
+
+  @override
+  String get tileFitnessLabel => 'Fitness · CTL';
+
+  @override
+  String get tileFatigueLabel => 'Fatigue · ATL';
+
+  @override
+  String get tileFormLabel => 'Form';
+
+  @override
+  String metricInfoTooltip(String metric) {
+    return 'What does $metric mean?';
+  }
+
+  @override
+  String get formStateTransition => 'Very fresh';
+
+  @override
+  String get formStateFresh => 'Fresh';
+
+  @override
+  String get formStateGrey => 'Neutral';
+
+  @override
+  String get formStateOptimal => 'Optimal';
+
+  @override
+  String get formStateHighRisk => 'Heavy';
+
+  @override
+  String get formStateHint =>
+      'Form zones follow Intervals.icu: form as a percentage of fitness.';
 }

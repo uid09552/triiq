@@ -19,6 +19,7 @@ import '../../data/sync/sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../data/threshold_suggestions_service.dart';
 import '../../evaluation/fatigue_warning.dart';
+import '../../evaluation/form_zone.dart';
 import '../../evaluation/fatigue_warning_service.dart';
 import '../../evaluation/readiness.dart';
 import '../../evaluation/readiness_service.dart';
@@ -1109,8 +1110,19 @@ class _MetricTilesState extends State<_MetricTiles> {
       ),
     );
     final ctlTile = StatTile(
-      label: l10n.ctlLabel,
+      label: l10n.tileFitnessLabel,
       value: _format(ctl),
+      infoTooltip: l10n.metricInfoTooltip(l10n.tileFitnessLabel),
+      onInfo: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.ctl,
+        label: l10n.tileFitnessLabel,
+        value: _format(ctl),
+        color: colorScheme.tertiary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.ctl)),
+      ),
       subtitle: _delta(ctl, wellnessWeekAgo?.ctl),
       icon: Icons.trending_up,
       color: colorScheme.tertiary,
@@ -1123,7 +1135,7 @@ class _MetricTilesState extends State<_MetricTiles> {
       onLongPress: () => showTileDetailsSheet(
         context,
         metric: TileMetric.ctl,
-        label: l10n.ctlLabel,
+        label: l10n.tileFitnessLabel,
         value: _format(ctl),
         color: colorScheme.tertiary,
         intervalsPath: 'fitness',
@@ -1132,8 +1144,19 @@ class _MetricTilesState extends State<_MetricTiles> {
       ),
     );
     final atlTile = StatTile(
-      label: l10n.atlLabel,
+      label: l10n.tileFatigueLabel,
       value: _format(atl),
+      infoTooltip: l10n.metricInfoTooltip(l10n.tileFatigueLabel),
+      onInfo: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.atl,
+        label: l10n.tileFatigueLabel,
+        value: _format(atl),
+        color: colorScheme.secondary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.atl)),
+      ),
       subtitle: _delta(atl, wellnessWeekAgo?.atl),
       icon: Icons.speed_outlined,
       color: colorScheme.secondary,
@@ -1146,7 +1169,7 @@ class _MetricTilesState extends State<_MetricTiles> {
       onLongPress: () => showTileDetailsSheet(
         context,
         metric: TileMetric.atl,
-        label: l10n.atlLabel,
+        label: l10n.tileFatigueLabel,
         value: _format(atl),
         color: colorScheme.secondary,
         intervalsPath: 'fitness',
@@ -1155,9 +1178,20 @@ class _MetricTilesState extends State<_MetricTiles> {
       ),
     );
     final formTile = StatTile(
-      label: l10n.formLabel,
+      label: l10n.tileFormLabel,
       value: _format(form),
-      subtitle: _delta(form, formWeekAgo),
+      infoTooltip: l10n.metricInfoTooltip(l10n.tileFormLabel),
+      onInfo: () => showTileDetailsSheet(
+        context,
+        metric: TileMetric.form,
+        label: l10n.tileFormLabel,
+        value: _format(form),
+        color: colorScheme.primary,
+        intervalsPath: 'fitness',
+        onShowHistory: () =>
+            open(const MetricHistoryScreen(metric: LoadMetric.form)),
+      ),
+      subtitle: _formSubtitle(l10n, ctl, atl, _delta(form, formWeekAgo)),
       icon: Icons.balance_outlined,
       color: colorScheme.primary,
       onTap: () => open(const MetricHistoryScreen(metric: LoadMetric.form)),
@@ -1169,7 +1203,7 @@ class _MetricTilesState extends State<_MetricTiles> {
       onLongPress: () => showTileDetailsSheet(
         context,
         metric: TileMetric.form,
-        label: l10n.formLabel,
+        label: l10n.tileFormLabel,
         value: _format(form),
         color: colorScheme.primary,
         intervalsPath: 'fitness',
@@ -1235,6 +1269,25 @@ class _MetricTilesState extends State<_MetricTiles> {
 
   /// Change since the same day last week, or `null` when either end is
   /// missing — a made-up baseline would be worse than no comparison.
+  /// The form tile's line: its named zone, then the change on last week.
+  static String? _formSubtitle(
+    AppLocalizations l10n,
+    double? ctl,
+    double? atl,
+    String? delta,
+  ) {
+    final state = switch (formZoneOf(ctl, atl)) {
+      FormZone.transition => l10n.formStateTransition,
+      FormZone.fresh => l10n.formStateFresh,
+      FormZone.grey => l10n.formStateGrey,
+      FormZone.optimal => l10n.formStateOptimal,
+      FormZone.highRisk => l10n.formStateHighRisk,
+      null => null,
+    };
+    if (state == null) return delta;
+    return delta == null ? state : '$state · $delta';
+  }
+
   static String? _delta(double? now, double? weekAgo) {
     if (now == null || weekAgo == null) return null;
     final delta = now - weekAgo;

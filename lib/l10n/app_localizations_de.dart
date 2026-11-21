@@ -915,7 +915,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get metricAtlTitle => 'Ermüdung (ATL)';
 
   @override
-  String get metricFormTitle => 'Form (TSB)';
+  String get metricFormTitle => 'Form (CTL − ATL)';
 
   @override
   String get metricRampTitle => 'Anstiegsrate';
@@ -928,15 +928,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get metricCtlExplainer =>
-      'CTL ist ein gewichteter 42-Tage-Durchschnitt deiner Trainingsbelastung: wie viel Training du verarbeitet hast — kein Maß für Fitness oder Gesundheit. Der Wert kann steigen, während du dich immer tiefer eingräbst.';
+      'Fitness (CTL) ist ein gewichteter 42-Tage-Durchschnitt deiner Trainingsbelastung: das Training, das du über etwa sechs Wochen aufgebaut hast. Er misst Belastung, nicht Gesundheit, und kann steigen, während du dich immer tiefer eingräbst.';
 
   @override
   String get metricAtlExplainer =>
-      'ATL ist derselbe Durchschnitt über 7 Tage — die Belastung, die noch in den Beinen steckt. Er steigt und fällt schnell; ein hoher ATL in einem harten Block ist normal und für sich genommen kein Warnsignal.';
+      'Ermüdung (ATL) ist derselbe Durchschnitt über 7 Tage — die Belastung, die noch in den Beinen steckt. Sie steigt und fällt schnell; ein hoher ATL in einem harten Block ist normal und für sich genommen kein Warnsignal.';
 
   @override
   String get metricFormExplainer =>
-      'Form ist CTL minus ATL. Positiv heißt: weniger frische Belastung als üblich, negativ heißt: das Training der letzten Tage war hart. Negative Form ist der Bereich, in dem Fitness entsteht — sie ist keine Diagnose.';
+      'Form ist Fitness minus Ermüdung (CTL − ATL). Positiv heißt: weniger frische Belastung als üblich, negativ heißt: das Training der letzten Tage war hart. Negative Form ist der Bereich, in dem Fitness entsteht — sie ist keine Diagnose.';
 
   @override
   String get metricRampExplainer =>
@@ -4948,7 +4948,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readinessPeekFitness =>
-      'Chronische Trainingsbelastung (CTL): deine über die letzten Wochen aufgebaute Fitness. Der Pfeil vergleicht sie mit vor einer Woche.';
+      'Fitness (CTL): die Trainingsbelastung, die du über die letzten Wochen aufgebaut hast. Der Pfeil vergleicht sie mit vor einer Woche.';
 
   @override
   String get readinessPeekToday => 'Heute';
@@ -6601,4 +6601,37 @@ class AppLocalizationsDe extends AppLocalizations {
   ) {
     return '$done von $planned TSS · $hours von $plannedHours h · $doneCount von $plannedCount Einheiten';
   }
+
+  @override
+  String get tileFitnessLabel => 'Fitness · CTL';
+
+  @override
+  String get tileFatigueLabel => 'Ermüdung · ATL';
+
+  @override
+  String get tileFormLabel => 'Form';
+
+  @override
+  String metricInfoTooltip(String metric) {
+    return 'Was bedeutet $metric?';
+  }
+
+  @override
+  String get formStateTransition => 'Sehr frisch';
+
+  @override
+  String get formStateFresh => 'Frisch';
+
+  @override
+  String get formStateGrey => 'Neutral';
+
+  @override
+  String get formStateOptimal => 'Optimal';
+
+  @override
+  String get formStateHighRisk => 'Hart';
+
+  @override
+  String get formStateHint =>
+      'Die Formzonen folgen Intervals.icu: Form als Prozent der Fitness.';
 }

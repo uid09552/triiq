@@ -20,7 +20,15 @@ class StatTile extends StatelessWidget {
     this.hoverPreview,
     this.sparkValues,
     this.trend,
+    this.onInfo,
+    this.infoTooltip,
   });
+
+  /// A visible ⓘ beside the label that opens the metric's explainer (so it
+  /// is one tap away, not only behind a long-press). [infoTooltip] is its
+  /// screen-reader and hover label.
+  final VoidCallback? onInfo;
+  final String? infoTooltip;
 
   final String label;
   final String value;
@@ -69,6 +77,8 @@ class StatTile extends StatelessWidget {
         onLongPress: onLongPress,
         sparkValues: sparkValues,
         trend: trend,
+        onInfo: onInfo,
+        infoTooltip: infoTooltip,
       );
       final preview = hoverPreview;
       return preview == null
@@ -146,8 +156,12 @@ class _CompactStatTile extends StatefulWidget {
     required this.onLongPress,
     this.sparkValues,
     this.trend,
+    this.onInfo,
+    this.infoTooltip,
   });
 
+  final VoidCallback? onInfo;
+  final String? infoTooltip;
   final List<double>? sparkValues;
   final StatTrend? trend;
   final String label;
@@ -228,14 +242,52 @@ class _CompactStatTileState extends State<_CompactStatTile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          widget.label,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        widget.onInfo == null
+                            ? Text(
+                                widget.label,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : Semantics(
+                                button: true,
+                                label: widget.infoTooltip ?? widget.label,
+                                excludeSemantics: true,
+                                child: InkWell(
+                                  key: const ValueKey('tile-info'),
+                                  onTap: widget.onInfo,
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      minHeight: 28,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            widget.label,
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color:
+                                                      scheme.onSurfaceVariant,
+                                                ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 3),
+                                        Icon(
+                                          Icons.info_outline,
+                                          size: 13,
+                                          color: scheme.onSurfaceVariant,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 260),
                           switchInCurve: Curves.easeOutCubic,
