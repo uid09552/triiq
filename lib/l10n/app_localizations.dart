@@ -11024,6 +11024,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get saveButton;
+
+  /// No description provided for @proposalDiffWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: {before} → {after} TSS ({delta})'**
+  String proposalDiffWeek(int week, int before, int after, String delta);
+
+  /// No description provided for @proposalDiffMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more weeks'**
+  String proposalDiffMore(int count);
+
+  /// No description provided for @proposalDiffTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} TSS over {weeks, plural, =1{1 week} other{{weeks} weeks}}'**
+  String proposalDiffTotal(String delta, int weeks);
+
+  /// No description provided for @proposalUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get proposalUndo;
+
+  /// No description provided for @proposalUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied, then undone'**
+  String get proposalUndone;
+
+  /// No description provided for @proposalUndoDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Undone: the plan is as it was.'**
+  String get proposalUndoDone;
+
+  /// No description provided for @proposalUndoStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t undo: the plan changed since, and undoing would change more than this.'**
+  String get proposalUndoStale;
+
+  /// No description provided for @proposalUndoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not undo: {error}'**
+  String proposalUndoFailed(String error);
+
+  /// No description provided for @proposalUndoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This change can\'t be undone.'**
+  String get proposalUndoUnavailable;
 }
 
 class _AppLocalizationsDelegate

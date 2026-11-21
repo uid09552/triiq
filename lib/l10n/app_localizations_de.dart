@@ -6797,4 +6797,47 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get saveButton => 'Speichern';
+
+  @override
+  String proposalDiffWeek(int week, int before, int after, String delta) {
+    return 'Woche $week: $before → $after TSS ($delta)';
+  }
+
+  @override
+  String proposalDiffMore(int count) {
+    return '+$count weitere Wochen';
+  }
+
+  @override
+  String proposalDiffTotal(String delta, int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      weeks,
+      locale: localeName,
+      other: '$weeks Wochen',
+      one: '1 Woche',
+    );
+    return '$delta TSS über $_temp0';
+  }
+
+  @override
+  String get proposalUndo => 'Rückgängig';
+
+  @override
+  String get proposalUndone => 'Angewendet, dann rückgängig gemacht';
+
+  @override
+  String get proposalUndoDone => 'Rückgängig gemacht: Der Plan ist wie vorher.';
+
+  @override
+  String get proposalUndoStale =>
+      'Nicht möglich: Der Plan hat sich seitdem geändert, und Rückgängig würde mehr ändern als diesen Vorschlag.';
+
+  @override
+  String proposalUndoFailed(String error) {
+    return 'Rückgängig nicht möglich: $error';
+  }
+
+  @override
+  String get proposalUndoUnavailable =>
+      'Diese Änderung lässt sich nicht rückgängig machen.';
 }

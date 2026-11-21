@@ -2402,5 +2402,18 @@
   "usagePriceInput": "Input per 1M tokens",
   "usagePriceOutput": "Output per 1M tokens",
   "usagePriceDefault": "Use default",
-  "saveButton": "Save"
+  "saveButton": "Save",
+  "proposalDiffWeek": "Week {week}: {before} → {after} TSS ({delta})",
+  "@proposalDiffWeek": {"placeholders": {"week": {"type": "int"}, "before": {"type": "int"}, "after": {"type": "int"}, "delta": {"type": "String"}}},
+  "proposalDiffMore": "+{count} more weeks",
+  "@proposalDiffMore": {"placeholders": {"count": {"type": "int"}}},
+  "proposalDiffTotal": "{delta} TSS over {weeks, plural, =1{1 week} other{{weeks} weeks}}",
+  "@proposalDiffTotal": {"placeholders": {"delta": {"type": "String"}, "weeks": {"type": "int"}}},
+  "proposalUndo": "Undo",
+  "proposalUndone": "Applied, then undone",
+  "proposalUndoDone": "Undone: the plan is as it was.",
+  "proposalUndoStale": "Can't undo: the plan changed since, and undoing would change more than this.",
+  "proposalUndoFailed": "Could not undo: {error}",
+  "@proposalUndoFailed": {"placeholders": {"error": {"type": "String"}}},
+  "proposalUndoUnavailable": "This change can't be undone."
 }

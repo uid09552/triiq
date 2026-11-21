@@ -6745,4 +6745,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveButton => 'Save';
+
+  @override
+  String proposalDiffWeek(int week, int before, int after, String delta) {
+    return 'Week $week: $before → $after TSS ($delta)';
+  }
+
+  @override
+  String proposalDiffMore(int count) {
+    return '+$count more weeks';
+  }
+
+  @override
+  String proposalDiffTotal(String delta, int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      weeks,
+      locale: localeName,
+      other: '$weeks weeks',
+      one: '1 week',
+    );
+    return '$delta TSS over $_temp0';
+  }
+
+  @override
+  String get proposalUndo => 'Undo';
+
+  @override
+  String get proposalUndone => 'Applied, then undone';
+
+  @override
+  String get proposalUndoDone => 'Undone: the plan is as it was.';
+
+  @override
+  String get proposalUndoStale =>
+      'Can\'t undo: the plan changed since, and undoing would change more than this.';
+
+  @override
+  String proposalUndoFailed(String error) {
+    return 'Could not undo: $error';
+  }
+
+  @override
+  String get proposalUndoUnavailable => 'This change can\'t be undone.';
 }

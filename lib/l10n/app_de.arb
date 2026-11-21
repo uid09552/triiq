@@ -2007,5 +2007,14 @@
   "usagePriceInput": "Eingabe pro 1 Mio. Tokens",
   "usagePriceOutput": "Ausgabe pro 1 Mio. Tokens",
   "usagePriceDefault": "Standard verwenden",
-  "saveButton": "Speichern"
+  "saveButton": "Speichern",
+  "proposalDiffWeek": "Woche {week}: {before} → {after} TSS ({delta})",
+  "proposalDiffMore": "+{count} weitere Wochen",
+  "proposalDiffTotal": "{delta} TSS über {weeks, plural, =1{1 Woche} other{{weeks} Wochen}}",
+  "proposalUndo": "Rückgängig",
+  "proposalUndone": "Angewendet, dann rückgängig gemacht",
+  "proposalUndoDone": "Rückgängig gemacht: Der Plan ist wie vorher.",
+  "proposalUndoStale": "Nicht möglich: Der Plan hat sich seitdem geändert, und Rückgängig würde mehr ändern als diesen Vorschlag.",
+  "proposalUndoFailed": "Rückgängig nicht möglich: {error}",
+  "proposalUndoUnavailable": "Diese Änderung lässt sich nicht rückgängig machen."
 }

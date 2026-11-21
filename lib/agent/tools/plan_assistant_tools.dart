@@ -343,6 +343,7 @@ class PlanAssistantTools {
         limits: limits,
         weeks: c.weeks,
         changedWeeks: changed,
+        previousGoal: base,
       ),
     );
     return {
