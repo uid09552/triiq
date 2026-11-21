@@ -22,6 +22,13 @@
     If the build complains about symlinks, enable Developer Mode
     (`start ms-settings:developers`).
 
+!!! tip "Guided setup"
+    A fresh install starts with a short guide. You can run it again any time
+    from **Settings → Guided setup**: it walks you through connecting
+    Intervals.icu, syncing your history, weekly hours, year goals, races and
+    events, and the AI trainer — with what you already set filled in. The
+    steps below are the same things, by hand.
+
 ## 2. Connect Intervals.icu
 
 **Easiest (Android, Windows):** open the profile icon (top-right) →

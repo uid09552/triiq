@@ -660,12 +660,20 @@ void main() {
         // this through PeriodStatsCrumb.
         'lib/widgets/period_stats_peek.dart',
         'lib/screens/statistics/insights_grid.dart',
+        // The Calendar's year view: a month tile had no long press before.
+        'lib/screens/calendar/year_calendar_view.dart',
+        // The Year goals line on Today's This week card (no long press
+        // before); the card file itself stays free of peeks.
+        'lib/screens/settings/year_goals_progress.dart',
         'lib/screens/today/readiness_card.dart',
         // Only the icons of today's sessions: the card's long press is gone.
         'lib/screens/today/today_hero_card.dart',
         'lib/screens/today/week_ribbon.dart',
         'lib/screens/today/today_screen.dart',
         'lib/screens/activities/activities_screen.dart',
+        // The stream-backed tiles on an activity's page (no long press
+        // before).
+        'lib/screens/activities/activity_detail_screen.dart',
         'lib/screens/plan/plan_screen.dart',
         'lib/screens/events/events_screen.dart',
         'lib/screens/more/more_screen.dart',
