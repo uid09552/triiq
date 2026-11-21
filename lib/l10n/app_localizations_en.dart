@@ -6824,4 +6824,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calAddTooltip => 'Add to this day';
+
+  @override
+  String obStravaHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activities come from Strava and can\'t be read.',
+      one: '1 activity comes from Strava and can\'t be read.',
+    );
+    return '$_temp0 Intervals.icu may not pass Strava activities on through its API. Connect Garmin, Polar, Suunto or Wahoo to Intervals.icu directly to get them here.';
+  }
+
+  @override
+  String obThresholdHint(String sports) {
+    return 'No threshold set for: $sports. Without FTP or threshold pace, load and zones are off. Set them in Intervals.icu → Settings → Sport settings.';
+  }
+
+  @override
+  String get obSetupTrainerTitle => 'Set up your trainer';
+
+  @override
+  String get obSetupTrainerBody =>
+      'The trainer is an AI model you connect. Easiest: Claude or OpenAI with an API key. For privacy: Ollama on your own computer.';
+
+  @override
+  String get obProviderClaude => 'Claude (recommended)';
+
+  @override
+  String get obProviderOpenAI => 'OpenAI';
+
+  @override
+  String get obProviderOllama => 'Ollama (local)';
 }

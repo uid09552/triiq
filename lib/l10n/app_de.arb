@@ -2026,5 +2026,13 @@
   "redFlagFainting": "Ohnmacht oder Kollaps",
   "redFlagBreathing": "Atemnot",
   "redFlagPalpitations": "Herzrasen oder Herzstolpern",
-  "calAddTooltip": "Zum Tag hinzufügen"
+  "calAddTooltip": "Zum Tag hinzufügen",
+  "calAddTooltip": "Zum Tag hinzufügen",
+  "obStravaHint": "{count, plural, =1{1 Aktivität stammt von Strava und kann nicht gelesen werden.} other{{count} Aktivitäten stammen von Strava und können nicht gelesen werden.}} Intervals.icu gibt Strava-Aktivitäten womöglich nicht über die API weiter. Verbinde Garmin, Polar, Suunto oder Wahoo direkt mit Intervals.icu.",
+  "obThresholdHint": "Keine Schwelle gesetzt für: {sports}. Ohne FTP oder Schwellentempo stimmen Belastung und Zonen nicht. Setze sie in Intervals.icu → Einstellungen → Sporteinstellungen.",
+  "obSetupTrainerTitle": "Trainer einrichten",
+  "obSetupTrainerBody": "Der Trainer ist ein KI-Modell, das du verbindest. Am einfachsten: Claude oder OpenAI mit API-Schlüssel. Für Datenschutz: Ollama auf deinem Rechner.",
+  "obProviderClaude": "Claude (empfohlen)",
+  "obProviderOpenAI": "OpenAI",
+  "obProviderOllama": "Ollama (lokal)"
 }

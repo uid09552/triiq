@@ -530,7 +530,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              configured ? l10n.askAboutTraining : l10n.pickLlmProviderToChat,
+              configured ? l10n.askAboutTraining : l10n.obSetupTrainerTitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -541,14 +541,34 @@ class _EmptyState extends StatelessWidget {
               const AiConsentCard(),
             ] else if (!configured) ...[
               const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const SettingsGroupScreen(group: SettingsGroup.ai),
-                  ),
-                ),
-                child: Text(l10n.openSettingsButton),
+              Text(
+                l10n.obSetupTrainerBody,
+                key: const ValueKey('chat-setup-body'),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final (i, label) in [
+                    l10n.obProviderClaude,
+                    l10n.obProviderOpenAI,
+                    l10n.obProviderOllama,
+                  ].indexed)
+                    (i == 0 ? FilledButton.tonal : OutlinedButton.new)(
+                      key: ValueKey('chat-setup-provider-$i'),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsGroupScreen(
+                            group: SettingsGroup.ai,
+                          ),
+                        ),
+                      ),
+                      child: Text(label),
+                    ),
+                ],
               ),
             ] else ...[
               const SizedBox(height: 20),

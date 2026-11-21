@@ -11138,6 +11138,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add to this day'**
   String get calAddTooltip;
+
+  /// No description provided for @obStravaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 activity comes from Strava and can\'t be read.} other{{count} activities come from Strava and can\'t be read.}} Intervals.icu may not pass Strava activities on through its API. Connect Garmin, Polar, Suunto or Wahoo to Intervals.icu directly to get them here.'**
+  String obStravaHint(int count);
+
+  /// No description provided for @obThresholdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No threshold set for: {sports}. Without FTP or threshold pace, load and zones are off. Set them in Intervals.icu → Settings → Sport settings.'**
+  String obThresholdHint(String sports);
+
+  /// No description provided for @obSetupTrainerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your trainer'**
+  String get obSetupTrainerTitle;
+
+  /// No description provided for @obSetupTrainerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The trainer is an AI model you connect. Easiest: Claude or OpenAI with an API key. For privacy: Ollama on your own computer.'**
+  String get obSetupTrainerBody;
+
+  /// No description provided for @obProviderClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude (recommended)'**
+  String get obProviderClaude;
+
+  /// No description provided for @obProviderOpenAI.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI'**
+  String get obProviderOpenAI;
+
+  /// No description provided for @obProviderOllama.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama (local)'**
+  String get obProviderOllama;
 }
 
 class _AppLocalizationsDelegate

@@ -2428,5 +2428,15 @@
   "redFlagFainting": "fainting or collapsing",
   "redFlagBreathing": "trouble breathing",
   "redFlagPalpitations": "heart palpitations",
-  "calAddTooltip": "Add to this day"
+  "calAddTooltip": "Add to this day",
+  "calAddTooltip": "Add to this day",
+  "obStravaHint": "{count, plural, =1{1 activity comes from Strava and can't be read.} other{{count} activities come from Strava and can't be read.}} Intervals.icu may not pass Strava activities on through its API. Connect Garmin, Polar, Suunto or Wahoo to Intervals.icu directly to get them here.",
+  "@obStravaHint": {"placeholders": {"count": {"type": "int"}}},
+  "obThresholdHint": "No threshold set for: {sports}. Without FTP or threshold pace, load and zones are off. Set them in Intervals.icu → Settings → Sport settings.",
+  "@obThresholdHint": {"placeholders": {"sports": {"type": "String"}}},
+  "obSetupTrainerTitle": "Set up your trainer",
+  "obSetupTrainerBody": "The trainer is an AI model you connect. Easiest: Claude or OpenAI with an API key. For privacy: Ollama on your own computer.",
+  "obProviderClaude": "Claude (recommended)",
+  "obProviderOpenAI": "OpenAI",
+  "obProviderOllama": "Ollama (local)"
 }
