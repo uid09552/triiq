@@ -11180,6 +11180,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ollama (local)'**
   String get obProviderOllama;
+
+  /// No description provided for @memoryEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get memoryEdit;
+
+  /// No description provided for @memoryUseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use memory in chats'**
+  String get memoryUseTitle;
+
+  /// No description provided for @memoryUseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: the trainer does not see these items. They stay listed here.'**
+  String get memoryUseSubtitle;
+
+  /// No description provided for @trainerToneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tone'**
+  String get trainerToneTitle;
+
+  /// No description provided for @trainerCadenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins'**
+  String get trainerCadenceTitle;
+
+  /// No description provided for @toneBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get toneBalanced;
+
+  /// No description provided for @toneDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get toneDirect;
+
+  /// No description provided for @toneEncouraging.
+  ///
+  /// In en, this message translates to:
+  /// **'Encouraging'**
+  String get toneEncouraging;
+
+  /// No description provided for @toneAnalytical.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytical'**
+  String get toneAnalytical;
+
+  /// No description provided for @cadenceOnRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Only when I ask'**
+  String get cadenceOnRequest;
+
+  /// No description provided for @cadenceWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly review'**
+  String get cadenceWeekly;
+
+  /// No description provided for @cadenceAfterSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'After hard sessions'**
+  String get cadenceAfterSessions;
+
+  /// No description provided for @starterMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'You missed {day}\'s session. Replan the week?'**
+  String starterMissed(String day);
+
+  /// No description provided for @starterForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form is {form}. Should I back off?'**
+  String starterForm(String form);
+
+  /// No description provided for @chipSick.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m sick'**
+  String get chipSick;
+
+  /// No description provided for @chipTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m travelling'**
+  String get chipTravel;
+
+  /// No description provided for @chipShortOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Short on time'**
+  String get chipShortOnTime;
+
+  /// No description provided for @chipSickText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m sick. What should I do with this week\'s training?'**
+  String get chipSickText;
+
+  /// No description provided for @chipTravelText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m travelling soon. How should I adjust the week?'**
+  String get chipTravelText;
+
+  /// No description provided for @chipShortText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m short on time this week. What is the most useful minimum?'**
+  String get chipShortText;
+
+  /// No description provided for @starterMissedText.
+  ///
+  /// In en, this message translates to:
+  /// **'I missed {day}\'s session. Ask me why before suggesting a replan.'**
+  String starterMissedText(String day);
+
+  /// No description provided for @starterFormText.
+  ///
+  /// In en, this message translates to:
+  /// **'My form is {form}. Should I back off?'**
+  String starterFormText(String form);
+
+  /// No description provided for @calLegendDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get calLegendDone;
+
+  /// No description provided for @calLegendPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get calLegendPlanned;
+
+  /// No description provided for @calLegendTriiq.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ plan'**
+  String get calLegendTriiq;
 }
 
 class _AppLocalizationsDelegate

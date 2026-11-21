@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:triiq/agent/chat_starters.dart';
 import 'package:triiq/agent/chat_transcript.dart';
 import 'package:triiq/evaluation/fatigue_warning.dart';
 import 'package:triiq/evaluation/fatigue_warning_service.dart';
@@ -195,6 +196,7 @@ void main() {
       ChatStore? store,
       PlanProposals? proposals,
       List<_ScriptedAgent>? agents,
+      StarterFacts facts = const StarterFacts(),
     }) async {
       t.view.physicalSize = const Size(800, 1600);
       t.view.devicePixelRatio = 2;
@@ -215,6 +217,7 @@ void main() {
               proposals: proposals,
               syncedAt: () async => DateTime(2026, 11, 21, 8, 15),
               fatigueService: _NoFatigue(),
+              starterFacts: () async => facts,
             ),
           ),
         ),
@@ -224,6 +227,38 @@ void main() {
       );
       await t.pump();
     }
+
+    testWidgets(
+      'the empty chat offers starters from the data and intent chips',
+      (t) async {
+        final agents = <_ScriptedAgent>[];
+        await pump(
+          t,
+          agents: agents,
+          script: (_) => Stream.value(const AgentTextDelta('ok')),
+          facts: StarterFacts(missedDate: DateTime(2026, 11, 17), form: -28),
+        );
+        expect(
+          find.text("You missed Tuesday's session. Replan the week?"),
+          findsOneWidget,
+        );
+        expect(find.text('Form is -28. Should I back off?'), findsOneWidget);
+        expect(find.text('How was last week?'), findsNothing);
+        expect(find.byKey(const ValueKey('chip-sick')), findsOneWidget);
+        await t.tap(find.byKey(const ValueKey('chip-sick')));
+        await t.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 60)),
+        );
+        await t.pump();
+        expect(find.textContaining("I'm sick."), findsWidgets);
+      },
+    );
+
+    testWidgets('without facts the generic starters stay', (t) async {
+      await pump(t, script: (_) => const Stream.empty());
+      expect(find.text('How was last week?'), findsOneWidget);
+      expect(find.byKey(const ValueKey('starter-form')), findsNothing);
+    });
 
     Future<void> ask(WidgetTester t, String text) async {
       await t.enterText(find.byKey(const ValueKey('chat-input')), text);

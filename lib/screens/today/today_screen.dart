@@ -33,6 +33,7 @@ import '../../season/illness_mode.dart' show HealthPhase;
 import '../../season/season_service.dart';
 import '../../util/dates.dart';
 import '../../util/intervals_links.dart';
+import '../../widgets/skeleton.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/main_navigation.dart';
 import '../../widgets/peek_cards.dart';
@@ -893,6 +894,16 @@ class _TodayScreenState extends State<TodayScreen> {
               ],
               if (heroHidden && (sick || raceWeek))
                 ...sectionWidgets(TodaySection.hero).skip(2),
+              // First load, nothing cached yet: placeholders, not a blank page.
+              if (_loading && _wellness == null && _activities.isEmpty) ...[
+                const SizedBox(height: 12),
+                const SkeletonCard(
+                  key: ValueKey('today-skeleton'),
+                  height: 90,
+                  lines: 2,
+                ),
+                const SkeletonCard(height: 150),
+              ],
               if (twoColumns)
                 Row(
                   key: const ValueKey('today-two-columns'),

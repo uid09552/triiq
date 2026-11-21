@@ -228,12 +228,14 @@ class TrainingAgent {
     _trimHistory();
 
     final memoryBlock = await _memory.promptBlock();
+    final styleBlock = await TrainerStyle.instance.promptBlock();
     final cachedRanges = await _tools.cachedRanges();
     // The runtime context names the model in use, so it is built per entry.
     List<ChatMessage> promptFor(LlmModelEntry entry) => [
       ChatMessage.system(trainingAgentSystemPrompt),
       ChatMessage.system(_runtimeContext(entry, cachedRanges)),
       if (memoryBlock != null) ChatMessage.system(memoryBlock),
+      if (styleBlock != null) ChatMessage.system(styleBlock),
       if (attachedContext != null)
         ChatMessage.system(
           '# The athlete is asking about this\n\n$attachedContext',

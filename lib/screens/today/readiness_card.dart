@@ -374,7 +374,7 @@ class _Pill extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
-                fontSize: 10,
+                fontSize: 11,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),

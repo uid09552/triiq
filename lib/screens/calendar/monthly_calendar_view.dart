@@ -146,6 +146,17 @@ class MonthlyCalendarView extends StatelessWidget {
                       ],
                     ),
                   ),
+                CalendarMarkerLegend(
+                  key: const ValueKey('calendar-legend'),
+                  done: Theme.of(context).colorScheme.primary,
+                  planned: Theme.of(context).colorScheme.tertiary,
+                  triiq: Theme.of(context).colorScheme.secondary,
+                  l10n: (
+                    done: l10n.calLegendDone,
+                    planned: l10n.calLegendPlanned,
+                    triiq: l10n.calLegendTriiq,
+                  ),
+                ),
               ],
             );
           },
@@ -292,6 +303,7 @@ class _DayCell extends StatelessWidget {
             color: e.isPlanSession
                 ? colorScheme.secondary
                 : colorScheme.tertiary,
+            kind: e.isPlanSession ? MarkerKind.triiqPlan : MarkerKind.planned,
             size: 12,
           ),
         ),
@@ -394,7 +406,7 @@ class _DayCell extends StatelessWidget {
                         Text(
                           '+${markers.length - maxMarkers}',
                           style: TextStyle(
-                            fontSize: 9,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: colorScheme.onSurfaceVariant,
                           ),

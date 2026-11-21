@@ -183,7 +183,7 @@ abstract class _HeatmapView extends StatelessWidget {
   }
 
   TextStyle? smallLabel(BuildContext context) =>
-      Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 9);
+      Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 11);
 }
 
 /// Monday-first weekday abbreviations in [locale].

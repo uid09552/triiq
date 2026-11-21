@@ -6856,4 +6856,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obProviderOllama => 'Ollama (local)';
+
+  @override
+  String get memoryEdit => 'Edit';
+
+  @override
+  String get memoryUseTitle => 'Use memory in chats';
+
+  @override
+  String get memoryUseSubtitle =>
+      'Off: the trainer does not see these items. They stay listed here.';
+
+  @override
+  String get trainerToneTitle => 'Tone';
+
+  @override
+  String get trainerCadenceTitle => 'Check-ins';
+
+  @override
+  String get toneBalanced => 'Balanced';
+
+  @override
+  String get toneDirect => 'Direct';
+
+  @override
+  String get toneEncouraging => 'Encouraging';
+
+  @override
+  String get toneAnalytical => 'Analytical';
+
+  @override
+  String get cadenceOnRequest => 'Only when I ask';
+
+  @override
+  String get cadenceWeekly => 'Weekly review';
+
+  @override
+  String get cadenceAfterSessions => 'After hard sessions';
+
+  @override
+  String starterMissed(String day) {
+    return 'You missed $day\'s session. Replan the week?';
+  }
+
+  @override
+  String starterForm(String form) {
+    return 'Form is $form. Should I back off?';
+  }
+
+  @override
+  String get chipSick => 'I\'m sick';
+
+  @override
+  String get chipTravel => 'I\'m travelling';
+
+  @override
+  String get chipShortOnTime => 'Short on time';
+
+  @override
+  String get chipSickText =>
+      'I\'m sick. What should I do with this week\'s training?';
+
+  @override
+  String get chipTravelText =>
+      'I\'m travelling soon. How should I adjust the week?';
+
+  @override
+  String get chipShortText =>
+      'I\'m short on time this week. What is the most useful minimum?';
+
+  @override
+  String starterMissedText(String day) {
+    return 'I missed $day\'s session. Ask me why before suggesting a replan.';
+  }
+
+  @override
+  String starterFormText(String form) {
+    return 'My form is $form. Should I back off?';
+  }
+
+  @override
+  String get calLegendDone => 'Done';
+
+  @override
+  String get calLegendPlanned => 'Planned';
+
+  @override
+  String get calLegendTriiq => 'TriIQ plan';
 }

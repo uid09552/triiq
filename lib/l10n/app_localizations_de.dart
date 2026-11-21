@@ -6910,4 +6910,91 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get obProviderOllama => 'Ollama (lokal)';
+
+  @override
+  String get memoryEdit => 'Bearbeiten';
+
+  @override
+  String get memoryUseTitle => 'Gedächtnis im Chat nutzen';
+
+  @override
+  String get memoryUseSubtitle =>
+      'Aus: Der Trainer sieht diese Einträge nicht. Sie bleiben hier gelistet.';
+
+  @override
+  String get trainerToneTitle => 'Ton';
+
+  @override
+  String get trainerCadenceTitle => 'Check-ins';
+
+  @override
+  String get toneBalanced => 'Ausgewogen';
+
+  @override
+  String get toneDirect => 'Direkt';
+
+  @override
+  String get toneEncouraging => 'Ermutigend';
+
+  @override
+  String get toneAnalytical => 'Analytisch';
+
+  @override
+  String get cadenceOnRequest => 'Nur auf Nachfrage';
+
+  @override
+  String get cadenceWeekly => 'Wochenrückblick';
+
+  @override
+  String get cadenceAfterSessions => 'Nach harten Einheiten';
+
+  @override
+  String starterMissed(String day) {
+    return 'Die Einheit am $day ist ausgefallen. Woche neu planen?';
+  }
+
+  @override
+  String starterForm(String form) {
+    return 'Form liegt bei $form. Soll ich zurückfahren?';
+  }
+
+  @override
+  String get chipSick => 'Ich bin krank';
+
+  @override
+  String get chipTravel => 'Ich bin unterwegs';
+
+  @override
+  String get chipShortOnTime => 'Wenig Zeit';
+
+  @override
+  String get chipSickText =>
+      'Ich bin krank. Was mache ich mit dem Training dieser Woche?';
+
+  @override
+  String get chipTravelText =>
+      'Ich bin bald unterwegs. Wie passe ich die Woche an?';
+
+  @override
+  String get chipShortText =>
+      'Ich habe diese Woche wenig Zeit. Was ist das sinnvollste Minimum?';
+
+  @override
+  String starterMissedText(String day) {
+    return 'Die Einheit am $day ist ausgefallen. Frag mich nach dem Grund, bevor du eine Neuplanung vorschlägst.';
+  }
+
+  @override
+  String starterFormText(String form) {
+    return 'Meine Form liegt bei $form. Soll ich zurückfahren?';
+  }
+
+  @override
+  String get calLegendDone => 'Erledigt';
+
+  @override
+  String get calLegendPlanned => 'Geplant';
+
+  @override
+  String get calLegendTriiq => 'TriIQ-Plan';
 }

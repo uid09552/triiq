@@ -20,6 +20,10 @@ class _MemoryScreenState extends State<MemoryScreen> {
   final _input = TextEditingController();
   List<MemoryItem> _items = const [];
   bool _loaded = false;
+  bool _enabled = true;
+  TrainerTone _tone = TrainerTone.balanced;
+  CheckInCadence _cadence = CheckInCadence.onRequest;
+  final _style = TrainerStyle.instance;
 
   @override
   void initState() {
@@ -37,9 +41,15 @@ class _MemoryScreenState extends State<MemoryScreen> {
 
   Future<void> _reload() async {
     final items = await _store.load();
+    final enabled = await _store.isEnabled();
+    final tone = await _style.tone();
+    final cadence = await _style.cadence();
     if (mounted) {
       setState(() {
         _items = items;
+        _enabled = enabled;
+        _tone = tone;
+        _cadence = cadence;
         _loaded = true;
       });
     }
@@ -56,6 +66,36 @@ class _MemoryScreenState extends State<MemoryScreen> {
         SnackBar(content: Text(l10n.memoryFull(AgentMemoryStore.maxItems))),
       );
     }
+  }
+
+  Future<void> _edit(MemoryItem item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController(text: item.text);
+    final text = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.memoryEdit),
+        content: TextField(
+          key: const ValueKey('memory-edit-input'),
+          controller: controller,
+          maxLength: AgentMemoryStore.maxLength,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+          FilledButton(
+            key: const ValueKey('memory-edit-save'),
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: Text(l10n.saveButton),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (text != null) await _store.edit(item.id, text);
   }
 
   Future<void> _clear() async {
@@ -128,6 +168,54 @@ class _MemoryScreenState extends State<MemoryScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            key: const ValueKey('memory-enabled'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.memoryUseTitle),
+            subtitle: Text(l10n.memoryUseSubtitle),
+            value: _enabled,
+            onChanged: (v) async {
+              await _store.setEnabled(v);
+              _reload();
+            },
+          ),
+          const SizedBox(height: 8),
+          Text(l10n.trainerToneTitle, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final t in TrainerTone.values)
+                ChoiceChip(
+                  key: ValueKey('tone-${t.name}'),
+                  label: Text(_toneLabel(l10n, t)),
+                  selected: _tone == t,
+                  onSelected: (_) async {
+                    await _style.setTone(t);
+                    _reload();
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(l10n.trainerCadenceTitle, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final c in CheckInCadence.values)
+                ChoiceChip(
+                  key: ValueKey('cadence-${c.name}'),
+                  label: Text(_cadenceLabel(l10n, c)),
+                  selected: _cadence == c,
+                  onSelected: (_) async {
+                    await _style.setCadence(c);
+                    _reload();
+                  },
+                ),
+            ],
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -169,10 +257,22 @@ class _MemoryScreenState extends State<MemoryScreen> {
               child: ListTile(
                 title: Text(item.text),
                 subtitle: item.fromAgent ? Text(l10n.memoryFromTrainer) : null,
-                trailing: IconButton(
-                  tooltip: l10n.memoryDelete,
-                  icon: const Icon(Icons.close),
-                  onPressed: () => _store.remove(item.id),
+                onTap: () => _edit(item),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      key: ValueKey('memory-edit-${item.id}'),
+                      tooltip: l10n.memoryEdit,
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => _edit(item),
+                    ),
+                    IconButton(
+                      tooltip: l10n.memoryDelete,
+                      icon: const Icon(Icons.close),
+                      onPressed: () => _store.remove(item.id),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -181,3 +281,16 @@ class _MemoryScreenState extends State<MemoryScreen> {
     );
   }
 }
+
+String _toneLabel(AppLocalizations l, TrainerTone t) => switch (t) {
+  TrainerTone.balanced => l.toneBalanced,
+  TrainerTone.direct => l.toneDirect,
+  TrainerTone.encouraging => l.toneEncouraging,
+  TrainerTone.analytical => l.toneAnalytical,
+};
+
+String _cadenceLabel(AppLocalizations l, CheckInCadence c) => switch (c) {
+  CheckInCadence.onRequest => l.cadenceOnRequest,
+  CheckInCadence.weekly => l.cadenceWeekly,
+  CheckInCadence.afterSessions => l.cadenceAfterSessions,
+};

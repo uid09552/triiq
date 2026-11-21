@@ -62,7 +62,7 @@ class ChartTheme {
         scheme.outline,
       ],
       labelStyle: TextStyle(
-        fontSize: 10,
+        fontSize: 11,
         color: scheme.onSurfaceVariant,
         fontFamily: font?.fontFamily,
         fontFamilyFallback: font?.fontFamilyFallback,

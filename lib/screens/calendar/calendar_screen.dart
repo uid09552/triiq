@@ -21,6 +21,7 @@ import 'calendar_moves.dart';
 import 'day_actions.dart';
 import 'day_calendar_view.dart';
 import 'day_cell_parts.dart';
+import 'agenda_view.dart';
 import 'monthly_calendar_view.dart';
 import 'week_actions.dart';
 import 'weekly_calendar_view.dart';
@@ -69,6 +70,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   CalendarFilter _filter = const CalendarFilter();
   bool _compact = true;
   bool _showFilters = false;
+  bool _agenda = false;
   HeatScale _heatScale = HeatScale.theme;
 
   bool _loading = true;
@@ -359,6 +361,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       tooltip: l10n.todayTooltip,
                       icon: const Icon(Icons.today_outlined),
                     ),
+                    if (_level == CalendarLevel.month)
+                      IconButton(
+                        key: const ValueKey('calendar-agenda'),
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () => setState(() => _agenda = !_agenda),
+                        tooltip: l10n.calAgendaTooltip,
+                        isSelected: _agenda,
+                        icon: const Icon(Icons.view_agenda_outlined),
+                        selectedIcon: const Icon(Icons.calendar_view_month),
+                      ),
                     IconButton(
                       key: const ValueKey('calendar-filter'),
                       visualDensity: VisualDensity.compact,
@@ -725,6 +737,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
           onOpenMonth: _openMonth,
         );
       case CalendarLevel.month:
+        if (_agenda) {
+          return AgendaView(
+            month: _date,
+            eventsByDate: data.eventsByDate,
+            activitiesByDate: data.activitiesByDate,
+            onSelect: _tapDay,
+            onLongPress: _dayActions,
+            today: widget.today,
+          );
+        }
         return MonthlyCalendarView(
           month: _date,
           selectedDate: _date,

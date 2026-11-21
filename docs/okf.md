@@ -97,7 +97,7 @@ athlete can:
 | Create a planned workout on Intervals.icu | ✅ Implemented — "Create in Intervals.icu" turns the proposal into a structured workout on today's calendar, after a preview |
 | Accessibility | ✅ Implemented — screen readers get a summary of every chart: line charts per series ("CTL: latest 64, +3 over the range") and the selected point, bar and stacked charts (count, latest, highest), the session stream chart (which streams), the load heatmap (training days, total TSS, longest streak, the layout, and the busiest weekday in the week table), the chart overview strip (the range shown) and tappable legend entries (toggle buttons: "CTL: shown. Tap to hide."), the readiness gauge ("Readiness 72 of 100"), the weekly target rings ("Swim: 1.2 / 2.0 h, 60 %"), Today's hero card as one summary (status, readiness, today's session, tomorrow) and each week-ribbon day ("Wed, Nov 4: done. Open in the calendar."). Every Today gesture has a button or menu path (swipe → screen-reader actions and the ⋯ menu; attention cards → ×). Nothing relies on colour alone: deltas carry +/−, readiness signal pills a rating icon (check, warning, error) and a spoken rating, risk tiles a text label, Compare's B line is dashed (`ChartSeries.dashed`, in the legend too). Today, Insights and the activity page are tested at 1.3× and 2× text (`test/accessibility_test.dart`, Today at 360 dp and 2× in `test/today_states_test.dart`; the activity stat grid grows with the text), and the small icon buttons keep a 48 dp touch target |
 | Error and empty states | ✅ Implemented — one `StatusMessage` (`lib/widgets/status_message.dart`): icon, short title, plain reason, one action. `describeError` maps failures to text you can act on — offline (no response, socket, timeout) → "You're offline" + Retry; HTTP 401/403 → "Intervals.icu refused the request" + Open Profile; not connected → Open Profile; 429 / 5xx → wait and retry; SQLite → local data; else "Something went wrong". The exception text only behind an expandable **Details**. Empty states (`StatusMessage.needsSync`) say what is missing and offer Open Sync. Used on Insights, Performance curves, Durability, Best efforts, Compare periods, Wellness trends, the load heatmap, Weekly review, Activities and the activity page's chart |
-| First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sync more history (this month / this year / everything), sports and weekly hours (saved to `WeeklyTargetsSettings`), year goals (`YearGoalsSettings`), races and events (the event editor), AI trainer (Claude key, Ollama server, or OpenAI-compatible URL + model + optional key, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. The same flow runs from **Settings → Guided setup** (`guided: true`) with current values filled in and kept by clicking Next. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
+| First-run onboarding | ✅ Implemented — a fresh install opens `OnboardingScreen` (`lib/onboarding/`) once over the shell: welcome (with Privacy & data), connect Intervals.icu (API key, "where do I find it?", test, then this month syncs with a progress bar), sync more history (this month / this year / everything; afterwards a hint if activities come only as Strava stubs the API cannot read — connect Garmin, Polar, Suunto or Wahoo to Intervals.icu directly — and a hint for sports without FTP or threshold pace), sports and weekly hours (saved to `WeeklyTargetsSettings`), year goals (`YearGoalsSettings`), races and events (the event editor), AI trainer (Claude key, Ollama server, or OpenAI-compatible URL + model + optional key, then the AI-consent question), done. Every step has *Skip this step*; *Skip setup* leaves at once and Today's "Finish setting up" banner covers the rest. The same flow runs from **Settings → Guided setup** (`guided: true`) with current values filled in and kept by clicking Next. `OnboardingSettings` marks it done; an install that already has preferences or a saved Intervals.icu key is marked done without showing it |
 | Info / version / SBOM | ✅ Implemented — More → Info (and Settings → Info, plus the version in small type at the bottom of Settings): `InfoScreen` (`lib/screens/info/`) shows **TriIQ 0.9.6 (build 1)** read at runtime with `package_info_plus`, the platform, OS and Dart version, links (GitHub, Releases, the in-app privacy screen, the licence), Flutter's **open-source licenses** page, a **Copy version info** button (version, build, platform, OS, locale, theme — no personal data) and the **SBOM**: `assets/sbom/triiq.cdx.json`, a CycloneDX 1.5 list of every Dart/Flutter package, generated by `tool/pubspec_lock_to_cdx.py` from `pubspec.lock` and kept in sync by `test/info/sbom_sync_test.dart` and the SBOM workflow. `SbomScreen` shows the counts (direct / dev / transitive), a searchable list, a details sheet per package with a pub.dev link and **Share / export SBOM (JSON)** (share sheet on phones, save dialog on desktop, like Backup). Not covered: native Android (Gradle) libraries and the Flutter engine |
 | Settings hub | ✅ Implemented — `SettingsScreen` (`lib/screens/settings/settings_hub.dart`) is a search field and four groups: **Training** (weekly targets, year goals, how you feel), **AI trainer** (provider, model, consent), **Data & privacy** (sync, calendar, backup, privacy), **App** (appearance, language, notifications). Below the groups: an **Info** row and the version in small type, both opening the Info screen. Each group opens a `SettingsGroupScreen`; search matches titles and English + German keywords and jumps to the section. AI-setup links elsewhere open the AI trainer page directly |
 | Appearance (system/light/dark/developer theme) | ✅ Implemented — Settings → App → Appearance, applies instantly, persisted |
@@ -1704,6 +1704,14 @@ excluded files and the files allowed to peek; add to its lists consciously.
 
 ### Calendar
 
+**Add and agenda.** A visible **+** in the header opens the day actions
+(including *Add event*) for the selected day, at every level. In Month, the
+agenda button swaps the grid for a list of only the days that have a session.
+Month cells tell sessions apart by shape as well as colour: done = filled
+circle, planned in Intervals.icu = outlined circle, TriIQ plan = outlined
+rounded square, with a legend under the grid. Chart and cell labels are never
+below 11 sp.
+
 **Pinned grid.** In Month and Week the grid stays fixed at the top
 whatever the number of sessions on the selected day; only the day card below
 it scrolls (the grid scrolls on its own, capped at 65 % of the height, only
@@ -1861,6 +1869,15 @@ a refetch. Completed activities have no delete: they are a record of what
 happened, not a plan to change.
 
 ### Chat
+
+**Starters.** An empty chat offers up to two starters built from your data —
+"You missed Tuesday's session. Replan the week?" (a planned session in the
+past week with nothing done that day) and "Form is −28. Should I back off?"
+(CTL − ATL of −25 or lower) — plus one-tap chips: *I'm sick*, *I'm
+travelling*, *Short on time*. With nothing to say, the generic questions
+stay. When a session was missed the trainer asks why before replanning. With
+no AI set up, the empty chat shows **Set up your trainer** with a plain
+recommendation and the provider choices.
 
 Ask the training agent about your own data — "how was last week", "am I
 recovered enough for intervals tomorrow", "is my intensity distribution
@@ -2103,8 +2120,7 @@ set.
 
 A search field over the whole app (see *Search the app*), then three
 groups: **Plan** (Training plans, Season, Events), **Trainer** (Trainer
-memory, Knowledge library — hidden on web) and **Data** (Sync, Info). Profile and
-Settings are behind your avatar in the top bar; the analysis views and
+memory, Knowledge library — hidden on web) and **Data** (Sync, Info). **Settings** is the first row of More (one tap), and also behind your avatar in the top bar, next to Profile; the analysis views and
 Activities live under Insights. What More lists is everything that is not in
 the bottom bar, in your order — see *Arrange the menu* to pin a page to the
 bar or move a tab into More.
@@ -2234,6 +2250,13 @@ good / decent / rough verdict with reasons (e.g. a hard bike). Chat tools:
 `get_fitness_forecast`, `get_health_status`, `get_race_prediction`, `get_bricks`.
 
 ### Trainer memory and backup
+
+**Edit, switch off, tone.** Each memory item has an edit button (the item
+keeps its id and date). *Use memory in chats* switches the whole memory off
+for the trainer; the items stay listed. *Tone* (balanced, direct,
+encouraging, analytical) and *Check-ins* (only when I ask, weekly review,
+after hard sessions) are stored on the device and sent with every turn as
+style preferences that never change the trainer's rules or safety limits.
 
 **Trainer memory** (`lib/agent/agent_memory.dart`, More → Trainer memory). Up to 30
 short preferences (200 characters each, duplicates ignored) in shared

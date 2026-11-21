@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../agent/chat_handoff.dart';
+import '../../agent/chat_starters.dart';
 import '../../agent/chat_transcript.dart';
 import '../../agent/usage.dart';
 import '../../evaluation/fatigue_warning_service.dart';
@@ -41,7 +42,12 @@ class ChatScreen extends StatefulWidget {
     this.proposals,
     this.syncedAt,
     this.fatigueService,
+    this.starterFacts,
   });
+
+  /// What the empty chat's starters are built from (default: the local
+  /// cache); for tests.
+  final Future<StarterFacts> Function()? starterFacts;
 
   /// Builds the agent (default [TrainingAgent.new]); for tests.
   final TrainingAgent Function()? agentFactory;
@@ -97,7 +103,12 @@ class _ChatScreenState extends State<ChatScreen> {
     _proposals.addListener(_save);
     _takeTopic();
     _restore();
+    (widget.starterFacts ?? loadStarterFacts)().then((f) {
+      if (mounted) setState(() => _facts = f);
+    });
   }
+
+  StarterFacts _facts = const StarterFacts();
 
   /// Brings back the conversation (and its unapplied proposals) saved by
   /// an earlier run.
@@ -417,6 +428,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   configured: _settings.isConfigured,
                   needsConsent: _settings.needsConsent,
                   onSuggestion: _sendText,
+                  facts: _facts,
                 )
               : ListView.builder(
                   controller: _scrollController,
@@ -489,8 +501,11 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState({
     required this.configured,
     required this.onSuggestion,
+    this.facts = const StarterFacts(),
     this.needsConsent = false,
   });
+
+  final StarterFacts facts;
 
   final bool configured;
 
@@ -577,14 +592,52 @@ class _EmptyState extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final suggestion in [
-                    l10n.chatSuggestionLastWeek,
-                    l10n.chatSuggestionRecovered,
-                    l10n.chatSuggestionIntensity,
+                  if (facts.missedDate case final d?)
+                    ActionChip(
+                      key: const ValueKey('starter-missed'),
+                      label: Text(l10n.starterMissed(_dayName(context, d))),
+                      onPressed: () => onSuggestion(
+                        l10n.starterMissedText(_dayName(context, d)),
+                      ),
+                    ),
+                  if (facts.formIsLow)
+                    ActionChip(
+                      key: const ValueKey('starter-form'),
+                      label: Text(
+                        l10n.starterForm(facts.form!.round().toString()),
+                      ),
+                      onPressed: () => onSuggestion(
+                        l10n.starterFormText(facts.form!.round().toString()),
+                      ),
+                    ),
+                  if (facts.missedDate == null && !facts.formIsLow)
+                    for (final suggestion in [
+                      l10n.chatSuggestionLastWeek,
+                      l10n.chatSuggestionRecovered,
+                      l10n.chatSuggestionIntensity,
+                    ])
+                      ActionChip(
+                        label: Text(suggestion),
+                        onPressed: () => onSuggestion(suggestion),
+                      ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final (key, label, text) in [
+                    ('sick', l10n.chipSick, l10n.chipSickText),
+                    ('travel', l10n.chipTravel, l10n.chipTravelText),
+                    ('short', l10n.chipShortOnTime, l10n.chipShortText),
                   ])
                     ActionChip(
-                      label: Text(suggestion),
-                      onPressed: () => onSuggestion(suggestion),
+                      key: ValueKey('chip-$key'),
+                      avatar: const Icon(Icons.bolt, size: 16),
+                      label: Text(label),
+                      onPressed: () => onSuggestion(text),
                     ),
                 ],
               ),
@@ -1006,3 +1059,6 @@ class _RedFlagCard extends StatelessWidget {
     );
   }
 }
+
+String _dayName(BuildContext context, DateTime d) =>
+    DateFormat.EEEE(Localizations.localeOf(context).toString()).format(d);

@@ -326,7 +326,7 @@ class _CompactStatTileState extends State<_CompactStatTile> {
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: accent,
                               fontWeight: FontWeight.w700,
-                              fontSize: 10,
+                              fontSize: 11,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
