@@ -895,7 +895,10 @@ class _TodayScreenState extends State<TodayScreen> {
               if (heroHidden && (sick || raceWeek))
                 ...sectionWidgets(TodaySection.hero).skip(2),
               // First load, nothing cached yet: placeholders, not a blank page.
-              if (_loading && _wellness == null && _activities.isEmpty) ...[
+              if (!twoColumns &&
+                  _loading &&
+                  _wellness == null &&
+                  _activities.isEmpty) ...[
                 const SizedBox(height: 12),
                 const SkeletonCard(
                   key: ValueKey('today-skeleton'),

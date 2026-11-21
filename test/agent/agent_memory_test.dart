@@ -172,6 +172,9 @@ void main() {
     );
 
     testWidgets('add, show the trainer tag and remove', (t) async {
+      t.view.physicalSize = const Size(800, 2400);
+      t.view.devicePixelRatio = 1;
+      addTearDown(t.view.reset);
       await store.add('Right knee: no downhill running', fromAgent: true);
       await t.pumpWidget(wrap(MemoryScreen(store: store)));
       await t.pumpAndSettle();

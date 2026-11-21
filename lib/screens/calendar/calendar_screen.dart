@@ -744,7 +744,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             activitiesByDate: data.activitiesByDate,
             onSelect: _tapDay,
             onLongPress: _dayActions,
-            today: widget.today,
+            today: _today,
           );
         }
         return MonthlyCalendarView(

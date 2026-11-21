@@ -141,8 +141,14 @@ void main() {
       await t.pumpWidget(
         wrap(const WorkoutDescription(text: '- 10m 60%\nthen 3x5min hard')),
       );
-      expect(find.byKey(const ValueKey('workout-parse-warning')), findsOneWidget);
-      expect(find.textContaining('1 line was not read as a step'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('workout-parse-warning')),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('1 line was not read as a step'),
+        findsOneWidget,
+      );
     });
   });
 }

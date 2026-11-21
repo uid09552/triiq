@@ -5,7 +5,7 @@ import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../l10n/app_localizations.dart';
 import 'calendar_day_marker.dart';
-import 'calendar_data.dart';
+import '../../util/dates.dart';
 
 /// The month as a vertical list of only the days that have a session, planned
 /// or done: easier to read on a phone than a grid of tiny cells.
@@ -37,8 +37,11 @@ class AgendaView extends StatelessWidget {
     for (var d = 1; d <= last; d++) {
       final date = DateTime(month.year, month.month, d);
       final key = isoDate(date);
-      final planned = (eventsByDate[key] ?? const []).where((e) => e.isTraining);
-      if (planned.isNotEmpty || (activitiesByDate[key] ?? const []).isNotEmpty) {
+      final planned = (eventsByDate[key] ?? const []).where(
+        (e) => e.isTraining,
+      );
+      if (planned.isNotEmpty ||
+          (activitiesByDate[key] ?? const []).isNotEmpty) {
         days.add(date);
       }
     }
@@ -89,8 +92,10 @@ class AgendaView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final e in (eventsByDate[isoDate(date)] ?? const [])
-                            .where((e) => e.isTraining))
+                        for (final e
+                            in (eventsByDate[isoDate(date)] ?? const []).where(
+                              (e) => e.isTraining,
+                            ))
                           _row(
                             context,
                             CalendarDayMarker(
@@ -105,7 +110,9 @@ class AgendaView extends StatelessWidget {
                             ),
                             e.name ?? e.type ?? '',
                           ),
-                        for (final a in activitiesByDate[isoDate(date)] ?? const <LocalActivity>[])
+                        for (final a
+                            in activitiesByDate[isoDate(date)] ??
+                                const <LocalActivity>[])
                           _row(
                             context,
                             CalendarDayMarker(

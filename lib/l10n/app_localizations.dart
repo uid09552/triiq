@@ -11330,6 +11330,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TriIQ plan'**
   String get calLegendTriiq;
+
+  /// No description provided for @workoutUnparsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 line was not read as a step and is shown as plain text.} other{{count} lines were not read as steps and are shown as plain text.}} Intervals.icu may ignore them. Steps start with \"- \", e.g. \"- 10m 70%\".'**
+  String workoutUnparsed(int count);
+
+  /// No description provided for @calAgendaTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda / grid'**
+  String get calAgendaTooltip;
+
+  /// No description provided for @agendaEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions this month.'**
+  String get agendaEmpty;
 }
 
 class _AppLocalizationsDelegate

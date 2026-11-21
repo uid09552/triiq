@@ -6943,4 +6943,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calLegendTriiq => 'TriIQ plan';
+
+  @override
+  String workoutUnparsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines were not read as steps and are shown as plain text.',
+      one: '1 line was not read as a step and is shown as plain text.',
+    );
+    return '$_temp0 Intervals.icu may ignore them. Steps start with \"- \", e.g. \"- 10m 70%\".';
+  }
+
+  @override
+  String get calAgendaTooltip => 'Agenda / grid';
+
+  @override
+  String get agendaEmpty => 'No sessions this month.';
 }
