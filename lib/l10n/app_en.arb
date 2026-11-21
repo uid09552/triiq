@@ -2347,5 +2347,8 @@
   "formStateGrey": "Neutral",
   "formStateOptimal": "Optimal",
   "formStateHighRisk": "Heavy",
-  "formStateHint": "Form zones follow Intervals.icu: form as a percentage of fitness."
+  "formStateHint": "Form zones follow Intervals.icu: form as a percentage of fitness.",
+  "holdTipText": "Tip: hold a tile, a session icon or a day to preview it.",
+  "holdTipGotIt": "Got it",
+  "todayPlanThisDay": "Plan this day…"
 }

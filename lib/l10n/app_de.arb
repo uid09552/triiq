@@ -1960,5 +1960,8 @@
   "formStateGrey": "Neutral",
   "formStateOptimal": "Optimal",
   "formStateHighRisk": "Hart",
-  "formStateHint": "Die Formzonen folgen Intervals.icu: Form als Prozent der Fitness."
+  "formStateHint": "Die Formzonen folgen Intervals.icu: Form als Prozent der Fitness.",
+  "holdTipText": "Tipp: Halte eine Kachel, ein Einheiten-Symbol oder einen Tag gedrückt, um eine Vorschau zu sehen.",
+  "holdTipGotIt": "Verstanden",
+  "todayPlanThisDay": "Diesen Tag planen …"
 }

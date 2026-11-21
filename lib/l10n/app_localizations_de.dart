@@ -6634,4 +6634,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get formStateHint =>
       'Die Formzonen folgen Intervals.icu: Form als Prozent der Fitness.';
+
+  @override
+  String get holdTipText =>
+      'Tipp: Halte eine Kachel, ein Einheiten-Symbol oder einen Tag gedrückt, um eine Vorschau zu sehen.';
+
+  @override
+  String get holdTipGotIt => 'Verstanden';
+
+  @override
+  String get todayPlanThisDay => 'Diesen Tag planen …';
 }

@@ -1641,6 +1641,22 @@ screen and goes away the moment you let go (or if the touch turns into a
 scroll); a quick tap opens the page as always. Peeks read the local cache
 only, so they are instant and work offline. Where it works:
 
+**The rules for a hold.** A hold is a shortcut, never the only way in:
+
+1. It means one of two things — a read-only **peek**, or a **menu** of
+   actions. It never deletes, moves or changes anything by itself (a menu
+   entry that deletes asks first); `test/hold_peeks_test.dart` fails on any
+   `onLongPress` that deletes or removes directly.
+2. Every action reachable by a hold also has a visible route: a ⋯ button, a
+   tap, or a button on the detail screen. On Today the week's target rings
+   open their activities on tap, *Tomorrow's training* has a ⋯ button and a
+   *Plan this day…* button, the Insights volume card has an *Open in
+   Intervals.icu* icon, and the readiness options are one tap further (ring
+   → *Signal options*, or the options icon on the readiness screen).
+3. A one-time tip on Today says items can be held to preview them
+   (*Got it* dismisses it for good; `HoldTipStore`).
+
+
 - **Today**: a day in the week ribbon (the day's plan, activities, load and
   readiness), the icon of a session on the hero card (planned: type, dates,
   notes; completed: key figures) and the rows of Today's activities (key

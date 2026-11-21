@@ -78,6 +78,12 @@ class WeeklyTargetsRow extends StatelessWidget {
           // Long-press lists the week's activities behind the ring, with
           // the same press feedback as the Today tiles.
           return _PressableRing(
+            onTap: () => showWeekActivitiesSheet(
+              context,
+              sportLabel: label,
+              sport: sport,
+              weekActivities: weekActivities,
+            ),
             onLongPress: () => showWeekActivitiesSheet(
               context,
               sportLabel: label,
@@ -126,9 +132,14 @@ class WeeklyTargetsRow extends StatelessWidget {
 /// scale-down, an ink ripple and the platform's long-press haptic
 /// (`InkWell` fires it for any long-press handler).
 class _PressableRing extends StatefulWidget {
-  const _PressableRing({required this.child, required this.onLongPress});
+  const _PressableRing({
+    required this.child,
+    required this.onTap,
+    required this.onLongPress,
+  });
 
   final Widget child;
+  final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   @override
@@ -148,6 +159,7 @@ class _PressableRingState extends State<_PressableRing> {
         type: MaterialType.transparency,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
+          onTap: widget.onTap,
           onLongPress: widget.onLongPress,
           onHighlightChanged: (v) => setState(() => _pressed = v),
           child: Padding(padding: const EdgeInsets.all(4), child: widget.child),

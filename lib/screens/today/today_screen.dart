@@ -44,7 +44,6 @@ import '../../widgets/sync_status_chip.dart';
 import '../activities/activity_detail_screen.dart';
 import '../activities/activity_icons.dart';
 import '../activities/feel_dialog.dart';
-import '../activities/planned_workout_actions.dart';
 import '../activities/planned_workout_detail_screen.dart';
 import '../calendar/calendar_moves.dart';
 import '../calendar/day_actions.dart';
@@ -67,6 +66,7 @@ import 'readiness_card.dart';
 import 'readiness_explain_sheet.dart';
 import 'this_week_card.dart';
 import 'tile_details_sheet.dart';
+import '../../widgets/hold_tip.dart';
 import 'tile_metric.dart';
 import 'tile_spark.dart';
 import 'today_hero_card.dart';
@@ -793,14 +793,14 @@ class _TodayScreenState extends State<TodayScreen> {
           icon: Icons.event_outlined,
           title: l10n.tomorrowsTraining,
           child: _PlannedTraining(
-            onLongPress: _tomorrowsPlan.any(canDeletePlannedWorkout)
-                ? () => confirmAndDeleteDaysWorkouts(context, _tomorrowsPlan)
-                : null,
             events: _tomorrowsPlan,
-            onEmptyLongPress: () => showDayActions(
+            // Hold or the visible button: the day's actions (propose,
+            // add an event, delete the day's training — which asks first).
+            onDayActions: () => showDayActions(
               context,
               _now.add(const Duration(days: 1)),
-              const [],
+              _tomorrowsPlan,
+              activities: const [],
             ),
             emptyLabel: connected
                 ? l10n.nothingPlannedTomorrow
@@ -879,6 +879,7 @@ class _TodayScreenState extends State<TodayScreen> {
             children: [
               PendingChangesCard(),
               _SetupBanner(connected: connected),
+              const HoldTipCard(),
               if (_error != null) ...[
                 const SizedBox(height: 12),
                 SectionCard(
@@ -1409,16 +1410,12 @@ class _PlannedTraining extends StatelessWidget {
   const _PlannedTraining({
     required this.events,
     required this.emptyLabel,
-    this.onLongPress,
-    this.onEmptyLongPress,
+    this.onDayActions,
   });
 
-  /// Offered on a long press of the "nothing planned" line, e.g. to propose
-  /// a training for the day.
-  final VoidCallback? onEmptyLongPress;
-
-  /// Offered on a long press of any session, e.g. to delete the day's.
-  final VoidCallback? onLongPress;
+  /// The day's actions menu: opened by a long press of the line or of any
+  /// session, and by the visible button, so no action is gesture-only.
+  final VoidCallback? onDayActions;
   final List<LocalEvent> events;
   final String emptyLabel;
 
@@ -1434,11 +1431,22 @@ class _PlannedTraining extends StatelessWidget {
           color: theme.colorScheme.onSurfaceVariant,
         ),
       );
-      if (onEmptyLongPress == null) return text;
-      return InkWell(
-        key: const ValueKey('planned-empty'),
-        onLongPress: onEmptyLongPress,
-        child: SizedBox(width: double.infinity, child: text),
+      if (onDayActions == null) return text;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            key: const ValueKey('planned-empty'),
+            onLongPress: onDayActions,
+            child: SizedBox(width: double.infinity, child: text),
+          ),
+          TextButton.icon(
+            key: const ValueKey('planned-empty-plan'),
+            onPressed: onDayActions,
+            icon: const Icon(Icons.add, size: 18),
+            label: Text(l10n.todayPlanThisDay),
+          ),
+        ],
       );
     }
 
@@ -1448,7 +1456,7 @@ class _PlannedTraining extends StatelessWidget {
         for (final event in events) ...[
           if (event != events.first) const Divider(height: 20),
           InkWell(
-            onLongPress: onLongPress,
+            onLongPress: onDayActions,
             onTap: () => event.isPlanSession
                 ? showPlanSessionSheetForEvent(context, event)
                 : Navigator.of(context).push(
@@ -1484,6 +1492,16 @@ class _PlannedTraining extends StatelessWidget {
             ),
           ),
         ],
+        if (onDayActions != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              key: const ValueKey('planned-day-actions'),
+              onPressed: onDayActions,
+              tooltip: l10n.calDayActions,
+              icon: const Icon(Icons.more_horiz),
+            ),
+          ),
       ],
     );
   }

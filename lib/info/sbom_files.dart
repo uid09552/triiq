@@ -11,8 +11,7 @@ import 'package:share_plus/share_plus.dart';
 class SbomFiles {
   const SbomFiles();
 
-  static bool get isMobile =>
-      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+  static bool get isMobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   /// "triiq-0.9.5+1.cdx.json".
   static String fileName(String appVersion) => 'triiq-$appVersion.cdx.json';

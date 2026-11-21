@@ -10742,6 +10742,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Form zones follow Intervals.icu: form as a percentage of fitness.'**
   String get formStateHint;
+
+  /// No description provided for @holdTipText.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: hold a tile, a session icon or a day to preview it.'**
+  String get holdTipText;
+
+  /// No description provided for @holdTipGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get holdTipGotIt;
+
+  /// No description provided for @todayPlanThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan this day…'**
+  String get todayPlanThisDay;
 }
 
 class _AppLocalizationsDelegate

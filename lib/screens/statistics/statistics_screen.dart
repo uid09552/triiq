@@ -363,6 +363,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               SectionCard(
                 icon: Icons.route_outlined,
                 title: l10n.volumeTitle,
+                trailing: IconButton(
+                  key: const ValueKey('volume-open-intervals'),
+                  tooltip: l10n.openInIntervals,
+                  icon: const Icon(Icons.open_in_new),
+                  onPressed: () => showOpenInIntervalsSheet(
+                    context,
+                    label: l10n.volumeTitle,
+                    path: 'activities',
+                  ),
+                ),
                 child: Column(
                   children: [
                     Row(

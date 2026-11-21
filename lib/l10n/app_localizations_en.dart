@@ -6582,4 +6582,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get formStateHint =>
       'Form zones follow Intervals.icu: form as a percentage of fitness.';
+
+  @override
+  String get holdTipText =>
+      'Tip: hold a tile, a session icon or a day to preview it.';
+
+  @override
+  String get holdTipGotIt => 'Got it';
+
+  @override
+  String get todayPlanThisDay => 'Plan this day…';
 }
