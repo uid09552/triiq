@@ -6874,4 +6874,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get redFlagPalpitations => 'Herzrasen oder Herzstolpern';
+
+  @override
+  String get calAddTooltip => 'Zum Tag hinzufügen';
 }

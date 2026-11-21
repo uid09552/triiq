@@ -2427,5 +2427,6 @@
   "redFlagChestPain": "chest pain or pressure",
   "redFlagFainting": "fainting or collapsing",
   "redFlagBreathing": "trouble breathing",
-  "redFlagPalpitations": "heart palpitations"
+  "redFlagPalpitations": "heart palpitations",
+  "calAddTooltip": "Add to this day"
 }

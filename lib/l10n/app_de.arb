@@ -2025,5 +2025,6 @@
   "redFlagChestPain": "Brustschmerzen oder Druck auf der Brust",
   "redFlagFainting": "Ohnmacht oder Kollaps",
   "redFlagBreathing": "Atemnot",
-  "redFlagPalpitations": "Herzrasen oder Herzstolpern"
+  "redFlagPalpitations": "Herzrasen oder Herzstolpern",
+  "calAddTooltip": "Zum Tag hinzufügen"
 }

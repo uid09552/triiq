@@ -13,6 +13,7 @@ import '../info/info_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
 import '../memory/memory_screen.dart';
 import '../plan/plan_screen.dart';
+import '../settings/settings_screen.dart';
 import '../season/season_screen.dart';
 import '../sync/sync_screen.dart';
 
@@ -182,6 +183,16 @@ class _MoreScreenState extends State<MoreScreen> {
           onChanged: (v) => setState(() => _query = v),
         ),
         const SizedBox(height: 8),
+        if (!searching)
+          _MoreTile(
+            key: const ValueKey('more-settings'),
+            icon: Icons.settings_outlined,
+            title: l10n.titleSettings,
+            subtitle: l10n.searchDescSettings,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+            ),
+          ),
         if (searching)
           ..._results(context, l10n)
         else

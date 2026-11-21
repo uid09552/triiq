@@ -11132,6 +11132,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'heart palpitations'**
   String get redFlagPalpitations;
+
+  /// No description provided for @calAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to this day'**
+  String get calAddTooltip;
 }
 
 class _AppLocalizationsDelegate

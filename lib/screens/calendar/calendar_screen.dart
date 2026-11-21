@@ -347,6 +347,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   children: [
                     Expanded(child: _summary(context, l10n)),
                     IconButton(
+                      key: const ValueKey('calendar-add'),
+                      onPressed: () => _dayActions(_date),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: l10n.calAddTooltip,
+                      icon: const Icon(Icons.add),
+                    ),
+                    IconButton(
                       onPressed: _goToToday,
                       visualDensity: VisualDensity.compact,
                       tooltip: l10n.todayTooltip,

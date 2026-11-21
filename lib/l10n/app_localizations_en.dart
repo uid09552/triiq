@@ -6821,4 +6821,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get redFlagPalpitations => 'heart palpitations';
+
+  @override
+  String get calAddTooltip => 'Add to this day';
 }
