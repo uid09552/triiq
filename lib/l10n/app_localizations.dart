@@ -10760,6 +10760,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plan this day…'**
   String get todayPlanThisDay;
+
+  /// No description provided for @chatStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get chatStop;
+
+  /// No description provided for @chatBasedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on: {sources}'**
+  String chatBasedOn(String sources);
+
+  /// No description provided for @chatBasedOnNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on nothing from your data: general advice'**
+  String get chatBasedOnNothing;
+
+  /// No description provided for @chatDataAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data was last synced {when}.'**
+  String chatDataAsOf(String when);
+
+  /// No description provided for @chatUsageLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens · local, free'**
+  String chatUsageLocal(String tokens);
+
+  /// No description provided for @chatUsageCost.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens · about {cost}'**
+  String chatUsageCost(String tokens, String cost);
+
+  /// No description provided for @chatUsageNoPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens · price not set'**
+  String chatUsageNoPrice(String tokens);
+
+  /// No description provided for @chatStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get chatStopped;
+
+  /// No description provided for @chatSrcAthlete.
+  ///
+  /// In en, this message translates to:
+  /// **'athlete profile'**
+  String get chatSrcAthlete;
+
+  /// No description provided for @chatSrcMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'daily load and wellness'**
+  String get chatSrcMetrics;
+
+  /// No description provided for @chatSrcActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'activities'**
+  String get chatSrcActivities;
+
+  /// No description provided for @chatSrcPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'planned workouts'**
+  String get chatSrcPlanned;
+
+  /// No description provided for @chatSrcSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'training summary'**
+  String get chatSrcSummary;
+
+  /// No description provided for @chatSrcGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'training knowledge'**
+  String get chatSrcGuidance;
+
+  /// No description provided for @chatSrcPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'training plan'**
+  String get chatSrcPlan;
+
+  /// No description provided for @chatSrcReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'readiness'**
+  String get chatSrcReadiness;
+
+  /// No description provided for @chatSrcFatigue.
+  ///
+  /// In en, this message translates to:
+  /// **'fatigue warning'**
+  String get chatSrcFatigue;
+
+  /// No description provided for @chatSrcForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'fitness forecast'**
+  String get chatSrcForecast;
+
+  /// No description provided for @chatSrcHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'health status'**
+  String get chatSrcHealth;
+
+  /// No description provided for @chatSrcCurves.
+  ///
+  /// In en, this message translates to:
+  /// **'performance curves'**
+  String get chatSrcCurves;
+
+  /// No description provided for @chatSrcAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'plan adjustments'**
+  String get chatSrcAdjust;
+
+  /// No description provided for @chatSrcRace.
+  ///
+  /// In en, this message translates to:
+  /// **'race prediction'**
+  String get chatSrcRace;
+
+  /// No description provided for @chatSrcThresholds.
+  ///
+  /// In en, this message translates to:
+  /// **'threshold suggestions'**
+  String get chatSrcThresholds;
+
+  /// No description provided for @chatSrcWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'weekly review'**
+  String get chatSrcWeekly;
+
+  /// No description provided for @chatSrcBricks.
+  ///
+  /// In en, this message translates to:
+  /// **'brick sessions'**
+  String get chatSrcBricks;
+
+  /// No description provided for @chatSrcTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'session templates'**
+  String get chatSrcTemplate;
 }
 
 class _AppLocalizationsDelegate

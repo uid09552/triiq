@@ -7,6 +7,7 @@ import '../../agent/chat_model_factory.dart';
 import '../../agent/llm_settings.dart';
 import '../../agent/training_agent.dart';
 import '../../agent/training_detail.dart';
+import '../../agent/usage.dart';
 import '../../agent/workout_draft_parser.dart';
 import '../../data/intervals_session.dart';
 import '../../data/intervals_workout_service.dart';
@@ -414,6 +415,8 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
         case AgentProposal() || AgentNavigation():
           // Train Now has no proposal or page cards; the chat does.
           break;
+        case AgentUsage(:final usage):
+          UsageLedger.instance.record(usage);
       }
     });
   }

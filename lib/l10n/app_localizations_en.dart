@@ -6592,4 +6592,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayPlanThisDay => 'Plan this day…';
+
+  @override
+  String get chatStop => 'Stop';
+
+  @override
+  String chatBasedOn(String sources) {
+    return 'Based on: $sources';
+  }
+
+  @override
+  String get chatBasedOnNothing =>
+      'Based on nothing from your data: general advice';
+
+  @override
+  String chatDataAsOf(String when) {
+    return 'Your data was last synced $when.';
+  }
+
+  @override
+  String chatUsageLocal(String tokens) {
+    return '$tokens tokens · local, free';
+  }
+
+  @override
+  String chatUsageCost(String tokens, String cost) {
+    return '$tokens tokens · about $cost';
+  }
+
+  @override
+  String chatUsageNoPrice(String tokens) {
+    return '$tokens tokens · price not set';
+  }
+
+  @override
+  String get chatStopped => 'Stopped';
+
+  @override
+  String get chatSrcAthlete => 'athlete profile';
+
+  @override
+  String get chatSrcMetrics => 'daily load and wellness';
+
+  @override
+  String get chatSrcActivities => 'activities';
+
+  @override
+  String get chatSrcPlanned => 'planned workouts';
+
+  @override
+  String get chatSrcSummary => 'training summary';
+
+  @override
+  String get chatSrcGuidance => 'training knowledge';
+
+  @override
+  String get chatSrcPlan => 'training plan';
+
+  @override
+  String get chatSrcReadiness => 'readiness';
+
+  @override
+  String get chatSrcFatigue => 'fatigue warning';
+
+  @override
+  String get chatSrcForecast => 'fitness forecast';
+
+  @override
+  String get chatSrcHealth => 'health status';
+
+  @override
+  String get chatSrcCurves => 'performance curves';
+
+  @override
+  String get chatSrcAdjust => 'plan adjustments';
+
+  @override
+  String get chatSrcRace => 'race prediction';
+
+  @override
+  String get chatSrcThresholds => 'threshold suggestions';
+
+  @override
+  String get chatSrcWeekly => 'weekly review';
+
+  @override
+  String get chatSrcBricks => 'brick sessions';
+
+  @override
+  String get chatSrcTemplate => 'session templates';
 }

@@ -6644,4 +6644,93 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get todayPlanThisDay => 'Diesen Tag planen …';
+
+  @override
+  String get chatStop => 'Stopp';
+
+  @override
+  String chatBasedOn(String sources) {
+    return 'Basiert auf: $sources';
+  }
+
+  @override
+  String get chatBasedOnNothing =>
+      'Basiert auf nichts aus deinen Daten: allgemeiner Rat';
+
+  @override
+  String chatDataAsOf(String when) {
+    return 'Deine Daten wurden zuletzt $when abgeglichen.';
+  }
+
+  @override
+  String chatUsageLocal(String tokens) {
+    return '$tokens Tokens · lokal, kostenlos';
+  }
+
+  @override
+  String chatUsageCost(String tokens, String cost) {
+    return '$tokens Tokens · ca. $cost';
+  }
+
+  @override
+  String chatUsageNoPrice(String tokens) {
+    return '$tokens Tokens · Preis nicht festgelegt';
+  }
+
+  @override
+  String get chatStopped => 'Gestoppt';
+
+  @override
+  String get chatSrcAthlete => 'Athletenprofil';
+
+  @override
+  String get chatSrcMetrics => 'Tagesbelastung und Wellness';
+
+  @override
+  String get chatSrcActivities => 'Aktivitäten';
+
+  @override
+  String get chatSrcPlanned => 'geplante Einheiten';
+
+  @override
+  String get chatSrcSummary => 'Trainingsübersicht';
+
+  @override
+  String get chatSrcGuidance => 'Trainingswissen';
+
+  @override
+  String get chatSrcPlan => 'Trainingsplan';
+
+  @override
+  String get chatSrcReadiness => 'Bereitschaft';
+
+  @override
+  String get chatSrcFatigue => 'Ermüdungswarnung';
+
+  @override
+  String get chatSrcForecast => 'Fitnessprognose';
+
+  @override
+  String get chatSrcHealth => 'Gesundheitsstatus';
+
+  @override
+  String get chatSrcCurves => 'Leistungskurven';
+
+  @override
+  String get chatSrcAdjust => 'Plananpassungen';
+
+  @override
+  String get chatSrcRace => 'Wettkampfprognose';
+
+  @override
+  String get chatSrcThresholds => 'Schwellenwert-Vorschläge';
+
+  @override
+  String get chatSrcWeekly => 'Wochenrückblick';
+
+  @override
+  String get chatSrcBricks => 'Koppeleinheiten';
+
+  @override
+  String get chatSrcTemplate => 'Einheitenvorlagen';
 }

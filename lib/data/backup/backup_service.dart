@@ -85,6 +85,9 @@ class BackupService {
 
   static bool excludedPref(String key) =>
       key.startsWith('sync.background_') ||
+      // The conversation and what it used stay on this device.
+      key.startsWith('chat.') ||
+      key.startsWith('usage.') ||
       (key.startsWith('llm.') && !portableLlmPrefs.contains(key)) ||
       key == PrivacySettings.aiConsentHostsPref ||
       RegExp(

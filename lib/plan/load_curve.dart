@@ -23,6 +23,34 @@ class CurveLimits {
     this.taperFactors = const [],
   });
 
+  Map<String, dynamic> toJson() => {
+    'baseline': baseline,
+    'rampCap': rampCap,
+    'maxCtlRamp': maxCtlRamp,
+    'recoveryThreshold': recoveryThreshold,
+    'ctl': ctl,
+    'holdEvery': holdEvery,
+    'hoursCeilings': hoursCeilings,
+    'taperFactors': taperFactors,
+  };
+
+  factory CurveLimits.fromJson(Map<String, dynamic> json) => CurveLimits(
+    baseline: (json['baseline'] as num).toDouble(),
+    rampCap: (json['rampCap'] as num).toDouble(),
+    maxCtlRamp: (json['maxCtlRamp'] as num).toDouble(),
+    recoveryThreshold: (json['recoveryThreshold'] as num).toDouble(),
+    ctl: (json['ctl'] as num?)?.toDouble(),
+    holdEvery: (json['holdEvery'] as num?)?.toInt() ?? 0,
+    hoursCeilings: {
+      for (final e in (json['hoursCeilings'] as Map? ?? const {}).entries)
+        e.key as String: (e.value as num).toDouble(),
+    },
+    taperFactors: [
+      for (final f in json['taperFactors'] as List? ?? const [])
+        (f as num).toDouble(),
+    ],
+  );
+
   /// Weekly load the plan builds from (TSS).
   final double baseline;
 

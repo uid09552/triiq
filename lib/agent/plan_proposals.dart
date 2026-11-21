@@ -128,6 +128,99 @@ class SessionSwapProposal extends PlanProposal {
   final PlanSession second;
 }
 
+/// A proposal as saved with the chat, so it survives a restart. Only the
+/// agent's own proposals can be saved: the ones that answer a plan drift
+/// ([Adaptation]) are rebuilt from the plan by Today, and a swap holds whole
+/// plan sessions — those return `null` and are not restored.
+Map<String, dynamic>? proposalToJson(PlanProposal p) {
+  if (p.adaptation != null) return null;
+  final base = <String, dynamic>{
+    'summary': p.summary,
+    'fingerprint': p.fingerprint,
+    'state': p.state.name,
+  };
+  return switch (p) {
+    CurveProposal() => {
+      ...base,
+      'kind': 'curve',
+      'goal': p.goal.toJson(),
+      'limits': p.limits.toJson(),
+      'weeks': p.weeks,
+      'changedWeeks': p.changedWeeks.toList()..sort(),
+    },
+    PlanDraftProposal() => {
+      ...base,
+      'kind': 'draft',
+      'goal': p.goal.toJson(),
+      'limits': p.limits?.toJson(),
+      'weeks': p.weeks,
+    },
+    SessionChangeProposal() => {
+      ...base,
+      'kind': 'session',
+      'sessionId': p.sessionId,
+      'name': p.name,
+      'sport': p.sport,
+      'from': p.from.toIso8601String(),
+      'to': p.to?.toIso8601String(),
+      'missed': p.missed,
+    },
+    SessionSwapProposal() => null,
+  };
+}
+
+/// The proposal [proposalToJson] saved, or `null` when it can't be read.
+/// Not registered yet: see [PlanProposals.restore].
+PlanProposal? proposalFromJson(Object? json) {
+  if (json is! Map<String, dynamic>) return null;
+  try {
+    final summary = json['summary'] as String;
+    final fingerprint = json['fingerprint'] as String;
+    final limits = json['limits'];
+    final proposal = switch (json['kind']) {
+      'curve' => CurveProposal(
+        summary: summary,
+        fingerprint: fingerprint,
+        goal: Goal.fromJson(json['goal'] as Map<String, dynamic>),
+        limits: CurveLimits.fromJson(limits as Map<String, dynamic>),
+        weeks: (json['weeks'] as num).toInt(),
+        changedWeeks: {
+          for (final w in json['changedWeeks'] as List) (w as num).toInt(),
+        },
+      ),
+      'draft' => PlanDraftProposal(
+        summary: summary,
+        fingerprint: fingerprint,
+        goal: Goal.fromJson(json['goal'] as Map<String, dynamic>),
+        limits: limits is Map<String, dynamic>
+            ? CurveLimits.fromJson(limits)
+            : null,
+        weeks: (json['weeks'] as num?)?.toInt(),
+      ),
+      'session' => SessionChangeProposal(
+        summary: summary,
+        fingerprint: fingerprint,
+        sessionId: (json['sessionId'] as num).toInt(),
+        name: json['name'] as String,
+        sport: json['sport'] as String,
+        from: DateTime.parse(json['from'] as String),
+        to: json['to'] == null ? null : DateTime.parse(json['to'] as String),
+        missed: json['missed'] as bool? ?? false,
+      ),
+      _ => null,
+    };
+    if (proposal == null) return null;
+    final state = ProposalState.values.asNameMap()[json['state']];
+    // An apply that was running when the app died did not finish.
+    proposal.state = state == null || state == ProposalState.applying
+        ? ProposalState.pending
+        : state;
+    return proposal;
+  } catch (_) {
+    return null;
+  }
+}
+
 /// What the athlete did with a proposal, for the agent's next turn.
 class ProposalOutcome {
   const ProposalOutcome(this.id, this.summary, this.state, [this.detail]);
@@ -181,6 +274,17 @@ class PlanProposals extends ChangeNotifier {
   }
 
   PlanProposal? operator [](String id) => _byId[id];
+
+  /// Registers a proposal read back from storage under a new id, keeping
+  /// its state. It still has to pass the fingerprint check to be applied,
+  /// so one made from an older plan turns stale instead of changing a plan
+  /// it was not made for.
+  T restore<T extends PlanProposal>(T proposal) {
+    final state = proposal.state;
+    register(proposal);
+    proposal.state = state;
+    return proposal;
+  }
 
   /// The live proposal for adaptation [key], if any.
   PlanProposal? byKey(String key) {
