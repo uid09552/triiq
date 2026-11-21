@@ -1550,7 +1550,7 @@
   "pvDataTitle": "What is processed",
   "pvDataBody": "• Activities and routes (GPS tracks) from Intervals.icu\n• Health and wellness data: heart rate, HRV, resting heart rate, sleep, weight and how you feel. This is health data, a special category under the GDPR.\n• Your profile: name, picture, thresholds, goals and plans\n• API keys for the services you connect",
   "pvStoredTitle": "Where it is stored",
-  "pvStoredBody": "Only on this device: a local database and app preferences. API keys are kept in the operating system's secure storage. Android's cloud backup is switched off for the app. TriIQ has no server and receives none of your data.",
+  "pvStoredBody": "Only on this device: a local database and app preferences, including the AI trainer chat so it survives a restart (New chat or Delete all data removes it). API keys are kept in the operating system's secure storage. Android's cloud backup is switched off for the app. TriIQ has no server and receives none of your data.",
   "pvRecipientsTitle": "Who receives data",
   "pvRecipientsBody": "• Intervals.icu: your training data is synced with your account, using your API key.\n• Your AI provider (Claude by Anthropic, Ollama Cloud, an OpenAI-compatible service you configured, or a server on your own network): only when you have allowed it below and use the AI trainer, Train now, the weekly note or AI-written plan content. The conversation and the training and health data it needs are sent.\n• OpenStreetMap tile servers: only when a route map is shown. They see your IP address and the map area.\nNothing else: no analytics, no crash reporting, no advertising.",
   "pvTransferTitle": "Transfers outside the EU/EEA",

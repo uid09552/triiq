@@ -21,6 +21,8 @@ import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/plan/plan_changes.dart';
 import 'package:triiq/screens/activities/planned_workout_actions.dart';
+import 'package:triiq/agent/chat_transcript.dart';
+import 'package:triiq/agent/usage.dart';
 import 'package:triiq/evaluation/fatigue_warning.dart';
 import 'package:triiq/evaluation/fatigue_warning_service.dart';
 import 'package:triiq/screens/chat/chat_screen.dart';
@@ -185,6 +187,32 @@ void main() {
         expect(llm.provider, LlmProvider.claude);
         expect(llm.ollamaModel, LlmSettings.defaultOllamaModel);
         expect(llm.openAiApiKey, isNull);
+      },
+    );
+
+    test(
+      'the saved chat and the usage figures go with everything else',
+      () async {
+        // The chat (health talk included) is kept on the device, so erasing
+        // all data has to take it too.
+        SharedPreferences.setMockInitialValues({
+          ChatStore.prefsKey: '{"v":1,"messages":[]}',
+          UsageLedger.prefsKey: '{"month":"2026-11","models":{}}',
+        });
+        final temp = await Directory(p.join(dir.path, 'tmp')).create();
+        await DataEraser(
+          database: database,
+          llm: LlmSettings.forTesting(),
+          privacy: PrivacySettings.forTesting(),
+          notifications: FakeNotifications(),
+          clearHomeWidget: () async {},
+          tempDirectory: () async => temp,
+          reloaders: const [],
+        ).eraseAll();
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString(ChatStore.prefsKey), isNull);
+        expect(prefs.getString(UsageLedger.prefsKey), isNull);
       },
     );
 

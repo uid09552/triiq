@@ -4216,7 +4216,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pvStoredBody =>
-      'Nur auf diesem Gerät: einer lokalen Datenbank und den App-Einstellungen. API-Schlüssel liegen im sicheren Speicher des Betriebssystems. Das Android-Cloud-Backup ist für die App abgeschaltet. TriIQ hat keinen Server und erhält keine deiner Daten.';
+      'Nur auf diesem Gerät: einer lokalen Datenbank und den App-Einstellungen, auch der Chat mit dem KI-Trainer, damit er einen Neustart übersteht (Neuer Chat oder Alle Daten löschen entfernt ihn). API-Schlüssel liegen im sicheren Speicher des Betriebssystems. Das Android-Cloud-Backup ist für die App abgeschaltet. TriIQ hat keinen Server und erhält keine deiner Daten.';
 
   @override
   String get pvRecipientsTitle => 'Wer Daten erhält';
