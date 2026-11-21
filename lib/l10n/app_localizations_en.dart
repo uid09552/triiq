@@ -6681,4 +6681,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatSrcTemplate => 'session templates';
+
+  @override
+  String get usageTitle => 'Usage this month';
+
+  @override
+  String get usageIntro =>
+      'What the AI trainer used this month, on this device only. Estimates from list prices: your provider\'s bill is what counts.';
+
+  @override
+  String get usageNothing => 'Nothing used yet this month.';
+
+  @override
+  String usageTokens(String input, String output) {
+    return '$input in · $output out';
+  }
+
+  @override
+  String get usageLocalFree => 'local, free';
+
+  @override
+  String get usageSetPrice => 'Set price';
+
+  @override
+  String get usageMonthTotal => 'Estimated this month';
+
+  @override
+  String usageAtLeast(String cost) {
+    return 'at least $cost';
+  }
+
+  @override
+  String get usageReset => 'Reset';
+
+  @override
+  String get usageResetTitle => 'Reset this month\'s usage?';
+
+  @override
+  String get usageResetBody =>
+      'This only clears the figures kept on this device.';
+
+  @override
+  String get usageNote =>
+      'A reply you stop is still billed for what was generated. A model with no price shows tokens only until you set one.';
+
+  @override
+  String usagePriceTitle(String model) {
+    return 'Price of $model';
+  }
+
+  @override
+  String get usagePriceHelp =>
+      'US dollars per million tokens, from your provider\'s price list.';
+
+  @override
+  String get usagePriceInput => 'Input per 1M tokens';
+
+  @override
+  String get usagePriceOutput => 'Output per 1M tokens';
+
+  @override
+  String get usagePriceDefault => 'Use default';
+
+  @override
+  String get saveButton => 'Save';
 }

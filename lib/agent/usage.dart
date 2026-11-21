@@ -276,9 +276,12 @@ class UsageLedger extends ChangeNotifier {
   }
 }
 
-/// "1.2k" / "340" for a token count.
-String formatTokens(int tokens) =>
-    tokens >= 1000 ? '${(tokens / 1000).toStringAsFixed(1)}k' : '$tokens';
+/// "340" / "1.2k" / "2.5M" for a token count.
+String formatTokens(int tokens) => tokens >= 1000000
+    ? '${(tokens / 1e6).toStringAsFixed(1)}M'
+    : tokens >= 1000
+    ? '${(tokens / 1000).toStringAsFixed(1)}k'
+    : '$tokens';
 
 /// "$0.03" for a cost, with more digits for tiny amounts.
 String formatCost(double dollars) => dollars < 0.01 && dollars > 0

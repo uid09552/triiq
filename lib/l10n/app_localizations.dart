@@ -10916,6 +10916,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'session templates'**
   String get chatSrcTemplate;
+
+  /// No description provided for @usageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage this month'**
+  String get usageTitle;
+
+  /// No description provided for @usageIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'What the AI trainer used this month, on this device only. Estimates from list prices: your provider\'s bill is what counts.'**
+  String get usageIntro;
+
+  /// No description provided for @usageNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing used yet this month.'**
+  String get usageNothing;
+
+  /// No description provided for @usageTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'{input} in · {output} out'**
+  String usageTokens(String input, String output);
+
+  /// No description provided for @usageLocalFree.
+  ///
+  /// In en, this message translates to:
+  /// **'local, free'**
+  String get usageLocalFree;
+
+  /// No description provided for @usageSetPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Set price'**
+  String get usageSetPrice;
+
+  /// No description provided for @usageMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated this month'**
+  String get usageMonthTotal;
+
+  /// No description provided for @usageAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'at least {cost}'**
+  String usageAtLeast(String cost);
+
+  /// No description provided for @usageReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get usageReset;
+
+  /// No description provided for @usageResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset this month\'s usage?'**
+  String get usageResetTitle;
+
+  /// No description provided for @usageResetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This only clears the figures kept on this device.'**
+  String get usageResetBody;
+
+  /// No description provided for @usageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A reply you stop is still billed for what was generated. A model with no price shows tokens only until you set one.'**
+  String get usageNote;
+
+  /// No description provided for @usagePriceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price of {model}'**
+  String usagePriceTitle(String model);
+
+  /// No description provided for @usagePriceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'US dollars per million tokens, from your provider\'s price list.'**
+  String get usagePriceHelp;
+
+  /// No description provided for @usagePriceInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Input per 1M tokens'**
+  String get usagePriceInput;
+
+  /// No description provided for @usagePriceOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output per 1M tokens'**
+  String get usagePriceOutput;
+
+  /// No description provided for @usagePriceDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Use default'**
+  String get usagePriceDefault;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
 }
 
 class _AppLocalizationsDelegate

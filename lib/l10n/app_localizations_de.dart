@@ -6733,4 +6733,68 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get chatSrcTemplate => 'Einheitenvorlagen';
+
+  @override
+  String get usageTitle => 'Nutzung in diesem Monat';
+
+  @override
+  String get usageIntro =>
+      'Was der KI-Trainer in diesem Monat verbraucht hat, nur auf diesem Gerät. Schätzungen nach Listenpreisen: Maßgeblich ist die Rechnung deines Anbieters.';
+
+  @override
+  String get usageNothing => 'In diesem Monat noch nichts verbraucht.';
+
+  @override
+  String usageTokens(String input, String output) {
+    return '$input ein · $output aus';
+  }
+
+  @override
+  String get usageLocalFree => 'lokal, kostenlos';
+
+  @override
+  String get usageSetPrice => 'Preis festlegen';
+
+  @override
+  String get usageMonthTotal => 'Geschätzt in diesem Monat';
+
+  @override
+  String usageAtLeast(String cost) {
+    return 'mindestens $cost';
+  }
+
+  @override
+  String get usageReset => 'Zurücksetzen';
+
+  @override
+  String get usageResetTitle => 'Nutzung dieses Monats zurücksetzen?';
+
+  @override
+  String get usageResetBody =>
+      'Das löscht nur die Zahlen, die auf diesem Gerät gespeichert sind.';
+
+  @override
+  String get usageNote =>
+      'Eine gestoppte Antwort wird trotzdem für das berechnet, was erzeugt wurde. Ein Modell ohne Preis zeigt nur Tokens, bis du einen festlegst.';
+
+  @override
+  String usagePriceTitle(String model) {
+    return 'Preis für $model';
+  }
+
+  @override
+  String get usagePriceHelp =>
+      'US-Dollar pro Million Tokens, laut Preisliste deines Anbieters.';
+
+  @override
+  String get usagePriceInput => 'Eingabe pro 1 Mio. Tokens';
+
+  @override
+  String get usagePriceOutput => 'Ausgabe pro 1 Mio. Tokens';
+
+  @override
+  String get usagePriceDefault => 'Standard verwenden';
+
+  @override
+  String get saveButton => 'Speichern';
 }

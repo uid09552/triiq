@@ -20,6 +20,7 @@ import 'llm_models_section.dart';
 import 'privacy_screen.dart';
 import 'settings_hub.dart';
 import 'home_widget_section.dart';
+import 'usage_section.dart';
 import 'weekly_targets_section.dart';
 import 'year_goals_section.dart';
 
@@ -182,6 +183,12 @@ class _SettingsGroupScreenState extends State<SettingsGroupScreen> {
                   icon: Icons.auto_awesome_outlined,
                   title: l10n.llmProviderTitle,
                   child: const LlmModelsSection(),
+                ),
+                const SizedBox(height: 16),
+                SectionCard(
+                  icon: Icons.data_usage_outlined,
+                  title: l10n.usageTitle,
+                  child: UsageSection(),
                 ),
               ],
             ),

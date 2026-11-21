@@ -89,6 +89,7 @@ void main() {
   test('formatting', () {
     expect(formatTokens(340), '340');
     expect(formatTokens(1234), '1.2k');
+    expect(formatTokens(2500000), '2.5M');
     expect(formatCost(0.004), '<\$0.01');
     expect(formatCost(0.5), '\$0.500');
     expect(formatCost(12.345), '\$12.35');
