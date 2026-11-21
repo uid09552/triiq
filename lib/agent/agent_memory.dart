@@ -216,15 +216,23 @@ class TrainerStyle extends ChangeNotifier {
   static const cadenceKey = 'agent.style.cadence';
 
   Future<TrainerTone> tone() async {
-    final prefs = await SharedPreferences.getInstance();
-    return TrainerTone.values.asNameMap()[prefs.getString(toneKey)] ??
-        TrainerTone.balanced;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return TrainerTone.values.asNameMap()[prefs.getString(toneKey)] ??
+          TrainerTone.balanced;
+    } catch (_) {
+      return TrainerTone.balanced;
+    }
   }
 
   Future<CheckInCadence> cadence() async {
-    final prefs = await SharedPreferences.getInstance();
-    return CheckInCadence.values.asNameMap()[prefs.getString(cadenceKey)] ??
-        CheckInCadence.onRequest;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return CheckInCadence.values.asNameMap()[prefs.getString(cadenceKey)] ??
+          CheckInCadence.onRequest;
+    } catch (_) {
+      return CheckInCadence.onRequest;
+    }
   }
 
   Future<void> setTone(TrainerTone t) async {
