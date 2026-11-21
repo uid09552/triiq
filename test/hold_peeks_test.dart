@@ -671,6 +671,9 @@ void main() {
         'lib/screens/today/week_ribbon.dart',
         'lib/screens/today/today_screen.dart',
         'lib/screens/activities/activities_screen.dart',
+        // The stream-backed tiles on an activity's page (no long press
+        // before).
+        'lib/screens/activities/activity_detail_screen.dart',
         'lib/screens/plan/plan_screen.dart',
         'lib/screens/events/events_screen.dart',
         'lib/screens/more/more_screen.dart',

@@ -6455,4 +6455,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setGuidedSetupSub =>
       'Step by step: Intervals.icu, sync, goals, events, AI trainer';
+
+  @override
+  String get statPeekHeartRate => 'Heart rate';
+
+  @override
+  String get statPeekPower => 'Power';
+
+  @override
+  String get statPeekSpeed => 'Speed';
+
+  @override
+  String get statPeekPace => 'Pace';
+
+  @override
+  String get statPeekMin => 'min';
+
+  @override
+  String get statPeekAvg => 'avg';
+
+  @override
+  String get statPeekMax => 'max';
+
+  @override
+  String statPeekMostTime(String range, int share) {
+    return 'Most time at $range ($share%)';
+  }
+
+  @override
+  String statPeekRecorded(String duration) {
+    return '$duration recorded';
+  }
+
+  @override
+  String get statPeekNoStream =>
+      'No samples for this activity — the device recorded none, or the streams could not be loaded.';
 }

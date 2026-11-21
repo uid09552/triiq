@@ -22,6 +22,7 @@ import '../../widgets/charts/chart_viewport.dart';
 import '../../widgets/section_card.dart';
 import '../../util/dates.dart';
 import '../../widgets/main_navigation.dart';
+import '../../widgets/peekable.dart';
 import '../../widgets/stat_tile.dart';
 import 'activity_icons.dart';
 import 'feel_dialog.dart';
@@ -34,6 +35,7 @@ import '../compare/compare_screen.dart';
 import 'activity_extras_card.dart';
 import 'route_card.dart';
 import 'session_analysis.dart';
+import 'stat_tile_peek.dart';
 import 'year_sport_widgets.dart';
 
 /// One activity's stats, its evaluation against the plan, its streams over
@@ -195,7 +197,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         onAskTrainer: (e) => _askTrainer(context, e),
       ),
       const SizedBox(height: 16),
-      _StatGrid(activity: activity, full: full),
+      _StatGrid(activity: activity, full: full, streams: widget.streams),
       YearSportCard(activity: activity),
       if (_hasZoneData(full)) ...[
         const SizedBox(height: 16),
@@ -500,25 +502,59 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 /// The curated set of extra numbers worth a tile, built from whichever of
 /// [full]'s many fields are actually present for this activity — a swim
 /// won't have power, a strength session won't have distance.
+///
+/// Tiles backed by a stream (distance → speed or pace, heart rate, power)
+/// peek on a long press: a histogram of the time spent at each value.
 class _StatGrid extends StatelessWidget {
-  const _StatGrid({required this.activity, required this.full});
+  _StatGrid({
+    required this.activity,
+    required this.full,
+    ActivityStreamsRepository? streams,
+  }) : streams = streams ?? ActivityStreamsRepository();
 
   final LocalActivity activity;
   final Activity full;
+  final ActivityStreamsRepository streams;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final sport = canonicalSport(activity.type);
 
-    final tiles = <StatTile>[
+    Widget peek(StatTile tile, StatStream stream, String title) => Peekable(
+      key: ValueKey('stat-peek-${stream.name}-${tile.label}'),
+      estimatedHeight: 230,
+      preview: (context) => StatTilePeek(
+        title: title,
+        activityId: activity.id,
+        stream: stream,
+        streams: streams,
+        color: tile.color ?? colorScheme.primary,
+        pace: sport == 'run',
+      ),
+      child: tile,
+    );
+
+    final tiles = <Widget>[
       if (activity.distance != null && activity.distance! > 0)
-        StatTile(
-          label: l10n.distanceLabel,
-          value: formatDistanceMeters(activity.distance!),
-          icon: Icons.straighten_outlined,
-          color: colorScheme.primary,
-        ),
+        sport == 'swim'
+            ? StatTile(
+                label: l10n.distanceLabel,
+                value: formatDistanceMeters(activity.distance!),
+                icon: Icons.straighten_outlined,
+                color: colorScheme.primary,
+              )
+            : peek(
+                StatTile(
+                  label: l10n.distanceLabel,
+                  value: formatDistanceMeters(activity.distance!),
+                  icon: Icons.straighten_outlined,
+                  color: colorScheme.primary,
+                ),
+                StatStream.speed,
+                sport == 'run' ? l10n.statPeekPace : l10n.statPeekSpeed,
+              ),
       if (activity.movingTime != null && activity.movingTime! > 0)
         StatTile(
           label: l10n.durationLabel,
@@ -541,32 +577,48 @@ class _StatGrid extends StatelessWidget {
           color: colorScheme.primary,
         ),
       if (full.averageHeartrate != null)
-        StatTile(
-          label: l10n.avgHrLabel,
-          value: '${full.averageHeartrate!.round()} bpm',
-          icon: Icons.favorite_outline,
-          color: colorScheme.error,
+        peek(
+          StatTile(
+            label: l10n.avgHrLabel,
+            value: '${full.averageHeartrate!.round()} bpm',
+            icon: Icons.favorite_outline,
+            color: colorScheme.error,
+          ),
+          StatStream.heartrate,
+          l10n.statPeekHeartRate,
         ),
       if (full.maxHeartrate != null)
-        StatTile(
-          label: l10n.maxHrLabel,
-          value: '${full.maxHeartrate} bpm',
-          icon: Icons.favorite,
-          color: colorScheme.error,
+        peek(
+          StatTile(
+            label: l10n.maxHrLabel,
+            value: '${full.maxHeartrate} bpm',
+            icon: Icons.favorite,
+            color: colorScheme.error,
+          ),
+          StatStream.heartrate,
+          l10n.statPeekHeartRate,
         ),
       if (full.icuWeightedAvgWatts != null)
-        StatTile(
-          label: l10n.avgPowerNpLabel,
-          value: '${full.icuWeightedAvgWatts} W',
-          icon: Icons.flash_on_outlined,
-          color: colorScheme.tertiary,
+        peek(
+          StatTile(
+            label: l10n.avgPowerNpLabel,
+            value: '${full.icuWeightedAvgWatts} W',
+            icon: Icons.flash_on_outlined,
+            color: colorScheme.tertiary,
+          ),
+          StatStream.power,
+          l10n.statPeekPower,
         )
       else if (full.icuAverageWatts != null)
-        StatTile(
-          label: l10n.avgPowerLabel,
-          value: '${full.icuAverageWatts} W',
-          icon: Icons.flash_on_outlined,
-          color: colorScheme.tertiary,
+        peek(
+          StatTile(
+            label: l10n.avgPowerLabel,
+            value: '${full.icuAverageWatts} W',
+            icon: Icons.flash_on_outlined,
+            color: colorScheme.tertiary,
+          ),
+          StatStream.power,
+          l10n.statPeekPower,
         ),
       if (full.calories != null)
         StatTile(

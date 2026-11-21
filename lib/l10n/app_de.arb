@@ -1926,5 +1926,15 @@
   "obAddEvent": "Weiteren Termin hinzufügen",
   "obEventsAdded": "{count, plural, =1{1 Termin hinzugefügt.} other{{count} Termine hinzugefügt.}}",
   "setGuidedSetup": "Geführte Einrichtung",
-  "setGuidedSetupSub": "Schritt für Schritt: Intervals.icu, Abgleich, Ziele, Termine, KI-Trainer"
+  "setGuidedSetupSub": "Schritt für Schritt: Intervals.icu, Abgleich, Ziele, Termine, KI-Trainer",
+  "statPeekHeartRate": "Herzfrequenz",
+  "statPeekPower": "Leistung",
+  "statPeekSpeed": "Geschwindigkeit",
+  "statPeekPace": "Pace",
+  "statPeekMin": "min",
+  "statPeekAvg": "Ø",
+  "statPeekMax": "max",
+  "statPeekMostTime": "Am längsten bei {range} ({share} %)",
+  "statPeekRecorded": "{duration} aufgezeichnet",
+  "statPeekNoStream": "Keine Messwerte für diese Aktivität – das Gerät hat keine aufgezeichnet, oder die Streams ließen sich nicht laden."
 }

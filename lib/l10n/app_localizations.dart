@@ -10531,6 +10531,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step by step: Intervals.icu, sync, goals, events, AI trainer'**
   String get setGuidedSetupSub;
+
+  /// No description provided for @statPeekHeartRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate'**
+  String get statPeekHeartRate;
+
+  /// No description provided for @statPeekPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Power'**
+  String get statPeekPower;
+
+  /// No description provided for @statPeekSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get statPeekSpeed;
+
+  /// No description provided for @statPeekPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pace'**
+  String get statPeekPace;
+
+  /// No description provided for @statPeekMin.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get statPeekMin;
+
+  /// No description provided for @statPeekAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'avg'**
+  String get statPeekAvg;
+
+  /// No description provided for @statPeekMax.
+  ///
+  /// In en, this message translates to:
+  /// **'max'**
+  String get statPeekMax;
+
+  /// No description provided for @statPeekMostTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Most time at {range} ({share}%)'**
+  String statPeekMostTime(String range, int share);
+
+  /// No description provided for @statPeekRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} recorded'**
+  String statPeekRecorded(String duration);
+
+  /// No description provided for @statPeekNoStream.
+  ///
+  /// In en, this message translates to:
+  /// **'No samples for this activity — the device recorded none, or the streams could not be loaded.'**
+  String get statPeekNoStream;
 }
 
 class _AppLocalizationsDelegate

@@ -6507,4 +6507,39 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get setGuidedSetupSub =>
       'Schritt für Schritt: Intervals.icu, Abgleich, Ziele, Termine, KI-Trainer';
+
+  @override
+  String get statPeekHeartRate => 'Herzfrequenz';
+
+  @override
+  String get statPeekPower => 'Leistung';
+
+  @override
+  String get statPeekSpeed => 'Geschwindigkeit';
+
+  @override
+  String get statPeekPace => 'Pace';
+
+  @override
+  String get statPeekMin => 'min';
+
+  @override
+  String get statPeekAvg => 'Ø';
+
+  @override
+  String get statPeekMax => 'max';
+
+  @override
+  String statPeekMostTime(String range, int share) {
+    return 'Am längsten bei $range ($share %)';
+  }
+
+  @override
+  String statPeekRecorded(String duration) {
+    return '$duration aufgezeichnet';
+  }
+
+  @override
+  String get statPeekNoStream =>
+      'Keine Messwerte für diese Aktivität – das Gerät hat keine aufgezeichnet, oder die Streams ließen sich nicht laden.';
 }

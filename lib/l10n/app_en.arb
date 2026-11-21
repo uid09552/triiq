@@ -2305,5 +2305,17 @@
   "obEventsAdded": "{count, plural, =1{1 event added.} other{{count} events added.}}",
   "@obEventsAdded": {"placeholders": {"count": {"type": "int"}}},
   "setGuidedSetup": "Guided setup",
-  "setGuidedSetupSub": "Step by step: Intervals.icu, sync, goals, events, AI trainer"
+  "setGuidedSetupSub": "Step by step: Intervals.icu, sync, goals, events, AI trainer",
+  "statPeekHeartRate": "Heart rate",
+  "statPeekPower": "Power",
+  "statPeekSpeed": "Speed",
+  "statPeekPace": "Pace",
+  "statPeekMin": "min",
+  "statPeekAvg": "avg",
+  "statPeekMax": "max",
+  "statPeekMostTime": "Most time at {range} ({share}%)",
+  "@statPeekMostTime": {"placeholders": {"range": {"type": "String"}, "share": {"type": "int"}}},
+  "statPeekRecorded": "{duration} recorded",
+  "@statPeekRecorded": {"placeholders": {"duration": {"type": "String"}}},
+  "statPeekNoStream": "No samples for this activity — the device recorded none, or the streams could not be loaded."
 }

@@ -1653,6 +1653,13 @@ only, so they are instant and work offline. Where it works:
 - **Readiness**: the signal pills (see Today).
 - **Activities**: every row (distance, time, TSS, average heart rate and power,
   climb, trend arrow, and one line of the sport's year so far).
+- **An activity's page**: the **Distance**, **Avg HR / Max HR** and
+  **power** tiles — a histogram of the time spent at each value from the
+  activity's streams (heart rate in 5 bpm bins, power in 25 W bins, speed in
+  5 km/h bins or, for a run, pace), with min / avg / max, the most common
+  range and its share, and the recorded time. Pauses longer than 10 s between
+  samples are left out; a swim's distance has no peek. The streams come from
+  the device's cache, or are loaded once (as the Charts tab does).
 - **Training plan**: a session tile in a week (its steps).
 - **Events**: an entry (type, dates, the start of its notes).
 - **Search** (More): a result (the app documentation's passage on it).
