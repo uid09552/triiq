@@ -411,6 +411,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ? Duration.zero
                     : const Duration(milliseconds: 240),
                 switchInCurve: Curves.easeOutCubic,
+                // Top, not centred: a short day would otherwise float in
+                // the middle of the screen.
+                layoutBuilder: (current, previous) => Stack(
+                  alignment: Alignment.topCenter,
+                  children: [...previous, ?current],
+                ),
                 transitionBuilder: (child, animation) => FadeTransition(
                   opacity: animation,
                   child: ScaleTransition(
@@ -756,6 +762,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           mover: _mover,
           onMove: _moveTo,
           today: widget.today,
+          week: () {
+            final (monday, sunday) = calendarRange(CalendarLevel.week, _date);
+            return PeriodSummary(data, monday, sunday, today: _today);
+          }(),
         );
     }
   }

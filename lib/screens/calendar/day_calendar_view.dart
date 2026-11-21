@@ -9,10 +9,12 @@ import '../../util/dates.dart';
 import '../today/readiness_card.dart' show readinessColor, readinessLevelLabel;
 import 'calendar_day_detail.dart';
 import 'calendar_moves.dart';
+import 'calendar_data.dart';
 import 'day_cell_parts.dart';
+import 'day_summary_card.dart';
 
 /// One day, full width: the day's readiness, HRV, resting HR, sleep and
-/// feel, then its sessions (swipe a planned one left to delete, a completed
+/// feel, its statistics (hold for details), then its sessions (swipe a planned one left to delete, a completed
 /// one right for "How did it feel?"; long-press to drag, or "Move to…").
 class DayCalendarView extends StatelessWidget {
   const DayCalendarView({
@@ -26,7 +28,11 @@ class DayCalendarView extends StatelessWidget {
     this.mover,
     this.onMove,
     this.today,
+    this.week,
   });
+
+  /// The week the day is in, for the statistics card.
+  final PeriodSummary? week;
 
   final DateTime date;
   final List<LocalEvent> events;
@@ -93,6 +99,14 @@ class DayCalendarView extends StatelessWidget {
             Wrap(spacing: 6, runSpacing: 6, children: pills),
             const SizedBox(height: 10),
           ],
+          DaySummaryCard(
+            events: events,
+            activities: activities,
+            dayEvents: dayEvents,
+            wellness: wellness,
+            week: week,
+          ),
+          const SizedBox(height: 10),
           CalendarDayDetail(
             date: date,
             events: events,
