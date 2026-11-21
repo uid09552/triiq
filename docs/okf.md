@@ -1889,12 +1889,51 @@ Intervals.icu when it is there (that needs a connection and **Send plan to
 Intervals.icu** on), and a plan opens the plan preview, where you take it.
 A card made before you edited the graph or plan says it is out of date
 instead of overwriting your edit; a failed apply shows why and offers
-**Retry**. Proposals last until the app restarts.
+**Retry**. A **load-graph card** shows each changed week **before → after**
+(TSS, with the total) and, once applied, an **Undo** that puts the old goal
+back — offered only while nothing else has changed the plan since (otherwise it
+says so), and not for a removed session or a plan taken through the preview;
+a moved session and a swap can be undone too. An applied-then-undone change is
+reported to the trainer on the next turn.
+
+**The chat is kept.** The conversation (and every unapplied proposal, with its
+before → after) is saved on the device (`chat.transcript`, newest 60 messages;
+`ChatStore`) and is back after a restart; a restored proposal still has to pass
+the same "plan unchanged" check, so one made from an older plan turns *out of
+date* instead of changing anything. A new agent is given the visible
+conversation as plain text, so a restored chat — or a changed provider —
+carries on in context. The saved chat never goes into a backup and goes with
+*Erase all data*.
+
+**What a reply says about itself.** Under each answer: *Based on: …* — the data
+tools it actually used, in plain words (athlete profile, activities, readiness,
+…; tap to see how fresh the synced data was), or *Based on nothing from your
+data: general advice* when it used none; the chip with the model that answered;
+and the **tokens it used** with an estimated cost (*local, free* for a model on
+your own machine, *price not set* for a model with no known price). **Stop**
+(the send button while a reply streams) ends it and keeps what arrived. Tokens
+add up per month and per model under **Settings → AI trainer → Usage** (this
+device only, not in a backup), with a **Set price** per model (US dollars per
+million tokens; built-in prices only for a few Claude families, anything else
+shows tokens until you set one) and **Reset**. A stopped reply is still billed
+for what was generated.
+
+**Safety is enforced in code, not left to the model** (`lib/plan/proposal_safety.dart`).
+A load-graph week beyond the plan's limits (80–120 % of its proposal, which
+already respects the weekly and CTL ramp) is **limited to the edge** — the card
+says so and the trainer is told; a **hard session** (intervals or long) is never
+proposed for the same day as, or next to, another hard one, nor for a day you
+are logged **sick or injured** (or in the return ramp) — the trainer is told why
+and offers rest or an easy session. Words in your message that suggest
+**chest pain, fainting, trouble breathing or heart palpitations** (English and
+German) bring a *Please get this checked* card under it at once — no training
+until a doctor has looked, emergency number if sudden or severe — and the
+trainer still answers. The multi-day **fatigue warning** shows above the chat
+when it says watch or warning. None of this is a diagnosis; TriIQ is not a doctor.
 
 **New chat** (top right of the transcript) clears the conversation and the
 agent's own memory of it, after asking — the next question starts from
-scratch. Conversation history lives in memory only either way: it's gone
-when the app restarts.
+scratch, and the saved chat is deleted.
 
 ### Train now
 

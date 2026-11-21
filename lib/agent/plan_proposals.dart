@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../data/repositories/plans_repository.dart';
 import '../plan/load_curve.dart';
 import '../plan/plan_adaptation.dart';
+import '../plan/proposal_safety.dart';
 import '../plan/plan_models.dart';
 
 /// Where a proposal is in its life. Only [pending] and [failed] can still
@@ -80,8 +81,13 @@ class CurveProposal extends PlanProposal {
     required this.weeks,
     required this.changedWeeks,
     this.previousGoal,
+    this.clamps = const [],
     super.adaptation,
   });
+
+  /// Weeks that were asked to go beyond the plan's limits and were limited
+  /// to them; the card says so.
+  final List<RampClamp> clamps;
 
   final Goal goal;
 
@@ -186,6 +192,7 @@ Map<String, dynamic>? proposalToJson(PlanProposal p) {
       'weeks': p.weeks,
       'changedWeeks': p.changedWeeks.toList()..sort(),
       'previousGoal': p.previousGoal?.toJson(),
+      'clamps': [for (final k in p.clamps) k.toJson()],
     },
     PlanDraftProposal() => {
       ...base,
@@ -229,6 +236,10 @@ PlanProposal? proposalFromJson(Object? json) {
         previousGoal: json['previousGoal'] is Map<String, dynamic>
             ? Goal.fromJson(json['previousGoal'] as Map<String, dynamic>)
             : null,
+        clamps: [
+          for (final k in json['clamps'] as List? ?? const [])
+            ?RampClamp.fromJson(k),
+        ],
       ),
       'draft' => PlanDraftProposal(
         summary: summary,

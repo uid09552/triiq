@@ -21,6 +21,7 @@ import 'package:triiq/plan/plan_actions.dart';
 import 'package:triiq/plan/plan_inputs.dart';
 import 'package:triiq/plan/plan_models.dart';
 import 'package:triiq/plan/plan_service.dart';
+import 'package:triiq/plan/proposal_safety.dart';
 import 'package:triiq/screens/chat/proposal_card.dart';
 
 class _NoWorkouts implements PlannedWorkoutWriter {
@@ -320,6 +321,27 @@ void main() {
         1,
         0.81,
       ]);
+    });
+
+    testWidgets('a limited week says so on the card', (tester) async {
+      final p = proposals.register(
+        CurveProposal(
+          summary: 'week 4 -> 475 TSS',
+          fingerprint: 'v1',
+          goal: goal.copyWith(loadFactors: [1, 1, 1, 1.08]),
+          limits: limits,
+          weeks: 4,
+          changedWeeks: {3},
+          previousGoal: goal,
+          clamps: const [RampClamp(week: 4, asked: 600, limited: 475)],
+        ),
+      );
+      await pump(tester, p);
+      expect(find.byKey(const ValueKey('proposal-clamped')), findsOneWidget);
+      expect(
+        find.textContaining('Week 4: asked for 600 TSS, limited to 475'),
+        findsOneWidget,
+      );
     });
 
     test('what can be undone', () {

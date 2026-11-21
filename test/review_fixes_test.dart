@@ -21,6 +21,8 @@ import 'package:triiq/data/repositories/plans_repository.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/plan/plan_changes.dart';
 import 'package:triiq/screens/activities/planned_workout_actions.dart';
+import 'package:triiq/evaluation/fatigue_warning.dart';
+import 'package:triiq/evaluation/fatigue_warning_service.dart';
 import 'package:triiq/screens/chat/chat_screen.dart';
 import 'package:triiq/screens/statistics/statistics_screen.dart';
 import 'package:triiq/widgets/osm_layers.dart';
@@ -57,6 +59,13 @@ class _Writer implements PlannedWorkoutWriter {
   @override
   Future<void> deletePlannedWorkout(String eventId) async =>
       deleted.add(eventId);
+}
+
+/// No warning: keeps the chat's banner from reading the database.
+class _NoFatigue extends FatigueWarningService {
+  @override
+  Future<FatigueWarning> load() async =>
+      const FatigueWarning(level: FatigueLevel.none, signals: [], window: 5);
 }
 
 void main() {
@@ -99,7 +108,9 @@ void main() {
     testWidgets('the chat input and send button are off without consent', (
       tester,
     ) async {
-      await tester.pumpWidget(_app(const Scaffold(body: ChatScreen())));
+      await tester.pumpWidget(
+        _app(Scaffold(body: ChatScreen(fatigueService: _NoFatigue()))),
+      );
       await tester.pump();
       final input = tester.widget<TextField>(
         find.byKey(const ValueKey('chat-input')),

@@ -6,6 +6,9 @@ import 'package:intl/intl.dart';
 import '../../agent/chat_handoff.dart';
 import '../../agent/chat_transcript.dart';
 import '../../agent/usage.dart';
+import '../../evaluation/fatigue_warning_service.dart';
+import '../../plan/proposal_safety.dart';
+import '../today/fatigue_warning_card.dart' show FatigueWarningBanner;
 import '../../data/repositories/sync_state_repository.dart';
 import '../../agent/chat_model_factory.dart';
 import '../../agent/llm_settings.dart';
@@ -37,6 +40,7 @@ class ChatScreen extends StatefulWidget {
     this.store,
     this.proposals,
     this.syncedAt,
+    this.fatigueService,
   });
 
   /// Builds the agent (default [TrainingAgent.new]); for tests.
@@ -50,6 +54,10 @@ class ChatScreen extends StatefulWidget {
   /// When the local data was last synced (default: the activities sync
   /// state); for tests.
   final Future<DateTime?> Function()? syncedAt;
+
+  /// Reads the fatigue early warning for the banner above the chat (default
+  /// from the local cache); for tests.
+  final FatigueWarningService? fatigueService;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -186,16 +194,25 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty || !_canSend) return;
 
     final reply = TranscriptMessage(fromUser: false);
+    // What the model is told is the conversation up to this question.
+    final earlier = List<TranscriptMessage>.of(_messages);
+    // Words that call for a doctor get a card at once, whatever the model
+    // goes on to say.
+    final flags = redFlagsIn(text);
     setState(() {
-      _messages
-        ..add(TranscriptMessage(fromUser: true, text: text))
-        ..add(reply);
+      _messages.add(TranscriptMessage(fromUser: true, text: text));
+      if (flags.isNotEmpty) {
+        _messages.add(
+          TranscriptMessage(fromUser: false)..redFlags.addAll(flags),
+        );
+      }
+      _messages.add(reply);
       _activity = AppLocalizations.of(context)!.thinkingEllipsis;
     });
     _controller.clear();
     _scrollToEnd();
 
-    final agent = _agent ??= _newAgent();
+    final agent = _agent ??= _newAgent(earlier);
     agent.attachedContext = _topic?.context;
     _streaming = reply;
     _save();
@@ -218,14 +235,12 @@ class _ChatScreenState extends State<ChatScreen> {
   /// A fresh agent that already knows the conversation on screen (the
   /// messages before the one being sent now), so a restored chat carries on
   /// in context and a provider change does not make it forget.
-  TrainingAgent _newAgent() {
+  TrainingAgent _newAgent(List<TranscriptMessage> before) {
     final agent = (widget.agentFactory ?? TrainingAgent.new)();
-    final before = _messages.length >= 2
-        ? _messages.sublist(0, _messages.length - 2)
-        : const <TranscriptMessage>[];
     agent.restoreHistory([
       for (final m in before)
-        if (!m.isError) (fromUser: m.fromUser, text: m.text),
+        if (!m.isError && m.text.trim().isNotEmpty)
+          (fromUser: m.fromUser, text: m.text),
     ]);
     return agent;
   }
@@ -391,6 +406,11 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
           ),
+        // The multi-day fatigue early warning, when the data calls for it.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: FatigueWarningBanner(service: widget.fatigueService),
+        ),
         Expanded(
           child: _messages.isEmpty
               ? _EmptyState(
@@ -686,6 +706,9 @@ class _MessageWithProposals extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (message.redFlags.isNotEmpty) {
+      return _RedFlagCard(flags: message.redFlags);
+    }
     if (message.proposals.isEmpty && message.navigations.isEmpty) {
       return _ChatBubble(message: message);
     }
@@ -898,6 +921,67 @@ class _ReplyMetaState extends State<_ReplyMeta> {
               style: muted,
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Shown at once under a message whose words suggest something that needs a
+/// doctor rather than a training tip. It does not replace the trainer's
+/// reply and does not judge: it says what to do and that TriIQ cannot.
+class _RedFlagCard extends StatelessWidget {
+  const _RedFlagCard({required this.flags});
+
+  final List<RedFlag> flags;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    String label(RedFlag f) => switch (f) {
+      RedFlag.chestPain => l10n.redFlagChestPain,
+      RedFlag.fainting => l10n.redFlagFainting,
+      RedFlag.breathing => l10n.redFlagBreathing,
+      RedFlag.palpitations => l10n.redFlagPalpitations,
+    };
+    return Card(
+      key: const ValueKey('red-flag-card'),
+      color: scheme.errorContainer,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.health_and_safety_outlined,
+              color: scheme.onErrorContainer,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.redFlagTitle,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: scheme.onErrorContainer,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.redFlagBody(flags.map(label).join(', ')),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onErrorContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

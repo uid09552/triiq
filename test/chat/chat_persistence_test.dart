@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:triiq/agent/chat_transcript.dart';
+import 'package:triiq/evaluation/fatigue_warning.dart';
+import 'package:triiq/evaluation/fatigue_warning_service.dart';
 import 'package:triiq/agent/llm_model_entry.dart';
 import 'package:triiq/agent/llm_settings.dart';
 import 'package:triiq/agent/plan_proposals.dart';
@@ -29,6 +31,13 @@ class _ScriptedAgent extends TrainingAgent {
   @override
   void restoreHistory(Iterable<({bool fromUser, String text})> turns) =>
       restored.addAll(turns);
+}
+
+/// No warning: keeps the banner from reading the database in these tests.
+class _NoFatigue extends FatigueWarningService {
+  @override
+  Future<FatigueWarning> load() async =>
+      const FatigueWarning(level: FatigueLevel.none, signals: [], window: 5);
 }
 
 const _entry = LlmModelEntry(
@@ -205,6 +214,7 @@ void main() {
               store: store,
               proposals: proposals,
               syncedAt: () async => DateTime(2026, 11, 21, 8, 15),
+              fatigueService: _NoFatigue(),
             ),
           ),
         ),
@@ -306,6 +316,33 @@ void main() {
         find.text('Based on nothing from your data: general advice'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('words that call for a doctor get a card at once', (t) async {
+      await pump(t, script: answer);
+      await ask(t, 'I get chest pain on my long runs');
+      expect(find.byKey(const ValueKey('red-flag-card')), findsOneWidget);
+      expect(find.textContaining('Please get this checked'), findsOneWidget);
+      expect(find.textContaining('chest pain or pressure'), findsOneWidget);
+      // The trainer still answers; the card does not replace it.
+      expect(find.text('You rode 3 times.'), findsOneWidget);
+
+      // It is part of the saved chat, and the model's context skips it.
+      await t.pumpWidget(const SizedBox());
+      final agents = <_ScriptedAgent>[];
+      await pump(t, script: answer, agents: agents);
+      expect(find.byKey(const ValueKey('red-flag-card')), findsOneWidget);
+      await ask(t, 'And now?');
+      expect(agents.single.restored.map((e) => e.text), [
+        'I get chest pain on my long runs',
+        'You rode 3 times.',
+      ]);
+    });
+
+    testWidgets('ordinary questions get no card', (t) async {
+      await pump(t, script: answer);
+      await ask(t, 'How was my week?');
+      expect(find.byKey(const ValueKey('red-flag-card')), findsNothing);
     });
 
     testWidgets('a local model is free', (t) async {

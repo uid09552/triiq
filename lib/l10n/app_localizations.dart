@@ -11078,6 +11078,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This change can\'t be undone.'**
   String get proposalUndoUnavailable;
+
+  /// No description provided for @proposalClampedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Limited to what the plan\'s weekly ramp allows:'**
+  String get proposalClampedTitle;
+
+  /// No description provided for @proposalClampedHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: asked for {asked} TSS, limited to {limited} (the most allowed).'**
+  String proposalClampedHigh(int week, int asked, int limited);
+
+  /// No description provided for @proposalClampedLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: asked for {asked} TSS, limited to {limited} (the least allowed).'**
+  String proposalClampedLow(int week, int asked, int limited);
+
+  /// No description provided for @redFlagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please get this checked'**
+  String get redFlagTitle;
+
+  /// No description provided for @redFlagBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You mention {signs}. That can be serious. Don\'t train until a doctor has looked at it, and if it is sudden or severe, call your local emergency number now. TriIQ is not a doctor and can\'t judge this.'**
+  String redFlagBody(String signs);
+
+  /// No description provided for @redFlagChestPain.
+  ///
+  /// In en, this message translates to:
+  /// **'chest pain or pressure'**
+  String get redFlagChestPain;
+
+  /// No description provided for @redFlagFainting.
+  ///
+  /// In en, this message translates to:
+  /// **'fainting or collapsing'**
+  String get redFlagFainting;
+
+  /// No description provided for @redFlagBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'trouble breathing'**
+  String get redFlagBreathing;
+
+  /// No description provided for @redFlagPalpitations.
+  ///
+  /// In en, this message translates to:
+  /// **'heart palpitations'**
+  String get redFlagPalpitations;
 }
 
 class _AppLocalizationsDelegate

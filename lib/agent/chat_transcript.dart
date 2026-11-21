@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../plan/proposal_safety.dart' show RedFlag;
 import 'plan_proposals.dart';
 import 'training_agent.dart' show AgentReplyBuffer;
 import 'usage.dart';
@@ -51,6 +52,10 @@ class TranscriptMessage {
   /// The athlete stopped the reply before it was finished.
   bool stopped = false;
 
+  /// Set on a safety message (no text): the signs in the athlete's words
+  /// that call for a doctor. Shown as a card under their message.
+  final redFlags = <RedFlag>[];
+
   Map<String, dynamic> toJson() => {
     'fromUser': fromUser,
     'text': text,
@@ -62,6 +67,7 @@ class TranscriptMessage {
     'usage': usage?.toJson(),
     'dataAsOf': dataAsOf?.toIso8601String(),
     'stopped': stopped,
+    'redFlags': [for (final f in redFlags) f.name],
     'proposals': [for (final p in proposals) ?proposalToJson(p)],
   };
 
@@ -90,6 +96,10 @@ class TranscriptMessage {
     final asOf = json['dataAsOf'];
     m.dataAsOf = asOf is String ? DateTime.tryParse(asOf) : null;
     m.stopped = json['stopped'] == true;
+    for (final n in json['redFlags'] as List? ?? const []) {
+      final flag = RedFlag.values.asNameMap()['$n'];
+      if (flag != null) m.redFlags.add(flag);
+    }
     m.buffer.text = text;
     for (final raw in json['proposals'] as List? ?? const []) {
       final p = proposalFromJson(raw);

@@ -6787,4 +6787,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proposalUndoUnavailable => 'This change can\'t be undone.';
+
+  @override
+  String get proposalClampedTitle =>
+      'Limited to what the plan\'s weekly ramp allows:';
+
+  @override
+  String proposalClampedHigh(int week, int asked, int limited) {
+    return 'Week $week: asked for $asked TSS, limited to $limited (the most allowed).';
+  }
+
+  @override
+  String proposalClampedLow(int week, int asked, int limited) {
+    return 'Week $week: asked for $asked TSS, limited to $limited (the least allowed).';
+  }
+
+  @override
+  String get redFlagTitle => 'Please get this checked';
+
+  @override
+  String redFlagBody(String signs) {
+    return 'You mention $signs. That can be serious. Don\'t train until a doctor has looked at it, and if it is sudden or severe, call your local emergency number now. TriIQ is not a doctor and can\'t judge this.';
+  }
+
+  @override
+  String get redFlagChestPain => 'chest pain or pressure';
+
+  @override
+  String get redFlagFainting => 'fainting or collapsing';
+
+  @override
+  String get redFlagBreathing => 'trouble breathing';
+
+  @override
+  String get redFlagPalpitations => 'heart palpitations';
 }

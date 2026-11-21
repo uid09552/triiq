@@ -2415,5 +2415,17 @@
   "proposalUndoStale": "Can't undo: the plan changed since, and undoing would change more than this.",
   "proposalUndoFailed": "Could not undo: {error}",
   "@proposalUndoFailed": {"placeholders": {"error": {"type": "String"}}},
-  "proposalUndoUnavailable": "This change can't be undone."
+  "proposalUndoUnavailable": "This change can't be undone.",
+  "proposalClampedTitle": "Limited to what the plan's weekly ramp allows:",
+  "proposalClampedHigh": "Week {week}: asked for {asked} TSS, limited to {limited} (the most allowed).",
+  "@proposalClampedHigh": {"placeholders": {"week": {"type": "int"}, "asked": {"type": "int"}, "limited": {"type": "int"}}},
+  "proposalClampedLow": "Week {week}: asked for {asked} TSS, limited to {limited} (the least allowed).",
+  "@proposalClampedLow": {"placeholders": {"week": {"type": "int"}, "asked": {"type": "int"}, "limited": {"type": "int"}}},
+  "redFlagTitle": "Please get this checked",
+  "redFlagBody": "You mention {signs}. That can be serious. Don't train until a doctor has looked at it, and if it is sudden or severe, call your local emergency number now. TriIQ is not a doctor and can't judge this.",
+  "@redFlagBody": {"placeholders": {"signs": {"type": "String"}}},
+  "redFlagChestPain": "chest pain or pressure",
+  "redFlagFainting": "fainting or collapsing",
+  "redFlagBreathing": "trouble breathing",
+  "redFlagPalpitations": "heart palpitations"
 }

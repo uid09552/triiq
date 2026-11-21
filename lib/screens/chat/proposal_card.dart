@@ -8,6 +8,7 @@ import '../../plan/plan_actions.dart';
 import '../../plan/plan_adaptation.dart';
 import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
+import '../../plan/proposal_safety.dart';
 import '../../widgets/charts/load_curve_editor.dart';
 import '../activities/activity_icons.dart';
 import '../today/readiness_card.dart';
@@ -171,6 +172,7 @@ class ProposalCard extends StatelessWidget {
               highlight: p.changedWeeks,
               height: 170,
             ),
+            if (p.clamps.isNotEmpty) _ClampNote(clamps: p.clamps),
             if (p.previousGoal != null) _CurveDiff(proposal: p),
           ],
         );
@@ -341,6 +343,53 @@ class ProposalCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Says a week was limited to what the plan's weekly ramp allows, so the
+/// card never looks like it does what was asked when it does not.
+class _ClampNote extends StatelessWidget {
+  const _ClampNote({required this.clamps});
+
+  final List<RampClamp> clamps;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Container(
+      key: const ValueKey('proposal-clamped'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.shield_outlined,
+            size: 18,
+            color: theme.colorScheme.onTertiaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              [
+                l10n.proposalClampedTitle,
+                for (final k in clamps)
+                  (k.raised
+                      ? l10n.proposalClampedHigh
+                      : l10n.proposalClampedLow)(k.week, k.asked, k.limited),
+              ].join('\n'),
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        ],
       ),
     );
   }

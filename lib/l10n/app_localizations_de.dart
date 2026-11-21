@@ -6840,4 +6840,38 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get proposalUndoUnavailable =>
       'Diese Änderung lässt sich nicht rückgängig machen.';
+
+  @override
+  String get proposalClampedTitle =>
+      'Auf das begrenzt, was die wöchentliche Steigerung des Plans erlaubt:';
+
+  @override
+  String proposalClampedHigh(int week, int asked, int limited) {
+    return 'Woche $week: $asked TSS gewünscht, auf $limited begrenzt (Maximum).';
+  }
+
+  @override
+  String proposalClampedLow(int week, int asked, int limited) {
+    return 'Woche $week: $asked TSS gewünscht, auf $limited begrenzt (Minimum).';
+  }
+
+  @override
+  String get redFlagTitle => 'Bitte lass das abklären';
+
+  @override
+  String redFlagBody(String signs) {
+    return 'Du erwähnst $signs. Das kann ernst sein. Trainiere nicht, bis eine Ärztin oder ein Arzt es angesehen hat, und rufe bei plötzlichen oder starken Beschwerden sofort den Notruf. TriIQ ist kein Arzt und kann das nicht beurteilen.';
+  }
+
+  @override
+  String get redFlagChestPain => 'Brustschmerzen oder Druck auf der Brust';
+
+  @override
+  String get redFlagFainting => 'Ohnmacht oder Kollaps';
+
+  @override
+  String get redFlagBreathing => 'Atemnot';
+
+  @override
+  String get redFlagPalpitations => 'Herzrasen oder Herzstolpern';
 }
