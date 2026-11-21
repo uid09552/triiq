@@ -1574,7 +1574,8 @@ shared by readiness, the fatigue early warning, the wellness trends and the
 trainer's `get_readiness` tool, so they agree on "usual"):
 
 - *Today's figure* is the median of the last 3 days with a value (5 if you
-  pick that under the readiness options — long-press the card; stored on the
+  pick that under the readiness options — long-press the card, the options
+  icon on the readiness screen, or *Signal options* in the ring's sheet; stored on the
   device, `readiness.smoothing_days`; the `okf-rules` default is
   `smoothingDays`). Today's own reading is still shown next to it. One odd
   morning — a +12 bpm spike — therefore never changes the rating; a change
@@ -1700,8 +1701,8 @@ card with three activities fit on a ~780 dp phone without scrolling
 **Levels.** Four zoom levels — **Year**, **Month**, **Week**, **Day** — picked
 with the buttons at the top, by pinching (out = one level in, in = one level
 out), or by tapping: a month in the year view, a week number in the month
-grid, a day (the first tap selects it and shows its card below, the second
-opens it; the card's ⤢ button opens it too). The **breadcrumb** under the
+grid, or a day (a tap only selects it and shows its card below; the card's
+header and ⤢ button, or *Open day* in the long-press menu, open it). The **breadcrumb** under the
 buttons (`2026 › November › Week 46 › Fri 13`) jumps back up to any part.
 The arrows, or a **sideways swipe** anywhere on the view, move one period
 (year, month, week or day); **swipe down on the header**, or the Today
@@ -2592,7 +2593,7 @@ off under Settings → App → Notifications.
   enter a new key). Clicking Next through a step keeps its values; *Close*
   leaves at once. Ends with *Back to Settings*.
 - **Appearance**: pick System, Light, or Dark. Applies instantly across the
-  whole app; resets to System on restart (not persisted yet).
+  whole app and is remembered across restarts (`ThemeController`, shared_preferences).
 - **Language**: System (follows the device), English or Deutsch. Applies
   instantly and is remembered across restarts.
 - **Fatigue & soreness**: whether opening a recent activity asks once how
@@ -2716,8 +2717,6 @@ card at the top shows the currently cached date range.
   nowhere yet (only the overview strip brushes), since hold already opens
   options on several cards.
 
-- Persist the Appearance choice (the LLM settings now persist; this one
-  still resets to System on restart).
 - Threshold suggestions: the ride FTP down-suggestion and the "within 90
   days" window lean on the `42d`/`s0` curve periods Intervals.icu exposes
   rather than a precise custom rolling window (no per-effort date is tied
@@ -2727,7 +2726,8 @@ card at the top shows the currently cached date range.
   settings model, not confirmed against a live account.
 - Knowledge library: Markdown/plain-text only (no PDF/DOCX/HTML import);
   search is keyword/heading scoring, not semantic; documents don't sync
-  across devices or back up anywhere but the device's own SQLite file; no
+  across devices (they are included in the JSON backup, so Export / Restore
+  is the way to move them); no
   in-app editing, only import/enable/disable/delete.
 - The workout step syntax sent by **Create in Intervals.icu** is written by
   the model and validated only server-side: if Intervals.icu can't parse a
