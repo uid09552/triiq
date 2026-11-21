@@ -6355,4 +6355,104 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get memoryCareNote =>
       'Use with care: preferences like these can push your training further than is wise. The trainer can be wrong and cannot guarantee that a plan is safe or correct — watch for signs of overtraining (lasting fatigue, poor sleep, a rising resting heart rate, falling mood or performance) and for any health problem, and talk to a doctor or coach when in doubt.';
+
+  @override
+  String get obClose => 'Close';
+
+  @override
+  String get obGuidedTitle => 'Guided setup';
+
+  @override
+  String get obGuidedBody =>
+      'Go through the important settings step by step: Intervals.icu, syncing your data, weekly hours, year goals, races and events, and the AI trainer. What you have set already is filled in — skip a step or leave it as it is to keep it.';
+
+  @override
+  String get obGuidedDoneBody =>
+      'Your settings are saved. You can run this guide again any time from Settings.';
+
+  @override
+  String get obBackToSettings => 'Back to Settings';
+
+  @override
+  String get obAiConfigured =>
+      'An AI trainer is already set up. Leave the key empty to keep it.';
+
+  @override
+  String get obSyncTitle => 'Sync your data';
+
+  @override
+  String get obSyncBody =>
+      'Bring in more history from Intervals.icu: activities, wellness and your calendar. More history gives better fitness curves, year goals and trainer answers.';
+
+  @override
+  String get obNeedsConnection =>
+      'Connect Intervals.icu first (previous step) — or skip this step and come back to it later.';
+
+  @override
+  String get obSyncMonth => 'This month';
+
+  @override
+  String get obSyncYear => 'This year';
+
+  @override
+  String get obSyncAll => 'Everything';
+
+  @override
+  String get obSyncHint =>
+      'Everything can take a few minutes on a long history. It keeps running in the background if you go on.';
+
+  @override
+  String get obSyncNow => 'Sync now';
+
+  @override
+  String obSyncDone(int activities, int wellness, int events) {
+    return 'Synced: $activities activities, $wellness wellness days, $events calendar entries.';
+  }
+
+  @override
+  String get obSyncDataFailed =>
+      'The sync failed. It will retry in the background; you can also sync from Settings → Sync.';
+
+  @override
+  String get obGoalsTitle => 'Year goals (optional)';
+
+  @override
+  String get obGoalsBody =>
+      'A distance goal for the year per sport. Today and the Calendar show how far along you are and whether you are ahead of an even pace.';
+
+  @override
+  String obGoalKm(String sport) {
+    return '$sport: km this year';
+  }
+
+  @override
+  String get obEventsTitle => 'Races and events';
+
+  @override
+  String get obEventsBody =>
+      'Add your next race and other key dates — holidays, training camps, notes. Plans build towards an A race and taper before it. Events are saved in your Intervals.icu calendar.';
+
+  @override
+  String get obAddRace => 'Add a race';
+
+  @override
+  String get obAddEvent => 'Add another event';
+
+  @override
+  String obEventsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events added.',
+      one: '1 event added.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get setGuidedSetup => 'Guided setup';
+
+  @override
+  String get setGuidedSetupSub =>
+      'Step by step: Intervals.icu, sync, goals, events, AI trainer';
 }

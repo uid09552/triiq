@@ -4,8 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:triiq/agent/llm_settings.dart';
 import 'package:triiq/l10n/app_localizations.dart';
 import 'package:triiq/onboarding/onboarding_screen.dart';
+import 'package:triiq/data/sync/sync_scope.dart';
+import 'package:triiq/data/sync/sync_service.dart';
 import 'package:triiq/onboarding/onboarding_settings.dart';
 import 'package:triiq/screens/settings/weekly_targets_settings.dart';
+import 'package:triiq/screens/settings/year_goals_settings.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -46,15 +49,27 @@ void main() {
 
   group('the flow', () {
     late WeeklyTargetsSettings targets;
+    late YearGoalsSettings goals;
     late LlmSettings llm;
     late List<String> connected;
+    late List<SyncScope> synced;
+    late List<String?> eventsOpened;
     late bool consentAsked;
 
-    Future<void> pump(WidgetTester tester) async {
+    Future<void> pump(
+      WidgetTester tester, {
+      bool guided = false,
+      bool startConnected = false,
+      void Function()? prepare,
+    }) async {
       targets = WeeklyTargetsSettings.forTesting();
+      goals = YearGoalsSettings.forTesting();
       llm = LlmSettings.forTesting();
       connected = [];
+      synced = [];
+      eventsOpened = [];
       consentAsked = false;
+      prepare?.call();
       tester.view.physicalSize = const Size(420, 900);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -77,6 +92,22 @@ void main() {
                         llm: llm,
                         settings: OnboardingSettings.forTesting(),
                         askConsent: (_) async => consentAsked = true,
+                        guided: guided,
+                        isConnected: () =>
+                            startConnected || connected.isNotEmpty,
+                        yearGoals: goals,
+                        syncData: (scope) async {
+                          synced.add(scope);
+                          return const SyncResult(
+                            wellnessCount: 300,
+                            activitiesCount: 250,
+                            eventsCount: 40,
+                          );
+                        },
+                        addEvent: (_, category) async {
+                          eventsOpened.add(category);
+                          return true;
+                        },
                       ),
                     ),
                   ),
@@ -117,6 +148,20 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('onboarding-next')));
       await tester.pumpAndSettle();
 
+      // Sync more history: this year by default.
+      expect(find.text('Sync your data'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('onboarding-sync-now')));
+      await tester.pumpAndSettle();
+      expect(synced, [SyncScope.year]);
+      expect(
+        find.text(
+          'Synced: 250 activities, 300 wellness days, 40 calendar entries.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+
       // Training: no swimming, 6 h of riding.
       await tester.tap(find.byKey(const ValueKey('onboarding-sport-swim')));
       await tester.pump();
@@ -129,6 +174,25 @@ void main() {
       expect(targets.swimHours, isNull);
       expect(targets.cycleHours, 6);
       expect(targets.runHours, 3);
+
+      // Year goals: only the sports chosen, blank = no goal.
+      expect(find.byKey(const ValueKey('onboarding-goal-swim')), findsNothing);
+      await tester.enterText(
+        find.byKey(const ValueKey('onboarding-goal-ride')),
+        '5000',
+      );
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+      expect(goals.cycleKm, 5000);
+      expect(goals.runKm, isNull);
+
+      // Events: a race, through the editor.
+      await tester.tap(find.byKey(const ValueKey('onboarding-add-race')));
+      await tester.pumpAndSettle();
+      expect(eventsOpened, ['RACE_A']);
+      expect(find.text('1 event added.'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
 
       // AI: Claude with a key, then the consent question.
       await tester.tap(find.byKey(const ValueKey('onboarding-ai-claude')));
@@ -162,12 +226,15 @@ void main() {
       await pump(tester);
       await tester.tap(find.byKey(const ValueKey('onboarding-next')));
       await tester.pumpAndSettle();
-      for (var i = 0; i < 3; i++) {
+      for (var i = 0; i < 6; i++) {
         await tester.tap(find.byKey(const ValueKey('onboarding-skip-step')));
         await tester.pumpAndSettle();
       }
       expect(find.text("You're set"), findsOneWidget);
       expect(connected, isEmpty);
+      expect(synced, isEmpty);
+      expect(eventsOpened, isEmpty);
+      expect(goals.hasAnyGoal, isFalse);
       expect(targets.hasAnyTarget, isFalse);
       expect(consentAsked, isFalse);
     });
@@ -192,13 +259,11 @@ void main() {
       tester,
     ) async {
       await pump(tester);
-      // Welcome, connect, training: skip ahead to the AI step.
-      for (var i = 0; i < 3; i++) {
-        if (i == 1) {
-          await tester.tap(find.byKey(const ValueKey('onboarding-skip-step')));
-        } else {
-          await tester.tap(find.byKey(const ValueKey('onboarding-next')));
-        }
+      // Welcome, then skip connect, sync, training, goals, events.
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 5; i++) {
+        await tester.tap(find.byKey(const ValueKey('onboarding-skip-step')));
         await tester.pumpAndSettle();
       }
       await tester.tap(find.byKey(const ValueKey('onboarding-ai-openai')));
@@ -244,6 +309,84 @@ void main() {
       expect(llm.openAiModel, 'llama-3.1-8b');
       expect(llm.hasOpenAiApiKey, isFalse);
       expect(consentAsked, isTrue);
+    });
+
+    testWidgets('guided from Settings: what is set is kept by clicking Next', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        guided: true,
+        startConnected: true,
+        prepare: () {
+          targets
+            ..cycleHours = 7
+            ..runHours = 2.5;
+          goals.runKm = 1200;
+        },
+      );
+      expect(find.text('Guided setup'), findsOneWidget);
+      expect(find.text('Step 1 of 8'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+
+      // Already connected: no key needed, Next is open.
+      expect(find.text('Connected as Alex'), findsOneWidget);
+      expect(find.byKey(const ValueKey('onboarding-synced')), findsNothing);
+      for (var i = 0; i < 2; i++) {
+        await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+        await tester.pumpAndSettle();
+      }
+
+      // Training is filled in from the weekly targets.
+      expect(
+        tester
+            .widget<FilterChip>(
+              find.byKey(const ValueKey('onboarding-sport-swim')),
+            )
+            .selected,
+        isFalse,
+      );
+      expect(find.text('7'), findsOneWidget);
+      expect(find.text('2.5'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+
+      // Year goals: the run goal is there.
+      expect(find.text('1200'), findsOneWidget);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Back to Settings'), findsOneWidget);
+      expect(targets.swimHours, isNull);
+      expect(targets.cycleHours, 7);
+      expect(targets.runHours, 2.5);
+      expect(goals.runKm, 1200);
+      expect(goals.cycleKm, isNull);
+      expect(connected, isEmpty);
+      await tester.tap(find.byKey(const ValueKey('onboarding-finish')));
+      await tester.pumpAndSettle();
+      expect(find.text('open'), findsOneWidget);
+    });
+
+    testWidgets('sync and events need a connection', (tester) async {
+      await pump(tester, guided: true);
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('onboarding-skip-step')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('onboarding-sync-offline')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('onboarding-sync-now')), findsNothing);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.byKey(const ValueKey('onboarding-skip-step')));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Races and events'), findsOneWidget);
+      expect(find.byKey(const ValueKey('onboarding-add-race')), findsNothing);
     });
   });
 }

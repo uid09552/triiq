@@ -10375,6 +10375,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use with care: preferences like these can push your training further than is wise. The trainer can be wrong and cannot guarantee that a plan is safe or correct — watch for signs of overtraining (lasting fatigue, poor sleep, a rising resting heart rate, falling mood or performance) and for any health problem, and talk to a doctor or coach when in doubt.'**
   String get memoryCareNote;
+
+  /// No description provided for @obClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get obClose;
+
+  /// No description provided for @obGuidedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided setup'**
+  String get obGuidedTitle;
+
+  /// No description provided for @obGuidedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Go through the important settings step by step: Intervals.icu, syncing your data, weekly hours, year goals, races and events, and the AI trainer. What you have set already is filled in — skip a step or leave it as it is to keep it.'**
+  String get obGuidedBody;
+
+  /// No description provided for @obGuidedDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your settings are saved. You can run this guide again any time from Settings.'**
+  String get obGuidedDoneBody;
+
+  /// No description provided for @obBackToSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Settings'**
+  String get obBackToSettings;
+
+  /// No description provided for @obAiConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'An AI trainer is already set up. Leave the key empty to keep it.'**
+  String get obAiConfigured;
+
+  /// No description provided for @obSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync your data'**
+  String get obSyncTitle;
+
+  /// No description provided for @obSyncBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring in more history from Intervals.icu: activities, wellness and your calendar. More history gives better fitness curves, year goals and trainer answers.'**
+  String get obSyncBody;
+
+  /// No description provided for @obNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Intervals.icu first (previous step) — or skip this step and come back to it later.'**
+  String get obNeedsConnection;
+
+  /// No description provided for @obSyncMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get obSyncMonth;
+
+  /// No description provided for @obSyncYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get obSyncYear;
+
+  /// No description provided for @obSyncAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get obSyncAll;
+
+  /// No description provided for @obSyncHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything can take a few minutes on a long history. It keeps running in the background if you go on.'**
+  String get obSyncHint;
+
+  /// No description provided for @obSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get obSyncNow;
+
+  /// No description provided for @obSyncDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced: {activities} activities, {wellness} wellness days, {events} calendar entries.'**
+  String obSyncDone(int activities, int wellness, int events);
+
+  /// No description provided for @obSyncDataFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The sync failed. It will retry in the background; you can also sync from Settings → Sync.'**
+  String get obSyncDataFailed;
+
+  /// No description provided for @obGoalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Year goals (optional)'**
+  String get obGoalsTitle;
+
+  /// No description provided for @obGoalsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A distance goal for the year per sport. Today and the Calendar show how far along you are and whether you are ahead of an even pace.'**
+  String get obGoalsBody;
+
+  /// No description provided for @obGoalKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport}: km this year'**
+  String obGoalKm(String sport);
+
+  /// No description provided for @obEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Races and events'**
+  String get obEventsTitle;
+
+  /// No description provided for @obEventsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your next race and other key dates — holidays, training camps, notes. Plans build towards an A race and taper before it. Events are saved in your Intervals.icu calendar.'**
+  String get obEventsBody;
+
+  /// No description provided for @obAddRace.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a race'**
+  String get obAddRace;
+
+  /// No description provided for @obAddEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another event'**
+  String get obAddEvent;
+
+  /// No description provided for @obEventsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 event added.} other{{count} events added.}}'**
+  String obEventsAdded(int count);
+
+  /// No description provided for @setGuidedSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided setup'**
+  String get setGuidedSetup;
+
+  /// No description provided for @setGuidedSetupSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Step by step: Intervals.icu, sync, goals, events, AI trainer'**
+  String get setGuidedSetupSub;
 }
 
 class _AppLocalizationsDelegate

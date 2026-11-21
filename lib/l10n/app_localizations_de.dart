@@ -6407,4 +6407,104 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get memoryCareNote =>
       'Mit Vorsicht verwenden: Vorlieben wie diese können dein Training weiter treiben, als klug ist. Der Trainer kann sich irren und kann nicht garantieren, dass ein Plan sicher oder richtig ist – achte auf Anzeichen von Übertraining (anhaltende Müdigkeit, schlechter Schlaf, steigender Ruhepuls, sinkende Stimmung oder Leistung) und auf gesundheitliche Probleme und sprich im Zweifel mit einer Ärztin, einem Arzt oder einem Coach.';
+
+  @override
+  String get obClose => 'Schließen';
+
+  @override
+  String get obGuidedTitle => 'Geführte Einrichtung';
+
+  @override
+  String get obGuidedBody =>
+      'Geh die wichtigsten Einstellungen Schritt für Schritt durch: Intervals.icu, Datenabgleich, Wochenstunden, Jahresziele, Wettkämpfe und Termine sowie den KI-Trainer. Was du schon eingestellt hast, ist vorausgefüllt – überspring einen Schritt oder lass ihn, wie er ist, um es zu behalten.';
+
+  @override
+  String get obGuidedDoneBody =>
+      'Deine Einstellungen sind gespeichert. Du kannst diese Anleitung jederzeit wieder aus den Einstellungen starten.';
+
+  @override
+  String get obBackToSettings => 'Zurück zu den Einstellungen';
+
+  @override
+  String get obAiConfigured =>
+      'Ein KI-Trainer ist schon eingerichtet. Lass den Schlüssel leer, um ihn zu behalten.';
+
+  @override
+  String get obSyncTitle => 'Daten abgleichen';
+
+  @override
+  String get obSyncBody =>
+      'Hol mehr Verlauf aus Intervals.icu: Aktivitäten, Wellness und deinen Kalender. Mehr Verlauf ergibt bessere Fitnesskurven, Jahresziele und Antworten des Trainers.';
+
+  @override
+  String get obNeedsConnection =>
+      'Verbinde zuerst Intervals.icu (vorheriger Schritt) – oder überspring diesen Schritt und komm später darauf zurück.';
+
+  @override
+  String get obSyncMonth => 'Dieser Monat';
+
+  @override
+  String get obSyncYear => 'Dieses Jahr';
+
+  @override
+  String get obSyncAll => 'Alles';
+
+  @override
+  String get obSyncHint =>
+      '„Alles“ kann bei langem Verlauf einige Minuten dauern. Es läuft im Hintergrund weiter, wenn du weitermachst.';
+
+  @override
+  String get obSyncNow => 'Jetzt abgleichen';
+
+  @override
+  String obSyncDone(int activities, int wellness, int events) {
+    return 'Abgeglichen: $activities Aktivitäten, $wellness Wellness-Tage, $events Kalendereinträge.';
+  }
+
+  @override
+  String get obSyncDataFailed =>
+      'Der Abgleich ist fehlgeschlagen. Er wird im Hintergrund wiederholt; du kannst auch unter Einstellungen → Abgleich synchronisieren.';
+
+  @override
+  String get obGoalsTitle => 'Jahresziele (optional)';
+
+  @override
+  String get obGoalsBody =>
+      'Ein Distanzziel pro Sportart für das Jahr. Heute und der Kalender zeigen, wie weit du bist und ob du vor einem gleichmäßigen Tempo liegst.';
+
+  @override
+  String obGoalKm(String sport) {
+    return '$sport: km in diesem Jahr';
+  }
+
+  @override
+  String get obEventsTitle => 'Wettkämpfe und Termine';
+
+  @override
+  String get obEventsBody =>
+      'Trag deinen nächsten Wettkampf und andere wichtige Termine ein – Urlaub, Trainingslager, Notizen. Pläne bauen auf einen A-Wettkampf hin auf und tapern davor. Termine werden in deinem Intervals.icu-Kalender gespeichert.';
+
+  @override
+  String get obAddRace => 'Wettkampf hinzufügen';
+
+  @override
+  String get obAddEvent => 'Weiteren Termin hinzufügen';
+
+  @override
+  String obEventsAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Termine hinzugefügt.',
+      one: '1 Termin hinzugefügt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get setGuidedSetup => 'Geführte Einrichtung';
+
+  @override
+  String get setGuidedSetupSub =>
+      'Schritt für Schritt: Intervals.icu, Abgleich, Ziele, Termine, KI-Trainer';
 }

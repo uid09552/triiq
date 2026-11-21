@@ -61,6 +61,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('Guided setup sits on top and opens the guide', (tester) async {
+    await pump(tester);
+    final tile = find.byKey(const ValueKey('settings-guided-setup'));
+    expect(tile, findsOneWidget);
+    expect(
+      tester.getRect(tile).top,
+      lessThan(
+        tester
+            .getRect(find.byKey(const ValueKey('settings-group-training')))
+            .top,
+      ),
+    );
+    await tester.tap(tile);
+    await tester.pumpAndSettle();
+    expect(find.text('Guided setup'), findsWidgets);
+    expect(find.text('Step 1 of 8'), findsOneWidget);
+  });
+
   testWidgets('a group opens its page with its sections', (tester) async {
     await pump(tester);
     await tester.tap(find.byKey(const ValueKey('settings-group-app')));
