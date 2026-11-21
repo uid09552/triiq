@@ -23,6 +23,7 @@ import 'notifications/notification_settings.dart';
 import 'notifications/notification_taps.dart';
 import 'notifications/weekly_review_notification.dart';
 import 'screens/statistics/weekly_review_screen.dart';
+import 'agent/usage.dart';
 import 'screens/settings/home_widget_settings.dart';
 import 'screens/settings/weekly_targets_settings.dart';
 import 'screens/settings/year_goals_settings.dart';
@@ -58,6 +59,7 @@ void main() {
   // The per-sport weekly targets and whether their rings show on Today —
   // Settings and Today listen and rebuild once it resolves.
   unawaited(WeeklyTargetsSettings.instance.load());
+  unawaited(UsageLedger.instance.load());
   unawaited(HomeWidgetSettings.instance.load());
   unawaited(YearGoalsSettings.instance.load());
   unawaited(TodayLayoutSettings.instance.load());

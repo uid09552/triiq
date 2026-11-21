@@ -181,6 +181,24 @@ void main() {
     expect(prefs.getString(CalendarPrefs.dateKey), '2026-03-04');
   });
 
+  testWidgets('a visible + opens the day actions at every level', (t) async {
+    await pumpCalendar(t);
+    for (final level in ['year', 'month', 'week', 'day']) {
+      expect(find.byKey(const ValueKey('calendar-add')), findsOneWidget);
+      await t.tap(find.byKey(const ValueKey('calendar-add')));
+      await t.pumpAndSettle();
+      expect(find.byType(BottomSheet), findsOneWidget, reason: level);
+      await t.tapAt(const Offset(5, 5));
+      await t.pumpAndSettle();
+      final next = ['year', 'month', 'week', 'day'];
+      final i = next.indexOf(level);
+      if (i < 3) {
+        await t.tap(find.byKey(ValueKey('level-${next[i + 1]}')));
+        await t.pumpAndSettle();
+      }
+    }
+  });
+
   testWidgets('reopens on the remembered level and date', (t) async {
     SharedPreferences.setMockInitialValues({
       CalendarPrefs.levelKey: 'week',

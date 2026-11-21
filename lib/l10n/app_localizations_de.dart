@@ -915,7 +915,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get metricAtlTitle => 'Ermüdung (ATL)';
 
   @override
-  String get metricFormTitle => 'Form (TSB)';
+  String get metricFormTitle => 'Form (CTL − ATL)';
 
   @override
   String get metricRampTitle => 'Anstiegsrate';
@@ -928,15 +928,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get metricCtlExplainer =>
-      'CTL ist ein gewichteter 42-Tage-Durchschnitt deiner Trainingsbelastung: wie viel Training du verarbeitet hast — kein Maß für Fitness oder Gesundheit. Der Wert kann steigen, während du dich immer tiefer eingräbst.';
+      'Fitness (CTL) ist ein gewichteter 42-Tage-Durchschnitt deiner Trainingsbelastung: das Training, das du über etwa sechs Wochen aufgebaut hast. Er misst Belastung, nicht Gesundheit, und kann steigen, während du dich immer tiefer eingräbst.';
 
   @override
   String get metricAtlExplainer =>
-      'ATL ist derselbe Durchschnitt über 7 Tage — die Belastung, die noch in den Beinen steckt. Er steigt und fällt schnell; ein hoher ATL in einem harten Block ist normal und für sich genommen kein Warnsignal.';
+      'Ermüdung (ATL) ist derselbe Durchschnitt über 7 Tage — die Belastung, die noch in den Beinen steckt. Sie steigt und fällt schnell; ein hoher ATL in einem harten Block ist normal und für sich genommen kein Warnsignal.';
 
   @override
   String get metricFormExplainer =>
-      'Form ist CTL minus ATL. Positiv heißt: weniger frische Belastung als üblich, negativ heißt: das Training der letzten Tage war hart. Negative Form ist der Bereich, in dem Fitness entsteht — sie ist keine Diagnose.';
+      'Form ist Fitness minus Ermüdung (CTL − ATL). Positiv heißt: weniger frische Belastung als üblich, negativ heißt: das Training der letzten Tage war hart. Negative Form ist der Bereich, in dem Fitness entsteht — sie ist keine Diagnose.';
 
   @override
   String get metricRampExplainer =>
@@ -4216,7 +4216,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pvStoredBody =>
-      'Nur auf diesem Gerät: einer lokalen Datenbank und den App-Einstellungen. API-Schlüssel liegen im sicheren Speicher des Betriebssystems. Das Android-Cloud-Backup ist für die App abgeschaltet. TriIQ hat keinen Server und erhält keine deiner Daten.';
+      'Nur auf diesem Gerät: einer lokalen Datenbank und den App-Einstellungen, auch der Chat mit dem KI-Trainer, damit er einen Neustart übersteht (Neuer Chat oder Alle Daten löschen entfernt ihn). API-Schlüssel liegen im sicheren Speicher des Betriebssystems. Das Android-Cloud-Backup ist für die App abgeschaltet. TriIQ hat keinen Server und erhält keine deiner Daten.';
 
   @override
   String get pvRecipientsTitle => 'Wer Daten erhält';
@@ -4948,7 +4948,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readinessPeekFitness =>
-      'Chronische Trainingsbelastung (CTL): deine über die letzten Wochen aufgebaute Fitness. Der Pfeil vergleicht sie mit vor einer Woche.';
+      'Fitness (CTL): die Trainingsbelastung, die du über die letzten Wochen aufgebaut hast. Der Pfeil vergleicht sie mit vor einer Woche.';
 
   @override
   String get readinessPeekToday => 'Heute';
@@ -6601,4 +6601,418 @@ class AppLocalizationsDe extends AppLocalizations {
   ) {
     return '$done von $planned TSS · $hours von $plannedHours h · $doneCount von $plannedCount Einheiten';
   }
+
+  @override
+  String get tileFitnessLabel => 'Fitness · CTL';
+
+  @override
+  String get tileFatigueLabel => 'Ermüdung · ATL';
+
+  @override
+  String get tileFormLabel => 'Form';
+
+  @override
+  String metricInfoTooltip(String metric) {
+    return 'Was bedeutet $metric?';
+  }
+
+  @override
+  String get formStateTransition => 'Sehr frisch';
+
+  @override
+  String get formStateFresh => 'Frisch';
+
+  @override
+  String get formStateGrey => 'Neutral';
+
+  @override
+  String get formStateOptimal => 'Optimal';
+
+  @override
+  String get formStateHighRisk => 'Hart';
+
+  @override
+  String get formStateHint =>
+      'Die Formzonen folgen Intervals.icu: Form als Prozent der Fitness.';
+
+  @override
+  String get holdTipText =>
+      'Tipp: Halte eine Kachel, ein Einheiten-Symbol oder einen Tag gedrückt, um eine Vorschau zu sehen.';
+
+  @override
+  String get holdTipGotIt => 'Verstanden';
+
+  @override
+  String get todayPlanThisDay => 'Diesen Tag planen …';
+
+  @override
+  String get chatStop => 'Stopp';
+
+  @override
+  String chatBasedOn(String sources) {
+    return 'Basiert auf: $sources';
+  }
+
+  @override
+  String get chatBasedOnNothing =>
+      'Basiert auf nichts aus deinen Daten: allgemeiner Rat';
+
+  @override
+  String chatDataAsOf(String when) {
+    return 'Deine Daten wurden zuletzt $when abgeglichen.';
+  }
+
+  @override
+  String chatUsageLocal(String tokens) {
+    return '$tokens Tokens · lokal, kostenlos';
+  }
+
+  @override
+  String chatUsageCost(String tokens, String cost) {
+    return '$tokens Tokens · ca. $cost';
+  }
+
+  @override
+  String chatUsageNoPrice(String tokens) {
+    return '$tokens Tokens · Preis nicht festgelegt';
+  }
+
+  @override
+  String get chatStopped => 'Gestoppt';
+
+  @override
+  String get chatSrcAthlete => 'Athletenprofil';
+
+  @override
+  String get chatSrcMetrics => 'Tagesbelastung und Wellness';
+
+  @override
+  String get chatSrcActivities => 'Aktivitäten';
+
+  @override
+  String get chatSrcPlanned => 'geplante Einheiten';
+
+  @override
+  String get chatSrcSummary => 'Trainingsübersicht';
+
+  @override
+  String get chatSrcGuidance => 'Trainingswissen';
+
+  @override
+  String get chatSrcPlan => 'Trainingsplan';
+
+  @override
+  String get chatSrcReadiness => 'Bereitschaft';
+
+  @override
+  String get chatSrcFatigue => 'Ermüdungswarnung';
+
+  @override
+  String get chatSrcForecast => 'Fitnessprognose';
+
+  @override
+  String get chatSrcHealth => 'Gesundheitsstatus';
+
+  @override
+  String get chatSrcCurves => 'Leistungskurven';
+
+  @override
+  String get chatSrcAdjust => 'Plananpassungen';
+
+  @override
+  String get chatSrcRace => 'Wettkampfprognose';
+
+  @override
+  String get chatSrcThresholds => 'Schwellenwert-Vorschläge';
+
+  @override
+  String get chatSrcWeekly => 'Wochenrückblick';
+
+  @override
+  String get chatSrcBricks => 'Koppeleinheiten';
+
+  @override
+  String get chatSrcTemplate => 'Einheitenvorlagen';
+
+  @override
+  String get usageTitle => 'Nutzung in diesem Monat';
+
+  @override
+  String get usageIntro =>
+      'Was der KI-Trainer in diesem Monat verbraucht hat, nur auf diesem Gerät. Schätzungen nach Listenpreisen: Maßgeblich ist die Rechnung deines Anbieters.';
+
+  @override
+  String get usageNothing => 'In diesem Monat noch nichts verbraucht.';
+
+  @override
+  String usageTokens(String input, String output) {
+    return '$input ein · $output aus';
+  }
+
+  @override
+  String get usageLocalFree => 'lokal, kostenlos';
+
+  @override
+  String get usageSetPrice => 'Preis festlegen';
+
+  @override
+  String get usageMonthTotal => 'Geschätzt in diesem Monat';
+
+  @override
+  String usageAtLeast(String cost) {
+    return 'mindestens $cost';
+  }
+
+  @override
+  String get usageReset => 'Zurücksetzen';
+
+  @override
+  String get usageResetTitle => 'Nutzung dieses Monats zurücksetzen?';
+
+  @override
+  String get usageResetBody =>
+      'Das löscht nur die Zahlen, die auf diesem Gerät gespeichert sind.';
+
+  @override
+  String get usageNote =>
+      'Eine gestoppte Antwort wird trotzdem für das berechnet, was erzeugt wurde. Ein Modell ohne Preis zeigt nur Tokens, bis du einen festlegst.';
+
+  @override
+  String usagePriceTitle(String model) {
+    return 'Preis für $model';
+  }
+
+  @override
+  String get usagePriceHelp =>
+      'US-Dollar pro Million Tokens, laut Preisliste deines Anbieters.';
+
+  @override
+  String get usagePriceInput => 'Eingabe pro 1 Mio. Tokens';
+
+  @override
+  String get usagePriceOutput => 'Ausgabe pro 1 Mio. Tokens';
+
+  @override
+  String get usagePriceDefault => 'Standard verwenden';
+
+  @override
+  String get saveButton => 'Speichern';
+
+  @override
+  String proposalDiffWeek(int week, int before, int after, String delta) {
+    return 'Woche $week: $before → $after TSS ($delta)';
+  }
+
+  @override
+  String proposalDiffMore(int count) {
+    return '+$count weitere Wochen';
+  }
+
+  @override
+  String proposalDiffTotal(String delta, int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      weeks,
+      locale: localeName,
+      other: '$weeks Wochen',
+      one: '1 Woche',
+    );
+    return '$delta TSS über $_temp0';
+  }
+
+  @override
+  String get proposalUndo => 'Rückgängig';
+
+  @override
+  String get proposalUndone => 'Angewendet, dann rückgängig gemacht';
+
+  @override
+  String get proposalUndoDone => 'Rückgängig gemacht: Der Plan ist wie vorher.';
+
+  @override
+  String get proposalUndoStale =>
+      'Nicht möglich: Der Plan hat sich seitdem geändert, und Rückgängig würde mehr ändern als diesen Vorschlag.';
+
+  @override
+  String proposalUndoFailed(String error) {
+    return 'Rückgängig nicht möglich: $error';
+  }
+
+  @override
+  String get proposalUndoUnavailable =>
+      'Diese Änderung lässt sich nicht rückgängig machen.';
+
+  @override
+  String get proposalClampedTitle =>
+      'Auf das begrenzt, was die wöchentliche Steigerung des Plans erlaubt:';
+
+  @override
+  String proposalClampedHigh(int week, int asked, int limited) {
+    return 'Woche $week: $asked TSS gewünscht, auf $limited begrenzt (Maximum).';
+  }
+
+  @override
+  String proposalClampedLow(int week, int asked, int limited) {
+    return 'Woche $week: $asked TSS gewünscht, auf $limited begrenzt (Minimum).';
+  }
+
+  @override
+  String get redFlagTitle => 'Bitte lass das abklären';
+
+  @override
+  String redFlagBody(String signs) {
+    return 'Du erwähnst $signs. Das kann ernst sein. Trainiere nicht, bis eine Ärztin oder ein Arzt es angesehen hat, und rufe bei plötzlichen oder starken Beschwerden sofort den Notruf. TriIQ ist kein Arzt und kann das nicht beurteilen.';
+  }
+
+  @override
+  String get redFlagChestPain => 'Brustschmerzen oder Druck auf der Brust';
+
+  @override
+  String get redFlagFainting => 'Ohnmacht oder Kollaps';
+
+  @override
+  String get redFlagBreathing => 'Atemnot';
+
+  @override
+  String get redFlagPalpitations => 'Herzrasen oder Herzstolpern';
+
+  @override
+  String get calAddTooltip => 'Zum Tag hinzufügen';
+
+  @override
+  String obStravaHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Aktivitäten stammen von Strava und können nicht gelesen werden.',
+      one: '1 Aktivität stammt von Strava und kann nicht gelesen werden.',
+    );
+    return '$_temp0 Intervals.icu gibt Strava-Aktivitäten womöglich nicht über die API weiter. Verbinde Garmin, Polar, Suunto oder Wahoo direkt mit Intervals.icu.';
+  }
+
+  @override
+  String obThresholdHint(String sports) {
+    return 'Keine Schwelle gesetzt für: $sports. Ohne FTP oder Schwellentempo stimmen Belastung und Zonen nicht. Setze sie in Intervals.icu → Einstellungen → Sporteinstellungen.';
+  }
+
+  @override
+  String get obSetupTrainerTitle => 'Trainer einrichten';
+
+  @override
+  String get obSetupTrainerBody =>
+      'Der Trainer ist ein KI-Modell, das du verbindest. Am einfachsten: Claude oder OpenAI mit API-Schlüssel. Für Datenschutz: Ollama auf deinem Rechner.';
+
+  @override
+  String get obProviderClaude => 'Claude (empfohlen)';
+
+  @override
+  String get obProviderOpenAI => 'OpenAI';
+
+  @override
+  String get obProviderOllama => 'Ollama (lokal)';
+
+  @override
+  String get memoryEdit => 'Bearbeiten';
+
+  @override
+  String get memoryUseTitle => 'Gedächtnis im Chat nutzen';
+
+  @override
+  String get memoryUseSubtitle =>
+      'Aus: Der Trainer sieht diese Einträge nicht. Sie bleiben hier gelistet.';
+
+  @override
+  String get trainerToneTitle => 'Ton';
+
+  @override
+  String get trainerCadenceTitle => 'Check-ins';
+
+  @override
+  String get toneBalanced => 'Ausgewogen';
+
+  @override
+  String get toneDirect => 'Direkt';
+
+  @override
+  String get toneEncouraging => 'Ermutigend';
+
+  @override
+  String get toneAnalytical => 'Analytisch';
+
+  @override
+  String get cadenceOnRequest => 'Nur auf Nachfrage';
+
+  @override
+  String get cadenceWeekly => 'Wochenrückblick';
+
+  @override
+  String get cadenceAfterSessions => 'Nach harten Einheiten';
+
+  @override
+  String starterMissed(String day) {
+    return 'Die Einheit am $day ist ausgefallen. Woche neu planen?';
+  }
+
+  @override
+  String starterForm(String form) {
+    return 'Form liegt bei $form. Soll ich zurückfahren?';
+  }
+
+  @override
+  String get chipSick => 'Ich bin krank';
+
+  @override
+  String get chipTravel => 'Ich bin unterwegs';
+
+  @override
+  String get chipShortOnTime => 'Wenig Zeit';
+
+  @override
+  String get chipSickText =>
+      'Ich bin krank. Was mache ich mit dem Training dieser Woche?';
+
+  @override
+  String get chipTravelText =>
+      'Ich bin bald unterwegs. Wie passe ich die Woche an?';
+
+  @override
+  String get chipShortText =>
+      'Ich habe diese Woche wenig Zeit. Was ist das sinnvollste Minimum?';
+
+  @override
+  String starterMissedText(String day) {
+    return 'Die Einheit am $day ist ausgefallen. Frag mich nach dem Grund, bevor du eine Neuplanung vorschlägst.';
+  }
+
+  @override
+  String starterFormText(String form) {
+    return 'Meine Form liegt bei $form. Soll ich zurückfahren?';
+  }
+
+  @override
+  String get calLegendDone => 'Erledigt';
+
+  @override
+  String get calLegendPlanned => 'Geplant';
+
+  @override
+  String get calLegendTriiq => 'TriIQ-Plan';
+
+  @override
+  String workoutUnparsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Zeilen wurden nicht als Schritte gelesen und stehen als Text da.',
+      one: '1 Zeile wurde nicht als Schritt gelesen und steht als Text da.',
+    );
+    return '$_temp0 Intervals.icu ignoriert sie womöglich. Schritte beginnen mit \"- \", z. B. \"- 10m 70%\".';
+  }
+
+  @override
+  String get calAgendaTooltip => 'Agenda / Raster';
+
+  @override
+  String get agendaEmpty => 'Keine Einheiten in diesem Monat.';
 }

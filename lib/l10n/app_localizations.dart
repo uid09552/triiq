@@ -1607,7 +1607,7 @@ abstract class AppLocalizations {
   /// No description provided for @metricFormTitle.
   ///
   /// In en, this message translates to:
-  /// **'Form (TSB)'**
+  /// **'Form (CTL − ATL)'**
   String get metricFormTitle;
 
   /// No description provided for @metricRampTitle.
@@ -1631,19 +1631,19 @@ abstract class AppLocalizations {
   /// No description provided for @metricCtlExplainer.
   ///
   /// In en, this message translates to:
-  /// **'CTL is a 42-day weighted average of your training load: how much training you have absorbed, not a measure of fitness or health. It can keep rising while you dig yourself into a hole.'**
+  /// **'Fitness (CTL) is a 42-day weighted average of your training load: the training you have built up over about six weeks. It measures load, not health, and it can keep rising while you dig yourself into a hole.'**
   String get metricCtlExplainer;
 
   /// No description provided for @metricAtlExplainer.
   ///
   /// In en, this message translates to:
-  /// **'ATL is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.'**
+  /// **'Fatigue (ATL) is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.'**
   String get metricAtlExplainer;
 
   /// No description provided for @metricFormExplainer.
   ///
   /// In en, this message translates to:
-  /// **'Form is CTL minus ATL. Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.'**
+  /// **'Form is Fitness minus Fatigue (CTL − ATL). Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.'**
   String get metricFormExplainer;
 
   /// No description provided for @metricRampExplainer.
@@ -6869,7 +6869,7 @@ abstract class AppLocalizations {
   /// No description provided for @pvStoredBody.
   ///
   /// In en, this message translates to:
-  /// **'Only on this device: a local database and app preferences. API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.'**
+  /// **'Only on this device: a local database and app preferences, including the AI trainer chat so it survives a restart (New chat or Delete all data removes it). API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.'**
   String get pvStoredBody;
 
   /// No description provided for @pvRecipientsTitle.
@@ -8111,7 +8111,7 @@ abstract class AppLocalizations {
   /// No description provided for @readinessPeekFitness.
   ///
   /// In en, this message translates to:
-  /// **'Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.'**
+  /// **'Fitness (CTL): the training load you have built up over the last weeks. The arrow compares it with a week ago.'**
   String get readinessPeekFitness;
 
   /// No description provided for @readinessPeekToday.
@@ -10682,6 +10682,672 @@ abstract class AppLocalizations {
     int doneCount,
     int plannedCount,
   );
+
+  /// No description provided for @tileFitnessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness · CTL'**
+  String get tileFitnessLabel;
+
+  /// No description provided for @tileFatigueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatigue · ATL'**
+  String get tileFatigueLabel;
+
+  /// No description provided for @tileFormLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get tileFormLabel;
+
+  /// No description provided for @metricInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'What does {metric} mean?'**
+  String metricInfoTooltip(String metric);
+
+  /// No description provided for @formStateTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Very fresh'**
+  String get formStateTransition;
+
+  /// No description provided for @formStateFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh'**
+  String get formStateFresh;
+
+  /// No description provided for @formStateGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get formStateGrey;
+
+  /// No description provided for @formStateOptimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimal'**
+  String get formStateOptimal;
+
+  /// No description provided for @formStateHighRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy'**
+  String get formStateHighRisk;
+
+  /// No description provided for @formStateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Form zones follow Intervals.icu: form as a percentage of fitness.'**
+  String get formStateHint;
+
+  /// No description provided for @holdTipText.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: hold a tile, a session icon or a day to preview it.'**
+  String get holdTipText;
+
+  /// No description provided for @holdTipGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get holdTipGotIt;
+
+  /// No description provided for @todayPlanThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan this day…'**
+  String get todayPlanThisDay;
+
+  /// No description provided for @chatStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get chatStop;
+
+  /// No description provided for @chatBasedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on: {sources}'**
+  String chatBasedOn(String sources);
+
+  /// No description provided for @chatBasedOnNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on nothing from your data: general advice'**
+  String get chatBasedOnNothing;
+
+  /// No description provided for @chatDataAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data was last synced {when}.'**
+  String chatDataAsOf(String when);
+
+  /// No description provided for @chatUsageLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens · local, free'**
+  String chatUsageLocal(String tokens);
+
+  /// No description provided for @chatUsageCost.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens · about {cost}'**
+  String chatUsageCost(String tokens, String cost);
+
+  /// No description provided for @chatUsageNoPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens · price not set'**
+  String chatUsageNoPrice(String tokens);
+
+  /// No description provided for @chatStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get chatStopped;
+
+  /// No description provided for @chatSrcAthlete.
+  ///
+  /// In en, this message translates to:
+  /// **'athlete profile'**
+  String get chatSrcAthlete;
+
+  /// No description provided for @chatSrcMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'daily load and wellness'**
+  String get chatSrcMetrics;
+
+  /// No description provided for @chatSrcActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'activities'**
+  String get chatSrcActivities;
+
+  /// No description provided for @chatSrcPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'planned workouts'**
+  String get chatSrcPlanned;
+
+  /// No description provided for @chatSrcSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'training summary'**
+  String get chatSrcSummary;
+
+  /// No description provided for @chatSrcGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'training knowledge'**
+  String get chatSrcGuidance;
+
+  /// No description provided for @chatSrcPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'training plan'**
+  String get chatSrcPlan;
+
+  /// No description provided for @chatSrcReadiness.
+  ///
+  /// In en, this message translates to:
+  /// **'readiness'**
+  String get chatSrcReadiness;
+
+  /// No description provided for @chatSrcFatigue.
+  ///
+  /// In en, this message translates to:
+  /// **'fatigue warning'**
+  String get chatSrcFatigue;
+
+  /// No description provided for @chatSrcForecast.
+  ///
+  /// In en, this message translates to:
+  /// **'fitness forecast'**
+  String get chatSrcForecast;
+
+  /// No description provided for @chatSrcHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'health status'**
+  String get chatSrcHealth;
+
+  /// No description provided for @chatSrcCurves.
+  ///
+  /// In en, this message translates to:
+  /// **'performance curves'**
+  String get chatSrcCurves;
+
+  /// No description provided for @chatSrcAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'plan adjustments'**
+  String get chatSrcAdjust;
+
+  /// No description provided for @chatSrcRace.
+  ///
+  /// In en, this message translates to:
+  /// **'race prediction'**
+  String get chatSrcRace;
+
+  /// No description provided for @chatSrcThresholds.
+  ///
+  /// In en, this message translates to:
+  /// **'threshold suggestions'**
+  String get chatSrcThresholds;
+
+  /// No description provided for @chatSrcWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'weekly review'**
+  String get chatSrcWeekly;
+
+  /// No description provided for @chatSrcBricks.
+  ///
+  /// In en, this message translates to:
+  /// **'brick sessions'**
+  String get chatSrcBricks;
+
+  /// No description provided for @chatSrcTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'session templates'**
+  String get chatSrcTemplate;
+
+  /// No description provided for @usageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage this month'**
+  String get usageTitle;
+
+  /// No description provided for @usageIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'What the AI trainer used this month, on this device only. Estimates from list prices: your provider\'s bill is what counts.'**
+  String get usageIntro;
+
+  /// No description provided for @usageNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing used yet this month.'**
+  String get usageNothing;
+
+  /// No description provided for @usageTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'{input} in · {output} out'**
+  String usageTokens(String input, String output);
+
+  /// No description provided for @usageLocalFree.
+  ///
+  /// In en, this message translates to:
+  /// **'local, free'**
+  String get usageLocalFree;
+
+  /// No description provided for @usageSetPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Set price'**
+  String get usageSetPrice;
+
+  /// No description provided for @usageMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated this month'**
+  String get usageMonthTotal;
+
+  /// No description provided for @usageAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'at least {cost}'**
+  String usageAtLeast(String cost);
+
+  /// No description provided for @usageReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get usageReset;
+
+  /// No description provided for @usageResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset this month\'s usage?'**
+  String get usageResetTitle;
+
+  /// No description provided for @usageResetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This only clears the figures kept on this device.'**
+  String get usageResetBody;
+
+  /// No description provided for @usageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A reply you stop is still billed for what was generated. A model with no price shows tokens only until you set one.'**
+  String get usageNote;
+
+  /// No description provided for @usagePriceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price of {model}'**
+  String usagePriceTitle(String model);
+
+  /// No description provided for @usagePriceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'US dollars per million tokens, from your provider\'s price list.'**
+  String get usagePriceHelp;
+
+  /// No description provided for @usagePriceInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Input per 1M tokens'**
+  String get usagePriceInput;
+
+  /// No description provided for @usagePriceOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output per 1M tokens'**
+  String get usagePriceOutput;
+
+  /// No description provided for @usagePriceDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Use default'**
+  String get usagePriceDefault;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @proposalDiffWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: {before} → {after} TSS ({delta})'**
+  String proposalDiffWeek(int week, int before, int after, String delta);
+
+  /// No description provided for @proposalDiffMore.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more weeks'**
+  String proposalDiffMore(int count);
+
+  /// No description provided for @proposalDiffTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} TSS over {weeks, plural, =1{1 week} other{{weeks} weeks}}'**
+  String proposalDiffTotal(String delta, int weeks);
+
+  /// No description provided for @proposalUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get proposalUndo;
+
+  /// No description provided for @proposalUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied, then undone'**
+  String get proposalUndone;
+
+  /// No description provided for @proposalUndoDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Undone: the plan is as it was.'**
+  String get proposalUndoDone;
+
+  /// No description provided for @proposalUndoStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t undo: the plan changed since, and undoing would change more than this.'**
+  String get proposalUndoStale;
+
+  /// No description provided for @proposalUndoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not undo: {error}'**
+  String proposalUndoFailed(String error);
+
+  /// No description provided for @proposalUndoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This change can\'t be undone.'**
+  String get proposalUndoUnavailable;
+
+  /// No description provided for @proposalClampedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Limited to what the plan\'s weekly ramp allows:'**
+  String get proposalClampedTitle;
+
+  /// No description provided for @proposalClampedHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: asked for {asked} TSS, limited to {limited} (the most allowed).'**
+  String proposalClampedHigh(int week, int asked, int limited);
+
+  /// No description provided for @proposalClampedLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week}: asked for {asked} TSS, limited to {limited} (the least allowed).'**
+  String proposalClampedLow(int week, int asked, int limited);
+
+  /// No description provided for @redFlagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please get this checked'**
+  String get redFlagTitle;
+
+  /// No description provided for @redFlagBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You mention {signs}. That can be serious. Don\'t train until a doctor has looked at it, and if it is sudden or severe, call your local emergency number now. TriIQ is not a doctor and can\'t judge this.'**
+  String redFlagBody(String signs);
+
+  /// No description provided for @redFlagChestPain.
+  ///
+  /// In en, this message translates to:
+  /// **'chest pain or pressure'**
+  String get redFlagChestPain;
+
+  /// No description provided for @redFlagFainting.
+  ///
+  /// In en, this message translates to:
+  /// **'fainting or collapsing'**
+  String get redFlagFainting;
+
+  /// No description provided for @redFlagBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'trouble breathing'**
+  String get redFlagBreathing;
+
+  /// No description provided for @redFlagPalpitations.
+  ///
+  /// In en, this message translates to:
+  /// **'heart palpitations'**
+  String get redFlagPalpitations;
+
+  /// No description provided for @calAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to this day'**
+  String get calAddTooltip;
+
+  /// No description provided for @obStravaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 activity comes from Strava and can\'t be read.} other{{count} activities come from Strava and can\'t be read.}} Intervals.icu may not pass Strava activities on through its API. Connect Garmin, Polar, Suunto or Wahoo to Intervals.icu directly to get them here.'**
+  String obStravaHint(int count);
+
+  /// No description provided for @obThresholdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No threshold set for: {sports}. Without FTP or threshold pace, load and zones are off. Set them in Intervals.icu → Settings → Sport settings.'**
+  String obThresholdHint(String sports);
+
+  /// No description provided for @obSetupTrainerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your trainer'**
+  String get obSetupTrainerTitle;
+
+  /// No description provided for @obSetupTrainerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The trainer is an AI model you connect. Easiest: Claude or OpenAI with an API key. For privacy: Ollama on your own computer.'**
+  String get obSetupTrainerBody;
+
+  /// No description provided for @obProviderClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude (recommended)'**
+  String get obProviderClaude;
+
+  /// No description provided for @obProviderOpenAI.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI'**
+  String get obProviderOpenAI;
+
+  /// No description provided for @obProviderOllama.
+  ///
+  /// In en, this message translates to:
+  /// **'Ollama (local)'**
+  String get obProviderOllama;
+
+  /// No description provided for @memoryEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get memoryEdit;
+
+  /// No description provided for @memoryUseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use memory in chats'**
+  String get memoryUseTitle;
+
+  /// No description provided for @memoryUseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: the trainer does not see these items. They stay listed here.'**
+  String get memoryUseSubtitle;
+
+  /// No description provided for @trainerToneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tone'**
+  String get trainerToneTitle;
+
+  /// No description provided for @trainerCadenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins'**
+  String get trainerCadenceTitle;
+
+  /// No description provided for @toneBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get toneBalanced;
+
+  /// No description provided for @toneDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get toneDirect;
+
+  /// No description provided for @toneEncouraging.
+  ///
+  /// In en, this message translates to:
+  /// **'Encouraging'**
+  String get toneEncouraging;
+
+  /// No description provided for @toneAnalytical.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytical'**
+  String get toneAnalytical;
+
+  /// No description provided for @cadenceOnRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Only when I ask'**
+  String get cadenceOnRequest;
+
+  /// No description provided for @cadenceWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly review'**
+  String get cadenceWeekly;
+
+  /// No description provided for @cadenceAfterSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'After hard sessions'**
+  String get cadenceAfterSessions;
+
+  /// No description provided for @starterMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'You missed {day}\'s session. Replan the week?'**
+  String starterMissed(String day);
+
+  /// No description provided for @starterForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form is {form}. Should I back off?'**
+  String starterForm(String form);
+
+  /// No description provided for @chipSick.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m sick'**
+  String get chipSick;
+
+  /// No description provided for @chipTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m travelling'**
+  String get chipTravel;
+
+  /// No description provided for @chipShortOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Short on time'**
+  String get chipShortOnTime;
+
+  /// No description provided for @chipSickText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m sick. What should I do with this week\'s training?'**
+  String get chipSickText;
+
+  /// No description provided for @chipTravelText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m travelling soon. How should I adjust the week?'**
+  String get chipTravelText;
+
+  /// No description provided for @chipShortText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m short on time this week. What is the most useful minimum?'**
+  String get chipShortText;
+
+  /// No description provided for @starterMissedText.
+  ///
+  /// In en, this message translates to:
+  /// **'I missed {day}\'s session. Ask me why before suggesting a replan.'**
+  String starterMissedText(String day);
+
+  /// No description provided for @starterFormText.
+  ///
+  /// In en, this message translates to:
+  /// **'My form is {form}. Should I back off?'**
+  String starterFormText(String form);
+
+  /// No description provided for @calLegendDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get calLegendDone;
+
+  /// No description provided for @calLegendPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get calLegendPlanned;
+
+  /// No description provided for @calLegendTriiq.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ plan'**
+  String get calLegendTriiq;
+
+  /// No description provided for @workoutUnparsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 line was not read as a step and is shown as plain text.} other{{count} lines were not read as steps and are shown as plain text.}} Intervals.icu may ignore them. Steps start with \"- \", e.g. \"- 10m 70%\".'**
+  String workoutUnparsed(int count);
+
+  /// No description provided for @calAgendaTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda / grid'**
+  String get calAgendaTooltip;
+
+  /// No description provided for @agendaEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions this month.'**
+  String get agendaEmpty;
 }
 
 class _AppLocalizationsDelegate

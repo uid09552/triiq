@@ -8,6 +8,7 @@ import '../../plan/plan_actions.dart';
 import '../../plan/plan_adaptation.dart';
 import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
+import '../../plan/proposal_safety.dart';
 import '../../widgets/charts/load_curve_editor.dart';
 import '../activities/activity_icons.dart';
 import '../today/readiness_card.dart';
@@ -80,6 +81,44 @@ class ProposalCard extends StatelessWidget {
     });
   }
 
+  /// Takes an applied change back — only while nothing else has changed the
+  /// plan since, so it can never undo more than this one proposal.
+  Future<void> _undo(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await proposals.undo(proposal.id, (p) async {
+      try {
+        switch (p) {
+          case CurveProposal(:final previousGoal?):
+            await _act.applyGoal(previousGoal);
+          case SessionChangeProposal(
+            :final sessionId,
+            :final from,
+            :final missed,
+            to: != null,
+          ):
+            await _act.moveSession(sessionId, from, missed: missed);
+          case SessionSwapProposal(:final first, :final second):
+            await _act.swapSessions(first.id!, second.id!);
+          case _:
+            throw _Readable(l10n.proposalUndoUnavailable);
+        }
+      } on ReplaceRefusedException catch (e) {
+        throw _Readable(refusalLabel(l10n, e));
+      }
+    });
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(switch (result) {
+          UndoResult.done => l10n.proposalUndoDone,
+          UndoResult.stale => l10n.proposalUndoStale,
+          UndoResult.failed => l10n.proposalUndoFailed(proposal.error ?? ''),
+          UndoResult.unavailable => l10n.proposalUndoUnavailable,
+        }),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -120,15 +159,22 @@ class ProposalCard extends StatelessWidget {
     Widget? picture;
     switch (p) {
       case CurveProposal(:final limits, :final weeks, :final goal):
-        picture = LoadCurveEditor(
-          controller: LoadCurveController(
-            limits: limits,
-            weeks: weeks,
-            factors: goal.loadFactors,
-          ),
-          readOnly: true,
-          highlight: p.changedWeeks,
-          height: 170,
+        picture = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LoadCurveEditor(
+              controller: LoadCurveController(
+                limits: limits,
+                weeks: weeks,
+                factors: goal.loadFactors,
+              ),
+              readOnly: true,
+              highlight: p.changedWeeks,
+              height: 170,
+            ),
+            if (p.clamps.isNotEmpty) _ClampNote(clamps: p.clamps),
+            if (p.previousGoal != null) _CurveDiff(proposal: p),
+          ],
         );
       case PlanDraftProposal(:final limits, :final weeks, :final goal):
         if (limits != null && weeks != null) {
@@ -185,6 +231,11 @@ class ProposalCard extends StatelessWidget {
     }
 
     final status = switch (state) {
+      ProposalState.applied when p.undone => (
+        Icons.undo,
+        scheme.onSurfaceVariant,
+        l10n.proposalUndone,
+      ),
       ProposalState.applied => (
         Icons.check_circle,
         scheme.primary,
@@ -261,6 +312,16 @@ class ProposalCard extends StatelessWidget {
                 padding: EdgeInsets.only(top: 8),
                 child: LinearProgressIndicator(),
               ),
+            if (p.canUndo)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  key: ValueKey('proposal-undo-${p.id}'),
+                  onPressed: () => _undo(context),
+                  icon: const Icon(Icons.undo, size: 18),
+                  label: Text(l10n.proposalUndo),
+                ),
+              ),
             if (p.canApply)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -282,6 +343,114 @@ class ProposalCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Says a week was limited to what the plan's weekly ramp allows, so the
+/// card never looks like it does what was asked when it does not.
+class _ClampNote extends StatelessWidget {
+  const _ClampNote({required this.clamps});
+
+  final List<RampClamp> clamps;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Container(
+      key: const ValueKey('proposal-clamped'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.shield_outlined,
+            size: 18,
+            color: theme.colorScheme.onTertiaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              [
+                l10n.proposalClampedTitle,
+                for (final k in clamps)
+                  (k.raised
+                      ? l10n.proposalClampedHigh
+                      : l10n.proposalClampedLow)(k.week, k.asked, k.limited),
+              ].join('\n'),
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What a load-graph change does, week by week: each changed week's target
+/// before and after, and the total. Both come from the same load-curve
+/// maths the plan uses.
+class _CurveDiff extends StatelessWidget {
+  const _CurveDiff({required this.proposal});
+
+  final CurveProposal proposal;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    List<double> targets(Goal g) => LoadCurveController(
+      limits: proposal.limits,
+      weeks: proposal.weeks,
+      factors: g.loadFactors,
+    ).targets;
+    final before = targets(proposal.previousGoal!);
+    final after = targets(proposal.goal);
+    final weeks = proposal.changedWeeks.toList()..sort();
+    if (weeks.isEmpty) return const SizedBox.shrink();
+    var total = 0.0;
+    for (final w in weeks) {
+      total += after[w] - before[w];
+    }
+    String signed(double v) => '${v >= 0 ? '+' : '−'}${v.abs().round()}';
+    const shown = 4;
+    return Padding(
+      key: const ValueKey('proposal-diff'),
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final w in weeks.take(shown))
+            Text(
+              l10n.proposalDiffWeek(
+                w + 1,
+                before[w].round(),
+                after[w].round(),
+                signed(after[w] - before[w]),
+              ),
+              style: theme.textTheme.bodySmall,
+            ),
+          if (weeks.length > shown)
+            Text(
+              l10n.proposalDiffMore(weeks.length - shown),
+              style: theme.textTheme.bodySmall,
+            ),
+          Text(
+            l10n.proposalDiffTotal(signed(total), weeks.length),
+            key: const ValueKey('proposal-diff-total'),
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -15,6 +15,7 @@ import '../screens/events/event_editor_screen.dart';
 import '../screens/settings/weekly_targets_settings.dart';
 import '../screens/settings/year_goals_settings.dart';
 import 'onboarding_settings.dart';
+import 'setup_checks.dart';
 
 /// First-run flow, and the guided setup in Settings: welcome, connect
 /// Intervals.icu (and sync this month), sync more history, sports and weekly
@@ -43,7 +44,12 @@ class OnboardingScreen extends StatefulWidget {
     this.yearGoals,
     this.syncData,
     this.addEvent,
+    this.findings,
   });
+
+  /// Reads what the first sync shows (Strava stubs, missing thresholds);
+  /// default [checkSetup] for the sports picked earlier.
+  final Future<SetupFindings> Function(List<String> sports)? findings;
 
   /// Opened from Settings rather than on a fresh install.
   final bool guided;
@@ -102,6 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Sync history.
   SyncScope _scope = SyncScope.year;
   _Data _data = _Data.idle;
+  SetupFindings _findings = const SetupFindings();
   SyncResult? _dataResult;
 
   // Year goals.
@@ -286,8 +293,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       final result =
           await (widget.syncData ?? (s) => SyncService().syncScope(s))(_scope);
       if (!mounted) return;
+      SetupFindings found = const SetupFindings();
+      try {
+        found =
+            await (widget.findings ?? (sports) => checkSetup(sports: sports))([
+              for (final s in _sports)
+                {'swim': 'Swim', 'ride': 'Ride', 'run': 'Run'}[s] ?? s,
+            ]);
+      } catch (_) {}
+      if (!mounted) return;
       setState(() {
         _dataResult = result;
+        _findings = found;
         _data = _Data.done;
       });
     } catch (_) {
@@ -297,8 +314,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _saveGoals() async {
     double? km(String sport) {
-      if (!_sports.contains(sport))
+      if (!_sports.contains(sport)) {
         return _yearGoals.goalFor(_goalSport[sport]!);
+      }
       final v = double.tryParse(
         _goals[sport]!.text.trim().replaceAll(',', '.'),
       );
@@ -634,6 +652,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         if (_data == _Data.failed) ...[
           const SizedBox(height: 12),
           Text(l10n.obSyncDataFailed),
+        ],
+        if (_findings.stravaActivities > 0) ...[
+          const SizedBox(height: 12),
+          Card(
+            key: const ValueKey('onboarding-strava-hint'),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(l10n.obStravaHint(_findings.stravaActivities)),
+            ),
+          ),
+        ],
+        if (_findings.missingThresholds.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Card(
+            key: const ValueKey('onboarding-threshold-hint'),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                l10n.obThresholdHint(_findings.missingThresholds.join(', ')),
+              ),
+            ),
+          ),
         ],
       ],
       _actions(

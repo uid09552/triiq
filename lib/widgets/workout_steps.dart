@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// One line of an Intervals.icu workout description.
 sealed class WorkoutLine {
   const WorkoutLine(this.level);
@@ -104,6 +106,24 @@ List<WorkoutLine> parseWorkoutText(String text) {
   return lines;
 }
 
+/// Lines after the first step that carry a number or a target but were not
+/// read as steps: Intervals.icu may not understand them either. The purpose
+/// lead-in before the first step is not counted.
+int unparsedStepLines(List<WorkoutLine> lines) {
+  final first = lines.indexWhere((l) => l is WorkoutStep || l is WorkoutRepeat);
+  if (first < 0) return 0;
+  return lines
+      .skip(first)
+      .whereType<WorkoutNote>()
+      .where(
+        (n) => RegExp(
+          r'\d+\s*(%|min|km|m\b|s\b|h\b|w\b|x\b)|\bZ\d',
+          caseSensitive: false,
+        ).hasMatch(n.text),
+      )
+      .length;
+}
+
 /// Whether [lines] hold any structure worth drawing as steps.
 bool hasWorkoutSteps(List<WorkoutLine> lines) =>
     lines.any((l) => l is WorkoutStep || l is WorkoutRepeat);
@@ -138,10 +158,34 @@ class WorkoutDescription extends StatelessWidget {
       return SelectableText(text.trim(), style: theme.textTheme.bodyMedium);
     }
 
+    final unparsed = unparsedStepLines(lines);
     return Column(
       key: const ValueKey('workout-steps'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (unparsed > 0)
+          Container(
+            key: const ValueKey('workout-parse-warning'),
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.warning_amber_outlined, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.workoutUnparsed(unparsed),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
         for (final line in lines)
           switch (line) {
             WorkoutNote() => _note(theme, line),

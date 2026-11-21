@@ -21,6 +21,7 @@ import 'package:triiq/plan/plan_actions.dart';
 import 'package:triiq/plan/plan_inputs.dart';
 import 'package:triiq/plan/plan_models.dart';
 import 'package:triiq/plan/plan_service.dart';
+import 'package:triiq/plan/proposal_safety.dart';
 import 'package:triiq/screens/chat/proposal_card.dart';
 
 class _NoWorkouts implements PlannedWorkoutWriter {
@@ -249,5 +250,121 @@ void main() {
       await tester.runAsync(PlansRepository(database: database).getCurrent),
       isNull,
     );
+  });
+
+  group('before / after and undo', () {
+    CurveProposal curveWithBefore() => proposals.register(
+      CurveProposal(
+        summary: 'week 4 -> 355 TSS',
+        fingerprint: 'v1',
+        goal: goal.copyWith(loadFactors: [1, 1, 1, 0.81]),
+        limits: limits,
+        weeks: 4,
+        changedWeeks: {3},
+        previousGoal: goal,
+      ),
+    );
+
+    testWidgets('the card shows each changed week before and after', (
+      tester,
+    ) async {
+      final p = curveWithBefore();
+      await pump(tester, p);
+      expect(find.byKey(const ValueKey('proposal-diff')), findsOneWidget);
+      // Week 4 of a 300 TSS base at +10 % a week: 439 proposed, ×0.81 = 356.
+      expect(find.textContaining('Week 4: 439 → 356 TSS'), findsOneWidget);
+      expect(find.text('−83 TSS over 1 week'), findsOneWidget);
+    });
+
+    testWidgets('apply, then undo puts the old goal back', (tester) async {
+      await tester.runAsync(() => GoalStore().save(goal));
+      final p = curveWithBefore();
+      await pump(tester, p);
+      expect(find.byKey(ValueKey('proposal-undo-${p.id}')), findsNothing);
+
+      await tester.tap(find.text('Apply'));
+      await realWait(tester);
+      expect((await tester.runAsync(GoalStore().load))!.loadFactors, [
+        1,
+        1,
+        1,
+        0.81,
+      ]);
+      expect(find.text('Applied'), findsOneWidget);
+
+      await tester.tap(find.byKey(ValueKey('proposal-undo-${p.id}')));
+      await realWait(tester);
+      expect((await tester.runAsync(GoalStore().load))!.loadFactors, isEmpty);
+      expect(p.undone, isTrue);
+      expect(find.text('Applied, then undone'), findsOneWidget);
+      expect(find.byKey(ValueKey('proposal-undo-${p.id}')), findsNothing);
+      // The next turn tells the trainer.
+      final outcomes = proposals.takeOutcomes();
+      expect(outcomes.map((o) => o.describe()).join(' '), contains('undid it'));
+    });
+
+    testWidgets('no undo once something else changed the plan', (tester) async {
+      await tester.runAsync(() => GoalStore().save(goal));
+      final p = curveWithBefore();
+      await pump(tester, p);
+      await tester.tap(find.text('Apply'));
+      await realWait(tester);
+
+      fingerprint = 'v2'; // the plan changed after applying
+      await tester.tap(find.byKey(ValueKey('proposal-undo-${p.id}')));
+      await realWait(tester);
+      expect(find.textContaining("Can't undo"), findsOneWidget);
+      expect(p.undone, isFalse);
+      expect((await tester.runAsync(GoalStore().load))!.loadFactors, [
+        1,
+        1,
+        1,
+        0.81,
+      ]);
+    });
+
+    testWidgets('a limited week says so on the card', (tester) async {
+      final p = proposals.register(
+        CurveProposal(
+          summary: 'week 4 -> 475 TSS',
+          fingerprint: 'v1',
+          goal: goal.copyWith(loadFactors: [1, 1, 1, 1.08]),
+          limits: limits,
+          weeks: 4,
+          changedWeeks: {3},
+          previousGoal: goal,
+          clamps: const [RampClamp(week: 4, asked: 600, limited: 475)],
+        ),
+      );
+      await pump(tester, p);
+      expect(find.byKey(const ValueKey('proposal-clamped')), findsOneWidget);
+      expect(
+        find.textContaining('Week 4: asked for 600 TSS, limited to 475'),
+        findsOneWidget,
+      );
+    });
+
+    test('what can be undone', () {
+      final removal = SessionChangeProposal(
+        summary: 'remove',
+        fingerprint: 'v1',
+        sessionId: 1,
+        name: 'x',
+        sport: 'Run',
+        from: DateTime(2026, 11, 7),
+      );
+      expect(removal.undoable, isFalse);
+      final move = SessionChangeProposal(
+        summary: 'move',
+        fingerprint: 'v1',
+        sessionId: 1,
+        name: 'x',
+        sport: 'Run',
+        from: DateTime(2026, 11, 7),
+        to: DateTime(2026, 11, 8),
+      );
+      expect(move.undoable, isTrue);
+      expect(curve().undoable, isFalse); // no "before" known
+    });
   });
 }

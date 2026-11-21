@@ -24,6 +24,7 @@ import 'package:triiq/plan/plan_models.dart';
 import 'package:triiq/screens/calendar/calendar_moves.dart';
 import 'package:triiq/screens/settings/weekly_targets_settings.dart';
 import 'package:triiq/screens/settings/year_goals_settings.dart';
+import 'package:triiq/screens/today/today_layout_settings.dart';
 import 'package:triiq/screens/today/today_screen.dart';
 import 'package:triiq/util/dates.dart';
 import 'package:triiq/widgets/hold_preview.dart';
@@ -222,6 +223,69 @@ void main() {
       FlutterError.onError = previous;
     }
     expect(errors, isEmpty);
+  });
+
+  testWidgets('tomorrow: hold opens the day actions, never deletes', (t) async {
+    await t.runAsync(() async {
+      await planToday();
+      await TodayLayoutSettings.instance.setVisible(
+        TodaySection.tomorrowsTraining,
+        true,
+      );
+    });
+    addTearDown(
+      () => TodayLayoutSettings.instance.setVisible(
+        TodaySection.tomorrowsTraining,
+        false,
+      ),
+    );
+    await pumpToday(t, size: const Size(360, 3000));
+    // The visible route: a ⋯ button on the card.
+    final more = find.byKey(const ValueKey('planned-day-actions'));
+    await t.ensureVisible(more);
+    await t.pump();
+    expect(more, findsOneWidget);
+    await t.tap(more);
+    await t.pumpAndSettle();
+    expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
+    // Deleting the day's training is, when offered at all, one entry in
+    // this menu behind its own confirmation: no dialog opens on its own.
+    expect(find.byType(AlertDialog), findsNothing);
+    await t.tapAt(const Offset(10, 10)); // dismiss the sheet
+    await t.pumpAndSettle();
+
+    // The hold shows the same menu.
+    final session = find.text('Long ride');
+    await t.ensureVisible(session);
+    await t.longPress(session);
+    await t.pumpAndSettle();
+    expect(find.byKey(const ValueKey('day-add-event')), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+  });
+
+  testWidgets('nothing planned tomorrow: a visible Plan this day button', (
+    t,
+  ) async {
+    await t.runAsync(
+      () => TodayLayoutSettings.instance.setVisible(
+        TodaySection.tomorrowsTraining,
+        true,
+      ),
+    );
+    addTearDown(
+      () => TodayLayoutSettings.instance.setVisible(
+        TodaySection.tomorrowsTraining,
+        false,
+      ),
+    );
+    await pumpToday(t, size: const Size(360, 3000));
+    final plan = find.byKey(const ValueKey('planned-empty-plan'));
+    await t.ensureVisible(plan);
+    await t.pump();
+    expect(plan, findsOneWidget);
+    await t.tap(plan);
+    await t.pumpAndSettle();
+    expect(find.byKey(const ValueKey('day-propose')), findsOneWidget);
   });
 
   testWidgets('load tiles: three by default, all six behind More metrics', (

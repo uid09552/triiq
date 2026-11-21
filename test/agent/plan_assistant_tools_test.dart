@@ -8,6 +8,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:triiq/agent/plan_proposals.dart';
 import 'package:triiq/agent/tools/training_data_tools.dart';
 import 'package:triiq/data/db/app_database.dart';
+import 'package:triiq/data/models/local_event.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/data/repositories/events_repository.dart';
 import 'package:triiq/data/repositories/plans_repository.dart';
@@ -16,6 +17,7 @@ import 'package:triiq/data/repositories/wellness_repository.dart';
 import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/plan/plan_engine.dart';
 import 'package:triiq/plan/plan_models.dart';
+import 'package:triiq/util/dates.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -179,21 +181,47 @@ void main() {
       expect(weeks[2]['target_tss'], 420, reason: '399.3 x 1.05, on 5 TSS');
     });
 
-    test('outside the band is an error naming the range', () async {
-      final percent = await call('propose_load_curve', {
-        'set_weeks': [
-          {'week': 2, 'percent': 140},
-        ],
-      });
-      final tss = await call('propose_load_curve', {
-        'set_weeks': [
-          {'week': 2, 'tss': 900},
-        ],
-      });
+    test(
+      'outside the band is limited to the edge, flagged, not refused',
+      () async {
+        final percent = await call('propose_load_curve', {
+          'set_weeks': [
+            {'week': 2, 'percent': 140},
+          ],
+        });
+        final tss = await call('propose_load_curve', {
+          'set_weeks': [
+            {'week': 2, 'tss': 900},
+          ],
+        });
 
-      expect(percent['error'], contains('295-435 TSS'));
-      expect(tss['error'], contains('outside'));
-      expect(percent['proposal_id'], isNull);
+        // A proposal is made, at the top of the band (295-435 TSS), and the
+        // model is told it was limited so it can say so.
+        expect(percent['error'], isNull);
+        expect(percent['proposal_id'], isNotNull);
+        expect(percent['limited'], isNotEmpty);
+        expect((percent['limited'] as List).single, contains('limited to 435'));
+        final weeks = percent['load_graph']['weeks'] as List;
+        expect(weeks[1]['target_tss'], 435);
+        expect(tss['limited'], isNotEmpty);
+
+        // The card gets the same fact.
+        final proposal =
+            proposals[percent['proposal_id'] as String]! as CurveProposal;
+        expect(proposal.clamps, hasLength(1));
+        expect(proposal.clamps.single.week, 2);
+        expect(proposal.clamps.single.asked, 508); // 140 % of 363
+        expect(proposal.clamps.single.limited, 435);
+      },
+    );
+
+    test('inside the band nothing is limited', () async {
+      final ok = await call('propose_load_curve', {
+        'set_weeks': [
+          {'week': 2, 'percent': 105},
+        ],
+      });
+      expect(ok['limited'], isNull);
     });
 
     test('plan length and sport mix; bad length errors', () async {
@@ -255,6 +283,67 @@ void main() {
 
       final p = proposals[r['proposal_id'] as String]! as SessionChangeProposal;
       expect(p.isRemoval, isTrue);
+    });
+
+    test('a hard session is not moved next to another hard one', () async {
+      final saved = await savePlan();
+      final hard = [
+        for (final s in saved.sessions)
+          if (s.slot == SessionSlot.intervals || s.slot == SessionSlot.long) s,
+      ];
+      expect(hard.length, greaterThanOrEqualTo(2));
+      final moving = hard.first;
+      final other = hard.firstWhere((s) => s.id != moving.id);
+      // The day after the other hard session, inside the plan.
+      final target = other.date.add(const Duration(days: 1));
+
+      final r = await call('propose_session_change', {
+        'session_id': moving.id,
+        'action': 'move',
+        'date': isoDate(target),
+      });
+
+      expect(r['proposal_id'], isNull);
+      expect(r['error'], contains('back to back'));
+    });
+
+    test('a hard session is not moved onto a sick day', () async {
+      final saved = await savePlan();
+      final moving = saved.sessions.firstWhere(
+        (s) => s.slot == SessionSlot.intervals || s.slot == SessionSlot.long,
+      );
+      final free = saved.weeks[1].sessions.first.date.add(
+        const Duration(days: 3),
+      );
+      await EventsRepository(database: database).replaceRange(
+        '2026-10-25',
+        '2026-12-31',
+        [
+          LocalEvent(
+            id: 'sick1',
+            date: '2026-10-30',
+            category: 'SICK',
+            type: null,
+            name: 'Flu',
+            description: null,
+            plannedLoad: null,
+            plannedTime: null,
+            plannedDistance: null,
+            indoor: false,
+            raw: {'end_date_local': '2026-11-20T00:00:00'},
+            syncedAt: now,
+          ),
+        ],
+      );
+
+      final r = await call('propose_session_change', {
+        'session_id': moving.id,
+        'action': 'move',
+        'date': isoDate(free),
+      });
+
+      expect(r['proposal_id'], isNull);
+      expect(r['error'], contains('logged as sick'));
     });
 
     test('unknown id, past date and outside the plan are errors', () async {

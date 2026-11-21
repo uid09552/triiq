@@ -1,4 +1,8 @@
+import '../../data/models/local_event.dart';
+import '../../data/repositories/events_repository.dart';
 import '../../plan/load_curve_controller.dart';
+import '../../plan/proposal_safety.dart';
+import '../../season/illness_mode.dart';
 import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
@@ -12,8 +16,13 @@ class PlanAssistantTools {
     required this.service,
     PlanProposals? proposals,
     DateTime Function()? clock,
+    this.events,
   }) : proposals = proposals ?? PlanProposals.instance,
        _clock = clock ?? DateTime.now;
+
+  /// Where sick and injured days are read from, for the move safety check
+  /// (default: the local events cache).
+  final EventsRepository? events;
 
   final PlanService service;
   final PlanProposals proposals;
@@ -260,6 +269,7 @@ class PlanAssistantTools {
       factors: reset ? const [] : base.loadFactors,
     );
     final before = c.factors;
+    final clamps = <RampClamp>[];
     if (reset) changes.add('reset to the proposal');
 
     // Explicit week values, then recovery weeks.
@@ -291,14 +301,19 @@ class PlanAssistantTools {
         } else {
           return {'error': 'week $week needs a "tss" or a "percent".'};
         }
+        // The plan's limits are enforced here, not left to the model: a
+        // week outside 80-120 % of its proposal (which already respects the
+        // weekly ramp and CTL ramp) is limited to the nearest edge, the
+        // proposal says so and the card shows it.
         final band = c.bandFor(i);
         if (target < band.low - 2.5 || target > band.high + 2.5) {
-          return {
-            'error':
-                'week $week allows ${band.low.round()}-${band.high.round()} '
-                'TSS (80-120% of its proposed ${c.proposal[i].round()}); '
-                '${target.round()} is outside that.',
-          };
+          clamps.add(
+            RampClamp(
+              week: week,
+              asked: target.round(),
+              limited: (target < band.low ? band.low : band.high).round(),
+            ),
+          );
         }
         c.dragTss(i, target);
         changes.add('week $week -> ${c.targets[i].round()} TSS');
@@ -343,11 +358,20 @@ class PlanAssistantTools {
         limits: limits,
         weeks: c.weeks,
         changedWeeks: changed,
+        previousGoal: base,
+        clamps: clamps,
       ),
     );
     return {
       'proposal_id': proposal.id,
       'summary': proposal.summary,
+      if (clamps.isNotEmpty)
+        'limited': [
+          for (final k in clamps)
+            'week ${k.week}: asked for ${k.asked} TSS, limited to '
+                '${k.limited} TSS (the most / least the plan\'s weekly ramp '
+                'allows). Tell the athlete.',
+        ],
       'load_graph': _curveJson(c, changed: changed),
       'note': _notApplied,
     };
@@ -366,6 +390,21 @@ class PlanAssistantTools {
       ),
     );
     return proposal.id;
+  }
+
+  /// Whether the athlete is logged sick or injured on [day] (or in the
+  /// return ramp), from the events cache; `null` when not, or unreadable.
+  Future<({HealthIssue issue, HealthPhase phase})?> _healthOn(
+    DateTime day,
+  ) async {
+    try {
+      final from = day.subtract(const Duration(days: 120));
+      final List<LocalEvent> found = await (events ?? EventsRepository())
+          .getRange(isoDate(from), isoDate(day));
+      return currentHealthIssue(found, day);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Move or remove one session of the current plan, as a proposal.
@@ -414,6 +453,13 @@ class PlanAssistantTools {
       if (to == session.date) {
         return {'error': 'The session is already on ${_day(to)}.'};
       }
+      final refusal = sessionMoveRefusal(
+        session: session,
+        target: to,
+        plan: plan.sessions,
+        health: await _healthOn(to),
+      );
+      if (refusal != null) return {'error': refusal};
     }
 
     final summary = to == null

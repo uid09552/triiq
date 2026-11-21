@@ -638,7 +638,7 @@ class _DateBadge extends StatelessWidget {
               DateFormat.MMM(locale).format(date).toUpperCase(),
               style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.onPrimaryContainer,
-                fontSize: 9,
+                fontSize: 11,
                 letterSpacing: 0.8,
               ),
             ),

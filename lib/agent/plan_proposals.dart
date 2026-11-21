@@ -5,11 +5,15 @@ import 'package:flutter/foundation.dart';
 import '../data/repositories/plans_repository.dart';
 import '../plan/load_curve.dart';
 import '../plan/plan_adaptation.dart';
+import '../plan/proposal_safety.dart';
 import '../plan/plan_models.dart';
 
 /// Where a proposal is in its life. Only [pending] and [failed] can still
 /// be applied.
 enum ProposalState { pending, applying, applied, dismissed, stale, failed }
+
+/// How taking an applied proposal back went.
+enum UndoResult { done, stale, failed, unavailable }
 
 /// A change the agent suggested and the athlete has not (yet) applied.
 /// Tools create these — the model never writes anything itself — and the
@@ -43,8 +47,27 @@ sealed class PlanProposal {
   /// Why the last apply failed, or why it was refused.
   String? error;
 
+  /// The goal-and-plan state right after this proposal was applied. Undo is
+  /// only offered while that is still how things are: once anything else
+  /// changed the plan, putting the old state back would undo more than this.
+  String? appliedFingerprint;
+
+  /// The athlete took the change back after applying it.
+  bool undone = false;
+
+  /// Whether applying this can be taken back: a moved session, a swap, a
+  /// load graph whose previous goal is known. A removed session or a plan
+  /// the athlete took through the preview can't be.
+  bool get undoable => false;
+
   bool get canApply =>
       state == ProposalState.pending || state == ProposalState.failed;
+
+  bool get canUndo =>
+      state == ProposalState.applied &&
+      !undone &&
+      undoable &&
+      appliedFingerprint != null;
 }
 
 /// A reshaped load graph, length or sport mix: [goal] is the saved goal
@@ -57,10 +80,23 @@ class CurveProposal extends PlanProposal {
     required this.limits,
     required this.weeks,
     required this.changedWeeks,
+    this.previousGoal,
+    this.clamps = const [],
     super.adaptation,
   });
 
+  /// Weeks that were asked to go beyond the plan's limits and were limited
+  /// to them; the card says so.
+  final List<RampClamp> clamps;
+
   final Goal goal;
+
+  /// The saved goal this edit starts from: the "before" of the card's
+  /// before/after, and what Undo puts back.
+  final Goal? previousGoal;
+
+  @override
+  bool get undoable => previousGoal != null;
 
   /// What the mini graph on the card is drawn within.
   final CurveLimits limits;
@@ -106,6 +142,9 @@ class SessionChangeProposal extends PlanProposal {
   final DateTime from;
   final DateTime? to;
 
+  @override
+  bool get undoable => to != null;
+
   /// A past session nothing was done for: the one past session that may
   /// still be moved or let go.
   final bool missed;
@@ -126,6 +165,115 @@ class SessionSwapProposal extends PlanProposal {
 
   final PlanSession first;
   final PlanSession second;
+
+  @override
+  bool get undoable => true;
+}
+
+/// A proposal as saved with the chat, so it survives a restart. Only the
+/// agent's own proposals can be saved: the ones that answer a plan drift
+/// ([Adaptation]) are rebuilt from the plan by Today, and a swap holds whole
+/// plan sessions — those return `null` and are not restored.
+Map<String, dynamic>? proposalToJson(PlanProposal p) {
+  if (p.adaptation != null) return null;
+  final base = <String, dynamic>{
+    'summary': p.summary,
+    'fingerprint': p.fingerprint,
+    'state': p.state.name,
+    'appliedFingerprint': p.appliedFingerprint,
+    'undone': p.undone,
+  };
+  return switch (p) {
+    CurveProposal() => {
+      ...base,
+      'kind': 'curve',
+      'goal': p.goal.toJson(),
+      'limits': p.limits.toJson(),
+      'weeks': p.weeks,
+      'changedWeeks': p.changedWeeks.toList()..sort(),
+      'previousGoal': p.previousGoal?.toJson(),
+      'clamps': [for (final k in p.clamps) k.toJson()],
+    },
+    PlanDraftProposal() => {
+      ...base,
+      'kind': 'draft',
+      'goal': p.goal.toJson(),
+      'limits': p.limits?.toJson(),
+      'weeks': p.weeks,
+    },
+    SessionChangeProposal() => {
+      ...base,
+      'kind': 'session',
+      'sessionId': p.sessionId,
+      'name': p.name,
+      'sport': p.sport,
+      'from': p.from.toIso8601String(),
+      'to': p.to?.toIso8601String(),
+      'missed': p.missed,
+    },
+    SessionSwapProposal() => null,
+  };
+}
+
+/// The proposal [proposalToJson] saved, or `null` when it can't be read.
+/// Not registered yet: see [PlanProposals.restore].
+PlanProposal? proposalFromJson(Object? json) {
+  if (json is! Map<String, dynamic>) return null;
+  try {
+    final summary = json['summary'] as String;
+    final fingerprint = json['fingerprint'] as String;
+    final limits = json['limits'];
+    final proposal = switch (json['kind']) {
+      'curve' => CurveProposal(
+        summary: summary,
+        fingerprint: fingerprint,
+        goal: Goal.fromJson(json['goal'] as Map<String, dynamic>),
+        limits: CurveLimits.fromJson(limits as Map<String, dynamic>),
+        weeks: (json['weeks'] as num).toInt(),
+        changedWeeks: {
+          for (final w in json['changedWeeks'] as List) (w as num).toInt(),
+        },
+        previousGoal: json['previousGoal'] is Map<String, dynamic>
+            ? Goal.fromJson(json['previousGoal'] as Map<String, dynamic>)
+            : null,
+        clamps: [
+          for (final k in json['clamps'] as List? ?? const [])
+            ?RampClamp.fromJson(k),
+        ],
+      ),
+      'draft' => PlanDraftProposal(
+        summary: summary,
+        fingerprint: fingerprint,
+        goal: Goal.fromJson(json['goal'] as Map<String, dynamic>),
+        limits: limits is Map<String, dynamic>
+            ? CurveLimits.fromJson(limits)
+            : null,
+        weeks: (json['weeks'] as num?)?.toInt(),
+      ),
+      'session' => SessionChangeProposal(
+        summary: summary,
+        fingerprint: fingerprint,
+        sessionId: (json['sessionId'] as num).toInt(),
+        name: json['name'] as String,
+        sport: json['sport'] as String,
+        from: DateTime.parse(json['from'] as String),
+        to: json['to'] == null ? null : DateTime.parse(json['to'] as String),
+        missed: json['missed'] as bool? ?? false,
+      ),
+      _ => null,
+    };
+    if (proposal == null) return null;
+    proposal.appliedFingerprint = json['appliedFingerprint'] as String?;
+    proposal.undone = json['undone'] == true;
+    final state = ProposalState.values.asNameMap()[json['state']];
+    // An apply that was running when the app died did not finish.
+    proposal.state = state == null || state == ProposalState.applying
+        ? ProposalState.pending
+        : state;
+    return proposal;
+  } catch (_) {
+    return null;
+  }
 }
 
 /// What the athlete did with a proposal, for the agent's next turn.
@@ -139,7 +287,8 @@ class ProposalOutcome {
 
   String describe() {
     final what = switch (state) {
-      ProposalState.applied => 'was applied by the athlete',
+      ProposalState.applied =>
+        'was applied by the athlete${detail == null ? '' : ', $detail'}',
       ProposalState.dismissed => 'was dismissed by the athlete',
       ProposalState.stale =>
         'could not be applied: the goal or plan changed after it was made',
@@ -181,6 +330,17 @@ class PlanProposals extends ChangeNotifier {
   }
 
   PlanProposal? operator [](String id) => _byId[id];
+
+  /// Registers a proposal read back from storage under a new id, keeping
+  /// its state. It still has to pass the fingerprint check to be applied,
+  /// so one made from an older plan turns stale instead of changing a plan
+  /// it was not made for.
+  T restore<T extends PlanProposal>(T proposal) {
+    final state = proposal.state;
+    register(proposal);
+    proposal.state = state;
+    return proposal;
+  }
 
   /// The live proposal for adaptation [key], if any.
   PlanProposal? byKey(String key) {
@@ -246,11 +406,46 @@ class PlanProposals extends ChangeNotifier {
         notifyListeners();
         return p.state;
       }
+      p.appliedFingerprint = await _fingerprint();
       return _finish(p, ProposalState.applied);
     } catch (error) {
       p.error = '$error';
       return _finish(p, ProposalState.failed, '$error');
     }
+  }
+
+  /// Takes an applied proposal back with [run], unless something else
+  /// changed the goal or plan since it was applied ([UndoResult.stale]).
+  Future<UndoResult> undo(
+    String id,
+    Future<void> Function(PlanProposal proposal) run,
+  ) async {
+    final p = _byId[id];
+    if (p == null || !p.canUndo) return UndoResult.unavailable;
+    if (await _fingerprint() != p.appliedFingerprint) {
+      return UndoResult.stale;
+    }
+    try {
+      await run(p);
+    } catch (error) {
+      p.error = '$error';
+      notifyListeners();
+      return UndoResult.failed;
+    }
+    p.undone = true;
+    p.error = null;
+    // The state the plan is in now is what a later apply is judged against.
+    p.appliedFingerprint = null;
+    _outcomes.add(
+      ProposalOutcome(
+        p.id,
+        p.summary,
+        ProposalState.applied,
+        'then the athlete undid it (the plan is as it was before)',
+      ),
+    );
+    notifyListeners();
+    return UndoResult.done;
   }
 
   void dismiss(String id) {

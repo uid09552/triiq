@@ -13,6 +13,7 @@ import 'llm_settings.dart';
 import 'openai_connection.dart' show LlmFailureKind;
 import 'plan_proposals.dart';
 import 'system_prompt.dart';
+import 'usage.dart';
 import 'tools/training_data_tools.dart';
 
 /// Something the agent did while answering, streamed to the UI as it
@@ -88,6 +89,14 @@ class AgentNavigation extends AgentEvent {
   const AgentNavigation(this.destinationId);
 
   final String destinationId;
+}
+
+/// What the whole turn used, emitted once when it ends normally (a turn
+/// that was cancelled or failed reports nothing). Tool rounds are summed.
+class AgentUsage extends AgentEvent {
+  const AgentUsage(this.usage);
+
+  final TurnUsage usage;
 }
 
 /// The reply text an event stream adds up to, without the partial text of
@@ -183,6 +192,19 @@ class TrainingAgent {
     attachedContext = null;
   }
 
+  /// Gives a new agent the conversation a restored chat shows, as plain
+  /// text turns (tool results are not kept), so the next question is
+  /// answered in its context.
+  void restoreHistory(Iterable<({bool fromUser, String text})> turns) {
+    for (final t in turns) {
+      if (t.text.trim().isEmpty) continue;
+      _history.add(
+        t.fromUser ? ChatMessage.humanText(t.text) : AIChatMessage.text(t.text),
+      );
+    }
+    _trimHistory();
+  }
+
   /// Answers [input], streaming text and tool activity as it goes.
   ///
   /// Every model call goes through [LlmGateway]: it uses the
@@ -206,12 +228,14 @@ class TrainingAgent {
     _trimHistory();
 
     final memoryBlock = await _memory.promptBlock();
+    final styleBlock = await TrainerStyle.instance.promptBlock();
     final cachedRanges = await _tools.cachedRanges();
     // The runtime context names the model in use, so it is built per entry.
     List<ChatMessage> promptFor(LlmModelEntry entry) => [
       ChatMessage.system(trainingAgentSystemPrompt),
       ChatMessage.system(_runtimeContext(entry, cachedRanges)),
       if (memoryBlock != null) ChatMessage.system(memoryBlock),
+      if (styleBlock != null) ChatMessage.system(styleBlock),
       if (attachedContext != null)
         ChatMessage.system(
           '# The athlete is asking about this\n\n$attachedContext',
@@ -220,9 +244,29 @@ class TrainingAgent {
     ];
     final failedThisTurn = <String>{};
 
+    // Tokens over the turn. Within one model call the counts arrive in
+    // pieces (Anthropic: input at the start, output at the end; OpenAI: both
+    // on the last chunk), each already cumulative, so a call's figure is the
+    // largest seen; tool rounds are separate calls and add up.
+    var inputTokens = 0, outputTokens = 0;
+    LlmModelEntry? lastEntry;
+    AgentUsage? usageEvent() {
+      final entry = lastEntry;
+      if (entry == null) return null;
+      return AgentUsage(
+        TurnUsage(
+          inputTokens: inputTokens,
+          outputTokens: outputTokens,
+          model: entry.model,
+          local: entry.isLocal,
+        ),
+      );
+    }
+
     for (var iteration = 0; iteration < maxIterations; iteration++) {
       AIChatMessage? reply;
       var streamedText = false;
+      var callInput = 0, callOutput = 0;
 
       await for (final event in _gateway.stream(
         promptFor,
@@ -233,8 +277,16 @@ class TrainingAgent {
           case LlmAttemptStarted(:final entry):
             reply = null;
             streamedText = false;
+            lastEntry = entry;
             yield AgentModelAnswering(entry);
           case LlmChunk(:final chunk):
+            final usage = chunk.usage;
+            if ((usage.promptTokens ?? 0) > callInput) {
+              callInput = usage.promptTokens ?? 0;
+            }
+            if ((usage.responseTokens ?? 0) > callOutput) {
+              callOutput = usage.responseTokens ?? 0;
+            }
             reply = reply == null ? chunk.output : reply.concat(chunk.output);
             final text = _textOf(chunk.output);
             if (text.isNotEmpty) {
@@ -256,11 +308,17 @@ class TrainingAgent {
         }
       }
 
+      inputTokens += callInput;
+      outputTokens += callOutput;
       final message = reply ?? AIChatMessage.text('');
       _history.add(message);
 
       final toolCalls = message.toolCalls;
-      if (toolCalls.isEmpty) return;
+      if (toolCalls.isEmpty) {
+        final done = usageEvent();
+        if (done != null && done.usage.totalTokens > 0) yield done;
+        return;
+      }
 
       for (final call in toolCalls) {
         yield AgentToolStarted(call.name, call.arguments);
@@ -288,6 +346,8 @@ class TrainingAgent {
       '\n\n_I ran out of steps while looking that up. Try asking about a '
       'narrower date range._',
     );
+    final done = usageEvent();
+    if (done != null && done.usage.totalTokens > 0) yield done;
   }
 
   /// Runs one tool call. A thrown tool goes back to the model as an error

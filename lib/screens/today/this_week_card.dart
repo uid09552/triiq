@@ -73,6 +73,13 @@ class ThisWeekCard extends StatelessWidget {
               child: InkWell(
                 key: ValueKey('weekly-target-ring-$key'),
                 borderRadius: BorderRadius.circular(12),
+                // Tap or hold: the week's activities behind the ring.
+                onTap: () => showWeekActivitiesSheet(
+                  context,
+                  sportLabel: label,
+                  sport: key,
+                  weekActivities: weekActivities,
+                ),
                 onLongPress: () => showWeekActivitiesSheet(
                   context,
                   sportLabel: label,

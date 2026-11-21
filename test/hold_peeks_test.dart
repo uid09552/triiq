@@ -592,6 +592,28 @@ void main() {
     });
   });
 
+  group('long-press meanings', () {
+    // A hold is a shortcut, never the only way, and never destructive: it
+    // opens a preview or a menu (which asks before it deletes).
+    test('no long-press handler deletes or removes directly', () {
+      final offenders = <String>[];
+      final pattern = RegExp(
+        r'onLongPress:\s*[^,;]{0,160}(delete|remove|clear|erase)',
+        caseSensitive: false,
+      );
+      for (final f in Directory('lib').listSync(recursive: true)) {
+        if (f is! File || !f.path.endsWith('.dart')) continue;
+        final path = f.path.replaceAll(r'\', '/');
+        if (path.contains('/client/')) continue;
+        final text = f.readAsStringSync();
+        for (final m in pattern.allMatches(text)) {
+          offenders.add('$path: ${m.group(0)!.replaceAll('\n', ' ')}');
+        }
+      }
+      expect(offenders, isEmpty);
+    });
+  });
+
   group('exclusions: a long press that already does something', () {
     // Peeks must never sit on an item whose long press means something else
     // (menus, sheets, drag). These files own such long presses, so they

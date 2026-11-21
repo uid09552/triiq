@@ -50,14 +50,17 @@ class _Files implements SbomFiles {
   }
 }
 
-Widget _app(Widget home, {Locale locale = const Locale('en'), ThemeData? theme}) =>
-    MaterialApp(
-      theme: theme,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: locale,
-      home: home,
-    );
+Widget _app(
+  Widget home, {
+  Locale locale = const Locale('en'),
+  ThemeData? theme,
+}) => MaterialApp(
+  theme: theme,
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: locale,
+  home: home,
+);
 
 void main() {
   setUp(() {

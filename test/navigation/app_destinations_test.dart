@@ -118,9 +118,9 @@ void main() {
     }
     expect(NavigationLayout.defaultKnown(), contains('info'));
     expect(
-      destinationById('more.info')!.path(
-        lookupAppLocalizations(const Locale('en')),
-      ),
+      destinationById(
+        'more.info',
+      )!.path(lookupAppLocalizations(const Locale('en'))),
       'More › Info',
     );
   });

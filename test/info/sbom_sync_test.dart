@@ -102,23 +102,19 @@ void main() {
     expect((json['metadata'] as Map).containsKey('timestamp'), isFalse);
   });
 
-  test(
-    'regenerating gives byte-identical output, twice',
-    () {
-      String run() {
-        final r = Process.runSync('python3', [
-          'tool/pubspec_lock_to_cdx.py',
-          'pubspec.lock',
-          'pubspec.yaml',
-        ]);
-        expect(r.exitCode, 0, reason: '${r.stderr}');
-        return r.stdout as String;
-      }
+  test('regenerating gives byte-identical output, twice', () {
+    String run() {
+      final r = Process.runSync('python3', [
+        'tool/pubspec_lock_to_cdx.py',
+        'pubspec.lock',
+        'pubspec.yaml',
+      ]);
+      expect(r.exitCode, 0, reason: '${r.stderr}');
+      return r.stdout as String;
+    }
 
-      final first = run();
-      expect(run(), first);
-      expect(first, sbom.raw, reason: _fix);
-    },
-    skip: _hasPython ? false : 'python3 is not available',
-  );
+    final first = run();
+    expect(run(), first);
+    expect(first, sbom.raw, reason: _fix);
+  }, skip: _hasPython ? false : 'python3 is not available');
 }

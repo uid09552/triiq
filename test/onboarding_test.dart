@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:triiq/onboarding/setup_checks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:triiq/agent/llm_settings.dart';
@@ -61,6 +62,7 @@ void main() {
       bool guided = false,
       bool startConnected = false,
       void Function()? prepare,
+      SetupFindings found = const SetupFindings(),
     }) async {
       targets = WeeklyTargetsSettings.forTesting();
       goals = YearGoalsSettings.forTesting();
@@ -87,6 +89,7 @@ void main() {
                       builder: (_) => OnboardingScreen(
                         connect: (key) async => connected.add(key),
                         syncMonth: () async => 12,
+                        findings: (_) async => found,
                         athleteName: () => 'Alex',
                         targets: targets,
                         llm: llm,
@@ -220,6 +223,35 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('open'), findsOneWidget);
       expect(await done(), isTrue);
+    });
+
+    testWidgets('the sync step explains Strava stubs and missing thresholds', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        guided: true,
+        startConnected: true,
+        found: const SetupFindings(
+          stravaActivities: 3,
+          missingThresholds: ['Ride'],
+        ),
+      );
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('onboarding-next')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('onboarding-strava-hint')),
+        findsNothing,
+      );
+      await tester.tap(find.byKey(const ValueKey('onboarding-sync-now')));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('3 activities come from Strava'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('No threshold set for: Ride'), findsOneWidget);
     });
 
     testWidgets('every step can be skipped', (tester) async {

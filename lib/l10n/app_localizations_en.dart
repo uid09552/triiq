@@ -901,7 +901,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricAtlTitle => 'Fatigue (ATL)';
 
   @override
-  String get metricFormTitle => 'Form (TSB)';
+  String get metricFormTitle => 'Form (CTL − ATL)';
 
   @override
   String get metricRampTitle => 'Ramp rate';
@@ -914,15 +914,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get metricCtlExplainer =>
-      'CTL is a 42-day weighted average of your training load: how much training you have absorbed, not a measure of fitness or health. It can keep rising while you dig yourself into a hole.';
+      'Fitness (CTL) is a 42-day weighted average of your training load: the training you have built up over about six weeks. It measures load, not health, and it can keep rising while you dig yourself into a hole.';
 
   @override
   String get metricAtlExplainer =>
-      'ATL is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.';
+      'Fatigue (ATL) is the same average over 7 days — the load still sitting in your legs. It rises and falls quickly, and a high ATL inside a hard block is normal rather than a warning on its own.';
 
   @override
   String get metricFormExplainer =>
-      'Form is CTL minus ATL. Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.';
+      'Form is Fitness minus Fatigue (CTL − ATL). Positive means you are carrying less recent load than usual, negative means recent training is heavy. Negative form is where fitness gets built; it is not a diagnosis.';
 
   @override
   String get metricRampExplainer =>
@@ -4177,7 +4177,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pvStoredBody =>
-      'Only on this device: a local database and app preferences. API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.';
+      'Only on this device: a local database and app preferences, including the AI trainer chat so it survives a restart (New chat or Delete all data removes it). API keys are kept in the operating system\'s secure storage. Android\'s cloud backup is switched off for the app. TriIQ has no server and receives none of your data.';
 
   @override
   String get pvRecipientsTitle => 'Who receives data';
@@ -4903,7 +4903,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readinessPeekFitness =>
-      'Chronic training load (CTL): your fitness built over the last weeks. The arrow compares it with a week ago.';
+      'Fitness (CTL): the training load you have built up over the last weeks. The arrow compares it with a week ago.';
 
   @override
   String get readinessPeekToday => 'Today';
@@ -6549,4 +6549,415 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$done of $planned TSS · $hours of $plannedHours h · $doneCount of $plannedCount sessions';
   }
+
+  @override
+  String get tileFitnessLabel => 'Fitness · CTL';
+
+  @override
+  String get tileFatigueLabel => 'Fatigue · ATL';
+
+  @override
+  String get tileFormLabel => 'Form';
+
+  @override
+  String metricInfoTooltip(String metric) {
+    return 'What does $metric mean?';
+  }
+
+  @override
+  String get formStateTransition => 'Very fresh';
+
+  @override
+  String get formStateFresh => 'Fresh';
+
+  @override
+  String get formStateGrey => 'Neutral';
+
+  @override
+  String get formStateOptimal => 'Optimal';
+
+  @override
+  String get formStateHighRisk => 'Heavy';
+
+  @override
+  String get formStateHint =>
+      'Form zones follow Intervals.icu: form as a percentage of fitness.';
+
+  @override
+  String get holdTipText =>
+      'Tip: hold a tile, a session icon or a day to preview it.';
+
+  @override
+  String get holdTipGotIt => 'Got it';
+
+  @override
+  String get todayPlanThisDay => 'Plan this day…';
+
+  @override
+  String get chatStop => 'Stop';
+
+  @override
+  String chatBasedOn(String sources) {
+    return 'Based on: $sources';
+  }
+
+  @override
+  String get chatBasedOnNothing =>
+      'Based on nothing from your data: general advice';
+
+  @override
+  String chatDataAsOf(String when) {
+    return 'Your data was last synced $when.';
+  }
+
+  @override
+  String chatUsageLocal(String tokens) {
+    return '$tokens tokens · local, free';
+  }
+
+  @override
+  String chatUsageCost(String tokens, String cost) {
+    return '$tokens tokens · about $cost';
+  }
+
+  @override
+  String chatUsageNoPrice(String tokens) {
+    return '$tokens tokens · price not set';
+  }
+
+  @override
+  String get chatStopped => 'Stopped';
+
+  @override
+  String get chatSrcAthlete => 'athlete profile';
+
+  @override
+  String get chatSrcMetrics => 'daily load and wellness';
+
+  @override
+  String get chatSrcActivities => 'activities';
+
+  @override
+  String get chatSrcPlanned => 'planned workouts';
+
+  @override
+  String get chatSrcSummary => 'training summary';
+
+  @override
+  String get chatSrcGuidance => 'training knowledge';
+
+  @override
+  String get chatSrcPlan => 'training plan';
+
+  @override
+  String get chatSrcReadiness => 'readiness';
+
+  @override
+  String get chatSrcFatigue => 'fatigue warning';
+
+  @override
+  String get chatSrcForecast => 'fitness forecast';
+
+  @override
+  String get chatSrcHealth => 'health status';
+
+  @override
+  String get chatSrcCurves => 'performance curves';
+
+  @override
+  String get chatSrcAdjust => 'plan adjustments';
+
+  @override
+  String get chatSrcRace => 'race prediction';
+
+  @override
+  String get chatSrcThresholds => 'threshold suggestions';
+
+  @override
+  String get chatSrcWeekly => 'weekly review';
+
+  @override
+  String get chatSrcBricks => 'brick sessions';
+
+  @override
+  String get chatSrcTemplate => 'session templates';
+
+  @override
+  String get usageTitle => 'Usage this month';
+
+  @override
+  String get usageIntro =>
+      'What the AI trainer used this month, on this device only. Estimates from list prices: your provider\'s bill is what counts.';
+
+  @override
+  String get usageNothing => 'Nothing used yet this month.';
+
+  @override
+  String usageTokens(String input, String output) {
+    return '$input in · $output out';
+  }
+
+  @override
+  String get usageLocalFree => 'local, free';
+
+  @override
+  String get usageSetPrice => 'Set price';
+
+  @override
+  String get usageMonthTotal => 'Estimated this month';
+
+  @override
+  String usageAtLeast(String cost) {
+    return 'at least $cost';
+  }
+
+  @override
+  String get usageReset => 'Reset';
+
+  @override
+  String get usageResetTitle => 'Reset this month\'s usage?';
+
+  @override
+  String get usageResetBody =>
+      'This only clears the figures kept on this device.';
+
+  @override
+  String get usageNote =>
+      'A reply you stop is still billed for what was generated. A model with no price shows tokens only until you set one.';
+
+  @override
+  String usagePriceTitle(String model) {
+    return 'Price of $model';
+  }
+
+  @override
+  String get usagePriceHelp =>
+      'US dollars per million tokens, from your provider\'s price list.';
+
+  @override
+  String get usagePriceInput => 'Input per 1M tokens';
+
+  @override
+  String get usagePriceOutput => 'Output per 1M tokens';
+
+  @override
+  String get usagePriceDefault => 'Use default';
+
+  @override
+  String get saveButton => 'Save';
+
+  @override
+  String proposalDiffWeek(int week, int before, int after, String delta) {
+    return 'Week $week: $before → $after TSS ($delta)';
+  }
+
+  @override
+  String proposalDiffMore(int count) {
+    return '+$count more weeks';
+  }
+
+  @override
+  String proposalDiffTotal(String delta, int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      weeks,
+      locale: localeName,
+      other: '$weeks weeks',
+      one: '1 week',
+    );
+    return '$delta TSS over $_temp0';
+  }
+
+  @override
+  String get proposalUndo => 'Undo';
+
+  @override
+  String get proposalUndone => 'Applied, then undone';
+
+  @override
+  String get proposalUndoDone => 'Undone: the plan is as it was.';
+
+  @override
+  String get proposalUndoStale =>
+      'Can\'t undo: the plan changed since, and undoing would change more than this.';
+
+  @override
+  String proposalUndoFailed(String error) {
+    return 'Could not undo: $error';
+  }
+
+  @override
+  String get proposalUndoUnavailable => 'This change can\'t be undone.';
+
+  @override
+  String get proposalClampedTitle =>
+      'Limited to what the plan\'s weekly ramp allows:';
+
+  @override
+  String proposalClampedHigh(int week, int asked, int limited) {
+    return 'Week $week: asked for $asked TSS, limited to $limited (the most allowed).';
+  }
+
+  @override
+  String proposalClampedLow(int week, int asked, int limited) {
+    return 'Week $week: asked for $asked TSS, limited to $limited (the least allowed).';
+  }
+
+  @override
+  String get redFlagTitle => 'Please get this checked';
+
+  @override
+  String redFlagBody(String signs) {
+    return 'You mention $signs. That can be serious. Don\'t train until a doctor has looked at it, and if it is sudden or severe, call your local emergency number now. TriIQ is not a doctor and can\'t judge this.';
+  }
+
+  @override
+  String get redFlagChestPain => 'chest pain or pressure';
+
+  @override
+  String get redFlagFainting => 'fainting or collapsing';
+
+  @override
+  String get redFlagBreathing => 'trouble breathing';
+
+  @override
+  String get redFlagPalpitations => 'heart palpitations';
+
+  @override
+  String get calAddTooltip => 'Add to this day';
+
+  @override
+  String obStravaHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activities come from Strava and can\'t be read.',
+      one: '1 activity comes from Strava and can\'t be read.',
+    );
+    return '$_temp0 Intervals.icu may not pass Strava activities on through its API. Connect Garmin, Polar, Suunto or Wahoo to Intervals.icu directly to get them here.';
+  }
+
+  @override
+  String obThresholdHint(String sports) {
+    return 'No threshold set for: $sports. Without FTP or threshold pace, load and zones are off. Set them in Intervals.icu → Settings → Sport settings.';
+  }
+
+  @override
+  String get obSetupTrainerTitle => 'Set up your trainer';
+
+  @override
+  String get obSetupTrainerBody =>
+      'The trainer is an AI model you connect. Easiest: Claude or OpenAI with an API key. For privacy: Ollama on your own computer.';
+
+  @override
+  String get obProviderClaude => 'Claude (recommended)';
+
+  @override
+  String get obProviderOpenAI => 'OpenAI';
+
+  @override
+  String get obProviderOllama => 'Ollama (local)';
+
+  @override
+  String get memoryEdit => 'Edit';
+
+  @override
+  String get memoryUseTitle => 'Use memory in chats';
+
+  @override
+  String get memoryUseSubtitle =>
+      'Off: the trainer does not see these items. They stay listed here.';
+
+  @override
+  String get trainerToneTitle => 'Tone';
+
+  @override
+  String get trainerCadenceTitle => 'Check-ins';
+
+  @override
+  String get toneBalanced => 'Balanced';
+
+  @override
+  String get toneDirect => 'Direct';
+
+  @override
+  String get toneEncouraging => 'Encouraging';
+
+  @override
+  String get toneAnalytical => 'Analytical';
+
+  @override
+  String get cadenceOnRequest => 'Only when I ask';
+
+  @override
+  String get cadenceWeekly => 'Weekly review';
+
+  @override
+  String get cadenceAfterSessions => 'After hard sessions';
+
+  @override
+  String starterMissed(String day) {
+    return 'You missed $day\'s session. Replan the week?';
+  }
+
+  @override
+  String starterForm(String form) {
+    return 'Form is $form. Should I back off?';
+  }
+
+  @override
+  String get chipSick => 'I\'m sick';
+
+  @override
+  String get chipTravel => 'I\'m travelling';
+
+  @override
+  String get chipShortOnTime => 'Short on time';
+
+  @override
+  String get chipSickText =>
+      'I\'m sick. What should I do with this week\'s training?';
+
+  @override
+  String get chipTravelText =>
+      'I\'m travelling soon. How should I adjust the week?';
+
+  @override
+  String get chipShortText =>
+      'I\'m short on time this week. What is the most useful minimum?';
+
+  @override
+  String starterMissedText(String day) {
+    return 'I missed $day\'s session. Ask me why before suggesting a replan.';
+  }
+
+  @override
+  String starterFormText(String form) {
+    return 'My form is $form. Should I back off?';
+  }
+
+  @override
+  String get calLegendDone => 'Done';
+
+  @override
+  String get calLegendPlanned => 'Planned';
+
+  @override
+  String get calLegendTriiq => 'TriIQ plan';
+
+  @override
+  String workoutUnparsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines were not read as steps and are shown as plain text.',
+      one: '1 line was not read as a step and is shown as plain text.',
+    );
+    return '$_temp0 Intervals.icu may ignore them. Steps start with \"- \", e.g. \"- 10m 70%\".';
+  }
+
+  @override
+  String get calAgendaTooltip => 'Agenda / grid';
+
+  @override
+  String get agendaEmpty => 'No sessions this month.';
 }

@@ -29,6 +29,7 @@ for it. Questions or requests: open an issue at
 | Activities, wellness, planned workouts, plans, knowledge library, caches | A SQLite database on the device — Android: app storage; Windows: the per-user app-data folder (`%APPDATA%\…\triiq\triiq.db`) |
 | Intervals.icu login (API key or the access token from *Log in with Intervals.icu*), Claude, Ollama and OpenAI-compatible keys | The operating system's secure storage (the Android Keystore, the Windows credential store) |
 | Settings (goal, targets, theme, trainer memory, …) | App preferences on the device |
+| The AI trainer chat (the newest 60 messages and any unapplied proposals) and this month's token usage | App preferences on the device — not part of a backup, and deleted with **Delete all data** or **New chat** |
 
 Android's system backup is switched off for the app, because the encrypted
 keys could not be decrypted on another device anyway.

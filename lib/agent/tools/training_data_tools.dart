@@ -88,6 +88,7 @@ class TrainingDataTools {
        _session = session ?? IntervalsSession.instance,
        _wellnessRepository = wellnessRepository ?? WellnessRepository(),
        _activitiesRepository = activitiesRepository ?? ActivitiesRepository(),
+       _rawEvents = eventsRepository ?? EventsRepository(),
        _eventsRepository = PlannedItemsRepository(
          events: eventsRepository ?? EventsRepository(),
          plans: plansRepository ?? PlansRepository(),
@@ -110,6 +111,7 @@ class TrainingDataTools {
   final ActivitiesRepository _activitiesRepository;
 
   /// Planned items: the TriIQ plan plus, when copied, Intervals.icu events.
+  final EventsRepository _rawEvents;
   final PlannedItemsRepository _eventsRepository;
   final SyncStateRepository _syncStateRepository;
   final SyncService _syncService;
@@ -151,6 +153,7 @@ class TrainingDataTools {
     service: _planService,
     proposals: _proposals,
     clock: _clock,
+    events: _rawEvents,
   );
 
   /// The same adaptation rules Today runs, registering the same keyed
