@@ -118,5 +118,7 @@ void main() {
     await settle();
 
     expect(find.textContaining('Missed on Tue'), findsNothing);
+    // The whole tile goes with its last suggestion, not an empty card.
+    expect(find.text('Plan adjustments'), findsNothing);
   });
 }

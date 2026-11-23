@@ -214,6 +214,7 @@ class _TodayScreenState extends State<TodayScreen> {
     PlanChanges.instance.addListener(_onCacheChanged);
     PendingDeletes.instance.addListener(_onCacheChanged);
     SyncSettings.instance.addListener(_onCacheChanged);
+    PlanProposals.instance.addListener(_onProposals);
     _dismissals.load();
     _load();
   }
@@ -229,6 +230,7 @@ class _TodayScreenState extends State<TodayScreen> {
     PlanChanges.instance.removeListener(_onCacheChanged);
     PendingDeletes.instance.removeListener(_onCacheChanged);
     SyncSettings.instance.removeListener(_onCacheChanged);
+    PlanProposals.instance.removeListener(_onProposals);
     super.dispose();
   }
 
@@ -398,6 +400,16 @@ class _TodayScreenState extends State<TodayScreen> {
       now: _now,
     );
     if (mounted) setState(() => _fatigue = w);
+  }
+
+  /// A suggestion was applied, dismissed or went stale: the "Plan
+  /// adjustments" card must come or go with it, not only its rows. After an
+  /// apply the plan changed, so look for suggestions again.
+  void _onProposals() {
+    if (!mounted) return;
+    final applied = _adjustments.any((p) => p.state == ProposalState.applied);
+    setState(() {});
+    if (applied) _loadAdjustments();
   }
 
   Future<void> _loadAdjustments() async {
