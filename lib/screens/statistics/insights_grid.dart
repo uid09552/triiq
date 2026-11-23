@@ -9,6 +9,7 @@ import '../../widgets/peekable.dart';
 import 'analytics_screen.dart';
 import 'best_efforts_screen.dart';
 import 'durability_screen.dart';
+import 'energy_screen.dart';
 import 'insight_previews.dart';
 import 'load_heatmap_screen.dart';
 import 'performance_screen.dart';
@@ -86,6 +87,13 @@ final List<InsightsDestination> insightsDestinations = [
     icon: Icons.monitor_heart_outlined,
     label: (l) => l.wtTitle,
     builder: (_) => WellnessTrendsScreen(),
+  ),
+  InsightsDestination(
+    id: 'energy',
+    group: InsightsGroup.health,
+    icon: Icons.restaurant_outlined,
+    label: (l) => l.energyTitle,
+    builder: (_) => EnergyScreen(),
   ),
   InsightsDestination(
     id: 'compare',

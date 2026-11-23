@@ -2062,5 +2062,21 @@
   "calLegendTriiq": "TriIQ-Plan",
   "workoutUnparsed": "{count, plural, =1{1 Zeile wurde nicht als Schritt gelesen und steht als Text da.} other{{count} Zeilen wurden nicht als Schritte gelesen und stehen als Text da.}} Intervals.icu ignoriert sie womöglich. Schritte beginnen mit \"- \", z. B. \"- 10m 70%\".",
   "calAgendaTooltip": "Agenda / Raster",
-  "agendaEmpty": "Keine Einheiten in diesem Monat."
+  "agendaEmpty": "Keine Einheiten in diesem Monat.",
+  "energyTitle": "Energie",
+  "insPeekEnergy": "Gegessene Kalorien neben dem Verbrauch im Training",
+  "energyNoData": "Keine Kalorien erfasst",
+  "energyNoDataReason": "Intervals.icu bekommt deine Ernährung von einer verbundenen Ernährungs-App oder aus Wellness-Einträgen. Trainingskalorien kommen mit den Aktivitäten.",
+  "energySummaryTitle": "Durchschnitte",
+  "energyAvgEaten": "Gegessen je erfasstem Tag",
+  "energyAvgTraining": "Training je Tag",
+  "energyAvgCarbs": "Kohlenhydrate je erfasstem Tag",
+  "energyAvgProtein": "Eiweiß je erfasstem Tag",
+  "energyLoggedDays": "Ernährung an {logged} von {days} Tagen erfasst.",
+  "energySessionCarbs": "In Einheiten: {used} g Kohlenhydrate verbraucht, {taken} g aufgenommen.",
+  "energyHeavyBurn": "{count, plural, =1{An 1 Tag hat das Training mehr als die Hälfte des Gegessenen verbraucht.} other{An {count} Tagen hat das Training mehr als die Hälfte des Gegessenen verbraucht.}}",
+  "energyDaysTitle": "Pro Tag (gegessen / Training, kcal)",
+  "energyEaten": "Gegessen",
+  "energyTraining": "Training",
+  "energyCareNote": "Trainingskalorien sind Geräteschätzungen, der Grundumsatz fehlt – das ist keine Energiebilanz. Keine Ziele oder Diätratschläge. Bei Ernährungsfragen: Ernährungsberatung oder Arzt."
 }

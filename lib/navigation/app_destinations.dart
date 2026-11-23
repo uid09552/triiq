@@ -221,6 +221,23 @@ const _insightsMeta = <String, (String, List<String>)>{
       'herzfrequenz',
     ],
   ),
+  'energy': (
+    'status:Energy',
+    [
+      'calories',
+      'kcal',
+      'nutrition',
+      'food',
+      'carbs',
+      'fuelling',
+      'fueling',
+      'protein',
+      'kalorien',
+      'ernährung',
+      'essen',
+      'kohlenhydrate',
+    ],
+  ),
   'compare': (
     'status:Compare',
     ['versus', 'vs', 'side by side', 'block', 'vergleich', 'nebeneinander'],

@@ -67,6 +67,65 @@ void main() {
     return jsonDecode(output as String) as Map<String, dynamic>;
   }
 
+  test('get_nutrition reports eaten and training calories per day', () async {
+    await wellnessRepository.upsertAll([
+      LocalWellness(
+        date: '2026-08-25',
+        ctl: null,
+        atl: null,
+        ctlLoad: null,
+        atlLoad: null,
+        rampRate: null,
+        raw: const {
+          'id': '2026-08-25',
+          'kcalConsumed': 2600,
+          'carbohydrates': 340.4,
+        },
+        syncedAt: DateTime(2026, 8, 30),
+      ),
+    ]);
+    await activitiesRepository.upsertAll([
+      LocalActivity(
+        id: 'n1',
+        date: '2026-08-25',
+        type: 'Ride',
+        name: 'Long ride',
+        movingTime: 10800,
+        distance: 0,
+        trainingLoad: 180,
+        raw: const {
+          'id': 'n1',
+          'calories': 2100,
+          'carbs_used': 300,
+          'carbs_ingested': 160,
+        },
+        syncedAt: DateTime(2026, 8, 30),
+      ),
+    ]);
+    final result = await call('get_nutrition', {
+      'start_date': '2026-08-24',
+      'end_date': '2026-08-30',
+    });
+    final day = (result['days'] as List).single as Map;
+    expect(day['date'], '2026-08-25');
+    expect(day['eaten_kcal'], 2600);
+    expect(day['carbs_g'], 340);
+    expect(day['training_kcal'], 2100);
+    expect(day['carbs_used_g'], 300);
+    expect(day['carbs_taken_in_session_g'], 160);
+    expect(result['logged_days'], 1);
+    expect(result['note'], contains('Resting burn is not included'));
+  });
+
+  test('get_nutrition says so when nothing eaten is logged', () async {
+    final result = await call('get_nutrition', {
+      'start_date': '2026-08-24',
+      'end_date': '2026-08-30',
+    });
+    expect(result['days'], isEmpty);
+    expect(result['note'], contains('Nothing eaten is logged'));
+  });
+
   test('get_athlete_context reports the date, cache and thresholds', () async {
     await activitiesRepository.upsertAll([
       _activity(id: 'a1', date: '2026-06-01', sport: 'Ride', ftp: 240),

@@ -7,6 +7,7 @@ import '../../data/intervals_session.dart';
 import '../../data/models/local_activity.dart';
 import '../../data/models/local_event.dart';
 import '../../data/models/local_wellness.dart';
+import '../../evaluation/energy_balance.dart';
 import '../../data/planned_items.dart';
 import '../../data/repositories/activities_repository.dart';
 import '../../data/repositories/events_repository.dart';
@@ -213,6 +214,19 @@ class TrainingDataTools {
           '$_maxMetricDays days per call.',
       schema: _rangeSchema(),
       run: (args) => _dailyMetrics(args),
+    ),
+    _tool(
+      name: 'get_nutrition',
+      description:
+          'Per day: calories and macros the athlete logged in Intervals.icu '
+          '(eaten), and calories, carbs used and carbs taken in during '
+          'training (from activities). Resting burn is not included. Use for '
+          'fuelling and "did I eat enough" questions. Describe what the data '
+          'shows; never set calorie or weight-loss targets, and point to a '
+          'dietitian or doctor for anything beyond fuelling training. Max '
+          '$_maxMetricDays days per call.',
+      schema: _rangeSchema(),
+      run: (args) => _nutrition(args),
     ),
     _tool(
       name: 'get_plan_adjustments',
@@ -829,6 +843,50 @@ class TrainingDataTools {
                 'be read. Sync before relying on FTP/LTHR/pace.'
           : 'Thresholds are read from the most recent activity per sport '
                 'and are only as current as that activity.',
+    };
+  }
+
+  Future<Map<String, dynamic>> _nutrition(Map<String, dynamic> args) async {
+    final range = _readRange(args, maxDays: _maxMetricDays);
+    if (range.error != null) return {'error': range.error};
+    final wellness = await _wellnessRepository.getRange(range.start, range.end);
+    final activities = await _activitiesRepository.getRange(
+      range.start,
+      range.end,
+    );
+    final days = energyDays(
+      DateTime.parse(range.start),
+      DateTime.parse(range.end),
+      wellness,
+      activities,
+    );
+    final s = EnergySummary(days);
+    return {
+      'range': {'start_date': range.start, 'end_date': range.end},
+      'days': [
+        for (final d in days)
+          if (d.hasIntake || d.sessions > 0)
+            {
+              'date': isoDate(d.date),
+              'eaten_kcal': ?d.eatenKcal,
+              'carbs_g': ?d.carbsG?.round(),
+              'protein_g': ?d.proteinG?.round(),
+              'fat_g': ?d.fatG?.round(),
+              'training_kcal': d.trainingKcal,
+              if (d.carbsUsedG > 0) 'carbs_used_g': d.carbsUsedG,
+              if (d.carbsTakenG > 0) 'carbs_taken_in_session_g': d.carbsTakenG,
+            },
+      ],
+      'logged_days': s.loggedDays,
+      'avg_eaten_kcal_on_logged_days': ?s.avgEatenKcal?.round(),
+      'avg_training_kcal_per_day': ?s.avgTrainingKcal?.round(),
+      'note': s.loggedDays == 0
+          ? 'Nothing eaten is logged for this range. Intervals.icu gets '
+                'intake from a connected food app or manual wellness '
+                'entries; say so rather than guessing.'
+          : 'Averages of eaten calories count only logged days. Resting '
+                'burn is not included, so eaten minus training is not '
+                'an energy balance.',
     };
   }
 

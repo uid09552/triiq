@@ -97,14 +97,17 @@ void main() {
       find.textContaining('of $weekPlanned TSS this week'),
       findsOneWidget,
     );
-    // Tomorrow's first session is named on the hero's tomorrow strip.
-    expect(
-      find.descendant(
-        of: find.byKey(const ValueKey('hero-tomorrow')),
-        matching: find.textContaining(tomorrows.first.name),
-      ),
-      findsOneWidget,
-    );
+    // Tomorrow's first session is named on the hero's tomorrow strip. The
+    // plan engine may make tomorrow a rest day, depending on today's date.
+    if (tomorrows.isNotEmpty) {
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('hero-tomorrow')),
+          matching: find.textContaining(tomorrows.first.name),
+        ),
+        findsOneWidget,
+      );
+    }
   });
 
   testWidgets('nothing planned: the hero offers Propose training', (
