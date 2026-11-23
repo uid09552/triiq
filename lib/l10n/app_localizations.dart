@@ -11348,6 +11348,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No sessions this month.'**
   String get agendaEmpty;
+
+  /// No description provided for @energyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get energyTitle;
+
+  /// No description provided for @insPeekEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories eaten next to what training burned'**
+  String get insPeekEnergy;
+
+  /// No description provided for @energyNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No calories logged'**
+  String get energyNoData;
+
+  /// No description provided for @energyNoDataReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals.icu gets what you eat from a connected food app or from wellness entries. Training calories come with your activities.'**
+  String get energyNoDataReason;
+
+  /// No description provided for @energySummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages'**
+  String get energySummaryTitle;
+
+  /// No description provided for @energyAvgEaten.
+  ///
+  /// In en, this message translates to:
+  /// **'Eaten per logged day'**
+  String get energyAvgEaten;
+
+  /// No description provided for @energyAvgTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training per day'**
+  String get energyAvgTraining;
+
+  /// No description provided for @energyAvgCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs per logged day'**
+  String get energyAvgCarbs;
+
+  /// No description provided for @energyAvgProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein per logged day'**
+  String get energyAvgProtein;
+
+  /// No description provided for @energyLoggedDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Intake logged on {logged} of {days} days.'**
+  String energyLoggedDays(int logged, int days);
+
+  /// No description provided for @energySessionCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'In sessions: {used} g carbs used, {taken} g taken in.'**
+  String energySessionCarbs(int used, int taken);
+
+  /// No description provided for @energyHeavyBurn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{On 1 day training burned more than half of what you logged eating.} other{On {count} days training burned more than half of what you logged eating.}}'**
+  String energyHeavyBurn(int count);
+
+  /// No description provided for @energyDaysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Per day (eaten / training, kcal)'**
+  String get energyDaysTitle;
+
+  /// No description provided for @energyEaten.
+  ///
+  /// In en, this message translates to:
+  /// **'Eaten'**
+  String get energyEaten;
+
+  /// No description provided for @energyTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get energyTraining;
+
+  /// No description provided for @energyCareNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.'**
+  String get energyCareNote;
 }
 
 class _AppLocalizationsDelegate

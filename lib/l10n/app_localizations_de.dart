@@ -7015,4 +7015,69 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get agendaEmpty => 'Keine Einheiten in diesem Monat.';
+
+  @override
+  String get energyTitle => 'Energie';
+
+  @override
+  String get insPeekEnergy =>
+      'Gegessene Kalorien neben dem Verbrauch im Training';
+
+  @override
+  String get energyNoData => 'Keine Kalorien erfasst';
+
+  @override
+  String get energyNoDataReason =>
+      'Intervals.icu bekommt deine Ernährung von einer verbundenen Ernährungs-App oder aus Wellness-Einträgen. Trainingskalorien kommen mit den Aktivitäten.';
+
+  @override
+  String get energySummaryTitle => 'Durchschnitte';
+
+  @override
+  String get energyAvgEaten => 'Gegessen je erfasstem Tag';
+
+  @override
+  String get energyAvgTraining => 'Training je Tag';
+
+  @override
+  String get energyAvgCarbs => 'Kohlenhydrate je erfasstem Tag';
+
+  @override
+  String get energyAvgProtein => 'Eiweiß je erfasstem Tag';
+
+  @override
+  String energyLoggedDays(int logged, int days) {
+    return 'Ernährung an $logged von $days Tagen erfasst.';
+  }
+
+  @override
+  String energySessionCarbs(int used, int taken) {
+    return 'In Einheiten: $used g Kohlenhydrate verbraucht, $taken g aufgenommen.';
+  }
+
+  @override
+  String energyHeavyBurn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'An $count Tagen hat das Training mehr als die Hälfte des Gegessenen verbraucht.',
+      one:
+          'An 1 Tag hat das Training mehr als die Hälfte des Gegessenen verbraucht.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get energyDaysTitle => 'Pro Tag (gegessen / Training, kcal)';
+
+  @override
+  String get energyEaten => 'Gegessen';
+
+  @override
+  String get energyTraining => 'Training';
+
+  @override
+  String get energyCareNote =>
+      'Trainingskalorien sind Geräteschätzungen, der Grundumsatz fehlt – das ist keine Energiebilanz. Keine Ziele oder Diätratschläge. Bei Ernährungsfragen: Ernährungsberatung oder Arzt.';
 }

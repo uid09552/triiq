@@ -644,6 +644,7 @@ String insightDescription(AppLocalizations l10n, String id) => switch (id) {
   'best-efforts' => l10n.insPeekBestEfforts,
   'durability' => l10n.insPeekDurability,
   'wellness' => l10n.insPeekWellness,
+  'energy' => l10n.insPeekEnergy,
   'compare' => l10n.insPeekCompare,
   'weekly-review' => l10n.insPeekWeeklyReview,
   'activities' => l10n.insPeekActivities,

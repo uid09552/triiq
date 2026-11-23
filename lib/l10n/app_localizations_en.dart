@@ -6960,4 +6960,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agendaEmpty => 'No sessions this month.';
+
+  @override
+  String get energyTitle => 'Energy';
+
+  @override
+  String get insPeekEnergy => 'Calories eaten next to what training burned';
+
+  @override
+  String get energyNoData => 'No calories logged';
+
+  @override
+  String get energyNoDataReason =>
+      'Intervals.icu gets what you eat from a connected food app or from wellness entries. Training calories come with your activities.';
+
+  @override
+  String get energySummaryTitle => 'Averages';
+
+  @override
+  String get energyAvgEaten => 'Eaten per logged day';
+
+  @override
+  String get energyAvgTraining => 'Training per day';
+
+  @override
+  String get energyAvgCarbs => 'Carbs per logged day';
+
+  @override
+  String get energyAvgProtein => 'Protein per logged day';
+
+  @override
+  String energyLoggedDays(int logged, int days) {
+    return 'Intake logged on $logged of $days days.';
+  }
+
+  @override
+  String energySessionCarbs(int used, int taken) {
+    return 'In sessions: $used g carbs used, $taken g taken in.';
+  }
+
+  @override
+  String energyHeavyBurn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'On $count days training burned more than half of what you logged eating.',
+      one: 'On 1 day training burned more than half of what you logged eating.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get energyDaysTitle => 'Per day (eaten / training, kcal)';
+
+  @override
+  String get energyEaten => 'Eaten';
+
+  @override
+  String get energyTraining => 'Training';
+
+  @override
+  String get energyCareNote =>
+      'Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.';
 }
