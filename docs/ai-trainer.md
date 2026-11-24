@@ -73,3 +73,26 @@ Tool use needs a capable model. Larger models follow the tool and format
 instructions more reliably; with a small local model, expect simpler
 answers. With Ollama the context window is raised to 16k tokens so that tool
 results fit.
+
+**Recommended for training results:** the **gpt-oss 120B** model
+(`gpt-oss:120b`) from [ollama.com](https://ollama.com/library/gpt-oss) works
+well for generating training results — session plans, explanations and weekly
+reviews — and handles the tool calls reliably. Add it as an **Ollama Cloud**
+model (`https://ollama.com` plus your Ollama API key, then **Load models**),
+or run it yourself on an Ollama server if your hardware is big enough.
+
+## Your own knowledge base
+
+You can give the trainer your own training material, for example swim sets,
+taper notes, a coach's guidelines or articles you trust:
+
+1. Open **More → Knowledge library** (Android and Windows).
+2. Import Markdown or plain-text documents with the file picker. Level-1 `#`
+   headings split a document into searchable sections.
+3. Ask the trainer as usual. It searches your documents and quotes the one it
+   used by name.
+
+Documents are stored only on your device, count as information and never as
+instructions, and are included in the backup. They are sent to the model only
+as the matching excerpts the trainer looks up. You can disable or delete a
+document at any time.
