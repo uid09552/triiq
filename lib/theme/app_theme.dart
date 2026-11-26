@@ -125,7 +125,6 @@ ThemeData buildAppTheme(Brightness brightness) {
     scaffoldBackgroundColor: background,
     canvasColor: background,
     visualDensity: VisualDensity.standard,
-    splashFactory: InkSparkle.splashFactory,
     appBarTheme: AppBarTheme(
       backgroundColor: surface,
       foregroundColor: text,
