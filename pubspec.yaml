@@ -166,6 +166,23 @@ flutter:
     # The bundled CycloneDX SBOM (Info -> SBOM), generated from pubspec.lock by
     # tool/pubspec_lock_to_cdx.py; CI and a test keep it in sync.
     - assets/sbom/triiq.cdx.json
+    # Font licenses (SIL OFL 1.1), registered with LicenseRegistry in main.
+    - assets/fonts/OFL-DMSans.txt
+    - assets/fonts/OFL-JetBrainsMono.txt
+
+  # The design system's fonts (Design.md, lib/theme/design_tokens.dart),
+  # bundled so nothing is fetched at runtime. Latin subset from Fontsource.
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-400.ttf
+        - asset: assets/fonts/DMSans-500.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-700.ttf
+          weight: 700
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-400.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
