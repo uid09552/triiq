@@ -16,6 +16,27 @@ Flutter app `triiq` (Dart SDK ^3.11.5).
 
 **Full app specification, architecture, and user docs: [docs/okf.md](docs/okf.md).** Read that first for anything beyond the commands and dev-workflow notes below — this file stays intentionally short and operational; okf.md is the source of truth for "what the app is and how it's built."
 
+## Design
+
+**All UI follows [Design.md](Design.md).** Its tokens live in code in
+`lib/theme/design_tokens.dart` (colours, radii, 4 px spacing, fonts) and are
+mapped onto Material in `lib/theme/app_theme.dart`. Rules:
+
+- Take colours from `Theme.of(context).colorScheme` (or `DesignColors`), never
+  hard-coded hex values in widgets. Indigo (`primary`) is for interactive
+  elements only.
+- Radii from `DesignRadius`: 4 chips/tags, 6 buttons/inputs, 8 panels/menus,
+  12 cards, pill for avatars and status dots. Don't mix them.
+- Spacing on the 4 px grid (`DesignSpace`).
+- Fonts: DM Sans for UI text and headings (General Sans is not bundled),
+  JetBrains Mono for code, keys and CLI text. Use `textTheme` styles; at most
+  two weights per screen where possible.
+- Flat surfaces: cards rest on a 1 px border; no shadows on static elements.
+  No decorative gradients. At most one filled primary button per section.
+- Check light and dark mode for anything new. Dark values are derived from
+  Design.md's light palette in `design_tokens.dart`.
+- If a design change is needed, change Design.md and the tokens together.
+
 ## Commands
 
 ```bash

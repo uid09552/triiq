@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'agent/llm_settings.dart';
 import 'data/privacy_settings.dart';
@@ -30,7 +32,22 @@ import 'screens/settings/year_goals_settings.dart';
 import 'screens/today/today_layout_settings.dart';
 import 'theme_controller.dart';
 
+/// The bundled fonts' licenses (SIL OFL 1.1), for the licenses page.
+void _registerFontLicenses() {
+  LicenseRegistry.addLicense(() async* {
+    for (final (family, file) in [
+      ('DM Sans', 'assets/fonts/OFL-DMSans.txt'),
+      ('JetBrains Mono', 'assets/fonts/OFL-JetBrainsMono.txt'),
+    ]) {
+      yield LicenseEntryWithLineBreaks([
+        family,
+      ], await rootBundle.loadString(file));
+    }
+  });
+}
+
 void main() {
+  _registerFontLicenses();
   WidgetsFlutterBinding.ensureInitialized();
   AppLifecycleTracker.instance.start();
   // Fire-and-forget: re-validates a saved API key (if any) in the
