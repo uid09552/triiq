@@ -7134,4 +7134,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String riskHardStreak(int count) {
     return '$count hard days in a row';
   }
+
+  @override
+  String get healthReasonMode => 'Your chosen mode';
+
+  @override
+  String get modeTitle => 'Change the next days';
+
+  @override
+  String get modeIntro =>
+      'For a few days when life gets in the way. Only these days change; later weeks stay as planned.';
+
+  @override
+  String get modeUnwell => 'Sick or niggle';
+
+  @override
+  String get modeTravel => 'Travel';
+
+  @override
+  String get modeTimeCrunched => 'Short on time';
+
+  @override
+  String modeWindow(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get modeEndHint => 'Tap to change the last day (up to 2 weeks)';
+
+  @override
+  String get modeRest => 'Rest';
+
+  @override
+  String get modeEasy => 'Easy and shorter';
+
+  @override
+  String modeShorter(int minutes) {
+    return 'Max $minutes min';
+  }
+
+  @override
+  String get modeNothingToChange => 'Nothing planned to change in these days.';
+
+  @override
+  String modeChangeRest(int minutes) {
+    return '$minutes min → rest';
+  }
+
+  @override
+  String modeChangeShorter(int from, int to) {
+    return '$from min → $to min easy';
+  }
+
+  @override
+  String get modeAfterNote =>
+      'From the day after, the plan carries on as it was. After illness, ease back in gently.';
+
+  @override
+  String modeApply(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Apply $count changes',
+      one: 'Apply 1 change',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modeApplied(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions changed.',
+      one: '1 session changed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modePartlyApplied(int done, int total, String error) {
+    return '$done of $total changed, then: $error. Try again for the rest.';
+  }
 }

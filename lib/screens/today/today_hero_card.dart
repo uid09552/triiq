@@ -16,6 +16,7 @@ import '../../season/illness_mode.dart'
 import '../activities/activity_icons.dart';
 import '../calendar/performance_trend_icon.dart';
 import 'readiness_card.dart';
+import '../season/life_mode_sheet.dart';
 
 /// The one thing the hero card's main button does, chosen from the day.
 enum HeroAction {
@@ -290,6 +291,12 @@ class TodayHeroCard extends StatelessWidget {
                   onTap: () => Navigator.pop(context, 'intervals'),
                 ),
               ListTile(
+                key: const ValueKey('hero-action-mode'),
+                leading: const Icon(Icons.event_busy_outlined),
+                title: Text(l10n.modeTitle),
+                onTap: () => Navigator.pop(context, 'mode'),
+              ),
+              ListTile(
                 key: const ValueKey('hero-action-customize'),
                 leading: const Icon(Icons.tune),
                 title: Text(l10n.customizeTodayTitle),
@@ -313,6 +320,8 @@ class TodayHeroCard extends StatelessWidget {
         onOpenIntervals?.call();
       case 'customize':
         onCustomize();
+      case 'mode':
+        if (context.mounted) await showLifeModeSheet(context);
     }
   }
 

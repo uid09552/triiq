@@ -7191,4 +7191,88 @@ class AppLocalizationsDe extends AppLocalizations {
   String riskHardStreak(int count) {
     return '$count harte Tage am Stück';
   }
+
+  @override
+  String get healthReasonMode => 'Dein gewählter Modus';
+
+  @override
+  String get modeTitle => 'Die nächsten Tage anpassen';
+
+  @override
+  String get modeIntro =>
+      'Für ein paar Tage, an denen der Alltag dazwischenkommt. Nur diese Tage ändern sich; spätere Wochen bleiben wie geplant.';
+
+  @override
+  String get modeUnwell => 'Krank oder Wehwehchen';
+
+  @override
+  String get modeTravel => 'Unterwegs';
+
+  @override
+  String get modeTimeCrunched => 'Wenig Zeit';
+
+  @override
+  String modeWindow(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get modeEndHint =>
+      'Tippen, um den letzten Tag zu ändern (bis 2 Wochen)';
+
+  @override
+  String get modeRest => 'Pause';
+
+  @override
+  String get modeEasy => 'Locker und kürzer';
+
+  @override
+  String modeShorter(int minutes) {
+    return 'Max. $minutes min';
+  }
+
+  @override
+  String get modeNothingToChange =>
+      'In diesen Tagen ist nichts geplant, das sich ändern ließe.';
+
+  @override
+  String modeChangeRest(int minutes) {
+    return '$minutes min → Pause';
+  }
+
+  @override
+  String modeChangeShorter(int from, int to) {
+    return '$from min → $to min locker';
+  }
+
+  @override
+  String get modeAfterNote =>
+      'Ab dem Tag danach läuft der Plan weiter wie bisher. Nach Krankheit sanft wieder einsteigen.';
+
+  @override
+  String modeApply(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Änderungen übernehmen',
+      one: '1 Änderung übernehmen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modeApplied(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einheiten geändert.',
+      one: '1 Einheit geändert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modePartlyApplied(int done, int total, String error) {
+    return '$done von $total geändert, dann: $error. Für den Rest erneut versuchen.';
+  }
 }

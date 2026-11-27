@@ -11642,6 +11642,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} hard days in a row'**
   String riskHardStreak(int count);
+
+  /// No description provided for @healthReasonMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Your chosen mode'**
+  String get healthReasonMode;
+
+  /// No description provided for @modeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the next days'**
+  String get modeTitle;
+
+  /// No description provided for @modeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'For a few days when life gets in the way. Only these days change; later weeks stay as planned.'**
+  String get modeIntro;
+
+  /// No description provided for @modeUnwell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick or niggle'**
+  String get modeUnwell;
+
+  /// No description provided for @modeTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get modeTravel;
+
+  /// No description provided for @modeTimeCrunched.
+  ///
+  /// In en, this message translates to:
+  /// **'Short on time'**
+  String get modeTimeCrunched;
+
+  /// No description provided for @modeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String modeWindow(String from, String to);
+
+  /// No description provided for @modeEndHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to change the last day (up to 2 weeks)'**
+  String get modeEndHint;
+
+  /// No description provided for @modeRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get modeRest;
+
+  /// No description provided for @modeEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy and shorter'**
+  String get modeEasy;
+
+  /// No description provided for @modeShorter.
+  ///
+  /// In en, this message translates to:
+  /// **'Max {minutes} min'**
+  String modeShorter(int minutes);
+
+  /// No description provided for @modeNothingToChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing planned to change in these days.'**
+  String get modeNothingToChange;
+
+  /// No description provided for @modeChangeRest.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min → rest'**
+  String modeChangeRest(int minutes);
+
+  /// No description provided for @modeChangeShorter.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} min → {to} min easy'**
+  String modeChangeShorter(int from, int to);
+
+  /// No description provided for @modeAfterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From the day after, the plan carries on as it was. After illness, ease back in gently.'**
+  String get modeAfterNote;
+
+  /// No description provided for @modeApply.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Apply 1 change} other{Apply {count} changes}}'**
+  String modeApply(int count);
+
+  /// No description provided for @modeApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 session changed.} other{{count} sessions changed.}}'**
+  String modeApplied(int count);
+
+  /// No description provided for @modePartlyApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} changed, then: {error}. Try again for the rest.'**
+  String modePartlyApplied(int done, int total, String error);
 }
 
 class _AppLocalizationsDelegate

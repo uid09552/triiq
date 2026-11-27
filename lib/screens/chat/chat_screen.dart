@@ -27,6 +27,8 @@ import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
 import 'navigation_card.dart';
 import 'proposal_card.dart';
+import '../../season/life_modes.dart';
+import '../season/life_mode_sheet.dart';
 
 /// Chat with the training-analysis agent about your Intervals.icu data.
 ///
@@ -628,16 +630,19 @@ class _EmptyState extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final (key, label, text) in [
-                    ('sick', l10n.chipSick, l10n.chipSickText),
-                    ('travel', l10n.chipTravel, l10n.chipTravelText),
-                    ('short', l10n.chipShortOnTime, l10n.chipShortText),
+                  // Each opens the matching mode: pick the days, see the
+                  // changes, apply them (sessions after the window stay).
+                  for (final (key, label, mode) in [
+                    ('sick', l10n.chipSick, LifeMode.unwell),
+                    ('travel', l10n.chipTravel, LifeMode.travel),
+                    ('short', l10n.chipShortOnTime, LifeMode.timeCrunched),
                   ])
                     ActionChip(
                       key: ValueKey('chip-$key'),
                       avatar: const Icon(Icons.bolt, size: 16),
                       label: Text(label),
-                      onPressed: () => onSuggestion(text),
+                      onPressed: () =>
+                          showLifeModeSheet(context, initial: mode),
                     ),
                 ],
               ),

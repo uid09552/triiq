@@ -250,7 +250,8 @@ void main() {
           () => Future<void>.delayed(const Duration(milliseconds: 60)),
         );
         await t.pump();
-        expect(find.textContaining("I'm sick."), findsWidgets);
+        // The chip opens the mode sheet with "Sick or niggle" chosen.
+        expect(find.text('Change the next days'), findsOneWidget);
       },
     );
 

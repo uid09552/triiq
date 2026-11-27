@@ -103,7 +103,7 @@ enum ReturnAction {
   crossTrain,
 }
 
-enum ReturnReason { illness, injury, returnRamp }
+enum ReturnReason { illness, injury, returnRamp, lifeMode }
 
 /// One proposed change to a planned session. Nothing is applied here.
 class ReturnChange {
