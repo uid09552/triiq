@@ -294,7 +294,6 @@ void main() {
       expect(find.byKey(const ValueKey('diet-note')), findsNothing);
     });
 
-
     Stream<AgentEvent> answer(String input) async* {
       yield const AgentModelAnswering(_entry);
       yield const AgentToolStarted('get_activities', {});

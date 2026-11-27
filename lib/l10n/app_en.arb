@@ -2553,5 +2553,8 @@
   "modePartlyApplied": "{done} of {total} changed, then: {error}. Try again for the rest.",
   "@modePartlyApplied": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}, "error": {"type": "String"}}},
   "aiCommentLine": "AI: {text}",
-  "@aiCommentLine": {"placeholders": {"text": {"type": "String"}}}
+  "@aiCommentLine": {"placeholders": {"text": {"type": "String"}}},
+  "fuellingTitle": "Fuelling",
+  "fuellingBody": "About {low}–{high} g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.",
+  "@fuellingBody": {"placeholders": {"low": {"type": "int"}, "high": {"type": "int"}}}
 }

@@ -2130,5 +2130,7 @@
   "modeApply": "{count, plural, =1{1 Änderung übernehmen} other{{count} Änderungen übernehmen}}",
   "modeApplied": "{count, plural, =1{1 Einheit geändert.} other{{count} Einheiten geändert.}}",
   "modePartlyApplied": "{done} von {total} geändert, dann: {error}. Für den Rest erneut versuchen.",
-  "aiCommentLine": "KI: {text}"
+  "aiCommentLine": "KI: {text}",
+  "fuellingTitle": "Versorgung",
+  "fuellingBody": "Etwa {low}–{high} g Kohlenhydrate pro Stunde während dieser Einheit, früh und in kleinen Portionen. Im Training üben – der Darm gewöhnt sich daran. Ein Richtwert für die Trainingsversorgung, kein Diätziel."
 }

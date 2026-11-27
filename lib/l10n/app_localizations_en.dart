@@ -7221,4 +7221,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String aiCommentLine(String text) {
     return 'AI: $text';
   }
+
+  @override
+  String get fuellingTitle => 'Fuelling';
+
+  @override
+  String fuellingBody(int low, int high) {
+    return 'About $low–$high g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.';
+  }
 }

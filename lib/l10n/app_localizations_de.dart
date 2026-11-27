@@ -7280,4 +7280,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String aiCommentLine(String text) {
     return 'KI: $text';
   }
+
+  @override
+  String get fuellingTitle => 'Versorgung';
+
+  @override
+  String fuellingBody(int low, int high) {
+    return 'Etwa $low–$high g Kohlenhydrate pro Stunde während dieser Einheit, früh und in kleinen Portionen. Im Training üben – der Darm gewöhnt sich daran. Ein Richtwert für die Trainingsversorgung, kein Diätziel.';
+  }
 }

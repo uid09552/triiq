@@ -11756,6 +11756,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI: {text}'**
   String aiCommentLine(String text);
+
+  /// No description provided for @fuellingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuelling'**
+  String get fuellingTitle;
+
+  /// No description provided for @fuellingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'About {low}–{high} g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.'**
+  String fuellingBody(int low, int high);
 }
 
 class _AppLocalizationsDelegate
