@@ -255,7 +255,7 @@ void main() {
       expect(c.title, startsWith('Deine Woche'));
       expect(c.body, contains('Belastung 420 von 450 TSS'));
       expect(c.body, contains('Ruhepuls ↓'));
-      expect(c.body.split('\n').last, 'Solide Woche.');
+      expect(c.body.split('\n').last, 'KI: Solide Woche.');
     });
   });
 
@@ -456,7 +456,7 @@ void main() {
           comment: comment,
         ).refresh();
         expect(calls, 1);
-        expect(late.body!.split('\n').last, 'Good consistency.');
+        expect(late.body!.split('\n').last, 'AI: Good consistency.');
 
         // A failing provider: same numbers, no sentence.
         WeeklyReviewComment.clearCache();

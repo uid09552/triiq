@@ -11750,6 +11750,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{done} of {total} changed, then: {error}. Try again for the rest.'**
   String modePartlyApplied(int done, int total, String error);
+
+  /// No description provided for @aiCommentLine.
+  ///
+  /// In en, this message translates to:
+  /// **'AI: {text}'**
+  String aiCommentLine(String text);
 }
 
 class _AppLocalizationsDelegate

@@ -18,6 +18,7 @@ import '../repositories/events_repository.dart';
 import '../repositories/sync_state_repository.dart';
 import 'sync_service.dart';
 import 'sync_settings.dart';
+import '../../notifications/push_budget.dart';
 
 /// How one background run ended. The `name` is what Settings shows as the
 /// last result.
@@ -144,6 +145,8 @@ class BackgroundSyncRunner {
         await NotificationSettings.instance.load();
         if (!NotificationSettings.instance.enabled) return;
         final l10n = await _backgroundL10n();
+        // Nobody scheduled this one: it goes through the push budget.
+        if (!await PushBudget.instance.take()) return;
         final notifications = NotificationService.instance;
         await notifications.init();
         await notifications.showBackgroundUpdate(

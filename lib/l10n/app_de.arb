@@ -2129,5 +2129,6 @@
   "modeAfterNote": "Ab dem Tag danach läuft der Plan weiter wie bisher. Nach Krankheit sanft wieder einsteigen.",
   "modeApply": "{count, plural, =1{1 Änderung übernehmen} other{{count} Änderungen übernehmen}}",
   "modeApplied": "{count, plural, =1{1 Einheit geändert.} other{{count} Einheiten geändert.}}",
-  "modePartlyApplied": "{done} von {total} geändert, dann: {error}. Für den Rest erneut versuchen."
+  "modePartlyApplied": "{done} von {total} geändert, dann: {error}. Für den Rest erneut versuchen.",
+  "aiCommentLine": "KI: {text}"
 }

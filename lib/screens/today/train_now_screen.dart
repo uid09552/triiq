@@ -29,6 +29,7 @@ import '../settings/settings_screen.dart';
 import '../plan/plan_labels.dart';
 import 'planned_session_card.dart';
 import 'strength_target_chips.dart';
+import '../../agent/ai_label.dart';
 
 enum _Intensity { recovery, endurance, intervals }
 
@@ -462,7 +463,21 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 
     if (!mounted) return;
     setState(() => _publishing = false);
-    final proposed = draft;
+    // What the model wrote is labelled as such before it goes anywhere.
+    final proposed = draft == null
+        ? null
+        : PlannedWorkoutDraft(
+            name: draft.name,
+            sport: draft.sport,
+            description: withAiLabel(draft.description),
+            date: draft.date,
+            durationSeconds: draft.durationSeconds,
+            load: draft.load,
+            indoor: draft.indoor,
+            tags: draft.tags,
+            externalId: draft.externalId,
+            startsAt: draft.startsAt,
+          );
     if (proposed == null) {
       _showMessage(l10n.couldNotStructureWorkout);
       return;

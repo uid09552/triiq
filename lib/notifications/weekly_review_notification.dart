@@ -117,7 +117,8 @@ BriefingContent composeWeeklyReview({
     if (fitness.isNotEmpty) fitness,
     if (readiness.isNotEmpty) readiness,
     ?next,
-    if (comment != null && comment.trim().isNotEmpty) comment.trim(),
+    if (comment != null && comment.trim().isNotEmpty)
+      l10n.aiCommentLine(comment.trim()),
   ];
   return BriefingContent(
     title: l10n.weeklyReviewNotificationTitle(range),

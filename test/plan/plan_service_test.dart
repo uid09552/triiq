@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:langchain_core/chat_models.dart';
+import 'package:triiq/agent/ai_label.dart';
 import 'package:triiq/agent/llm_settings.dart';
 import 'package:triiq/plan/knowledge.dart';
 import 'package:triiq/plan/plan_inputs.dart';
@@ -89,7 +90,7 @@ void main() {
         final a = afterSessions[i];
         expect(a.name, 'AI session $i');
         expect(a.shortDescription, 'AI short $i.');
-        expect(a.description, '- AI detail $i');
+        expect(a.description, withAiLabel('- AI detail $i'));
         // Every number stays exactly PlanEngine's, unconfigured-provider run.
         expect(a.date, b.date);
         expect(a.sport, b.sport);

@@ -2551,5 +2551,7 @@
   "modeApplied": "{count, plural, =1{1 session changed.} other{{count} sessions changed.}}",
   "@modeApplied": {"placeholders": {"count": {"type": "int"}}},
   "modePartlyApplied": "{done} of {total} changed, then: {error}. Try again for the rest.",
-  "@modePartlyApplied": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}, "error": {"type": "String"}}}
+  "@modePartlyApplied": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}, "error": {"type": "String"}}},
+  "aiCommentLine": "AI: {text}",
+  "@aiCommentLine": {"placeholders": {"text": {"type": "String"}}}
 }

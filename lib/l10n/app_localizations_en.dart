@@ -7216,4 +7216,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String modePartlyApplied(int done, int total, String error) {
     return '$done of $total changed, then: $error. Try again for the rest.';
   }
+
+  @override
+  String aiCommentLine(String text) {
+    return 'AI: $text';
+  }
 }

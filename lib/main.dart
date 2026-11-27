@@ -16,6 +16,7 @@ import 'data/sync/auto_sync_service.dart';
 import 'data/sync/background_sync.dart';
 import 'data/sync/sync_settings.dart';
 import 'locale_controller.dart';
+import 'navigation/app_destinations.dart';
 import 'navigation/navigation_layout.dart';
 import 'plan/plan_changes.dart';
 import 'notifications/app_lifecycle_tracker.dart';
@@ -164,6 +165,16 @@ void _routeNotificationTaps() {
     }
     final payload = NotificationTaps.instance.take();
     if (payload == null) return;
+    final target = openTargetOf(payload);
+    if (target != null) {
+      for (final d in appDestinations) {
+        if (d.id == target) {
+          d.open(navigator.context);
+          return;
+        }
+      }
+      return;
+    }
     final week = weeklyReviewWeekOf(payload);
     if (week == null) return;
     unawaited(

@@ -313,7 +313,13 @@ class _MobileNotificationService implements NotificationService {
 
   @override
   Future<void> showAgentReply(String preview) async {
-    await _show(_agentNotificationId, 'Training agent', preview, _agentDetails);
+    await _show(
+      _agentNotificationId,
+      'Training agent',
+      preview,
+      _agentDetails,
+      payload: openPayload('tab.chat'),
+    );
   }
 
   @override
@@ -323,6 +329,7 @@ class _MobileNotificationService implements NotificationService {
       'Sync problem',
       _syncProblemBody(reconnectNeeded),
       _syncDetails,
+      payload: openPayload('more.sync'),
     );
   }
 
@@ -331,15 +338,22 @@ class _MobileNotificationService implements NotificationService {
     required String title,
     required String body,
   }) async {
-    await _show(_backgroundUpdateNotificationId, title, body, _syncDetails);
+    await _show(
+      _backgroundUpdateNotificationId,
+      title,
+      body,
+      _syncDetails,
+      payload: openPayload('tab.today'),
+    );
   }
 
   Future<void> _show(
     int id,
     String title,
     String body,
-    NotificationDetails details,
-  ) async {
+    NotificationDetails details, {
+    String? payload,
+  }) async {
     if (!_initialized) return;
     try {
       await _plugin.show(
@@ -347,6 +361,7 @@ class _MobileNotificationService implements NotificationService {
         title: title,
         body: body,
         notificationDetails: details,
+        payload: payload,
       );
     } catch (error) {
       debugPrint('NotificationService: show failed: $error');
