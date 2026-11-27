@@ -5825,7 +5825,7 @@ abstract class AppLocalizations {
   /// No description provided for @anPolarizationIndex.
   ///
   /// In en, this message translates to:
-  /// **'Polarization index {value}'**
+  /// **'Polarization index {value} (above 2 = polarized: mostly easy, some very hard, little in between)'**
   String anPolarizationIndex(String value);
 
   /// No description provided for @anIntensityPeriod.
@@ -11768,6 +11768,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About {low}–{high} g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.'**
   String fuellingBody(int low, int high);
+
+  /// No description provided for @modelCp.
+  ///
+  /// In en, this message translates to:
+  /// **'CP · critical power'**
+  String get modelCp;
+
+  /// No description provided for @modelWPrime.
+  ///
+  /// In en, this message translates to:
+  /// **'W′ · reserve above CP'**
+  String get modelWPrime;
+
+  /// No description provided for @modelPmax.
+  ///
+  /// In en, this message translates to:
+  /// **'Pmax · peak power'**
+  String get modelPmax;
+
+  /// No description provided for @modelDPrime.
+  ///
+  /// In en, this message translates to:
+  /// **'D′ · distance reserve above CS'**
+  String get modelDPrime;
+
+  /// No description provided for @agendaPlannedItem.
+  ///
+  /// In en, this message translates to:
+  /// **'planned {name}'**
+  String agendaPlannedItem(String name);
+
+  /// No description provided for @agendaDoneItem.
+  ///
+  /// In en, this message translates to:
+  /// **'done {name}'**
+  String agendaDoneItem(String name);
+
+  /// No description provided for @agendaWeekTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week} · planned {planned} h · done {done} h'**
+  String agendaWeekTotals(int week, String planned, String done);
+
+  /// No description provided for @actPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an activity on the left.'**
+  String get actPickOne;
 }
 
 class _AppLocalizationsDelegate

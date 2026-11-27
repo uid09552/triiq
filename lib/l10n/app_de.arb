@@ -1135,7 +1135,7 @@
   "anModelThreshold": "Schwellenlastig",
   "anModelHigh": "Hochintensiv",
   "anModelUnknown": "Zu wenig Zonenzeit",
-  "anPolarizationIndex": "Polarisationsindex {value}",
+  "anPolarizationIndex": "Polarisationsindex {value} (über 2 = polarisiert: meist locker, etwas sehr hart, wenig dazwischen)",
   "anIntensityPeriod": "{period}: {model}",
   "anIntensitySplit": "{easy} % locker · {threshold} % Schwelle · {hard} % hart",
   "anRangeOverall": "Gesamter Zeitraum",
@@ -2132,5 +2132,13 @@
   "modePartlyApplied": "{done} von {total} geändert, dann: {error}. Für den Rest erneut versuchen.",
   "aiCommentLine": "KI: {text}",
   "fuellingTitle": "Versorgung",
-  "fuellingBody": "Etwa {low}–{high} g Kohlenhydrate pro Stunde während dieser Einheit, früh und in kleinen Portionen. Im Training üben – der Darm gewöhnt sich daran. Ein Richtwert für die Trainingsversorgung, kein Diätziel."
+  "fuellingBody": "Etwa {low}–{high} g Kohlenhydrate pro Stunde während dieser Einheit, früh und in kleinen Portionen. Im Training üben – der Darm gewöhnt sich daran. Ein Richtwert für die Trainingsversorgung, kein Diätziel.",
+  "modelCp": "CP · kritische Leistung",
+  "modelWPrime": "W′ · Reserve über CP",
+  "modelPmax": "Pmax · Spitzenleistung",
+  "modelDPrime": "D′ · Streckenreserve über CS",
+  "agendaPlannedItem": "geplant {name}",
+  "agendaDoneItem": "erledigt {name}",
+  "agendaWeekTotals": "KW {week} · geplant {planned} h · erledigt {done} h",
+  "actPickOne": "Wähle links eine Aktivität."
 }

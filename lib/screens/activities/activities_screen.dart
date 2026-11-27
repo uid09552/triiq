@@ -43,6 +43,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   Timer? _debounce;
 
   bool _loading = true;
+  LocalActivity? _selected;
   Object? _error;
   List<LocalActivity> _activities = const [];
   bool _searching = false;
@@ -215,12 +216,49 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 type: _filter.type,
                 filtered: _filter.isActive && _activities.isNotEmpty,
               )
-            : ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: activities.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, index) =>
-                    _ActivityRow(activity: activities[index]),
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  // From 600 dp (tablets, foldables, Windows): the list on
+                  // the left, the chosen activity on the right.
+                  final split = constraints.maxWidth >= 600;
+                  final list = ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: activities.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) => _ActivityRow(
+                      activity: activities[index],
+                      selected: split && _selected?.id == activities[index].id,
+                      onOpen: split
+                          ? (a) => setState(() => _selected = a)
+                          : null,
+                    ),
+                  );
+                  if (!split) return list;
+                  final chosen = _selected;
+                  return Row(
+                    key: const ValueKey('activities-split'),
+                    children: [
+                      SizedBox(
+                        width: (constraints.maxWidth * 0.4).clamp(280, 420),
+                        child: list,
+                      ),
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: chosen == null
+                            ? Center(
+                                child: Text(
+                                  l10n.actPickOne,
+                                  key: const ValueKey('activities-pick'),
+                                ),
+                              )
+                            : ActivityDetailScreen(
+                                key: ValueKey('detail-${chosen.id}'),
+                                activity: chosen,
+                              ),
+                      ),
+                    ],
+                  );
+                },
               ),
       ),
     );
@@ -540,9 +578,17 @@ class _Range extends StatelessWidget {
 }
 
 class _ActivityRow extends StatelessWidget {
-  const _ActivityRow({required this.activity});
+  const _ActivityRow({
+    required this.activity,
+    this.onOpen,
+    this.selected = false,
+  });
 
   final LocalActivity activity;
+
+  /// In the split layout: show it in the detail pane instead of pushing.
+  final ValueChanged<LocalActivity>? onOpen;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -563,11 +609,14 @@ class _ActivityRow extends StatelessWidget {
       child: Card(
         child: ListTile(
           key: ValueKey('activity-row-${activity.id}'),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => ActivityDetailScreen(activity: activity),
-            ),
-          ),
+          selected: selected,
+          onTap: onOpen != null
+              ? () => onOpen!(activity)
+              : () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ActivityDetailScreen(activity: activity),
+                  ),
+                ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 4,

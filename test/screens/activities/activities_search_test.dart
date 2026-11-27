@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:triiq/data/models/local_activity.dart';
 import 'package:triiq/data/repositories/activities_repository.dart';
 import 'package:triiq/l10n/app_localizations.dart';
@@ -178,6 +179,25 @@ void main() {
         await tester.pump();
       }
     }
+
+    testWidgets('from 600 dp: list left, the chosen activity right', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      await pump(tester); // 800 dp wide
+      expect(find.byKey(const ValueKey('activities-split')), findsOneWidget);
+      expect(find.byKey(const ValueKey('activities-pick')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('activity-row-a')));
+      for (var i = 0; i < 6; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
+      expect(find.byKey(const ValueKey('detail-a')), findsOneWidget);
+      // Still one screen: nothing was pushed.
+      expect(find.byKey(const ValueKey('activity-row-b')), findsOneWidget);
+    });
 
     testWidgets('search narrows as you type, after a pause', (tester) async {
       await pump(tester);

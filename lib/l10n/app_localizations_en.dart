@@ -3572,7 +3572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String anPolarizationIndex(String value) {
-    return 'Polarization index $value';
+    return 'Polarization index $value (above 2 = polarized: mostly easy, some very hard, little in between)';
   }
 
   @override
@@ -7229,4 +7229,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String fuellingBody(int low, int high) {
     return 'About $low–$high g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.';
   }
+
+  @override
+  String get modelCp => 'CP · critical power';
+
+  @override
+  String get modelWPrime => 'W′ · reserve above CP';
+
+  @override
+  String get modelPmax => 'Pmax · peak power';
+
+  @override
+  String get modelDPrime => 'D′ · distance reserve above CS';
+
+  @override
+  String agendaPlannedItem(String name) {
+    return 'planned $name';
+  }
+
+  @override
+  String agendaDoneItem(String name) {
+    return 'done $name';
+  }
+
+  @override
+  String agendaWeekTotals(int week, String planned, String done) {
+    return 'Week $week · planned $planned h · done $done h';
+  }
+
+  @override
+  String get actPickOne => 'Pick an activity on the left.';
 }

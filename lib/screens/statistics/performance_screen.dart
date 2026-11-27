@@ -597,12 +597,17 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
       if (model != null) {
         if (model.ftp != null) rows.add(('FTP', '${model.ftp!.round()} W'));
         if (model.criticalPower != null) {
-          rows.add(('CP', '${model.criticalPower!.round()} W'));
+          rows.add((l10n.modelCp, '${model.criticalPower!.round()} W'));
         }
         if (model.wPrime != null) {
-          rows.add(("W'", '${(model.wPrime! / 1000).toStringAsFixed(1)} kJ'));
+          rows.add((
+            l10n.modelWPrime,
+            '${(model.wPrime! / 1000).toStringAsFixed(1)} kJ',
+          ));
         }
-        if (model.pMax != null) rows.add(('Pmax', '${model.pMax!.round()} W'));
+        if (model.pMax != null) {
+          rows.add((l10n.modelPmax, '${model.pMax!.round()} W'));
+        }
       }
       settingsRow = (
         '${l10n.modelSettingsValue} (FTP)',
@@ -628,7 +633,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
         ));
       }
       if (model?.dPrime != null) {
-        rows.add(("D'", '${model!.dPrime!.round()} m'));
+        rows.add((l10n.modelDPrime, '${model!.dPrime!.round()} m'));
       }
       settingsRow = (
         '${l10n.modelSettingsValue} (${l10n.thresholdPaceLabel})',

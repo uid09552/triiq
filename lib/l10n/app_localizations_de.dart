@@ -3606,7 +3606,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String anPolarizationIndex(String value) {
-    return 'Polarisationsindex $value';
+    return 'Polarisationsindex $value (über 2 = polarisiert: meist locker, etwas sehr hart, wenig dazwischen)';
   }
 
   @override
@@ -7288,4 +7288,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String fuellingBody(int low, int high) {
     return 'Etwa $low–$high g Kohlenhydrate pro Stunde während dieser Einheit, früh und in kleinen Portionen. Im Training üben – der Darm gewöhnt sich daran. Ein Richtwert für die Trainingsversorgung, kein Diätziel.';
   }
+
+  @override
+  String get modelCp => 'CP · kritische Leistung';
+
+  @override
+  String get modelWPrime => 'W′ · Reserve über CP';
+
+  @override
+  String get modelPmax => 'Pmax · Spitzenleistung';
+
+  @override
+  String get modelDPrime => 'D′ · Streckenreserve über CS';
+
+  @override
+  String agendaPlannedItem(String name) {
+    return 'geplant $name';
+  }
+
+  @override
+  String agendaDoneItem(String name) {
+    return 'erledigt $name';
+  }
+
+  @override
+  String agendaWeekTotals(int week, String planned, String done) {
+    return 'KW $week · geplant $planned h · erledigt $done h';
+  }
+
+  @override
+  String get actPickOne => 'Wähle links eine Aktivität.';
 }

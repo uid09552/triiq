@@ -1352,7 +1352,7 @@
   "anModelThreshold": "Threshold-heavy",
   "anModelHigh": "High-intensity",
   "anModelUnknown": "Not enough zone time",
-  "anPolarizationIndex": "Polarization index {value}",
+  "anPolarizationIndex": "Polarization index {value} (above 2 = polarized: mostly easy, some very hard, little in between)",
   "@anPolarizationIndex": {"placeholders": {"value": {"type": "String"}}},
   "anIntensityPeriod": "{period}: {model}",
   "@anIntensityPeriod": {"placeholders": {"period": {"type": "String"}, "model": {"type": "String"}}},
@@ -2556,5 +2556,16 @@
   "@aiCommentLine": {"placeholders": {"text": {"type": "String"}}},
   "fuellingTitle": "Fuelling",
   "fuellingBody": "About {low}–{high} g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.",
-  "@fuellingBody": {"placeholders": {"low": {"type": "int"}, "high": {"type": "int"}}}
+  "@fuellingBody": {"placeholders": {"low": {"type": "int"}, "high": {"type": "int"}}},
+  "modelCp": "CP · critical power",
+  "modelWPrime": "W′ · reserve above CP",
+  "modelPmax": "Pmax · peak power",
+  "modelDPrime": "D′ · distance reserve above CS",
+  "agendaPlannedItem": "planned {name}",
+  "@agendaPlannedItem": {"placeholders": {"name": {"type": "String"}}},
+  "agendaDoneItem": "done {name}",
+  "@agendaDoneItem": {"placeholders": {"name": {"type": "String"}}},
+  "agendaWeekTotals": "Week {week} · planned {planned} h · done {done} h",
+  "@agendaWeekTotals": {"placeholders": {"week": {"type": "int"}, "planned": {"type": "String"}, "done": {"type": "String"}}},
+  "actPickOne": "Pick an activity on the left."
 }
