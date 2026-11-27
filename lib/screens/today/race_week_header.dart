@@ -62,7 +62,7 @@ class RaceWeekHeader extends StatelessWidget {
                         : l10n.todayRaceCountdown(days),
                     key: const ValueKey('race-countdown'),
                     style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: scheme.onPrimaryContainer,
                     ),
                   ),

@@ -380,7 +380,7 @@ class StatusMessage extends StatelessWidget {
                       Text(
                         title,
                         style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (reason != null) Text(reason, style: muted),

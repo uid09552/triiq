@@ -212,7 +212,7 @@ class _RacePredictorScreenState extends State<RacePredictorScreen> {
                 clock(p.totalSeconds),
                 key: const ValueKey('race-total'),
                 style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               if (!p.complete) const Icon(Icons.info_outline, size: 18),

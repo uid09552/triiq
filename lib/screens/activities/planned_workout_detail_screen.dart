@@ -12,6 +12,7 @@ import 'activity_icons.dart';
 import 'planned_workout_actions.dart';
 import 'session_analysis.dart';
 import 'year_sport_widgets.dart';
+import '../../theme/design_tokens.dart';
 
 /// A *planned* calendar entry's details — the counterpart to
 /// [ActivityDetailScreen] for something that hasn't happened yet.
@@ -96,14 +97,7 @@ class _PlannedWorkoutDetailScreenState
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colorScheme.primary, colorScheme.tertiary],
-              ),
-            ),
+            decoration: inkDecoration(context),
             child: Row(
               children: [
                 Container(
@@ -127,7 +121,7 @@ class _PlannedWorkoutDetailScreenState
                         event.name ?? event.type ?? l10n.plannedSessionFallback,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

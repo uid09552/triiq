@@ -45,7 +45,7 @@ class PlannedDragSource extends StatelessWidget {
       feedback: Material(
         elevation: 6,
         color: scheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
@@ -61,7 +61,7 @@ class PlannedDragSource extends StatelessWidget {
                 plannedWorkoutTitle(l10n, event),
                 style: TextStyle(
                   color: scheme.onSecondaryContainer,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

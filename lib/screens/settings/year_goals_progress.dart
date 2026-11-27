@@ -195,13 +195,13 @@ class _YearGoalsProgressState extends State<YearGoalsProgress> {
                   const SizedBox(width: 6),
                   Text(
                     label,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
                   Text(
                     '${done.round()} / ${goal.round()} km',
                     style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],

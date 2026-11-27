@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/design_tokens.dart';
 
 /// Maps an Intervals.icu activity `type` (e.g. `Ride`, `VirtualRide`,
 /// `Run`, `Swim`) to a representative icon. Falls back to a generic one for
@@ -46,13 +47,13 @@ Color sportColor(String? type, ColorScheme scheme) {
   final dark = scheme.brightness == Brightness.dark;
   final normalized = (type ?? '').toLowerCase();
   if (normalized.contains('swim')) {
-    return dark ? const Color(0xFF6EC6FF) : const Color(0xFF0277BD);
+    return DesignData.swim(dark);
   }
   if (normalized.contains('ride') || normalized.contains('bike')) {
-    return dark ? const Color(0xFFFFB74D) : const Color(0xFFE65100);
+    return DesignData.ride(dark);
   }
   if (normalized.contains('run')) {
-    return dark ? const Color(0xFF81C784) : const Color(0xFF2E7D32);
+    return DesignData.run(dark);
   }
   return scheme.secondary;
 }

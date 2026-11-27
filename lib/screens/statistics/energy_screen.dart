@@ -216,7 +216,7 @@ class _EnergyScreenState extends State<EnergyScreen> {
         height: 6,
         decoration: BoxDecoration(
           color: c,
-          borderRadius: BorderRadius.circular(3),
+          borderRadius: BorderRadius.circular(4),
         ),
       ),
     );

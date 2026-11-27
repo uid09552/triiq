@@ -135,7 +135,7 @@ class _InsightPreviewState extends State<InsightPreview> {
               child: Text(
                 widget.title,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -347,7 +347,7 @@ class _InsightPreviewState extends State<InsightPreview> {
                         color: day.inRange
                             ? heatColor(scheme, map.levelOf(day.tss))
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(3),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                 ],
@@ -583,7 +583,7 @@ class _InsightPreviewState extends State<InsightPreview> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

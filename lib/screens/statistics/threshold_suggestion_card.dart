@@ -193,7 +193,7 @@ class _SuggestionRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     thresholdSuggestionTitle(l10n, suggestion),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Icon(

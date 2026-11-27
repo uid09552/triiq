@@ -309,7 +309,7 @@ class _BestEffortsScreenState extends State<BestEffortsScreen> {
                   child: Text(
                     _pointLabel(i),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

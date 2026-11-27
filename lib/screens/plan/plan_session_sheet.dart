@@ -9,6 +9,7 @@ import '../../util/calendar_export.dart';
 import '../activities/activity_icons.dart';
 import '../activities/year_sport_widgets.dart';
 import '../today/train_now_screen.dart';
+import '../../theme/design_tokens.dart';
 
 /// Opens Train Now on [e]'s day with [e] preselected, to swap it for a
 /// proposal.
@@ -105,7 +106,7 @@ Future<void> showPlanSessionSheet(
                     child: SelectableText(
                       description,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
+                        fontFamily: DesignFonts.code,
                       ),
                     ),
                   ),

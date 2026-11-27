@@ -9,6 +9,7 @@ import '../../util/dates.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_icons.dart';
+import '../../theme/design_tokens.dart';
 
 /// Athlete details: who the athlete is (picture, location, age), their body
 /// stats from the latest cached wellness record, and their per-sport
@@ -339,14 +340,7 @@ class _ProfileHeader extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colorScheme.primary, colorScheme.tertiary],
-        ),
-      ),
+      decoration: inkDecoration(context),
       child: Row(
         children: [
           const AthleteAvatar(size: 64),
@@ -359,7 +353,7 @@ class _ProfileHeader extends StatelessWidget {
                   session.athleteName ?? l10n.titleAthlete,
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),

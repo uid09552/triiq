@@ -5,11 +5,12 @@ import 'package:latlong2/latlong.dart';
 
 import '../../evaluation/activity_route.dart';
 import '../../widgets/osm_layers.dart';
+import '../../theme/design_tokens.dart';
 
 /// Colours that tell the two compared activities apart, in light and dark,
 /// for the lines, the map and the tracker alike.
-const compareColorA = Color(0xFF1E88E5);
-const compareColorB = Color(0xFFF57C00);
+const compareColorA = DesignData.compareA;
+const compareColorB = DesignData.compareB;
 
 /// Two courses on one map — A in blue, B in orange — each with a tracker dot
 /// at the position the chart's cursor points to, so the athlete sees where
@@ -137,7 +138,7 @@ class CompareRouteMap extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 11,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),

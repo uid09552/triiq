@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:markdown/markdown.dart' as md;
+import '../theme/design_tokens.dart';
 
 /// Renders agent output as formatted markdown with the app's own look:
 ///
@@ -60,7 +61,7 @@ class MarkdownReply extends StatelessWidget {
         listIndent: 22,
         blockSpacing: 12,
         code: textTheme.bodySmall?.copyWith(
-          fontFamily: 'monospace',
+          fontFamily: DesignFonts.code,
           color: scheme.onSecondaryContainer,
           backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.6),
         ),
@@ -79,13 +80,7 @@ class MarkdownReply extends StatelessWidget {
           border: Border(left: BorderSide(color: scheme.primary, width: 4)),
         ),
         horizontalRuleDecoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              scheme.outlineVariant.withValues(alpha: 0),
-              scheme.outlineVariant,
-              scheme.outlineVariant.withValues(alpha: 0),
-            ],
-          ),
+          border: Border(top: BorderSide(color: scheme.outlineVariant)),
         ),
         tableBorder: TableBorder.all(
           color: scheme.outlineVariant.withValues(alpha: 0.7),
@@ -93,7 +88,7 @@ class MarkdownReply extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         tableHead: textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
           color: scheme.primary,
         ),
@@ -144,7 +139,7 @@ class _HeadingBuilder extends MarkdownElementBuilder {
               SelectableText(
                 text,
                 style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.3,
                   height: 1.2,
                 ),
@@ -154,9 +149,7 @@ class _HeadingBuilder extends MarkdownElementBuilder {
                 width: 44,
                 height: 3,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [scheme.primary, scheme.tertiary],
-                  ),
+                  color: scheme.onSurface,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -173,11 +166,7 @@ class _HeadingBuilder extends MarkdownElementBuilder {
                 width: 4,
                 height: 20,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [scheme.primary, scheme.tertiary],
-                  ),
+                  color: scheme.onSurface,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -186,7 +175,7 @@ class _HeadingBuilder extends MarkdownElementBuilder {
                 child: SelectableText(
                   text,
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.1,
                   ),
                 ),
@@ -200,7 +189,7 @@ class _HeadingBuilder extends MarkdownElementBuilder {
           child: SelectableText(
             text.toUpperCase(),
             style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               letterSpacing: 1.3,
               color: scheme.primary,
             ),
@@ -237,7 +226,7 @@ class _Bullet extends StatelessWidget {
           child: Text(
             '${parameters.index + 1}',
             style: theme.textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: scheme.onPrimaryContainer,
               height: 1,
             ),

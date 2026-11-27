@@ -15,6 +15,7 @@ import '../../widgets/charts/line_chart.dart';
 import '../../widgets/chart_options.dart';
 import '../chat/ask_trainer.dart';
 import 'analysis_data.dart';
+import '../../theme/design_tokens.dart';
 
 enum _Range { d30, d90, m6, y1, ytd, custom }
 
@@ -42,12 +43,9 @@ Color _metricColor(AnalysisMetric m, ColorScheme scheme) {
     AnalysisMetric.atl => scheme.secondary,
     AnalysisMetric.form => scheme.primary,
     AnalysisMetric.rampRate => scheme.outline,
-    AnalysisMetric.hrv =>
-      dark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
-    AnalysisMetric.restingHr =>
-      dark ? const Color(0xFFEF9A9A) : const Color(0xFFC62828),
-    AnalysisMetric.sleep =>
-      dark ? const Color(0xFF9FA8DA) : const Color(0xFF3949AB),
+    AnalysisMetric.hrv => DesignData.speed(dark),
+    AnalysisMetric.restingHr => DesignData.heart(dark),
+    AnalysisMetric.sleep => DesignData.sleep(dark),
   };
 }
 
@@ -487,7 +485,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           TextSpan(
                             text: _format(m, series.values[m]![i]!),
                             style: TextStyle(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: _metricColor(m, theme.colorScheme),
                             ),
                           ),
@@ -603,7 +601,7 @@ class _MetricPanel extends StatelessWidget {
                     _format(metric, raw[selected!]!),
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
               ],
@@ -622,7 +620,7 @@ class _MetricPanel extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(c, style: theme.textTheme.labelSmall),
                     ),

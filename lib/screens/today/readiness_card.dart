@@ -127,7 +127,7 @@ class ReadinessCard extends StatelessWidget {
                           readinessLevelLabel(l10n, r.level),
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: hasData ? color : scheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             height: 1.15,
                           ),
                         ),
@@ -207,7 +207,7 @@ class ReadinessScoreRing extends StatelessWidget {
             score == null ? '–' : '$score',
             key: const ValueKey('readiness-score'),
             style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: dim ? scheme.onSurfaceVariant : null,
               height: 1.0,
             ),
@@ -364,7 +364,7 @@ class _Pill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: color.withValues(alpha: 0.35)),
         ),
         child: Column(

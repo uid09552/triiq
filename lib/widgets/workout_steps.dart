@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/design_tokens.dart';
 
 /// One line of an Intervals.icu workout description.
 sealed class WorkoutLine {
@@ -132,12 +133,13 @@ bool hasWorkoutSteps(List<WorkoutLine> lines) =>
 /// recovery, green for endurance, then yellow, orange, red, purple.
 Color intensityColor(double? percent, ColorScheme scheme) {
   if (percent == null) return scheme.outline;
-  if (percent < 56) return const Color(0xFF7C8DA6);
-  if (percent < 76) return const Color(0xFF3FA66B);
-  if (percent < 91) return const Color(0xFFD6A400);
-  if (percent < 106) return const Color(0xFFEF8A17);
-  if (percent < 121) return const Color(0xFFE5484D);
-  return const Color(0xFF8E4EC6);
+  const z = DesignData.intensity;
+  if (percent < 56) return z[0];
+  if (percent < 76) return z[1];
+  if (percent < 91) return z[2];
+  if (percent < 106) return z[3];
+  if (percent < 121) return z[4];
+  return z[5];
 }
 
 /// An Intervals.icu workout text as a structured session: the purpose as an
@@ -221,12 +223,12 @@ class WorkoutDescription extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
           decoration: BoxDecoration(
             color: scheme.primaryContainer,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             '${repeat.count} ×',
             style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: scheme.onPrimaryContainer,
             ),
           ),
@@ -263,7 +265,7 @@ class WorkoutDescription extends StatelessWidget {
                     Text(
                       step.amount,
                       style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),

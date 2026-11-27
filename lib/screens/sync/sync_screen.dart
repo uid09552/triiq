@@ -179,7 +179,7 @@ class _SyncTile extends StatelessWidget {
         ),
         title: Text(
           _label(l10n, scope),
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         trailing: running
             ? const SizedBox(

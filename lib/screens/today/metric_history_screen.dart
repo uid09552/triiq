@@ -331,7 +331,7 @@ class _SummaryRow extends StatelessWidget {
                         entry.$2,
                         maxLines: 1,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

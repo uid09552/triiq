@@ -798,7 +798,7 @@ class _ModelTile extends StatelessWidget {
             child: Text(
               value,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
               maxLines: 1,
             ),

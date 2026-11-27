@@ -94,7 +94,7 @@ class _ReadinessScreenState extends State<ReadinessScreen> {
                   readinessLevelLabel(l10n, r.level),
                   style: theme.textTheme.headlineSmall?.copyWith(
                     color: color,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

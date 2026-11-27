@@ -166,7 +166,7 @@ class CalendarDayDetail extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.primary.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             l10n.dayCardToday,
@@ -187,7 +187,7 @@ class CalendarDayDetail extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -403,7 +403,7 @@ class _DayEventRow extends StatelessWidget {
                   Text(
                     event.name ?? eventCategoryLabel(l10n, event.category),
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
                     maxLines: 1,
@@ -413,7 +413,7 @@ class _DayEventRow extends StatelessWidget {
                     '${eventCategoryLabel(l10n, event.category)}$span',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -509,7 +509,7 @@ class _Row extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -578,7 +578,7 @@ class _Row extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
                     maxLines: 1,
@@ -588,7 +588,7 @@ class _Row extends StatelessWidget {
                     subtitle,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

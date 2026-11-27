@@ -536,14 +536,7 @@ class _EmptyState extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [colorScheme.primary, colorScheme.tertiary],
-                ),
-                shape: BoxShape.circle,
-              ),
+              decoration: inkDecoration(context, shape: BoxShape.circle),
               child: const Icon(
                 Icons.auto_awesome,
                 color: Colors.white,
@@ -709,16 +702,11 @@ class _ChatBubble extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: fromUser || message.isError
-            ? null
-            : LinearGradient(
-                colors: [colorScheme.primary, colorScheme.tertiary],
-              ),
         color: message.isError
             ? colorScheme.errorContainer
             : fromUser
             ? colorScheme.surfaceContainerHighest
-            : null,
+            : inkDecoration(context).color,
       ),
       child: Icon(
         message.isError
@@ -746,8 +734,8 @@ class _ChatBubble extends StatelessWidget {
               ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
+            topLeft: const Radius.circular(12),
+            topRight: const Radius.circular(12),
             bottomLeft: Radius.circular(fromUser ? 16 : 4),
             bottomRight: Radius.circular(fromUser ? 4 : 16),
           ),

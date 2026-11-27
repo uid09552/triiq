@@ -980,7 +980,7 @@ class ChartLegend extends StatelessWidget {
               excludeSemantics: true,
               child: InkWell(
                 key: ValueKey('legend-${s.label}'),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
                 onTap: () => toggle(s.label),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 48),

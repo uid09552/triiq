@@ -836,7 +836,7 @@ class _TodayScreenState extends State<TodayScreen> {
               connected
                   ? (_session.athleteName ?? l10n.connectedLabel)
                   : l10n.notConnected,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             subtitle: Text(
               connected ? _describeAthlete(l10n) : l10n.connectInProfile,
@@ -1484,7 +1484,7 @@ class _PlannedTraining extends StatelessWidget {
                     children: [
                       Text(
                         event.name ?? event.type ?? l10n.plannedSessionFallback,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -1570,7 +1570,7 @@ class _TodayActivities extends StatelessWidget {
               ),
               title: Text(
                 activity.name ?? activity.type ?? l10n.activityFallback,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
               subtitle: Text(
                 [

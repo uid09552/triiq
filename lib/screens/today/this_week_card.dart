@@ -217,7 +217,7 @@ class ThisWeekCard extends StatelessWidget {
                             textAlign: TextAlign.end,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),

@@ -81,7 +81,7 @@ class AgendaView extends StatelessWidget {
                               ?.copyWith(
                                 color: date == now ? scheme.primary : null,
                                 fontWeight: date == now
-                                    ? FontWeight.w800
+                                    ? FontWeight.w700
                                     : FontWeight.w500,
                               ),
                         ),

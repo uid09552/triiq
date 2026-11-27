@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/models/local_event.dart';
 import '../../l10n/app_localizations.dart';
 import '../activities/activity_icons.dart';
+import '../../theme/design_tokens.dart';
 
 /// One session planned for today, as Train Now shows it: sport, name,
 /// duration, TSS, where it comes from, and its steps (collapsed when long).
@@ -48,7 +49,7 @@ class _PlannedSessionCardState extends State<PlannedSessionCard> {
 
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         side: widget.selected
             ? BorderSide(color: scheme.primary, width: 2)
             : BorderSide(color: scheme.outlineVariant),
@@ -94,12 +95,12 @@ class _PlannedSessionCardState extends State<PlannedSessionCard> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     shown,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
+                      fontFamily: DesignFonts.code,
                     ),
                   ),
                 ),

@@ -87,7 +87,7 @@ class MonthlyCalendarView extends StatelessWidget {
     ];
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
       color: colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     );
 
     return Padding(
@@ -365,7 +365,7 @@ class _DayCell extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: isToday
-                              ? FontWeight.w800
+                              ? FontWeight.w700
                               : FontWeight.w500,
                           color: isToday
                               ? colorScheme.primary

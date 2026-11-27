@@ -288,7 +288,7 @@ class _RadarPainter extends CustomPainter {
           visible.every((s) => series[s].values[i] == null);
       final style = chart.labelStyle.copyWith(
         color: chart.text,
-        fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
         fontSize: 11,
       );
       final tp = _text(empty ? '${axes[i]}\n$noData' : axes[i], style);

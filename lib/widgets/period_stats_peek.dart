@@ -380,7 +380,7 @@ class _SectionTitle extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -481,7 +481,7 @@ class _YearRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+                    fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
               ),

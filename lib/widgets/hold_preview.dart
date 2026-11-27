@@ -123,7 +123,7 @@ class _HoldPreviewState extends State<HoldPreview> {
               child: Material(
                 elevation: 14,
                 color: scheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
                 child: _Capped(
                   maxHeight: maxHeight,

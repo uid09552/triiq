@@ -369,7 +369,7 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
               color: ChartTheme.of(context).heatColorOf(level, _prefs.scale),
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
         const SizedBox(width: 4),

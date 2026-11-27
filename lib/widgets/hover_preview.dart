@@ -95,7 +95,7 @@ class _HoverPreviewState extends State<HoverPreview> {
                     child: Material(
                       elevation: 8,
                       color: scheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       clipBehavior: Clip.antiAlias,
                       child: SizedBox(
                         width: widget.width,

@@ -11,6 +11,7 @@ import '../../widgets/charts/radar_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/status_message.dart';
 import '../activities/activity_detail_screen.dart';
+import '../../theme/design_tokens.dart';
 
 /// Power (rides) or pace (runs) after a lot of work, against the fresh
 /// season best: the best efforts that started after 1,000 / 2,000 / 3,000 kJ
@@ -95,9 +96,9 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
   bool get _isRide => _sport == CurveSport.ride;
 
   Color _levelColor(int i) => switch (i) {
-    0 => const Color(0xFFF9A825),
-    1 => const Color(0xFFEF6C00),
-    _ => const Color(0xFFC62828),
+    0 => DesignData.severity[0],
+    1 => DesignData.severity[1],
+    _ => DesignData.severity[2],
   };
 
   String _levelLabel(AppLocalizations l10n, DurabilityLevel level) => _isRide
@@ -267,7 +268,7 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
                         (kept * 100).round().toString(),
                       ),
                 style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               if (src != null && v != null) ...[
@@ -591,7 +592,7 @@ class _DurabilityScreenState extends State<DurabilityScreen> {
                   child: Text(
                     _pointLabel(r.points[i]),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

@@ -89,7 +89,7 @@ class ProgressRing extends StatelessWidget {
                   Text(
                     percentLabel,
                     style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: ringColor,
                       height: 1.1,
                     ),

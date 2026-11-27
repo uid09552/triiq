@@ -204,7 +204,7 @@ class _Intro extends StatelessWidget {
             child: ExcludeSemantics(
               child: IgnorePointer(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   child: NavigationBar(
                     key: const ValueKey('nav-preview'),
                     selectedIndex: 0,

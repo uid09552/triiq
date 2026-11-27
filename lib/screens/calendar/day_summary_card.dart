@@ -60,7 +60,7 @@ class DaySummaryCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -110,13 +110,13 @@ class DaySummaryCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: accent.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             '${(ratio * 100).round()}%',
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: accent,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -125,7 +125,7 @@ class DaySummaryCard extends StatelessWidget {
                   if (ratio != null) ...[
                     const SizedBox(height: 8),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: ratio.clamp(0.0, 1.0),
                         minHeight: 5,

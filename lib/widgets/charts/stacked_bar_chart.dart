@@ -151,7 +151,7 @@ class _Column extends StatelessWidget {
       child: Opacity(
         opacity: dimmed ? 0.45 : 1,
         child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             verticalDirection: VerticalDirection.up,

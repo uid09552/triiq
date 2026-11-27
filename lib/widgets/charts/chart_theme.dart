@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/design_tokens.dart';
 
 /// Which colour ramp a heatmap uses: the app's theme colour at four
 /// strengths, or a perceptually uniform viridis-like ramp that stays
@@ -141,16 +142,6 @@ class ChartTheme {
     };
   }
 
-  static const _viridisLight = [
-    Color(0xFFB5DE2B),
-    Color(0xFF35B779),
-    Color(0xFF26828E),
-    Color(0xFF3E4A89),
-  ];
-  static const _viridisDark = [
-    Color(0xFF31688E),
-    Color(0xFF21918C),
-    Color(0xFF5EC962),
-    Color(0xFFFDE725),
-  ];
+  static const _viridisLight = DesignData.viridisLight;
+  static const _viridisDark = DesignData.viridisDark;
 }

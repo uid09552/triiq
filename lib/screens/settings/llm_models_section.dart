@@ -288,7 +288,7 @@ class _ModelTile extends StatelessWidget {
                         Text(
                           '${index + 1}. ${entry.label}',
                           style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(

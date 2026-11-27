@@ -311,7 +311,7 @@ class DestinationTile extends StatelessWidget {
             leading: Icon(destination.icon, color: theme.colorScheme.primary),
             title: Text(
               destination.title(l10n),
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,7 +391,7 @@ class _MoreTile extends StatelessWidget {
           ),
           child: Icon(icon, color: colorScheme.primary),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: subtitle != null ? Text(subtitle!) : null,
         trailing: const Icon(Icons.chevron_right),
       ),

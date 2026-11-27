@@ -284,8 +284,8 @@ class _BarChartPainter extends CustomPainter {
     canvas.drawRRect(
       RRect.fromRectAndCorners(
         rect,
-        topLeft: const Radius.circular(3),
-        topRight: const Radius.circular(3),
+        topLeft: const Radius.circular(4),
+        topRight: const Radius.circular(4),
       ),
       Paint()..color = color,
     );

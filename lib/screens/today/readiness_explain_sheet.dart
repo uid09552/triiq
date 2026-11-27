@@ -62,7 +62,7 @@ class _ReadinessExplainSheet extends StatelessWidget {
                   : '${readinessLevelLabel(l10n, r.level)} · $score / 100',
               style: theme.textTheme.titleLarge?.copyWith(
                 color: complete ? color : scheme.onSurfaceVariant,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 4),
@@ -172,7 +172,7 @@ class _SignalLine extends StatelessWidget {
                 Text(
                   '${readinessSignalLabel(l10n, signal.kind)} · '
                   '${readinessValueText(signal)} · $rating',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 if (range != null)
                   Text(

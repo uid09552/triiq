@@ -669,7 +669,7 @@ class _WeekCard extends StatelessWidget {
     return Card(
       shape: _isCurrent
           ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(color: scheme.primary, width: 2),
             )
           : null,

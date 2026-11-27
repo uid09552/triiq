@@ -151,7 +151,7 @@ class _Pill extends StatelessWidget {
             text,
             style: Theme.of(
               context,
-            ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+            ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
         ),
       ],

@@ -29,7 +29,7 @@ class PeekFigures extends StatelessWidget {
               Text(
                 f.value,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),

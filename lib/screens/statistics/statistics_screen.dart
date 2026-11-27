@@ -564,7 +564,7 @@ class _SportRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     totals.sport,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Text(

@@ -152,13 +152,13 @@ class MonthGoalsPeek extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     label,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
                   Text(
                     '${km(s.monthKm)} · ${hours(s.monthHours)}',
                     style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -171,7 +171,7 @@ class MonthGoalsPeek extends StatelessWidget {
                     color: share >= 100
                         ? scheme.tertiary
                         : scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               if (s.goalKm != null) ...[
@@ -264,7 +264,7 @@ class _YearProgressPainter extends CustomPainter {
       final x = i * (barWidth + gap);
       final r = RRect.fromRectAndRadius(
         Rect.fromLTWH(x, 0, barWidth, h),
-        const Radius.circular(3),
+        const Radius.circular(4),
       );
       canvas.drawRRect(r, bar..color = track);
       final value = i < cumulative.length ? cumulative[i] : 0.0;
@@ -273,7 +273,7 @@ class _YearProgressPainter extends CustomPainter {
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromLTWH(x, top, barWidth, h - top),
-            const Radius.circular(3),
+            const Radius.circular(4),
           ),
           bar
             ..color = value >= 1

@@ -11,6 +11,7 @@ import '../../widgets/charts/line_chart.dart';
 import '../../widgets/charts/stacked_bar_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
+import '../../theme/design_tokens.dart';
 
 /// Training analytics read from the local cache: fitness and load split per
 /// sport, intensity distribution, load-safety ratios and the aerobic base.
@@ -226,8 +227,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Color _riskColor(RiskLevel? r) {
     final scheme = Theme.of(context).colorScheme;
     return switch (r) {
-      RiskLevel.safe => const Color(0xFF2E9E5B),
-      RiskLevel.risky => const Color(0xFFE0A100),
+      RiskLevel.safe => DesignData.safe,
+      RiskLevel.risky => DesignData.risky,
       RiskLevel.high => scheme.error,
       null => scheme.onSurfaceVariant,
     };
@@ -628,17 +629,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final (values, band, bandText) = switch (_metric) {
       _SafetyMetric.acwr => (
         [for (final d in _safety) d.acwr],
-        const ChartBand(low: 0.8, high: 1.3, color: Color(0x332E9E5B)),
+        const ChartBand(low: 0.8, high: 1.3, color: DesignData.safeBand),
         l10n.anAcwrBands,
       ),
       _SafetyMetric.ramp => (
         [for (final d in _safety) d.rampRate],
-        const ChartBand(low: 0, high: 5, color: Color(0x332E9E5B)),
+        const ChartBand(low: 0, high: 5, color: DesignData.safeBand),
         l10n.anRampBands,
       ),
       _SafetyMetric.monotony => (
         [for (final d in _safety) d.monotony],
-        const ChartBand(low: 0, high: 1.5, color: Color(0x332E9E5B)),
+        const ChartBand(low: 0, high: 1.5, color: DesignData.safeBand),
         l10n.anMonotonyBands,
       ),
     };
@@ -871,7 +872,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         band: const ChartBand(
                           low: -5,
                           high: 5,
-                          color: Color(0x332E9E5B),
+                          color: DesignData.safeBand,
                         ),
                         formatValue: (v) => '${v.toStringAsFixed(1)}%',
                       ),

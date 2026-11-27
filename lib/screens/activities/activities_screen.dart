@@ -583,7 +583,7 @@ class _ActivityRow extends StatelessWidget {
           ),
           title: Text(
             activity.name ?? activity.type ?? l10n.activityFallback,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w500),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -597,7 +597,7 @@ class _ActivityRow extends StatelessWidget {
                     Text(
                       '${activity.trainingLoad}',
                       style: TextStyle(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: colorScheme.primary,
                       ),
                     ),

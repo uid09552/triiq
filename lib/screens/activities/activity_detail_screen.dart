@@ -37,6 +37,7 @@ import 'route_card.dart';
 import 'session_analysis.dart';
 import 'stat_tile_peek.dart';
 import 'year_sport_widgets.dart';
+import '../../theme/design_tokens.dart';
 
 /// One activity's stats, its evaluation against the plan, its streams over
 /// time, and a way out to the full analysis on
@@ -703,7 +704,7 @@ class _ZoneBar extends StatelessWidget {
           width: 36,
           child: Text(
             label,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
         const SizedBox(width: 8),
@@ -788,14 +789,7 @@ class _Header extends StatelessWidget {
     return Container(
       key: const ValueKey('activity-header'),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [scheme.primary, scheme.tertiary],
-        ),
-      ),
+      decoration: inkDecoration(context),
       child: Row(
         children: [
           Container(
@@ -819,7 +813,7 @@ class _Header extends StatelessWidget {
                   activity.name ?? activity.type ?? l10n.activityFallback,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

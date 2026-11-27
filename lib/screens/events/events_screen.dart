@@ -198,7 +198,7 @@ class _EventsScreenState extends State<EventsScreen> {
           key: ValueKey('event-tile-${event.id}'),
           title: Text(
             event.name ?? eventCategoryLabel(l10n, event.category),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
           subtitle: Text(
             '${eventCategoryLabel(l10n, event.category)} · $range'

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../evaluation/session_streams.dart';
 import 'chart_theme.dart';
 import 'chart_viewport.dart';
+import '../../theme/design_tokens.dart';
 
 /// Min-max downsampling: [values] split into [buckets] runs, each kept as
 /// its lowest and highest sample (in time order) so spikes survive. Returns
@@ -46,18 +47,9 @@ List<(int, double)> downsample(List<double?> values, int buckets) {
 
 /// A colour per stream type, readable in light and dark.
 Color streamColor(String type, ColorScheme scheme) => switch (type) {
-  'watts' =>
-    scheme.brightness == Brightness.dark
-        ? const Color(0xFFFFB74D)
-        : const Color(0xFFE65100),
-  'heartrate' =>
-    scheme.brightness == Brightness.dark
-        ? const Color(0xFFEF9A9A)
-        : const Color(0xFFC62828),
-  'velocity_smooth' =>
-    scheme.brightness == Brightness.dark
-        ? const Color(0xFF81C784)
-        : const Color(0xFF2E7D32),
+  'watts' => DesignData.power(scheme.brightness == Brightness.dark),
+  'heartrate' => DesignData.heart(scheme.brightness == Brightness.dark),
+  'velocity_smooth' => DesignData.speed(scheme.brightness == Brightness.dark),
   'cadence' => scheme.tertiary,
   'altitude' => scheme.outline,
   _ => scheme.secondary,
