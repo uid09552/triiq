@@ -13,6 +13,7 @@ import '../events/event_labels.dart';
 import '../today/train_now_screen.dart';
 import 'add_strength_sheet.dart';
 import 'day_events.dart';
+import '../../util/clock.dart';
 
 /// Long-press on a calendar day: a sheet with "Propose training" (Train Now
 /// for that day, so the created session lands on it) next to "Delete day's
@@ -34,7 +35,7 @@ Future<void> showDayActions(
   VoidCallback? onOpenDay,
   void Function(BuildContext context, DateTime day)? openAddStrength,
 }) async {
-  final now = (today ?? DateTime.now)();
+  final now = (today ?? clockNow)();
   final day = DateTime(date.year, date.month, date.day);
   final canPropose = !day.isBefore(DateTime(now.year, now.month, now.day));
   final planned = events.where((e) => e.isTraining).toList();

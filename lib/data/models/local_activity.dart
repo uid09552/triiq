@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:triiq/client/intervalls/intervalls_client.dart';
+import '../../util/clock.dart';
 
 /// A completed activity, cached from Intervals.icu.
 class LocalActivity {
@@ -52,7 +53,7 @@ class LocalActivity {
       distance: activity.distance,
       trainingLoad: activity.icuTrainingLoad,
       raw: json,
-      syncedAt: DateTime.now(),
+      syncedAt: clockNow(),
     );
   }
 

@@ -8,6 +8,7 @@ import '../../evaluation/fatigue_warning.dart';
 import '../../evaluation/fatigue_warning_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../chat/ask_trainer.dart';
+import '../../util/clock.dart';
 
 /// One line per firing signal, e.g. "HRV below your normal on 4 of the last
 /// 5 days".
@@ -57,7 +58,7 @@ class _FatigueWarningBannerState extends State<FatigueWarningBanner> {
   late final _service = widget.service ?? FatigueWarningService();
   late final _dismissals = widget.dismissals ?? FatigueWarningDismissals();
   late final Listenable _sync = widget.sync ?? AutoSyncService.instance;
-  DateTime _now() => (widget.clock ?? DateTime.now)();
+  DateTime _now() => (widget.clock ?? clockNow)();
   FatigueWarning? _warning;
 
   @override
@@ -110,7 +111,7 @@ Future<FatigueWarning?> loadVisibleFatigueWarning({
     final w = await (service ?? FatigueWarningService()).load();
     if (w.level == FatigueLevel.none) return null;
     final hidden = await (dismissals ?? FatigueWarningDismissals()).isDismissed(
-      now ?? DateTime.now(),
+      now ?? clockNow(),
       w.level,
     );
     return hidden ? null : w;

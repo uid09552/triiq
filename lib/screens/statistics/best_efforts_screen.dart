@@ -9,6 +9,7 @@ import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/status_message.dart';
+import '../../util/clock.dart';
 
 /// The best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 /
 /// 10 km (runs) month by month, so a season's progress is one line, with the
@@ -42,7 +43,7 @@ class _BestEffortsScreenState extends State<BestEffortsScreen> {
   List<EffortSession> _sessions = const [];
 
   bool get _isRide => _sport == CurveSport.ride;
-  DateTime get _today => widget.today ?? DateTime.now();
+  DateTime get _today => widget.today ?? clockNow();
   int get _points => _isRide ? effortSeconds.length : effortDistances.length;
 
   @override

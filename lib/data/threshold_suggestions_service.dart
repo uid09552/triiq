@@ -2,6 +2,7 @@ import 'intervals_session.dart';
 import 'threshold_dismissals_store.dart';
 import '../evaluation/performance_curves.dart';
 import '../evaluation/threshold_suggestions.dart';
+import '../util/clock.dart';
 
 /// Gathers what [evaluateThresholdSuggestions] needs — cached curves,
 /// current settings, stored dismissals — and returns today's suggestions.
@@ -17,7 +18,7 @@ class ThresholdSuggestionsService {
   }) : _curves = curves ?? PerformanceCurvesRepository(),
        _session = session ?? IntervalsSession.instance,
        _dismissals = dismissals ?? ThresholdDismissalsStore.instance,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final PerformanceCurvesRepository _curves;
   final IntervalsSession _session;

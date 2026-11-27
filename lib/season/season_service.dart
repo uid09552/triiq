@@ -11,6 +11,7 @@ import 'fitness_forecast.dart';
 import 'illness_mode.dart';
 import 'race_predictor.dart';
 import 'season_timeline.dart';
+import '../util/clock.dart';
 
 /// Everything the Season screen shows, computed from the local cache.
 class SeasonSnapshot {
@@ -65,7 +66,7 @@ class SeasonService {
   }) : _planned = planned ?? PlannedItemsRepository().getRange,
        _wellness = wellness ?? WellnessRepository(),
        _goals = goals ?? GoalStore(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final PlannedLoader _planned;
   final WellnessRepository _wellness;

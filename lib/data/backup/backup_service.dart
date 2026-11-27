@@ -7,6 +7,7 @@ import '../../agent/llm_settings.dart';
 import '../../navigation/navigation_layout.dart';
 import '../privacy_settings.dart';
 import '../db/app_database.dart';
+import '../../util/clock.dart';
 
 class BackupFormatException implements Exception {
   const BackupFormatException(this.message);
@@ -45,7 +46,7 @@ class BackupSummary {
 class BackupService {
   BackupService({AppDatabase? database, DateTime Function()? clock})
     : _database = database ?? AppDatabase.instance,
-      _clock = clock ?? DateTime.now;
+      _clock = clock ?? clockNow;
 
   final AppDatabase _database;
   final DateTime Function() _clock;

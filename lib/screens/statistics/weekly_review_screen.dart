@@ -16,6 +16,7 @@ import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../activities/session_analysis.dart';
 import '../../widgets/status_message.dart';
+import '../../util/clock.dart';
 
 /// A week against its plan: per-day planned and done, compliance, the 80/20
 /// split, load against recent weeks and the fitness change — all from the
@@ -43,7 +44,7 @@ class WeeklyReviewScreen extends StatefulWidget {
 class _WeeklyReviewScreenState extends State<WeeklyReviewScreen> {
   late final _loader = widget.loader ?? WeeklyReviewLoader();
   late final _settings = widget.settings ?? LlmSettings.instance;
-  late DateTime _week = startOfWeek(widget.initialWeek ?? DateTime.now());
+  late DateTime _week = startOfWeek(widget.initialWeek ?? clockNow());
   WeeklyReview? _review;
   Object? _error;
   String _note = '';

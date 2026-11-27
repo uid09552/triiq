@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../util/clock.dart';
 
 /// Caps notifications nobody scheduled (a background sync found something
 /// new): at most [perDay] a day and [perWeek] in seven days, and after
@@ -11,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// waiting for are not counted. No study fixes a right number; this errs
 /// on the quiet side (issue #119).
 class PushBudget {
-  PushBudget({DateTime Function()? clock}) : _clock = clock ?? DateTime.now;
+  PushBudget({DateTime Function()? clock}) : _clock = clock ?? clockNow;
 
   static final PushBudget instance = PushBudget();
 

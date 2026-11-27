@@ -1,4 +1,11 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+
+/// `flutter test` sets FLUTTER_TEST in the environment.
+final bool _inTest =
+    !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
 
 /// One shared pulse for every placeholder below it: a single animation
 /// drives all the blocks of a loading screen, instead of a ticker per block.
@@ -27,7 +34,10 @@ class _SkeletonPulseState extends State<SkeletonPulse>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    // Steady under reduced motion, and in widget tests: a pulse that
+    // repeats forever would keep `pumpAndSettle` from ever settling.
+    final reduce =
+        (MediaQuery.maybeDisableAnimationsOf(context) ?? false) || _inTest;
     if (reduce && _animating) {
       _controller.stop();
       _animating = false;

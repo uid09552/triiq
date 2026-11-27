@@ -5,6 +5,7 @@ import '../../data/sync/sync_service.dart';
 import '../../data/sync/sync_settings.dart';
 import '../../l10n/app_localizations.dart';
 import '../../plan/plan_service.dart';
+import '../../util/clock.dart';
 
 /// Settings → Calendar: whether TriIQ's plan goes to Intervals.icu, and
 /// whether Intervals.icu's planned events come into TriIQ. Independent.
@@ -55,7 +56,7 @@ class CalendarSettingsSection extends StatelessWidget {
     );
     if (send != true) return;
     try {
-      final outcome = await _plans.send(plan, from: DateTime.now());
+      final outcome = await _plans.send(plan, from: clockNow());
       final report = outcome.report;
       messenger.showSnackBar(
         SnackBar(
@@ -82,7 +83,7 @@ class CalendarSettingsSection extends StatelessWidget {
     await settings.setCopyIntervalsEvents(on);
     if (!on || !_session.isConnected) return;
     // Bring the current month's events back in.
-    final now = DateTime.now();
+    final now = clockNow();
     final first = DateTime(now.year, now.month, 1);
     final last = DateTime(now.year, now.month + 1, 0);
     try {

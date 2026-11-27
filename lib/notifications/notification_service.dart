@@ -8,6 +8,7 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'notification_taps.dart';
+import '../util/clock.dart';
 
 /// Local notifications for sync completion, agent replies, and a daily
 /// training reminder.
@@ -546,7 +547,7 @@ class _MobileNotificationService implements NotificationService {
   static tz.Location _currentOffsetLocation() =>
       tz.Location('Local', [tz.minTime], [0], [
         tz.TimeZone(
-          DateTime.now().timeZoneOffset,
+          clockNow().timeZoneOffset,
           isDst: false,
           abbreviation: 'LOCAL',
         ),

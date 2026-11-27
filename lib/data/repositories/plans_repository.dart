@@ -6,6 +6,7 @@ import '../../plan/knowledge.dart';
 import '../../plan/plan_models.dart';
 import '../../util/dates.dart';
 import '../db/app_database.dart';
+import '../../util/clock.dart';
 
 /// Reads and writes training plans and their sessions.
 class PlansRepository {
@@ -28,7 +29,7 @@ class PlansRepository {
           'weeks': [for (final w in plan.weeks) _weekToJson(w)],
           'sportMix': plan.sportMix,
         }),
-        'created_at': DateTime.now().millisecondsSinceEpoch,
+        'created_at': clockNow().millisecondsSinceEpoch,
       });
       final weeks = <PlanWeek>[];
       for (final week in plan.weeks) {

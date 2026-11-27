@@ -8,6 +8,7 @@ import '../data/repositories/sync_state_repository.dart';
 import '../data/sync/auto_sync_service.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/sync/sync_screen.dart';
+import '../util/clock.dart';
 
 /// How long ago a sync was, in the units a glance wants: "just now", minutes,
 /// hours, days.
@@ -122,7 +123,7 @@ class _SyncStatusChipState extends State<SyncStatusChip> {
   DateTime? _lastSyncedAt;
   Timer? _tick;
 
-  DateTime get _now => (widget.now ?? DateTime.now)();
+  DateTime get _now => (widget.now ?? clockNow)();
 
   @override
   void initState() {

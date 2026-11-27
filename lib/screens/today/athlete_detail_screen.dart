@@ -10,6 +10,7 @@ import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_icons.dart';
 import '../../theme/design_tokens.dart';
+import '../../util/clock.dart';
 
 /// Athlete details: who the athlete is (picture, location, age), their body
 /// stats from the latest cached wellness record, and their per-sport
@@ -66,7 +67,7 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
       await _session.refreshAthlete();
     }
 
-    final today = DateTime.now();
+    final today = clockNow();
     final start = today.subtract(const Duration(days: 365));
     final wellness = await _wellnessRepository.getRange(
       isoDate(start),
@@ -389,7 +390,7 @@ class _ProfileHeader extends StatelessWidget {
     if (birthday == null || birthday.length < 10) return null;
     final date = DateTime.tryParse(birthday.substring(0, 10));
     if (date == null) return null;
-    final now = DateTime.now();
+    final now = clockNow();
     var years = now.year - date.year;
     final hadBirthday =
         now.month > date.month ||

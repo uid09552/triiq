@@ -24,6 +24,7 @@ import 'goal_editor_screen.dart';
 import 'plan_labels.dart';
 import 'plan_session_sheet.dart';
 import 'plan_take_flow.dart';
+import '../../util/clock.dart';
 
 /// The training plan: the goal, the load graph, and the current block with
 /// each week's target against what was actually done, its 80/20 split and a
@@ -361,10 +362,10 @@ class _PlanScreenState extends State<PlanScreen> {
                     hold: _goal!.holdEvery4th,
                     eventWeeksBeyond:
                         _goal!.eventBeyondPlan(
-                          PlanService.defaultStart(DateTime.now()),
+                          PlanService.defaultStart(clockNow()),
                         )
                         ? _goal!.weeksToEvent(
-                            PlanService.defaultStart(DateTime.now()),
+                            PlanService.defaultStart(clockNow()),
                           )
                         : null,
                     onRamp: (v, {required save}) =>
@@ -648,7 +649,7 @@ class _WeekCard extends StatelessWidget {
   final double rampCap;
 
   bool get _isCurrent {
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     return !today.isBefore(week.startDate) &&
         today.isBefore(week.startDate.add(const Duration(days: 7)));
   }
@@ -864,7 +865,7 @@ class _WeekGrid extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

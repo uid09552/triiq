@@ -4,6 +4,7 @@ import '../data/repositories/wellness_repository.dart';
 import '../plan/knowledge.dart';
 import '../util/dates.dart';
 import 'fatigue_warning.dart';
+import '../util/clock.dart';
 
 /// Reads the wellness window from the cache and rates the multi-day trend.
 /// Baseline length follows the readiness rules so both agree on "normal".
@@ -14,7 +15,7 @@ class FatigueWarningService {
     DateTime Function()? clock,
   }) : _wellness = wellness ?? WellnessRepository(),
        _knowledge = knowledge ?? KnowledgeRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final WellnessRepository _wellness;
   final KnowledgeRepository _knowledge;

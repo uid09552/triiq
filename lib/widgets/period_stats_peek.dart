@@ -9,6 +9,7 @@ import '../screens/settings/year_goals_progress.dart';
 import 'peek_parts.dart';
 import 'peekable.dart';
 import 'year_stats_text.dart';
+import '../util/clock.dart';
 
 /// Wraps a Calendar header crumb (the year or the month) so that pressing
 /// and holding it peeks at the period's statistics — [PeriodStatsPeek] — while
@@ -79,7 +80,7 @@ class PeriodStatsPeek extends StatefulWidget {
 class _PeriodStatsPeekState extends State<PeriodStatsPeek> {
   late final Future<PeriodStatsData> _future = _load();
 
-  DateTime get _today => (widget.today ?? DateTime.now)();
+  DateTime get _today => (widget.today ?? clockNow)();
 
   Future<PeriodStatsData> _load() {
     final loader =

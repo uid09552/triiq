@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../util/clock.dart';
 
 /// One standing preference the trainer remembers, e.g. "No hard sessions on
 /// Fridays".
@@ -58,8 +59,7 @@ class MemoryFullException implements Exception {
 /// every turn. Visible and editable under More → Trainer memory; the
 /// trainer can add and remove items through tools, never silently.
 class AgentMemoryStore extends ChangeNotifier {
-  AgentMemoryStore({DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  AgentMemoryStore({DateTime Function()? clock}) : _clock = clock ?? clockNow;
 
   static final AgentMemoryStore instance = AgentMemoryStore();
 

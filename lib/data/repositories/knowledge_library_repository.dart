@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../agent/knowledge_sections.dart';
 import '../../util/dates.dart';
 import '../db/app_database.dart';
+import '../../util/clock.dart';
 
 /// What to do when an import's file name matches an existing document.
 enum KnowledgeDuplicateAction { replace, keepBoth }
@@ -147,7 +148,7 @@ class KnowledgeLibraryRepository {
 
     final existing = await findByFileName(fileName);
     var title = sections.first.title;
-    final now = DateTime.now();
+    final now = clockNow();
 
     final db = await _database.database;
     final docId = await db.transaction((txn) async {

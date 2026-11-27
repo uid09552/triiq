@@ -12,6 +12,7 @@ import '../../widgets/charts/stacked_bar_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../theme/design_tokens.dart';
+import '../../util/clock.dart';
 
 /// Training analytics read from the local cache: fitness and load split per
 /// sport, intensity distribution, load-safety ratios and the aerobic base.
@@ -68,7 +69,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final from = today.subtract(Duration(days: _days - 1));
     final warmFrom = from.subtract(const Duration(days: _warmUpDays));
 

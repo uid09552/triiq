@@ -13,6 +13,7 @@ import '../../util/dates.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/status_message.dart';
+import '../../util/clock.dart';
 
 /// Insights → Energy: what was eaten (as logged in Intervals.icu, usually
 /// from a connected food app) next to what training burned, per day.
@@ -41,7 +42,7 @@ class _EnergyScreenState extends State<EnergyScreen> {
   Object? _error;
   List<EnergyDay> _list = const [];
 
-  DateTime get _end => dateOnly(widget.today ?? DateTime.now());
+  DateTime get _end => dateOnly(widget.today ?? clockNow());
 
   @override
   void initState() {

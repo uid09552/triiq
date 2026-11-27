@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'openai_connection.dart' show LlmFailureKind;
+import '../util/clock.dart';
 
 /// How one model entry has been doing in this app run.
 @immutable
@@ -43,7 +44,7 @@ class ModelHealth extends ChangeNotifier {
     DateTime Function()? clock,
     this.failureThreshold = 2,
     this.cooldown = const Duration(minutes: 5),
-  }) : _clock = clock ?? DateTime.now;
+  }) : _clock = clock ?? clockNow;
 
   final DateTime Function() _clock;
   final int failureThreshold;

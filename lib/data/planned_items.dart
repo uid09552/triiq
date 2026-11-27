@@ -5,6 +5,7 @@ import 'models/local_event.dart';
 import 'repositories/events_repository.dart';
 import 'repositories/plans_repository.dart';
 import 'sync/sync_settings.dart';
+import '../util/clock.dart';
 
 /// Everything planned, from one place: the current TriIQ plan's sessions
 /// plus — when Settings → Calendar copies them — Intervals.icu's planned
@@ -113,6 +114,6 @@ class PlannedItemsRepository {
       LocalEvent.planSentKey: s.status == PlanSessionStatus.created,
       LocalEvent.planSlotKey: s.slot.name,
     },
-    syncedAt: DateTime.now(),
+    syncedAt: clockNow(),
   );
 }

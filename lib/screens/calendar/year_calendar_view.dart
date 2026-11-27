@@ -15,6 +15,7 @@ import '../plan/plan_labels.dart';
 import 'calendar_level.dart';
 import 'day_events.dart';
 import 'month_goals_peek.dart';
+import '../../util/clock.dart';
 
 /// Twelve mini-months, each day tinted by its load on the load heatmap's
 /// colour scale, with markers for races, sick/injured days and holidays and
@@ -55,7 +56,7 @@ class YearCalendarView extends StatelessWidget {
       from: DateTime(year, 1, 1),
       to: DateTime(year, 12, 31),
     );
-    final now = dateOnly((today ?? DateTime.now)());
+    final now = dateOnly((today ?? clockNow)());
     final l10n = AppLocalizations.of(context)!;
     final phases = plan == null
         ? const <String>{}

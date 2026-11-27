@@ -18,6 +18,7 @@ import 'dart:ui' show Locale, PlatformDispatcher;
 import '../evaluation/form_zone.dart';
 import '../l10n/app_localizations.dart';
 import '../locale_controller.dart';
+import '../util/clock.dart';
 
 /// What the Android home-screen widget shows, as plain strings and numbers
 /// (the native side only lays them out).
@@ -200,7 +201,7 @@ class HomeWidgetUpdater {
        _planned = planned ?? PlannedItemsRepository(hidePendingDeletes: false),
        _activities = activities ?? ActivitiesRepository(),
        _wellness = wellness ?? WellnessRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   static const androidName = 'TriiqWidgetProvider';
 

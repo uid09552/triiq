@@ -17,6 +17,7 @@ import '../../widgets/peek_parts.dart';
 import '../../widgets/skeleton.dart';
 import '../activities/activity_icons.dart';
 import 'load_heatmap_screen.dart' show heatColor;
+import '../../util/clock.dart';
 
 /// What the peeks draw from: the local cache, never the network, so a peek
 /// is instant and works offline.
@@ -49,7 +50,7 @@ class InsightPreviewSource {
   }) : _activities = activities,
        _wellness = wellness,
        _curves = curves,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final ActivitiesRepository? _activities;
   final WellnessRepository? _wellness;

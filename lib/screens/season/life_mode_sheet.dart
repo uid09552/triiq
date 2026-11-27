@@ -8,6 +8,7 @@ import '../../season/health_actions.dart';
 import '../../season/illness_mode.dart';
 import '../../season/life_modes.dart';
 import '../../util/dates.dart';
+import '../../util/clock.dart';
 
 /// Sick or niggle, travel, short on time: pick the days and how much to
 /// train, see every change before → after, apply them in one go. Only the
@@ -51,7 +52,7 @@ class LifeModeSheet extends StatefulWidget {
 class _LifeModeSheetState extends State<LifeModeSheet> {
   late LifeMode _mode = widget.initial;
   late ModeIntensity _intensity = intensitiesFor(_mode).first;
-  late final DateTime _start = dateOnly(widget.today ?? DateTime.now());
+  late final DateTime _start = dateOnly(widget.today ?? clockNow());
   late DateTime _end = _start.add(const Duration(days: 3));
   List<LocalEvent> _sessions = const [];
   bool _loading = true;

@@ -7,6 +7,7 @@ import '../repositories/sync_state_repository.dart';
 import 'sync_scope.dart';
 import 'sync_service.dart';
 import 'sync_settings.dart';
+import '../../util/clock.dart';
 
 /// While the app is in the foreground, periodically re-syncs the current
 /// month from Intervals.icu — throttled to
@@ -143,12 +144,12 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
         minGap ??
         Duration(minutes: SyncSettings.instance.autoSyncIntervalMinutes);
     final last = _lastSyncAt ?? await _lastPersistedSync();
-    if (last != null && DateTime.now().difference(last) < gap) return;
+    if (last != null && clockNow().difference(last) < gap) return;
 
     _syncing = true;
     try {
       await _syncService.syncScope(SyncScope.month);
-      _lastSyncAt = DateTime.now();
+      _lastSyncAt = clockNow();
       notifyListeners();
     } catch (_) {
       // Best-effort background refresh — screen-level syncs already surface
@@ -164,7 +165,7 @@ class AutoSyncService with WidgetsBindingObserver, ChangeNotifier {
   /// the long-lived screens reload from it. Counts as a sync for the
   /// throttle: the data is fresh either way.
   void notifyCacheChanged() {
-    _lastSyncAt = DateTime.now();
+    _lastSyncAt = clockNow();
     notifyListeners();
   }
 

@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../db/app_database.dart';
+import '../../util/clock.dart';
 
 /// Tracks which date range has already been synced for a given scope (e.g.
 /// `activities`, `wellness`), so repeat syncs can be skipped or narrowed.
@@ -54,7 +55,7 @@ class SyncStateRepository {
       'scope': scope,
       'oldest_synced': mergedOldest,
       'newest_synced': mergedNewest,
-      'last_synced_at': DateTime.now().millisecondsSinceEpoch,
+      'last_synced_at': clockNow().millisecondsSinceEpoch,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

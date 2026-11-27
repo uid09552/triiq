@@ -10,6 +10,7 @@ import '../../util/dates.dart';
 import '../activities/planned_workout_actions.dart';
 import '../plan/plan_labels.dart';
 import '../today/readiness_card.dart' show isHardSession;
+import '../../util/clock.dart';
 
 /// Moves planned sessions for the calendar's drag-and-drop and "Move to…".
 /// The app uses [PlanActions.movePlanned] (plan rules, offline queue);
@@ -17,7 +18,7 @@ import '../today/readiness_card.dart' show isHardSession;
 class CalendarMover {
   CalendarMover({PlanActions? actions, DateTime Function()? clock})
     : _actions = actions,
-      _clock = clock ?? DateTime.now;
+      _clock = clock ?? clockNow;
 
   final PlanActions? _actions;
   final DateTime Function() _clock;

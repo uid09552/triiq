@@ -10,6 +10,7 @@ import '../plan/load_curve.dart';
 import '../plan/plan_adaptation.dart';
 import '../plan/proposal_safety.dart';
 import '../plan/plan_models.dart';
+import '../util/clock.dart';
 
 /// Where a proposal is in its life. Only [pending] and [failed] can still
 /// be applied.
@@ -586,8 +587,7 @@ class AppliedChange {
 /// first, kept on the device so it survives a cleared chat. Each can be
 /// reverted while nothing else changed the plan since.
 class AppliedChangesLog extends ChangeNotifier {
-  AppliedChangesLog({DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  AppliedChangesLog({DateTime Function()? clock}) : _clock = clock ?? clockNow;
 
   static final AppliedChangesLog instance = AppliedChangesLog();
 

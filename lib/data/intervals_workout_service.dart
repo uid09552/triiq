@@ -3,6 +3,7 @@ import '../util/dates.dart';
 import 'intervals_session.dart';
 import 'intervals_steps.dart';
 import 'models/local_event.dart';
+import '../util/clock.dart';
 
 /// A planned session about to be written to the athlete's Intervals.icu
 /// calendar — the agent's proposal, reduced to the fields the API takes.
@@ -30,7 +31,7 @@ class PlannedWorkoutDraft {
       name: e.name ?? e.type ?? 'Workout',
       sport: e.type ?? 'Workout',
       description: e.description ?? '',
-      date: DateTime.tryParse(e.date) ?? DateTime.now(),
+      date: DateTime.tryParse(e.date) ?? clockNow(),
       durationSeconds: e.plannedTime,
       load: e.plannedLoad,
       indoor: e.indoor,

@@ -5,6 +5,7 @@ import '../../data/repositories/wellness_repository.dart';
 import '../../util/dates.dart';
 import '../../widgets/stat_tile.dart';
 import 'tile_metric.dart';
+import '../../util/clock.dart';
 
 /// A tile's tiny chart: the recent values and which way they are heading.
 class TileSpark {
@@ -61,7 +62,7 @@ class TileSparkLoader {
     DateTime Function()? clock,
   }) : _wellness = wellness ?? WellnessRepository(),
        _activities = activities ?? ActivitiesRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final WellnessRepository _wellness;
   final ActivitiesRepository _activities;

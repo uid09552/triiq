@@ -13,6 +13,7 @@ import '../screens/calendar/performance_trend_icon.dart';
 import '../screens/today/readiness_card.dart'
     show readinessColor, readinessLevelLabel;
 import '../util/dates.dart';
+import '../util/clock.dart';
 
 /// Reads what a day holds from the local cache — never the network — for a
 /// [DayPeek]. Planned items come from [PlannedItemsRepository], the same
@@ -24,7 +25,7 @@ class DayPeekSource {
     DateTime Function()? clock,
   }) : _planned = planned,
        _activities = activities,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final PlannedItemsRepository? _planned;
   final ActivitiesRepository? _activities;

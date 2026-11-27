@@ -38,6 +38,7 @@ import 'session_analysis.dart';
 import 'stat_tile_peek.dart';
 import 'year_sport_widgets.dart';
 import '../../theme/design_tokens.dart';
+import '../../util/clock.dart';
 
 /// One activity's stats, its evaluation against the plan, its streams over
 /// time, and a way out to the full analysis on
@@ -88,8 +89,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   /// Today or yesterday — "recent" for the new-activity auto-prompt.
   static bool _isRecent(String date) {
-    final today = isoDate(DateTime.now());
-    final yesterday = isoDate(DateTime.now().subtract(const Duration(days: 1)));
+    final today = isoDate(clockNow());
+    final yesterday = isoDate(clockNow().subtract(const Duration(days: 1)));
     return date == today || date == yesterday;
   }
 
@@ -107,7 +108,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   void initState() {
     super.initState();
     // Opening today's session counts as seeing it: it won't pop up again.
-    if (activity.date == isoDate(DateTime.now())) {
+    if (activity.date == isoDate(clockNow())) {
       unawaited(seen.markSeen([activity.id]));
     }
     IntervalsSession.instance.addListener(_onConnectionChanged);

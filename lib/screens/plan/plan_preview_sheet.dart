@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../plan/plan_models.dart';
 import '../activities/activity_icons.dart';
 import 'plan_labels.dart';
+import '../../util/clock.dart';
 
 /// What the athlete confirmed: the plan (with any dates they moved) and
 /// whether to also put it on their phone calendar.
@@ -44,7 +45,7 @@ class _PlanPreviewSheetState extends State<PlanPreviewSheet> {
   }
 
   Future<void> _moveSession(PlanWeek week, PlanSession session) async {
-    final today = DateTime.now();
+    final today = clockNow();
     final picked = await showDatePicker(
       context: context,
       initialDate: session.date.isBefore(today) ? today : session.date,

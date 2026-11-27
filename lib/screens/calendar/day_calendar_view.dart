@@ -12,6 +12,7 @@ import 'calendar_moves.dart';
 import 'calendar_data.dart';
 import 'day_cell_parts.dart';
 import 'day_summary_card.dart';
+import '../../util/clock.dart';
 
 /// One day, full width: the day's readiness, HRV, resting HR, sleep and
 /// feel, its statistics (hold for details), then its sessions (swipe a planned one left to delete, a completed
@@ -49,7 +50,7 @@ class DayCalendarView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final now = dateOnly((today ?? DateTime.now)());
+    final now = dateOnly((today ?? clockNow)());
     final raw = wellness?.raw ?? const <String, dynamic>{};
     num? n(Object? v) => v is num && v > 0 ? v : null;
     final hrv = n(raw['hrv']);

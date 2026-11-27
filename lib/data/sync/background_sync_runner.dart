@@ -19,6 +19,7 @@ import '../repositories/sync_state_repository.dart';
 import 'sync_service.dart';
 import 'sync_settings.dart';
 import '../../notifications/push_budget.dart';
+import '../../util/clock.dart';
 
 /// How one background run ended. The `name` is what Settings shows as the
 /// last result.
@@ -113,7 +114,7 @@ class BackgroundSyncRunner {
     this.snapshot,
     this.notifyChanges,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  }) : _now = now ?? clockNow;
 
   /// The real wiring, as used by the background isolate.
   factory BackgroundSyncRunner.live() {
@@ -185,8 +186,8 @@ class BackgroundSyncRunner {
     // Hidden planned events (copying switched off) are no news either.
     final sessions = await SyncSettings.readCopyIntervalsEvents()
         ? await EventsRepository().getRange(
-            isoDate(DateTime.now()),
-            isoDate(DateTime.now().add(SyncService.eventsLookAhead)),
+            isoDate(clockNow()),
+            isoDate(clockNow().add(SyncService.eventsLookAhead)),
           )
         : const <LocalEvent>[];
     return BackgroundSnapshot(

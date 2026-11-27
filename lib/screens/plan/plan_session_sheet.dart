@@ -10,6 +10,7 @@ import '../activities/activity_icons.dart';
 import '../activities/year_sport_widgets.dart';
 import '../today/train_now_screen.dart';
 import '../../theme/design_tokens.dart';
+import '../../util/clock.dart';
 
 /// Opens Train Now on [e]'s day with [e] preselected, to swap it for a
 /// proposal.
@@ -166,7 +167,7 @@ Future<void> showPlanSessionSheetForEvent(BuildContext context, LocalEvent e) =>
       context,
       name: e.name ?? '',
       sport: e.type ?? '',
-      date: DateTime.tryParse(e.date) ?? DateTime.now(),
+      date: DateTime.tryParse(e.date) ?? clockNow(),
       minutes: (e.plannedTime ?? 0) ~/ 60,
       load: e.plannedLoad ?? 0,
       description: e.description ?? '',

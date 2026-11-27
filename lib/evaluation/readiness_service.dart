@@ -4,6 +4,7 @@ import '../plan/knowledge.dart';
 import '../util/dates.dart';
 import 'readiness.dart';
 import 'readiness_settings.dart';
+import '../util/clock.dart';
 
 /// Today's readiness and the records behind it, for the detail screen's
 /// trend.
@@ -29,7 +30,7 @@ class ReadinessService {
   }) : _settings = settings ?? ReadinessSettings.instance,
        _wellness = wellness ?? WellnessRepository(),
        _knowledge = knowledge ?? KnowledgeRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final WellnessRepository _wellness;
   final KnowledgeRepository _knowledge;

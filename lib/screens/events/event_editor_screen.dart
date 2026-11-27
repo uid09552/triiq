@@ -7,6 +7,7 @@ import '../../data/sync/auto_sync_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import 'event_labels.dart';
+import '../../util/clock.dart';
 
 /// Creates a calendar event, or edits [event], in Intervals.icu. Pops
 /// `true` once it was saved there.
@@ -44,7 +45,7 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
   late String _category = _initialCategory();
   late DateTime _date =
       DateTime.tryParse(widget.event?.date ?? '') ??
-      dateOnly(widget.initialDate ?? DateTime.now());
+      dateOnly(widget.initialDate ?? clockNow());
   DateTime? _endDate;
   String? _sport;
   bool _saving = false;

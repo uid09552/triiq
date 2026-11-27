@@ -13,6 +13,7 @@ import 'readiness.dart';
 import 'readiness_service.dart';
 import 'wellness_baseline.dart';
 import 'weekly_review.dart';
+import '../util/clock.dart';
 
 /// Which way a wellness signal moved over the week.
 enum TrendDirection { up, down, stable }
@@ -443,7 +444,7 @@ class WeeklyReviewSummaryLoader {
        _plans = plans ?? PlansRepository(),
        _readiness = readiness ?? ReadinessService(wellness: wellness),
        _targets = targets ?? WeeklyTargetsSettings.instance,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final ActivitiesRepository _activities;
   final PlannedItemsRepository _planned;

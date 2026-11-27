@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/charts/line_chart.dart';
+import '../../util/clock.dart';
 
 /// The figures on Today's tiles that have a graph behind them.
 enum TileMetric { tssToday, tssWeek, ctl, atl, form, rampRate }
@@ -55,7 +56,7 @@ class _MetricPreviewState extends State<MetricPreview> {
   late final Future<Widget Function(BuildContext)> _future = _load();
 
   Future<Widget Function(BuildContext)> _load() async {
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     switch (widget.metric) {
       case TileMetric.tssToday:
         const days = 14;

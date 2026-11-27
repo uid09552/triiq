@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:triiq/util/clock.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -24,6 +25,7 @@ void main() {
   late AppDatabase database;
 
   setUp(() async {
+    debugSetClock(() => DateTime(2026, 11, 26, 9));
     SharedPreferences.setMockInitialValues({});
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
@@ -32,6 +34,7 @@ void main() {
   });
 
   tearDown(() async {
+    debugSetClock(null);
     await database.close();
     await dir.delete(recursive: true);
   });
@@ -39,7 +42,7 @@ void main() {
   testWidgets('a local-only plan session counts on Today without a '
       'connection', (tester) async {
     final plans = PlansRepository(database: database);
-    final monday = startOfWeek(DateTime.now());
+    final monday = startOfWeek(clockNow());
     final draft =
         PlanEngine(
               TrainingKnowledge.parse(File('docs/okf.md').readAsStringSync()),
@@ -60,7 +63,7 @@ void main() {
     final saved = await tester.runAsync(
       () => plans.save(draft.copyWith(status: PlanStatus.active)),
     );
-    final tomorrow = dateOnly(DateTime.now()).add(const Duration(days: 1));
+    final tomorrow = dateOnly(clockNow()).add(const Duration(days: 1));
     final tomorrows = saved!.sessions.where((s) => s.date == tomorrow);
 
     tester.view.physicalSize = const Size(800, 3000);
@@ -97,17 +100,16 @@ void main() {
       find.textContaining('of $weekPlanned TSS this week'),
       findsOneWidget,
     );
-    // Tomorrow's first session is named on the hero's tomorrow strip. The
-    // plan engine may make tomorrow a rest day, depending on today's date.
-    if (tomorrows.isNotEmpty) {
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('hero-tomorrow')),
-          matching: find.textContaining(tomorrows.first.name),
-        ),
-        findsOneWidget,
-      );
-    }
+    // Tomorrow's first session is named on the hero's tomorrow strip (the
+    // date is pinned, so tomorrow always has one).
+    expect(tomorrows, isNotEmpty);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('hero-tomorrow')),
+        matching: find.textContaining(tomorrows.first.name),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('nothing planned: the hero offers Propose training', (

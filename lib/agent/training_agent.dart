@@ -15,6 +15,7 @@ import 'plan_proposals.dart';
 import 'system_prompt.dart';
 import 'usage.dart';
 import 'tools/training_data_tools.dart';
+import '../util/clock.dart';
 
 /// Something the agent did while answering, streamed to the UI as it
 /// happens so a multi-step answer doesn't look like a hang.
@@ -154,7 +155,7 @@ class TrainingAgent {
   }) : _settings = settings ?? LlmSettings.instance,
        _session = session ?? IntervalsSession.instance,
        _tools = tools ?? TrainingDataTools(),
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _proposals = proposals ?? PlanProposals.instance,
        _memory = memory ?? AgentMemoryStore.instance,
        _gateway =

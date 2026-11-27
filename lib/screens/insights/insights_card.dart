@@ -11,6 +11,7 @@ import '../../l10n/app_localizations.dart';
 import '../../plan/knowledge.dart';
 import '../../util/dates.dart';
 import '../../widgets/section_card.dart';
+import '../../util/clock.dart';
 
 /// What [InsightsCard] shows, gathered from the cache.
 class SessionInsights {
@@ -41,7 +42,7 @@ class SessionInsightsLoader {
        _planned = planned ?? PlannedItemsRepository(),
        _wellness = wellness ?? WellnessRepository(),
        _knowledge = knowledge ?? KnowledgeRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final ActivitiesRepository _activities;
   final PlannedItemsRepository _planned;

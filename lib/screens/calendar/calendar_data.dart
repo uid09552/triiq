@@ -19,6 +19,7 @@ import '../../util/dates.dart';
 import '../today/readiness_card.dart' show isHardSession;
 import 'day_events.dart';
 import '../../plan/risk_forecast.dart';
+import '../../util/clock.dart';
 
 /// How hard [CalendarLoader.sync] tries to refetch before the cache is read.
 enum CalendarFreshness {
@@ -66,7 +67,7 @@ class CalendarData {
 /// Syncs and reads a range for the calendar. The app uses the cache and
 /// [SyncService]; tests hand the screen their own.
 class CalendarLoader {
-  CalendarLoader({DateTime Function()? clock}) : _clock = clock ?? DateTime.now;
+  CalendarLoader({DateTime Function()? clock}) : _clock = clock ?? clockNow;
 
   final DateTime Function() _clock;
   final _syncService = SyncService();
@@ -372,7 +373,7 @@ class PeriodSummary {
     DateTime to, {
     DateTime? today,
   }) {
-    final last = dateOnly(today ?? DateTime.now());
+    final last = dateOnly(today ?? clockNow());
     double? firstCtl;
     double? lastCtl;
     for (

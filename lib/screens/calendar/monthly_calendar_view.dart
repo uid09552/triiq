@@ -15,6 +15,7 @@ import 'day_cell_parts.dart';
 import 'day_events.dart';
 import '../../plan/risk_forecast.dart';
 import 'risk_badge.dart';
+import '../../util/clock.dart';
 
 const _maxMarkersPerCell = 3;
 const _weekColumnWidth = 22.0;
@@ -84,7 +85,7 @@ class MonthlyCalendarView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final firstOfMonth = DateTime(month.year, month.month, 1);
     final (gridStart, _) = calendarRange(CalendarLevel.month, firstOfMonth);
-    final now = dateOnly((today ?? DateTime.now)());
+    final now = dateOnly((today ?? clockNow)());
     final locale = Localizations.localeOf(context).toString();
     // A reference Monday-start week, so the header always reads Mon..Sun.
     final weekdayLabels = [

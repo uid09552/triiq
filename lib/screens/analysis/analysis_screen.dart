@@ -16,6 +16,7 @@ import '../../widgets/chart_options.dart';
 import '../chat/ask_trainer.dart';
 import 'analysis_data.dart';
 import '../../theme/design_tokens.dart';
+import '../../util/clock.dart';
 
 enum _Range { d30, d90, m6, y1, ytd, custom }
 
@@ -113,7 +114,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   }
 
   (DateTime, DateTime) get _period {
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     return switch (_range) {
       _Range.d30 => (today.subtract(const Duration(days: 29)), today),
       _Range.d90 => (today.subtract(const Duration(days: 89)), today),
@@ -219,7 +220,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     final picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      lastDate: clockNow(),
       initialDateRange: DateTimeRange(start: from, end: to),
     );
     if (picked == null) return;

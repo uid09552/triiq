@@ -7,6 +7,7 @@ import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
 import '../activities/activity_icons.dart';
 import 'plan_labels.dart';
+import '../../util/clock.dart';
 
 /// Edits the training goal: what the block is for, which days are free and
 /// how much time there is. Pops the saved [Goal], or nothing on back.
@@ -98,7 +99,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
   }
 
   Future<void> _pickDate() async {
-    final now = DateTime.now();
+    final now = clockNow();
     final picked = await showDatePicker(
       context: context,
       initialDate: _eventDate ?? now.add(const Duration(days: 84)),
@@ -162,7 +163,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
       strengthPerWeek: _strength,
       strengthDays: _strength == 0 ? const {} : _strengthDays,
     ).withoutStalePreferences();
-    final problem = goal.validate(today: DateTime.now());
+    final problem = goal.validate(today: clockNow());
     if (problem != null) {
       setState(() => _error = problem);
       return;
@@ -326,7 +327,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
           weekdays: _days,
           weeklyHours: _hours,
           eventDate: _eventDate,
-        ).planWeeks(PlanService.defaultStart(DateTime.now()));
+        ).planWeeks(PlanService.defaultStart(clockNow()));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

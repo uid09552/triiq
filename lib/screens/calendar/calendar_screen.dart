@@ -26,6 +26,7 @@ import 'monthly_calendar_view.dart';
 import 'week_actions.dart';
 import 'weekly_calendar_view.dart';
 import 'year_calendar_view.dart';
+import '../../util/clock.dart';
 
 /// Training calendar with four zoom levels — year, month, week, day — moved
 /// between by tapping (a month, a week number, a day), pinching, the level
@@ -79,7 +80,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   int _loadSeq = 0;
   double _pinchScale = 1;
 
-  DateTime get _today => dateOnly((widget.today ?? DateTime.now)());
+  DateTime get _today => dateOnly((widget.today ?? clockNow)());
 
   @override
   void initState() {

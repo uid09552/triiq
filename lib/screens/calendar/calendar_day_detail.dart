@@ -21,6 +21,7 @@ import 'day_events.dart';
 import '../events/event_editor_screen.dart';
 import '../events/event_labels.dart';
 import 'performance_trend_icon.dart';
+import '../../util/clock.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
 /// same way as the grid/list markers and tappable through to full detail.
@@ -74,7 +75,7 @@ class CalendarDayDetail extends StatelessWidget {
   final DateTime Function()? today;
 
   bool _isToday() {
-    final now = (today ?? DateTime.now)();
+    final now = (today ?? clockNow)();
     return now.year == date.year &&
         now.month == date.month &&
         now.day == date.day;

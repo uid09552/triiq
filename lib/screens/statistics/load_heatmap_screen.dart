@@ -13,6 +13,7 @@ import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/status_message.dart';
 import 'heatmap_views.dart';
+import '../../util/clock.dart';
 
 enum _Period { last12Months, thisYear, lastYear }
 
@@ -42,7 +43,7 @@ class _LoadHeatmapScreenState extends State<LoadHeatmapScreen> {
   DateTime? _selected;
   HeatmapPrefs _prefs = const HeatmapPrefs();
 
-  DateTime get _today => dateOnly(widget.today ?? DateTime.now());
+  DateTime get _today => dateOnly(widget.today ?? clockNow());
 
   (DateTime, DateTime) get _range => switch (_period) {
     _Period.last12Months => (

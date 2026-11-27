@@ -16,6 +16,7 @@ import 'activity_detail_screen.dart';
 import 'activity_filter.dart';
 import '../../widgets/status_message.dart';
 import 'activity_icons.dart';
+import '../../util/clock.dart';
 
 /// Every cached activity, most recent first, with search by name, filters
 /// (sport, dates, distance, duration, power, GPS) and sorting. Reachable from
@@ -242,7 +243,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       deleteIcon: const Icon(Icons.close, size: 18),
       tooltip: key == 'type' ? l10n.showAllActivities : null,
     );
-    final range = f.dateRange(DateTime.now());
+    final range = f.dateRange(clockNow());
     return [
       if (f.query.trim().isNotEmpty)
         chip('query', '“${f.query.trim()}”', _clearQuery, icon: Icons.search),
@@ -441,7 +442,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                   label: Text(l10n.actCustomRange),
                   selected: _f.datePreset == DatePreset.custom,
                   onSelected: (_) async {
-                    final now = DateTime.now();
+                    final now = clockNow();
                     final picked = await showDateRangePicker(
                       context: context,
                       firstDate: DateTime(now.year - 10),

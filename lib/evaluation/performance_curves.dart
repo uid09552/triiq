@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../data/db/app_database.dart';
 import '../data/intervals_session.dart';
+import '../util/clock.dart';
 
 /// The sports the Performance screen offers, with the Intervals.icu `type`
 /// each curve request uses (which also covers its variants: `Ride` includes
@@ -383,7 +384,7 @@ class PerformanceCurvesRepository {
   }) : _database = database ?? AppDatabase.instance,
        _fetch = fetch ?? _fetchFromApi,
        _newestActivityOverride = newestActivity,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final AppDatabase _database;
   final CurvesFetcher _fetch;

@@ -14,6 +14,7 @@ import 'calendar_drag.dart';
 import 'calendar_moves.dart';
 import 'day_cell_parts.dart';
 import 'day_events.dart';
+import '../../util/clock.dart';
 
 /// Week list of planned (tertiary colour) vs. completed (primary colour)
 /// trainings, one row per day, each session a block sized by its duration.
@@ -61,7 +62,7 @@ class WeeklyCalendarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final now = dateOnly((today ?? DateTime.now)());
+    final now = dateOnly((today ?? clockNow)());
     final data = CalendarData(
       eventsByDate: eventsByDate,
       activitiesByDate: activitiesByDate,
