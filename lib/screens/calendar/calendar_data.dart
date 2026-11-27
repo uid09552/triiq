@@ -18,6 +18,7 @@ import '../../plan/plan_models.dart';
 import '../../util/dates.dart';
 import '../today/readiness_card.dart' show isHardSession;
 import 'day_events.dart';
+import '../../plan/risk_forecast.dart';
 
 /// How hard [CalendarLoader.sync] tries to refetch before the cache is read.
 enum CalendarFreshness {
@@ -41,7 +42,11 @@ class CalendarData {
     this.readinessByDate = const {},
     this.wellnessByDate = const {},
     this.plan,
+    this.riskByDate = const {},
   });
+
+  /// Days ahead flagged by the load forecast (see `forecastRisk`).
+  final Map<String, DayRiskInfo> riskByDate;
 
   /// Planned sessions (plan sessions and Intervals.icu events).
   final Map<String, List<LocalEvent>> eventsByDate;
@@ -121,6 +126,36 @@ class CalendarLoader {
       }
     }
 
+    var risk = const <String, DayRiskInfo>{};
+    if (newest.isAfter(today)) {
+      try {
+        final recent = await WellnessRepository().getRange(
+          isoDate(today.subtract(const Duration(days: 3))),
+          isoDate(today),
+        );
+        final known = [
+          for (final w in recent)
+            if (w.ctl != null && w.atl != null) w,
+        ];
+        final last = known.isEmpty ? null : known.last;
+        if (last != null) {
+          final ahead = await PlannedItemsRepository().getRange(
+            isoDate(today.add(const Duration(days: 1))),
+            to,
+          );
+          risk = forecastRisk(
+            ctl: last.ctl!,
+            atl: last.atl!,
+            today: today,
+            until: newest,
+            plannedByDate: _byDate(ahead, (e) => e.date),
+          );
+        }
+      } catch (error) {
+        debugPrint('CalendarLoader: risk forecast unavailable: $error');
+      }
+    }
+
     TrainingPlan? plan;
     try {
       plan = await PlansRepository().getCurrent();
@@ -135,6 +170,7 @@ class CalendarLoader {
       readinessByDate: readiness,
       wellnessByDate: {for (final w in wellness) w.date: w},
       plan: plan,
+      riskByDate: risk,
     );
   }
 
@@ -219,6 +255,7 @@ class CalendarFilter {
       readinessByDate: data.readinessByDate,
       wellnessByDate: data.wellnessByDate,
       plan: data.plan,
+      riskByDate: data.riskByDate,
     );
   }
 

@@ -6,6 +6,8 @@ import '../../data/models/local_event.dart';
 import '../../l10n/app_localizations.dart';
 import 'calendar_day_marker.dart';
 import '../../util/dates.dart';
+import '../../plan/risk_forecast.dart';
+import 'risk_badge.dart';
 
 /// The month as a vertical list of only the days that have a session, planned
 /// or done: easier to read on a phone than a grid of tiny cells.
@@ -18,7 +20,11 @@ class AgendaView extends StatelessWidget {
     required this.onSelect,
     this.onLongPress,
     this.today,
+    this.riskByDate = const {},
   });
+
+  /// Days ahead flagged by the load forecast.
+  final Map<String, DayRiskInfo> riskByDate;
 
   final DateTime month;
   final Map<String, List<LocalEvent>> eventsByDate;
@@ -92,6 +98,24 @@ class AgendaView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (riskByDate[isoDate(date)] case final risk?)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Row(
+                              children: [
+                                RiskBadge(info: risk, size: 16),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    riskLabel(l10n, risk),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         for (final e
                             in (eventsByDate[isoDate(date)] ?? const []).where(
                               (e) => e.isTraining,

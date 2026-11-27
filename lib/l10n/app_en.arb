@@ -2520,5 +2520,11 @@
   "changesRevertDone": "Reverted.",
   "changesRevertFailed": "Couldn't revert: {error}",
   "@changesRevertFailed": {"placeholders": {"error": {"type": "String"}}},
-  "moreChangesSubtitle": "What was applied, with Revert"
+  "moreChangesSubtitle": "What was applied, with Revert",
+  "riskHigh": "High load ahead",
+  "riskCaution": "Hard days in a row",
+  "riskFormLow": "projected form {form}",
+  "@riskFormLow": {"placeholders": {"form": {"type": "String"}}},
+  "riskHardStreak": "{count} hard days in a row",
+  "@riskHardStreak": {"placeholders": {"count": {"type": "int"}}}
 }

@@ -11618,6 +11618,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What was applied, with Revert'**
   String get moreChangesSubtitle;
+
+  /// No description provided for @riskHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High load ahead'**
+  String get riskHigh;
+
+  /// No description provided for @riskCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard days in a row'**
+  String get riskCaution;
+
+  /// No description provided for @riskFormLow.
+  ///
+  /// In en, this message translates to:
+  /// **'projected form {form}'**
+  String riskFormLow(String form);
+
+  /// No description provided for @riskHardStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hard days in a row'**
+  String riskHardStreak(int count);
 }
 
 class _AppLocalizationsDelegate

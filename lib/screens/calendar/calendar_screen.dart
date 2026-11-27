@@ -740,6 +740,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         if (_agenda) {
           return AgendaView(
             month: _date,
+            riskByDate: data.riskByDate,
             eventsByDate: data.eventsByDate,
             activitiesByDate: data.activitiesByDate,
             onSelect: _tapDay,
@@ -754,6 +755,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           dayEventsByDate: data.dayEventsByDate,
           activitiesByDate: data.activitiesByDate,
           readinessByDate: data.readinessByDate,
+          riskByDate: data.riskByDate,
           onSelect: _tapDay,
           onLongPress: _dayActions,
           onOpenWeek: _openWeek,

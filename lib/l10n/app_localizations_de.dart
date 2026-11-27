@@ -7175,4 +7175,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get moreChangesSubtitle => 'Was übernommen wurde, mit Rückgängig';
+
+  @override
+  String get riskHigh => 'Hohe Belastung voraus';
+
+  @override
+  String get riskCaution => 'Harte Tage am Stück';
+
+  @override
+  String riskFormLow(String form) {
+    return 'Form voraussichtlich $form';
+  }
+
+  @override
+  String riskHardStreak(int count) {
+    return '$count harte Tage am Stück';
+  }
 }

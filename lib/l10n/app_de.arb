@@ -2107,5 +2107,9 @@
   "changesRevertStale": "Nicht möglich: Der Plan hat sich seitdem geändert. Mach zuerst spätere Änderungen rückgängig.",
   "changesRevertDone": "Rückgängig gemacht.",
   "changesRevertFailed": "Rückgängig nicht möglich: {error}",
-  "moreChangesSubtitle": "Was übernommen wurde, mit Rückgängig"
+  "moreChangesSubtitle": "Was übernommen wurde, mit Rückgängig",
+  "riskHigh": "Hohe Belastung voraus",
+  "riskCaution": "Harte Tage am Stück",
+  "riskFormLow": "Form voraussichtlich {form}",
+  "riskHardStreak": "{count} harte Tage am Stück"
 }

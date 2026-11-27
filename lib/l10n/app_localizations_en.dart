@@ -7118,4 +7118,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreChangesSubtitle => 'What was applied, with Revert';
+
+  @override
+  String get riskHigh => 'High load ahead';
+
+  @override
+  String get riskCaution => 'Hard days in a row';
+
+  @override
+  String riskFormLow(String form) {
+    return 'projected form $form';
+  }
+
+  @override
+  String riskHardStreak(int count) {
+    return '$count hard days in a row';
+  }
 }
