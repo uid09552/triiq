@@ -837,11 +837,14 @@ agent and More sections below.
 
 ### Theming
 
-`lib/app.dart` defines one Material 3 theme spec — built twice, for
-`Brightness.light` and `Brightness.dark` — from a single seeded
-`ColorScheme` and shared component styling (rounded cards/inputs/nav
-bar/buttons). UI code should pull colors from `Theme.of(context).colorScheme`
-rather than hardcoding `Colors.*`.
+The light and dark themes follow the design system in `Design.md`. Its
+tokens are code in `lib/theme/design_tokens.dart` (`DesignColors`,
+`DesignRadius`, `DesignSpace`, `DesignFonts`) and are mapped onto Material 3
+in `lib/theme/app_theme.dart` (`buildAppTheme`). DM Sans and JetBrains Mono
+are bundled (`assets/fonts/`, OFL). UI code takes colours from
+`Theme.of(context).colorScheme` or the tokens, never hard-coded values; a
+guard test (`test/theme/design_guard_test.dart`) keeps the remaining literals
+from growing.
 
 Which one is active is controlled by `ThemeController`
 (`lib/theme_controller.dart`), a singleton `ChangeNotifier` holding a
@@ -2775,15 +2778,13 @@ card at the top shows the currently cached date range.
 - Today follow-ups from issue #78 not built yet: a compact/comfortable
   density toggle in Customize Today, haptics beyond the light tap on
   "Log how it felt" and the move's selection click, recovery tips on rest
-  days (the hero names the next key session instead), skeleton placeholders
-  instead of the spinner while Today loads, and sending a session to the
+  days (the hero names the next key session instead), and sending a session to the
   watch from *Start* (it opens the steps). The attention stack hides a card
   kind for the day as a whole; threshold suggestions no longer have their own
   on/off switch (they follow the attention section).
 
 - Calendar follow-ups from issue #73 not built yet: a plan overlay (ghost of
-  the original plan vs. moved / missed / extra), an agenda/list mode with
-  weekly totals, search ("my last long run"), a weather icon on the next 7
+  the original plan vs. moved / missed / extra), weekly totals in the agenda list, search ("my last long run"), a weather icon on the next 7
   days, a tablet/desktop split view (month left, day timeline right),
   *Copy day to…*, *Shift week by a day* and *Make recovery week* in the week
   menu (needs a one-tap path to a recovery load curve), a "key sessions only"
@@ -2810,10 +2811,9 @@ card at the top shows the currently cached date range.
   is the way to move them); no
   in-app editing, only import/enable/disable/delete.
 - The workout step syntax sent by **Create in Intervals.icu** is written by
-  the model and validated only server-side: if Intervals.icu can't parse a
-  line it silently keeps it as description text instead of a step. A local
-  parser (or reading back `push_errors` from the created event) would tell
-  the athlete which it was.
+  the model. The workout preview warns about lines that look like steps but
+  weren't read as one; reading back `push_errors` from the created event
+  would also catch what Intervals.icu itself rejects.
 - "Train now" workouts always land on *today* (plan sessions have their own
   dates and can be moved in the plan preview).
 - Plan sessions can't be written to the phone's own calendar yet: the
@@ -2836,13 +2836,10 @@ card at the top shows the currently cached date range.
   synced Intervals.icu event. Regenerating a session's content (e.g. after
   switching provider) needs regenerating the whole plan; a single already-
   sent session can't be re-authored on its own.
-- Persist chat history, so a conversation survives an app restart.
 - Expose the agent's tools over MCP as well as in-process, so an external
   client (Claude Desktop, an editor) could query the same cache. The tool
   layer is already a clean seam for it — `TrainingDataTools` has no Flutter
   dependency beyond loading the reference asset.
-- No token/cost accounting: a Claude conversation bills the user's own
-  account with nothing in the UI saying how much.
 - Local SQLite storage on web (needs a wasm-backed `sqflite` variant).
 - Web has no local cache: `sqflite` needs a wasm-backed implementation
   there, so sync is Android/Windows only (see Sync & local cache).
