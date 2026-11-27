@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../evaluation/performance_curves.dart' show CurveSport;
 import '../evaluation/threshold_suggestions.dart';
+import '../util/clock.dart';
 
 /// Threshold suggestions the athlete dismissed, per sport and direction —
 /// nothing secret, so this is ordinary `shared_preferences`, same pattern
@@ -71,7 +72,7 @@ class ThresholdDismissalsStore extends ChangeNotifier {
       ..._dismissals,
       _storageKey(sport, direction): ThresholdDismissal(
         candidateValue: candidateValue,
-        at: DateTime.now(),
+        at: clockNow(),
       ),
     };
     notifyListeners();

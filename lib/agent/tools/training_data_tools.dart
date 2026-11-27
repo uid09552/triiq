@@ -38,6 +38,7 @@ import '../agent_memory.dart';
 import 'app_feature_tools.dart';
 import 'plan_assistant_tools.dart';
 import 'season_tools.dart';
+import '../../util/clock.dart';
 
 /// The tools the training agent can call.
 ///
@@ -98,7 +99,7 @@ class TrainingDataTools {
        _proposals = proposals ?? PlanProposals.instance,
        _syncStateRepository = syncStateRepository ?? SyncStateRepository(),
        _syncService = syncService ?? SyncService(),
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _loadTrainingGuidance =
            loadTrainingGuidance ?? _loadTrainingGuidanceAsset,
        _knowledgeLibrary =

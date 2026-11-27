@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../plan/proposal_safety.dart' show RedFlag;
+import '../plan/proposal_safety.dart' show DietConcern, RedFlag;
 import 'plan_proposals.dart';
 import 'training_agent.dart' show AgentReplyBuffer;
 import 'usage.dart';
@@ -56,6 +56,10 @@ class TranscriptMessage {
   /// that call for a doctor. Shown as a card under their message.
   final redFlags = <RedFlag>[];
 
+  /// Set on a trainer reply that set a calorie or weight target, a deficit
+  /// or fasting: a care note is shown under it.
+  final dietConcerns = <DietConcern>[];
+
   Map<String, dynamic> toJson() => {
     'fromUser': fromUser,
     'text': text,
@@ -68,6 +72,7 @@ class TranscriptMessage {
     'dataAsOf': dataAsOf?.toIso8601String(),
     'stopped': stopped,
     'redFlags': [for (final f in redFlags) f.name],
+    'diet': [for (final d in dietConcerns) d.name],
     'proposals': [for (final p in proposals) ?proposalToJson(p)],
   };
 
@@ -99,6 +104,10 @@ class TranscriptMessage {
     for (final n in json['redFlags'] as List? ?? const []) {
       final flag = RedFlag.values.asNameMap()['$n'];
       if (flag != null) m.redFlags.add(flag);
+    }
+    for (final n in json['diet'] as List? ?? const []) {
+      final d = DietConcern.values.asNameMap()['$n'];
+      if (d != null) m.dietConcerns.add(d);
     }
     m.buffer.text = text;
     for (final raw in json['proposals'] as List? ?? const []) {

@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import '../client/intervalls/intervalls_client.dart';
 import '../data/db/app_database.dart';
 import '../data/intervals_session.dart';
+import '../util/clock.dart';
 
 /// One GPS fix of an activity's track.
 class RoutePoint {
@@ -161,7 +162,7 @@ class ActivityRouteRepository {
     await db.insert('activity_streams', {
       'activity_id': _key(activityId),
       'data': jsonEncode(route.toJson()),
-      'fetched_at': DateTime.now().millisecondsSinceEpoch,
+      'fetched_at': clockNow().millisecondsSinceEpoch,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
     return route;
   }

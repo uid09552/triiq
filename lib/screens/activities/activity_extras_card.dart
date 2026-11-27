@@ -147,7 +147,7 @@ class _ActivityExtrasCardState extends State<ActivityExtrasCard> {
               key: const ValueKey('extras-vi'),
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: color,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(width: 8),

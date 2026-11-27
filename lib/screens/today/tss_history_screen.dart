@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../util/clock.dart';
 
 /// Daily training load (TSS-equivalent) for the last [_days] days against
 /// what was planned for each of them, reading straight from the local
@@ -36,7 +37,7 @@ class _TssHistoryScreenState extends State<TssHistoryScreen> {
   }
 
   Future<void> _load() async {
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final start = today.subtract(
       const Duration(days: TssHistoryScreen._days - 1),
     );
@@ -94,7 +95,7 @@ class _TssHistoryScreenState extends State<TssHistoryScreen> {
     final avgPerDay = _days.isEmpty ? 0 : total / _days.length;
     final avgPerWeek = avgPerDay * 7;
     final selected = _selected != null ? _days[_selected!] : null;
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tssHistoryTitle)),
@@ -195,7 +196,7 @@ class _SummaryTile extends StatelessWidget {
             Text(
               value,
               style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 4),

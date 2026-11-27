@@ -16,6 +16,7 @@ Future<void> showWeekActivitiesSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (sheetContext) => _WeekActivitiesSheet(

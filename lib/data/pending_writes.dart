@@ -13,6 +13,7 @@ import 'intervals_session.dart';
 import 'intervals_workout_service.dart';
 import 'repositories/events_repository.dart';
 import 'repositories/plans_repository.dart';
+import '../util/clock.dart';
 
 /// Whether [error] means "could not reach Intervals.icu" (no network, DNS,
 /// timeout, or no connection set up) — the case the queue exists for — as
@@ -77,7 +78,7 @@ class PendingWritesRepository {
     return db.insert('pending_writes', {
       'kind': kind.name,
       'payload': jsonEncode(payload),
-      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'created_at': clockNow().millisecondsSinceEpoch,
     });
   }
 

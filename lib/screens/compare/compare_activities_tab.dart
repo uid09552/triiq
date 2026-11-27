@@ -257,7 +257,7 @@ class _CompareActivitiesTabState extends State<CompareActivitiesTab> {
             first ? l10n.cmpFirst : l10n.cmpSecond,
             style: const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

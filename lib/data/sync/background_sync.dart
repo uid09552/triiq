@@ -6,6 +6,7 @@ import 'package:workmanager/workmanager.dart';
 
 import 'background_sync_runner.dart';
 import 'sync_settings.dart';
+import '../../util/clock.dart';
 
 const _taskName = 'triiq.nightlySync';
 const _uniqueName = 'triiq.nightlySync.periodic';
@@ -92,7 +93,7 @@ class BackgroundSync {
         _taskName,
         frequency: interval.frequency,
         flexInterval: nightly ? windowLength : null,
-        initialDelay: nightly ? initialDelayFor(DateTime.now()) : Duration.zero,
+        initialDelay: nightly ? initialDelayFor(clockNow()) : Duration.zero,
         constraints: Constraints(
           networkType: NetworkType.connected,
           requiresBatteryNotLow: true,

@@ -30,6 +30,7 @@ Future<TrainingPlan?> previewAndTakePlan(
   final l10n = AppLocalizations.of(context)!;
   final confirmed = await showModalBottomSheet<PlanPreviewResult>(
     context: context,
+    useSafeArea: true,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (_) => PlanPreviewSheet(plan: draft),

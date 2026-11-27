@@ -570,7 +570,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         if (connected)
           Text(
             l10n.obConnected(name ?? '—'),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         const SizedBox(height: 8),
         if (busy) ...[
@@ -807,7 +807,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       Text(
         l10n.obAiConfigured,
         key: const ValueKey('onboarding-ai-configured'),
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(fontWeight: FontWeight.w500),
       ),
     ],
     const SizedBox(height: 16),

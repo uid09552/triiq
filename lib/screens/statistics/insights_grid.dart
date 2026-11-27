@@ -173,10 +173,10 @@ class InsightsGrid extends StatelessWidget {
                   ),
                   child: Material(
                     color: theme.colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       key: ValueKey('insights-${d.id}'),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                       onTap: () => Navigator.of(
                         context,
                       ).push(MaterialPageRoute<void>(builder: d.builder)),

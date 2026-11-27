@@ -586,7 +586,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ollamaLocalHelp =>
-      'Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data.';
+      'Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data. On a laptop or small server, Qwen3 (8B or 14B) did best at tool calling in a published 2025 test; Llama 3 models were much weaker.';
 
   @override
   String get claudeKeySavedMessage => 'Claude API key saved.';
@@ -3572,7 +3572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String anPolarizationIndex(String value) {
-    return 'Polarization index $value';
+    return 'Polarization index $value (above 2 = polarized: mostly easy, some very hard, little in between)';
   }
 
   @override
@@ -7023,4 +7023,240 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get energyCareNote =>
       'Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.';
+
+  @override
+  String get redFlagEating => 'purging, bingeing or not eating';
+
+  @override
+  String get redFlagPregnancy => 'pregnancy';
+
+  @override
+  String get redFlagSeverePain => 'severe or worsening pain';
+
+  @override
+  String get dietNote =>
+      'TriIQ doesn\'t set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor.';
+
+  @override
+  String get feelRpeLabel => 'How hard was this session? (RPE)';
+
+  @override
+  String get feelRpeHint =>
+      '1 very easy, 10 maximal. Saved on the activity in Intervals.icu; the trainer uses it to adjust similar sessions.';
+
+  @override
+  String get missedWhyTitle => 'Why was it missed?';
+
+  @override
+  String get missedWhyBody =>
+      'The answer shapes what happens next: illness and injury mean rest, not catching up.';
+
+  @override
+  String get missedSick => 'Sick';
+
+  @override
+  String get missedInjured => 'Injured or niggle';
+
+  @override
+  String get missedTired => 'Too tired';
+
+  @override
+  String get missedBusy => 'No time';
+
+  @override
+  String get missedTravelling => 'Travelling';
+
+  @override
+  String get missedSkipped => 'Just skipped';
+
+  @override
+  String get missedRestInstead =>
+      'Not while sick or injured: rest instead. Let the session go, and the plan eases back in.';
+
+  @override
+  String get dismissWithReason => 'Dismiss with a reason';
+
+  @override
+  String get dismissNotNow => 'Not now';
+
+  @override
+  String get dismissTooHard => 'Too hard';
+
+  @override
+  String get dismissTooEasy => 'Too easy';
+
+  @override
+  String get dismissLife => 'Clashes with life';
+
+  @override
+  String get dismissOther => 'Other reason';
+
+  @override
+  String get changesTitle => 'Applied changes';
+
+  @override
+  String get changesEmpty =>
+      'Nothing applied yet. Changes you apply from Today, Chat or Plan show up here, each with Revert.';
+
+  @override
+  String get changesRevert => 'Revert';
+
+  @override
+  String get changesReverted => 'Reverted';
+
+  @override
+  String get changesRevertStale =>
+      'Can\'t revert: the plan changed since. Revert later changes first.';
+
+  @override
+  String get changesRevertDone => 'Reverted.';
+
+  @override
+  String changesRevertFailed(String error) {
+    return 'Couldn\'t revert: $error';
+  }
+
+  @override
+  String get moreChangesSubtitle => 'What was applied, with Revert';
+
+  @override
+  String get riskHigh => 'High load ahead';
+
+  @override
+  String get riskCaution => 'Hard days in a row';
+
+  @override
+  String riskFormLow(String form) {
+    return 'projected form $form';
+  }
+
+  @override
+  String riskHardStreak(int count) {
+    return '$count hard days in a row';
+  }
+
+  @override
+  String get healthReasonMode => 'Your chosen mode';
+
+  @override
+  String get modeTitle => 'Change the next days';
+
+  @override
+  String get modeIntro =>
+      'For a few days when life gets in the way. Only these days change; later weeks stay as planned.';
+
+  @override
+  String get modeUnwell => 'Sick or niggle';
+
+  @override
+  String get modeTravel => 'Travel';
+
+  @override
+  String get modeTimeCrunched => 'Short on time';
+
+  @override
+  String modeWindow(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get modeEndHint => 'Tap to change the last day (up to 2 weeks)';
+
+  @override
+  String get modeRest => 'Rest';
+
+  @override
+  String get modeEasy => 'Easy and shorter';
+
+  @override
+  String modeShorter(int minutes) {
+    return 'Max $minutes min';
+  }
+
+  @override
+  String get modeNothingToChange => 'Nothing planned to change in these days.';
+
+  @override
+  String modeChangeRest(int minutes) {
+    return '$minutes min → rest';
+  }
+
+  @override
+  String modeChangeShorter(int from, int to) {
+    return '$from min → $to min easy';
+  }
+
+  @override
+  String get modeAfterNote =>
+      'From the day after, the plan carries on as it was. After illness, ease back in gently.';
+
+  @override
+  String modeApply(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Apply $count changes',
+      one: 'Apply 1 change',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modeApplied(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions changed.',
+      one: '1 session changed.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modePartlyApplied(int done, int total, String error) {
+    return '$done of $total changed, then: $error. Try again for the rest.';
+  }
+
+  @override
+  String aiCommentLine(String text) {
+    return 'AI: $text';
+  }
+
+  @override
+  String get fuellingTitle => 'Fuelling';
+
+  @override
+  String fuellingBody(int low, int high) {
+    return 'About $low–$high g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.';
+  }
+
+  @override
+  String get modelCp => 'CP · critical power';
+
+  @override
+  String get modelWPrime => 'W′ · reserve above CP';
+
+  @override
+  String get modelPmax => 'Pmax · peak power';
+
+  @override
+  String get modelDPrime => 'D′ · distance reserve above CS';
+
+  @override
+  String agendaPlannedItem(String name) {
+    return 'planned $name';
+  }
+
+  @override
+  String agendaDoneItem(String name) {
+    return 'done $name';
+  }
+
+  @override
+  String agendaWeekTotals(int week, String planned, String done) {
+    return 'Week $week · planned $planned h · done $done h';
+  }
+
+  @override
+  String get actPickOne => 'Pick an activity on the left.';
 }

@@ -8,6 +8,7 @@ import '../agent/llm_gateway.dart';
 import '../agent/llm_settings.dart';
 import 'plan_models.dart';
 import 'strength.dart';
+import '../agent/ai_label.dart';
 
 /// Rewrites a generated plan's sessions' `name`, `shortDescription` and
 /// `description` using the athlete's configured chat LLM provider — the
@@ -77,7 +78,7 @@ class SessionContentGenerator {
       : session.copyWith(
           name: content.name,
           shortDescription: content.shortDescription,
-          description: content.description,
+          description: withAiLabel(content.description),
         );
 
   static const _systemPrompt =

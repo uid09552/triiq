@@ -26,6 +26,7 @@ import '../../widgets/stat_tile.dart';
 import '../activities/activities_screen.dart';
 import '../activities/activity_icons.dart';
 import 'insights_grid.dart';
+import '../../util/clock.dart';
 
 /// Training-load trends and volume, all of it read from the local cache:
 /// the CTL/ATL curve over the chosen window, completed-vs-planned load per
@@ -102,7 +103,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Future<void> _load() async {
     if (mounted) setState(() => _loading = true);
 
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final rangeStart = today.subtract(Duration(days: _days - 1));
     final yearStart = DateTime(today.year, 1, 1);
 
@@ -564,7 +565,7 @@ class _SportRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     totals.sport,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Text(

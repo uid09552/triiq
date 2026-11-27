@@ -16,6 +16,7 @@ import '../../season/illness_mode.dart'
 import '../activities/activity_icons.dart';
 import '../calendar/performance_trend_icon.dart';
 import 'readiness_card.dart';
+import '../season/life_mode_sheet.dart';
 
 /// The one thing the hero card's main button does, chosen from the day.
 enum HeroAction {
@@ -250,6 +251,7 @@ class TodayHeroCard extends StatelessWidget {
     final movable = _remaining.isNotEmpty && onMoveToTomorrow != null;
     final choice = await showModalBottomSheet<String>(
       context: context,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (context) => SafeArea(
         child: SingleChildScrollView(
@@ -289,6 +291,12 @@ class TodayHeroCard extends StatelessWidget {
                   onTap: () => Navigator.pop(context, 'intervals'),
                 ),
               ListTile(
+                key: const ValueKey('hero-action-mode'),
+                leading: const Icon(Icons.event_busy_outlined),
+                title: Text(l10n.modeTitle),
+                onTap: () => Navigator.pop(context, 'mode'),
+              ),
+              ListTile(
                 key: const ValueKey('hero-action-customize'),
                 leading: const Icon(Icons.tune),
                 title: Text(l10n.customizeTodayTitle),
@@ -312,6 +320,8 @@ class TodayHeroCard extends StatelessWidget {
         onOpenIntervals?.call();
       case 'customize':
         onCustomize();
+      case 'mode':
+        if (context.mounted) await showLifeModeSheet(context);
     }
   }
 
@@ -629,7 +639,7 @@ class _DateBadge extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
           color: scheme.primaryContainer,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -646,7 +656,7 @@ class _DateBadge extends StatelessWidget {
               '${date.day}',
               style: theme.textTheme.titleMedium?.copyWith(
                 color: scheme.onPrimaryContainer,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 height: 1.1,
               ),
             ),
@@ -688,7 +698,7 @@ class _SessionRow extends StatelessWidget {
 
     Widget row = InkWell(
       onTap: onOpen,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
         child: Row(
@@ -715,7 +725,7 @@ class _SessionRow extends StatelessWidget {
                 children: [
                   Text(
                     event.name ?? event.type ?? l10n.plannedSessionFallback,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -751,7 +761,7 @@ class _SessionRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -852,7 +862,7 @@ class _ResultView extends StatelessWidget {
           InkWell(
             key: ValueKey('hero-result-${a.id}'),
             onTap: () => onOpenActivity(a),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
@@ -879,7 +889,7 @@ class _ResultView extends StatelessWidget {
                       children: [
                         Text(
                           a.name ?? a.type ?? l10n.activityFallback,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -953,7 +963,7 @@ class _TomorrowStrip extends StatelessWidget {
               child: Text(
                 text,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

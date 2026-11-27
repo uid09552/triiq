@@ -8,6 +8,7 @@ import '../chat/ask_trainer.dart';
 import '../statistics/weekly_review_screen.dart';
 import 'calendar_data.dart';
 import 'calendar_level.dart';
+import '../../util/clock.dart';
 
 /// Long-press on a week number (or the week view's ⋯ button): open the
 /// week, its weekly review (weeks that have started), or ask the trainer
@@ -26,7 +27,7 @@ Future<void> showWeekActions(
   final l10n = AppLocalizations.of(context)!;
   final locale = Localizations.localeOf(context).toString();
   final start = dateOnly(monday);
-  final now = dateOnly((today ?? DateTime.now)());
+  final now = dateOnly((today ?? clockNow)());
   final started = !start.isAfter(now);
   final week = isoWeekNumber(start);
   final end = DateTime(start.year, start.month, start.day + 6);
@@ -36,6 +37,7 @@ Future<void> showWeekActions(
 
   final choice = await showModalBottomSheet<String>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (context) => SafeArea(

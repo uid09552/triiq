@@ -19,6 +19,7 @@ import '../season/illness_mode.dart';
 import '../util/dates.dart';
 import 'notification_service.dart';
 import 'notification_settings.dart';
+import '../util/clock.dart';
 
 class BriefingContent {
   const BriefingContent({required this.title, required this.body});
@@ -115,7 +116,7 @@ class MorningBriefingScheduler {
        _readiness = readiness ?? ReadinessService(),
        _fatigue = fatigue ?? FatigueWarningService(),
        _wellness = wellness ?? WellnessRepository(),
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _l10n = l10n ?? currentL10n;
 
   final NotificationSettings _settings;

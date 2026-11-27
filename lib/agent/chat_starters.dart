@@ -4,6 +4,7 @@ import '../data/models/local_wellness.dart';
 import '../data/repositories/activities_repository.dart';
 import '../data/repositories/events_repository.dart';
 import '../data/repositories/wellness_repository.dart';
+import '../util/clock.dart';
 
 /// What the empty chat can say about the athlete's right now.
 class StarterFacts {
@@ -56,9 +57,9 @@ Future<StarterFacts> loadStarterFacts({
 }) async {
   try {
     final today = DateTime(
-      (now ?? DateTime.now()).year,
-      (now ?? DateTime.now()).month,
-      (now ?? DateTime.now()).day,
+      (now ?? clockNow()).year,
+      (now ?? clockNow()).month,
+      (now ?? clockNow()).day,
     );
     final from = _iso(today.subtract(const Duration(days: 7)));
     final to = _iso(today);

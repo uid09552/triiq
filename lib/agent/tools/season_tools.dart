@@ -6,6 +6,7 @@ import '../../season/race_predictor.dart';
 import '../../season/season_service.dart';
 import '../../season/season_timeline.dart';
 import '../../util/dates.dart';
+import '../../util/clock.dart';
 
 /// Read-only season tools for the chat agent: the same fitness forecast,
 /// race calendar, illness mode and race predictor the Season screen shows.
@@ -170,7 +171,7 @@ class SeasonTools {
   /// legs settled. Never fetches streams.
   Future<Map<String, dynamic>> bricks(Map<String, dynamic> args) async {
     final days = ((args['days'] as num?)?.toInt() ?? 60).clamp(1, 365);
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final list = await _activities.getRange(
       isoDate(today.subtract(Duration(days: days))),
       isoDate(today),

@@ -189,7 +189,7 @@ class _DayDot extends StatelessWidget {
         excludeSemantics: true,
         child: InkWell(
           key: ValueKey('ribbon-${isoDate(day)}'),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           onTap: () => MainNavigation.instance.openCalendar(day),
           child: Container(
             constraints: const BoxConstraints(minHeight: 48),
@@ -197,7 +197,7 @@ class _DayDot extends StatelessWidget {
             decoration: isToday
                 ? BoxDecoration(
                     color: scheme.primaryContainer.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   )
                 : null,
             child: Column(
@@ -209,7 +209,7 @@ class _DayDot extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.clip,
                   style: theme.textTheme.labelSmall?.copyWith(
-                    fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                    fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
                     color: isToday
                         ? scheme.onPrimaryContainer
                         : scheme.onSurfaceVariant,

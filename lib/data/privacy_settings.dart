@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../util/clock.dart';
 
 /// The athlete's privacy choices, kept on the device with plain
 /// `shared_preferences`:
@@ -83,7 +84,7 @@ class PrivacySettings extends ChangeNotifier {
       return;
     }
     if (granted) {
-      _aiConsentAt ??= now ?? DateTime.now();
+      _aiConsentAt ??= now ?? clockNow();
       _aiConsentHosts = {..._aiConsentHosts, ...add};
     } else {
       _aiConsentAt = null;

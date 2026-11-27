@@ -13,6 +13,7 @@ import '../../widgets/skeleton.dart';
 import 'compare_route_map.dart' show compareColorA, compareColorB;
 import 'compare_table.dart';
 import '../../widgets/status_message.dart';
+import '../../util/clock.dart';
 
 enum _Cumulative { distance, load, time }
 
@@ -42,7 +43,7 @@ class _ComparePeriodsTabState extends State<ComparePeriodsTab> {
   bool _loading = true;
   List<LocalActivity> _activities = const [];
 
-  DateTime get _end => dateOnly(widget.today ?? DateTime.now());
+  DateTime get _end => dateOnly(widget.today ?? clockNow());
 
   @override
   void initState() {

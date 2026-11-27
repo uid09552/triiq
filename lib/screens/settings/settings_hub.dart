@@ -357,7 +357,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: const Icon(Icons.assistant_navigation),
                 title: Text(
                   l10n.setGuidedSetup,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(l10n.setGuidedSetupSub),
                 trailing: const Icon(Icons.chevron_right),
@@ -376,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   leading: Icon(g.icon),
                   title: Text(
                     g.title(l10n),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   subtitle: Text(g.subtitle(l10n)),
                   trailing: const Icon(Icons.chevron_right),
@@ -395,7 +395,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: const Icon(Icons.info_outline),
                 title: Text(
                   l10n.infoTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(l10n.moreInfoSubtitle),
                 trailing: const Icon(Icons.chevron_right),

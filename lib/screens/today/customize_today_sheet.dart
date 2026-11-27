@@ -22,6 +22,7 @@ Future<void> showCustomizeTodaySheet(
   TodayLayoutSettings layout,
 ) => showModalBottomSheet<void>(
   context: context,
+  useSafeArea: true,
   isScrollControlled: true,
   showDragHandle: true,
   builder: (context) => _CustomizeTodaySheet(layout: layout),

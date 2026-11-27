@@ -8,6 +8,7 @@ import '../../util/dates.dart';
 import '../../widgets/peekable.dart';
 import '../activities/activity_icons.dart';
 import 'year_goals_settings.dart';
+import '../../util/clock.dart';
 
 /// Kilometres per canonical sport (`swim`/`cycle`/`run`) across [activities];
 /// other sports are left out, like the weekly rings.
@@ -62,7 +63,7 @@ class YearGoalsProgress extends StatefulWidget {
 class _YearGoalsProgressState extends State<YearGoalsProgress> {
   Map<String, double> _km = const {};
 
-  DateTime get _now => widget.now ?? DateTime.now();
+  DateTime get _now => widget.now ?? clockNow();
 
   @override
   void initState() {
@@ -195,13 +196,13 @@ class _YearGoalsProgressState extends State<YearGoalsProgress> {
                   const SizedBox(width: 6),
                   Text(
                     label,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
                   Text(
                     '${done.round()} / ${goal.round()} km',
                     style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],

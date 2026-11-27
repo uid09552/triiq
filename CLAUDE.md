@@ -25,12 +25,17 @@ mapped onto Material in `lib/theme/app_theme.dart`. Rules:
 - Take colours from `Theme.of(context).colorScheme` (or `DesignColors`), never
   hard-coded hex values in widgets. Indigo (`primary`) is for interactive
   elements only.
-- Radii from `DesignRadius`: 4 chips/tags, 6 buttons/inputs, 8 panels/menus,
-  12 cards, pill for avatars and status dots. Don't mix them.
+- Radii from `DesignRadius`: 4 tags/badges, 6 buttons/inputs, 8 panels/menus,
+  12 cards/sheets, pill for chips, avatars and status dots (2 for hairline
+  bars). Don't mix them.
+- Data colours (sports, zones, risk, compare) from `DesignData`
+  (Okabe–Ito, colour-blind safe), never indigo.
+- No hex literals, gradients, unbundled weights (600/800/900) or
+  `'monospace'` in widgets: `test/theme/design_guard_test.dart` fails on them.
 - Spacing on the 4 px grid (`DesignSpace`).
 - Fonts: DM Sans for UI text and headings (General Sans is not bundled),
-  JetBrains Mono for code, keys and CLI text. Use `textTheme` styles; at most
-  two weights per screen where possible.
+  JetBrains Mono for code, keys and CLI text (`DesignFonts.code`). Use
+  `textTheme` styles; weights 400 / 500 / 700 only.
 - Flat surfaces: cards rest on a 1 px border; no shadows on static elements.
   No decorative gradients. At most one filled primary button per section.
 - Check light and dark mode for anything new. Dark values are derived from

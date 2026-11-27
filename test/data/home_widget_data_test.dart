@@ -60,6 +60,9 @@ void main() {
     expect(e['w_fitness'], 'CTL 62 · ATL 70');
     expect(e['w_updated'], '07:05');
     expect(e['w_done'], '');
+    // With the app's language, the Form zone is named after the number.
+    final named = d.toEntries(zoneName: (z) => z.name);
+    expect(named['w_form'], '-8 · optimal');
   });
 
   test('nothing planned or no fitness leaves the entries empty', () {

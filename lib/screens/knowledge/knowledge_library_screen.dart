@@ -269,7 +269,7 @@ class _DocumentTile extends StatelessWidget {
                 children: [
                   Text(
                     document.title,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 2),
                   Text(

@@ -5,6 +5,7 @@ import 'knowledge.dart';
 import 'load_curve.dart';
 import 'plan_models.dart';
 import 'strength.dart';
+import '../util/clock.dart';
 
 /// Builds a block of plan weeks from the athlete's goal, recent load, the
 /// load curve and the training knowledge. Deterministic and free of I/O:
@@ -34,7 +35,7 @@ class PlanEngine {
     PlanFailure fail(PlanFailureKind kind, String message) =>
         PlanFailure(kind, message);
 
-    final now = today ?? DateTime.now();
+    final now = today ?? clockNow();
     final monday = start == null ? Goal.defaultStart(now) : startOfWeek(start);
     final invalid = goal.validate(today: now, start: monday);
     if (invalid != null) {

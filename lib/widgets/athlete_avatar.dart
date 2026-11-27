@@ -41,13 +41,6 @@ class AthleteAvatar extends StatelessWidget {
             color: onSurface
                 ? colorScheme.primaryContainer
                 : Colors.white.withValues(alpha: 0.2),
-            gradient: onSurface
-                ? null
-                : LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [colorScheme.primary, colorScheme.tertiary],
-                  ),
           ),
           child: url != null
               ? Image.network(

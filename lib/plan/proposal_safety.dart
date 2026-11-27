@@ -82,7 +82,15 @@ class RampClamp {
 /// tip. Deliberately narrow: it is a safety net for the clearest cases, in
 /// English and German, never a diagnosis. Everything else is left to the
 /// trainer and its instructions.
-enum RedFlag { chestPain, fainting, breathing, palpitations }
+enum RedFlag {
+  chestPain,
+  fainting,
+  breathing,
+  palpitations,
+  disorderedEating,
+  pregnancy,
+  severePain,
+}
 
 final _redFlags = <RedFlag, RegExp>{
   RedFlag.chestPain: RegExp(
@@ -107,10 +115,71 @@ final _redFlags = <RedFlag, RegExp>{
     r'irregular heart|herzrasen|herzstolpern|herzrhythmus',
     caseSensitive: false,
   ),
+  RedFlag.disorderedEating: RegExp(
+    r'\b(purg(e|ed|ing)|binge|binging|bingeing|make myself (throw up|vomit|sick)|'
+    r'laxatives?|starv(e|ing) myself|not eating (at all|for days))\b|'
+    r'erbrechen nach dem essen|mich übergeben|abführmittel|essanfall|'
+    r'fressattacke|hungere|nichts (mehr )?essen',
+    caseSensitive: false,
+  ),
+  RedFlag.pregnancy: RegExp(
+    r"\b(i'?m pregnant|i am pregnant|pregnancy|pregnant)\b|"
+    r'schwanger|schwangerschaft',
+    caseSensitive: false,
+  ),
+  RedFlag.severePain: RegExp(
+    r'(severe|sharp|stabbing|unbearable) pain|pain (keeps getting|getting) worse|'
+    r"can'?t (put weight|walk) on|swollen and (hot|red)|"
+    r'starke(n)? schmerzen|stechende(n)? schmerzen|kann nicht (mehr )?auftreten|'
+    r'schmerz wird schlimmer',
+    caseSensitive: false,
+  ),
 };
 
 /// The red flags [message] mentions, if any.
 List<RedFlag> redFlagsIn(String message) => [
   for (final e in _redFlags.entries)
     if (e.value.hasMatch(message)) e.key,
+];
+
+/// What a trainer reply must not set: calorie or weight targets, deficits,
+/// fasting. Fuelling for training (carbs per hour, race fuelling) is fine.
+/// The check is on the finished reply, in code, because a small model can
+/// ignore the same rule in its prompt.
+enum DietConcern { calorieTarget, deficit, weightLoss, fasting }
+
+final _dietConcerns = <DietConcern, RegExp>{
+  DietConcern.calorieTarget: RegExp(
+    r'\b\d[\d.,]{2,5}\s*(kcal|calories|kalorien|cal)\b[^.\n]{0,24}'
+    r'(per day|a day|each day|daily|/\s*day|pro tag|am tag|täglich|/\s*tag)|'
+    r'(eat|consume|limit (yourself )?to|stay under|aim for|iss|nimm) '
+    r'[^.\n]{0,20}\d[\d.,]{2,5}\s*(kcal|calories|kalorien)',
+    caseSensitive: false,
+  ),
+  DietConcern.deficit: RegExp(
+    r'calori(e|c) deficit|energy deficit|kaloriendefizit|energiedefizit|'
+    r'\bdeficit of \d',
+    caseSensitive: false,
+  ),
+  DietConcern.weightLoss: RegExp(
+    r'\blose \d+([.,]\d+)?\s*(kg|kilos?|lbs?|pounds)|'
+    r'\d+([.,]\d+)?\s*(kg|lbs?|pounds) (per|a|each|/) ?week|'
+    r'weight[- ]loss (target|goal|plan)|race weight target|'
+    r'\d+([.,]\d+)?\s*kg (abnehmen|verlieren|pro woche)|'
+    r'abnehmziel|wettkampfgewicht (erreichen|ziel)',
+    caseSensitive: false,
+  ),
+  DietConcern.fasting: RegExp(
+    r'intermittent fasting|\bfast(ed)? (for|until|training sessions?)|'
+    r'skip (breakfast|meals?|dinner)|'
+    r'intervallfasten|nüchterntraining|mahlzeiten (auslassen|weglassen)|'
+    r'frühstück (auslassen|weglassen)',
+    caseSensitive: false,
+  ),
+};
+
+/// The diet concerns [reply] raises, if any.
+List<DietConcern> dietConcernsIn(String reply) => [
+  for (final e in _dietConcerns.entries)
+    if (e.value.hasMatch(reply)) e.key,
 ];

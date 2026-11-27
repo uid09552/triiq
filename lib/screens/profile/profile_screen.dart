@@ -8,6 +8,7 @@ import '../../widgets/athlete_avatar.dart';
 import '../../widgets/intervals_login.dart';
 import '../../widgets/section_card.dart';
 import '../settings/settings_screen.dart';
+import '../../theme/design_tokens.dart';
 
 /// Profile: Intervals.icu login/connection status, and a link to Settings.
 ///
@@ -87,14 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 28),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [colorScheme.primary, colorScheme.tertiary],
-                  ),
-                ),
+                decoration: inkDecoration(context),
                 child: Column(
                   children: [
                     restoring
@@ -242,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   title: Text(
                     l10n.titleSettings,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(

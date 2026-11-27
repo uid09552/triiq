@@ -16,6 +16,7 @@ import '../../agent/llm_settings.dart';
 import '../../agent/plan_proposals.dart';
 import '../../agent/training_agent.dart';
 import '../../l10n/app_localizations.dart';
+import '../../theme/design_tokens.dart';
 import '../../notifications/app_lifecycle_tracker.dart';
 import '../../notifications/notification_service.dart';
 import '../../notifications/notification_settings.dart';
@@ -26,6 +27,8 @@ import '../settings/ai_consent.dart';
 import '../settings/settings_screen.dart';
 import 'navigation_card.dart';
 import 'proposal_card.dart';
+import '../../season/life_modes.dart';
+import '../season/life_mode_sheet.dart';
 
 /// Chat with the training-analysis agent about your Intervals.icu data.
 ///
@@ -323,7 +326,13 @@ class _ChatScreenState extends State<ChatScreen> {
             text: describeAgentError(error, AppLocalizations.of(context)!),
           ),
         );
-      } else if (reply.text.isEmpty) {
+      }
+      if (!reply.fromUser && reply.text.isNotEmpty && !reply.isError) {
+        reply.dietConcerns
+          ..clear()
+          ..addAll(dietConcernsIn(reply.text));
+      }
+      if (error == null && reply.text.isEmpty) {
         if (reply.stopped) {
           _messages.remove(reply);
         } else {
@@ -529,14 +538,7 @@ class _EmptyState extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [colorScheme.primary, colorScheme.tertiary],
-                ),
-                shape: BoxShape.circle,
-              ),
+              decoration: inkDecoration(context, shape: BoxShape.circle),
               child: const Icon(
                 Icons.auto_awesome,
                 color: Colors.white,
@@ -628,16 +630,19 @@ class _EmptyState extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final (key, label, text) in [
-                    ('sick', l10n.chipSick, l10n.chipSickText),
-                    ('travel', l10n.chipTravel, l10n.chipTravelText),
-                    ('short', l10n.chipShortOnTime, l10n.chipShortText),
+                  // Each opens the matching mode: pick the days, see the
+                  // changes, apply them (sessions after the window stay).
+                  for (final (key, label, mode) in [
+                    ('sick', l10n.chipSick, LifeMode.unwell),
+                    ('travel', l10n.chipTravel, LifeMode.travel),
+                    ('short', l10n.chipShortOnTime, LifeMode.timeCrunched),
                   ])
                     ActionChip(
                       key: ValueKey('chip-$key'),
                       avatar: const Icon(Icons.bolt, size: 16),
                       label: Text(label),
-                      onPressed: () => onSuggestion(text),
+                      onPressed: () =>
+                          showLifeModeSheet(context, initial: mode),
                     ),
                 ],
               ),
@@ -702,16 +707,11 @@ class _ChatBubble extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: fromUser || message.isError
-            ? null
-            : LinearGradient(
-                colors: [colorScheme.primary, colorScheme.tertiary],
-              ),
         color: message.isError
             ? colorScheme.errorContainer
             : fromUser
             ? colorScheme.surfaceContainerHighest
-            : null,
+            : inkDecoration(context).color,
       ),
       child: Icon(
         message.isError
@@ -739,8 +739,8 @@ class _ChatBubble extends StatelessWidget {
               ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
+            topLeft: const Radius.circular(12),
+            topRight: const Radius.circular(12),
             bottomLeft: Radius.circular(fromUser ? 16 : 4),
             bottomRight: Radius.circular(fromUser ? 4 : 16),
           ),
@@ -835,6 +835,7 @@ class _ReplyContent extends StatelessWidget {
           ),
         if (message.text.isNotEmpty || message.switchNotes.isEmpty)
           MarkdownReply(text: message.text),
+        if (message.dietConcerns.isNotEmpty) const _DietNote(),
         if (message.text.isNotEmpty) _ReplyMeta(message: message),
         if (answeredBy != null && message.text.isNotEmpty)
           Padding(
@@ -1017,6 +1018,9 @@ class _RedFlagCard extends StatelessWidget {
       RedFlag.fainting => l10n.redFlagFainting,
       RedFlag.breathing => l10n.redFlagBreathing,
       RedFlag.palpitations => l10n.redFlagPalpitations,
+      RedFlag.disorderedEating => l10n.redFlagEating,
+      RedFlag.pregnancy => l10n.redFlagPregnancy,
+      RedFlag.severePain => l10n.redFlagSeverePain,
     };
     return Card(
       key: const ValueKey('red-flag-card'),
@@ -1062,3 +1066,43 @@ class _RedFlagCard extends StatelessWidget {
 
 String _dayName(BuildContext context, DateTime d) =>
     DateFormat.EEEE(Localizations.localeOf(context).toString()).format(d);
+
+/// Under a reply that set a calorie or weight target, a deficit or
+/// fasting: TriIQ does not give diet targets, whatever the model wrote.
+class _DietNote extends StatelessWidget {
+  const _DietNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Container(
+      key: const ValueKey('diet-note'),
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(DesignRadius.panel),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.no_food_outlined,
+            size: 20,
+            color: theme.colorScheme.onTertiaryContainer,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.dietNote,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onTertiaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

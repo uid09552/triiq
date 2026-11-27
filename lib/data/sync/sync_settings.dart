@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../util/clock.dart';
 
 /// How often the closed-app background sync runs (Android, WorkManager).
 /// [nightly] is the original behaviour and the default.
@@ -192,7 +193,7 @@ class SyncSettings extends ChangeNotifier {
     String result, {
     required bool failed,
   }) async {
-    backgroundLastRunAt = DateTime.now();
+    backgroundLastRunAt = clockNow();
     backgroundLastResult = result;
     backgroundFailures = failed ? backgroundFailures + 1 : 0;
     notifyListeners();

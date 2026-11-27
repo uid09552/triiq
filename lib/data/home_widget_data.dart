@@ -14,6 +14,11 @@ import 'planned_items.dart';
 import 'repositories/activities_repository.dart';
 import 'repositories/wellness_repository.dart';
 import '../util/dates.dart';
+import 'dart:ui' show Locale, PlatformDispatcher;
+import '../evaluation/form_zone.dart';
+import '../l10n/app_localizations.dart';
+import '../locale_controller.dart';
+import '../util/clock.dart';
 
 /// What the Android home-screen widget shows, as plain strings and numbers
 /// (the native side only lays them out).
@@ -68,7 +73,14 @@ class HomeWidgetData {
   /// The widget's storage entries. [show] picks the blocks to display
   /// (default: all): a hidden block's text is left empty and its
   /// `w_show_*` flag is `0`, which the native side uses to drop the view.
-  Map<String, String> toEntries({HomeWidgetSettings? show}) {
+  ///
+  /// [zoneName] names the Form zone after the number ("−12 · Optimal");
+  /// without it only the number shows.
+  Map<String, String> toEntries({
+    HomeWidgetSettings? show,
+    String Function(FormZone zone)? zoneName,
+  }) {
+    final zone = formZoneOf(ctl, atl);
     final sessionsOn = show?.showSessions ?? true;
     final doneOn = show?.showDone ?? true;
     final formOn = show?.showForm ?? true;
@@ -90,6 +102,7 @@ class HomeWidgetData {
       'w_done': doneOn && doneLoad > 0 ? '$doneLoad TSS' : '',
       'w_form': formOn && form != null
           ? '${form! >= 0 ? '+' : ''}${form!.round()}'
+                '${zone == null || zoneName == null ? '' : ' · ${zoneName(zone)}'}'
           : '',
       'w_fitness': fitnessOn && ctl != null && atl != null
           ? 'CTL ${ctl!.round()} · ATL ${atl!.round()}'
@@ -188,7 +201,7 @@ class HomeWidgetUpdater {
        _planned = planned ?? PlannedItemsRepository(hidePendingDeletes: false),
        _activities = activities ?? ActivitiesRepository(),
        _wellness = wellness ?? WellnessRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   static const androidName = 'TriiqWidgetProvider';
 
@@ -200,6 +213,24 @@ class HomeWidgetUpdater {
   final DateTime Function() _clock;
 
   static bool get supported => !kIsWeb && Platform.isAndroid;
+
+  /// The app's language, also from a background isolate; `null` if it
+  /// can't be read (then the widget shows the number only).
+  static Future<AppLocalizations?> _l10n() async {
+    try {
+      final controller = LocaleController.instance;
+      await controller.load();
+      final locale = controller.locale ?? PlatformDispatcher.instance.locale;
+      return lookupAppLocalizations(
+        AppLocalizations.supportedLocales.firstWhere(
+          (l) => l.languageCode == locale.languageCode,
+          orElse: () => const Locale('en'),
+        ),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<HomeWidgetData> load() async {
     final now = _clock();
@@ -241,7 +272,14 @@ class HomeWidgetUpdater {
     try {
       final data = await load();
       if (!_settings.isLoaded) await _settings.load();
-      for (final e in data.toEntries(show: _settings).entries) {
+      final l10n = await _l10n();
+      for (final e
+          in data
+              .toEntries(
+                show: _settings,
+                zoneName: l10n == null ? null : (z) => formZoneName(l10n, z),
+              )
+              .entries) {
         await HomeWidget.saveWidgetData<String>(e.key, e.value);
       }
       await HomeWidget.updateWidget(androidName: androidName);
@@ -250,3 +288,12 @@ class HomeWidgetUpdater {
     }
   }
 }
+
+/// The Form zone's name as Today shows it.
+String formZoneName(AppLocalizations l10n, FormZone zone) => switch (zone) {
+  FormZone.transition => l10n.formStateTransition,
+  FormZone.fresh => l10n.formStateFresh,
+  FormZone.grey => l10n.formStateGrey,
+  FormZone.optimal => l10n.formStateOptimal,
+  FormZone.highRisk => l10n.formStateHighRisk,
+};

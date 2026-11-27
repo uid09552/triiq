@@ -5,6 +5,7 @@ import '../../evaluation/period_stats.dart';
 import '../../evaluation/year_stats_service.dart';
 import '../../util/dates.dart';
 import 'calendar_data.dart';
+import '../../util/clock.dart';
 
 /// One month as the header summary reads it, plus its sports.
 class MonthStats {
@@ -60,7 +61,7 @@ class PeriodStatsLoader {
        _planned = planned ?? PlannedItemsRepository(),
        _wellness = wellness ?? WellnessRepository(),
        _years = years ?? YearStatsService.instance,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final ActivitiesRepository _activities;
   final PlannedItemsRepository _planned;

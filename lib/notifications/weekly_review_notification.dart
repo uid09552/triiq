@@ -19,6 +19,7 @@ import 'morning_briefing.dart' show BriefingContent, MorningBriefingScheduler;
 import 'notification_service.dart';
 import 'notification_settings.dart';
 import 'notification_taps.dart';
+import '../util/clock.dart';
 
 String _signed(num v) {
   final r = v.round();
@@ -117,7 +118,8 @@ BriefingContent composeWeeklyReview({
     if (fitness.isNotEmpty) fitness,
     if (readiness.isNotEmpty) readiness,
     ?next,
-    if (comment != null && comment.trim().isNotEmpty) comment.trim(),
+    if (comment != null && comment.trim().isNotEmpty)
+      l10n.aiCommentLine(comment.trim()),
   ];
   return BriefingContent(
     title: l10n.weeklyReviewNotificationTitle(range),
@@ -217,7 +219,7 @@ class WeeklyReviewScheduler {
        _notifications = notifications ?? NotificationService.instance,
        _loaderOverride = loader,
        _comment = comment ?? WeeklyReviewComment(),
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _l10n = l10n ?? MorningBriefingScheduler.currentL10n;
 
   final NotificationSettings _settings;

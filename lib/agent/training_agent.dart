@@ -15,6 +15,7 @@ import 'plan_proposals.dart';
 import 'system_prompt.dart';
 import 'usage.dart';
 import 'tools/training_data_tools.dart';
+import '../util/clock.dart';
 
 /// Something the agent did while answering, streamed to the UI as it
 /// happens so a multi-step answer doesn't look like a hang.
@@ -69,10 +70,14 @@ class AgentToolStarted extends AgentEvent {
 
 /// The tool returned (or failed — [failed] says which).
 class AgentToolFinished extends AgentEvent {
-  const AgentToolFinished(this.name, {required this.failed});
+  const AgentToolFinished(this.name, {required this.failed, this.output});
 
   final String name;
   final bool failed;
+
+  /// What the tool returned (JSON text), for checks such as the model
+  /// evaluation suite; the chat does not show it.
+  final String? output;
 }
 
 /// A tool registered a change for the athlete to apply or dismiss. Emitted
@@ -150,7 +155,7 @@ class TrainingAgent {
   }) : _settings = settings ?? LlmSettings.instance,
        _session = session ?? IntervalsSession.instance,
        _tools = tools ?? TrainingDataTools(),
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _proposals = proposals ?? PlanProposals.instance,
        _memory = memory ?? AgentMemoryStore.instance,
        _gateway =
@@ -330,7 +335,7 @@ class TrainingAgent {
             name: call.name,
           ),
         );
-        yield AgentToolFinished(call.name, failed: failed);
+        yield AgentToolFinished(call.name, failed: failed, output: result);
         if (!failed) {
           for (final proposal in _proposalsIn(result)) {
             yield AgentProposal(proposal);

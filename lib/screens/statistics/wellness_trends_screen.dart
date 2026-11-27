@@ -11,6 +11,7 @@ import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/status_message.dart';
+import '../../util/clock.dart';
 
 /// HRV, resting HR, sleep and weight over 30 days to a year: the daily
 /// values, their 7-day average and the shaded band the athlete normally sits
@@ -36,7 +37,7 @@ class _WellnessTrendsScreenState extends State<WellnessTrendsScreen> {
   bool _loading = true;
   List<LocalWellness> _records = const [];
 
-  DateTime get _end => dateOnly(widget.today ?? DateTime.now());
+  DateTime get _end => dateOnly(widget.today ?? clockNow());
 
   @override
   void initState() {

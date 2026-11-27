@@ -13,6 +13,7 @@ import '../screens/calendar/performance_trend_icon.dart';
 import '../screens/today/readiness_card.dart'
     show readinessColor, readinessLevelLabel;
 import '../util/dates.dart';
+import '../util/clock.dart';
 
 /// Reads what a day holds from the local cache — never the network — for a
 /// [DayPeek]. Planned items come from [PlannedItemsRepository], the same
@@ -24,7 +25,7 @@ class DayPeekSource {
     DateTime Function()? clock,
   }) : _planned = planned,
        _activities = activities,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final PlannedItemsRepository? _planned;
   final ActivitiesRepository? _activities;
@@ -151,7 +152,7 @@ class _DayPeekState extends State<DayPeek> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -315,7 +316,7 @@ class _Row extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 if (detail.isNotEmpty)
@@ -408,7 +409,7 @@ class _DayPeekLoaderState extends State<_DayPeekLoader> {
             ).format(widget.day),
             style: Theme.of(
               context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           );
         }
         return DayPeek(

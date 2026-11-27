@@ -88,7 +88,7 @@ class ReadinessPeek extends StatelessWidget {
               child: Text(
                 title,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -100,7 +100,7 @@ class ReadinessPeek extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: ratingColor.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   ratingLabel,

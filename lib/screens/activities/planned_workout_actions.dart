@@ -16,6 +16,7 @@ import '../../plan/plan_changes.dart';
 import '../../plan/plan_models.dart';
 import '../../l10n/app_localizations.dart';
 import '../../util/calendar_export.dart';
+import '../../util/clock.dart';
 
 /// What you can do with a planned session, shared by the places that offer
 /// it: the calendar's day list and the planned-workout detail screen.
@@ -230,7 +231,7 @@ Future<void> addPlannedWorkoutToGoogleCalendar(
   final launched = await launchGoogleCalendarEvent(
     title: plannedWorkoutTitle(l10n, event),
     description: event.description ?? '',
-    start: event.startsAt ?? DateTime.now(),
+    start: event.startsAt ?? clockNow(),
     // No prescribed duration: an hour is the honest default for a block on
     // a calendar, and the athlete can drag it afterwards.
     duration: Duration(

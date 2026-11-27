@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../util/dates.dart';
+import 'push_budget.dart';
 
 /// A tapped notification's payload, handed from the platform callback to
 /// the app's navigator (wired in `main.dart`), same hand-off shape as
@@ -18,6 +19,7 @@ class NotificationTaps extends ChangeNotifier {
 
   void deliver(String? payload) {
     if (payload == null || payload.isEmpty) return;
+    PushBudget.instance.opened();
     _pending = payload;
     notifyListeners();
   }
@@ -42,3 +44,14 @@ DateTime? weeklyReviewWeekOf(String payload) {
   if (!payload.startsWith(_weeklyReviewPrefix)) return null;
   return DateTime.tryParse(payload.substring(_weeklyReviewPrefix.length));
 }
+
+const _openPrefix = 'open:';
+
+/// The payload that opens the app page [destinationId] (an id from
+/// `appDestinations`, e.g. `tab.chat`, `tab.today`, `more.sync`).
+String openPayload(String destinationId) => '$_openPrefix$destinationId';
+
+/// The destination an [openPayload] points at, or `null`.
+String? openTargetOf(String payload) => payload.startsWith(_openPrefix)
+    ? payload.substring(_openPrefix.length)
+    : null;

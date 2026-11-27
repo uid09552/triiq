@@ -29,6 +29,8 @@ import '../settings/settings_screen.dart';
 import '../plan/plan_labels.dart';
 import 'planned_session_card.dart';
 import 'strength_target_chips.dart';
+import '../../agent/ai_label.dart';
+import '../../util/clock.dart';
 
 enum _Intensity { recovery, endurance, intervals }
 
@@ -219,7 +221,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 
   /// The day the session is for — today, or e.g. tomorrow when opened from
   /// a recovery hint.
-  DateTime get _targetDay => (widget.today ?? DateTime.now)();
+  DateTime get _targetDay => (widget.today ?? clockNow)();
 
   /// Facts about the target day's and the next day's TSS, handed to the agent
   /// with every proposal. Empty until loaded.
@@ -291,7 +293,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     strengthTargets: _strengthTargets,
   );
 
-  bool get _isTargetToday => isoDate(_targetDay) == isoDate(DateTime.now());
+  bool get _isTargetToday => isoDate(_targetDay) == isoDate(clockNow());
 
   /// The session an alternative is asked for: the selected one of today's,
   /// or `null` when nothing is planned.
@@ -299,7 +301,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
       _todays.isEmpty ? null : _todays[_selected.clamp(0, _todays.length - 1)];
 
   Future<void> _loadTodays() async {
-    final now = (widget.today ?? DateTime.now)();
+    final now = (widget.today ?? clockNow)();
     List<LocalEvent> items;
     try {
       items = (await _plannedItems.getByDate(
@@ -462,7 +464,21 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
 
     if (!mounted) return;
     setState(() => _publishing = false);
-    final proposed = draft;
+    // What the model wrote is labelled as such before it goes anywhere.
+    final proposed = draft == null
+        ? null
+        : PlannedWorkoutDraft(
+            name: draft.name,
+            sport: draft.sport,
+            description: withAiLabel(draft.description),
+            date: draft.date,
+            durationSeconds: draft.durationSeconds,
+            load: draft.load,
+            indoor: draft.indoor,
+            tags: draft.tags,
+            externalId: draft.externalId,
+            startsAt: draft.startsAt,
+          );
     if (proposed == null) {
       _showMessage(l10n.couldNotStructureWorkout);
       return;
@@ -471,6 +487,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     final reference = _reference;
     final mode = await showModalBottomSheet<_CreateMode>(
       context: context,
+      useSafeArea: true,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => _WorkoutPreviewSheet(

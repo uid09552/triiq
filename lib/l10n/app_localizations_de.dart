@@ -596,7 +596,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get ollamaLocalHelp =>
-      'Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen.';
+      'Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen. Auf einem Laptop oder kleinen Server schnitt Qwen3 (8B oder 14B) in einem veröffentlichten Test von 2025 beim Tool-Calling am besten ab; Llama-3-Modelle waren deutlich schwächer.';
 
   @override
   String get claudeKeySavedMessage => 'Claude-API-Schlüssel gespeichert.';
@@ -3606,7 +3606,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String anPolarizationIndex(String value) {
-    return 'Polarisationsindex $value';
+    return 'Polarisationsindex $value (über 2 = polarisiert: meist locker, etwas sehr hart, wenig dazwischen)';
   }
 
   @override
@@ -7080,4 +7080,242 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get energyCareNote =>
       'Trainingskalorien sind Geräteschätzungen, der Grundumsatz fehlt – das ist keine Energiebilanz. Keine Ziele oder Diätratschläge. Bei Ernährungsfragen: Ernährungsberatung oder Arzt.';
+
+  @override
+  String get redFlagEating => 'Erbrechen, Essanfälle oder nicht essen';
+
+  @override
+  String get redFlagPregnancy => 'Schwangerschaft';
+
+  @override
+  String get redFlagSeverePain => 'starke oder zunehmende Schmerzen';
+
+  @override
+  String get dietNote =>
+      'TriIQ setzt keine Kalorien- oder Gewichtsziele, Defizite oder Fasten – egal, was der Trainer oben schreibt. Training richtig zu versorgen ist okay; für Ess- oder Gewichtsziele sprich bitte mit einer Ernährungsberatung oder Ärztin bzw. Arzt.';
+
+  @override
+  String get feelRpeLabel => 'Wie hart war diese Einheit? (RPE)';
+
+  @override
+  String get feelRpeHint =>
+      '1 sehr leicht, 10 maximal. Wird an der Aktivität in Intervals.icu gespeichert; der Trainer passt ähnliche Einheiten daran an.';
+
+  @override
+  String get missedWhyTitle => 'Warum ist sie ausgefallen?';
+
+  @override
+  String get missedWhyBody =>
+      'Die Antwort bestimmt, wie es weitergeht: Krankheit und Verletzung heißen Pause, nicht Nachholen.';
+
+  @override
+  String get missedSick => 'Krank';
+
+  @override
+  String get missedInjured => 'Verletzt oder Wehwehchen';
+
+  @override
+  String get missedTired => 'Zu müde';
+
+  @override
+  String get missedBusy => 'Keine Zeit';
+
+  @override
+  String get missedTravelling => 'Unterwegs';
+
+  @override
+  String get missedSkipped => 'Einfach ausgelassen';
+
+  @override
+  String get missedRestInstead =>
+      'Nicht bei Krankheit oder Verletzung: lieber Pause. Lass die Einheit ausfallen, der Plan steigt sanft wieder ein.';
+
+  @override
+  String get dismissWithReason => 'Mit Grund verwerfen';
+
+  @override
+  String get dismissNotNow => 'Nicht jetzt';
+
+  @override
+  String get dismissTooHard => 'Zu hart';
+
+  @override
+  String get dismissTooEasy => 'Zu leicht';
+
+  @override
+  String get dismissLife => 'Passt nicht in den Alltag';
+
+  @override
+  String get dismissOther => 'Anderer Grund';
+
+  @override
+  String get changesTitle => 'Übernommene Änderungen';
+
+  @override
+  String get changesEmpty =>
+      'Noch nichts übernommen. Änderungen aus Heute, Chat oder Plan erscheinen hier, jeweils mit Rückgängig.';
+
+  @override
+  String get changesRevert => 'Rückgängig';
+
+  @override
+  String get changesReverted => 'Rückgängig gemacht';
+
+  @override
+  String get changesRevertStale =>
+      'Nicht möglich: Der Plan hat sich seitdem geändert. Mach zuerst spätere Änderungen rückgängig.';
+
+  @override
+  String get changesRevertDone => 'Rückgängig gemacht.';
+
+  @override
+  String changesRevertFailed(String error) {
+    return 'Rückgängig nicht möglich: $error';
+  }
+
+  @override
+  String get moreChangesSubtitle => 'Was übernommen wurde, mit Rückgängig';
+
+  @override
+  String get riskHigh => 'Hohe Belastung voraus';
+
+  @override
+  String get riskCaution => 'Harte Tage am Stück';
+
+  @override
+  String riskFormLow(String form) {
+    return 'Form voraussichtlich $form';
+  }
+
+  @override
+  String riskHardStreak(int count) {
+    return '$count harte Tage am Stück';
+  }
+
+  @override
+  String get healthReasonMode => 'Dein gewählter Modus';
+
+  @override
+  String get modeTitle => 'Die nächsten Tage anpassen';
+
+  @override
+  String get modeIntro =>
+      'Für ein paar Tage, an denen der Alltag dazwischenkommt. Nur diese Tage ändern sich; spätere Wochen bleiben wie geplant.';
+
+  @override
+  String get modeUnwell => 'Krank oder Wehwehchen';
+
+  @override
+  String get modeTravel => 'Unterwegs';
+
+  @override
+  String get modeTimeCrunched => 'Wenig Zeit';
+
+  @override
+  String modeWindow(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get modeEndHint =>
+      'Tippen, um den letzten Tag zu ändern (bis 2 Wochen)';
+
+  @override
+  String get modeRest => 'Pause';
+
+  @override
+  String get modeEasy => 'Locker und kürzer';
+
+  @override
+  String modeShorter(int minutes) {
+    return 'Max. $minutes min';
+  }
+
+  @override
+  String get modeNothingToChange =>
+      'In diesen Tagen ist nichts geplant, das sich ändern ließe.';
+
+  @override
+  String modeChangeRest(int minutes) {
+    return '$minutes min → Pause';
+  }
+
+  @override
+  String modeChangeShorter(int from, int to) {
+    return '$from min → $to min locker';
+  }
+
+  @override
+  String get modeAfterNote =>
+      'Ab dem Tag danach läuft der Plan weiter wie bisher. Nach Krankheit sanft wieder einsteigen.';
+
+  @override
+  String modeApply(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Änderungen übernehmen',
+      one: '1 Änderung übernehmen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modeApplied(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einheiten geändert.',
+      one: '1 Einheit geändert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modePartlyApplied(int done, int total, String error) {
+    return '$done von $total geändert, dann: $error. Für den Rest erneut versuchen.';
+  }
+
+  @override
+  String aiCommentLine(String text) {
+    return 'KI: $text';
+  }
+
+  @override
+  String get fuellingTitle => 'Versorgung';
+
+  @override
+  String fuellingBody(int low, int high) {
+    return 'Etwa $low–$high g Kohlenhydrate pro Stunde während dieser Einheit, früh und in kleinen Portionen. Im Training üben – der Darm gewöhnt sich daran. Ein Richtwert für die Trainingsversorgung, kein Diätziel.';
+  }
+
+  @override
+  String get modelCp => 'CP · kritische Leistung';
+
+  @override
+  String get modelWPrime => 'W′ · Reserve über CP';
+
+  @override
+  String get modelPmax => 'Pmax · Spitzenleistung';
+
+  @override
+  String get modelDPrime => 'D′ · Streckenreserve über CS';
+
+  @override
+  String agendaPlannedItem(String name) {
+    return 'geplant $name';
+  }
+
+  @override
+  String agendaDoneItem(String name) {
+    return 'erledigt $name';
+  }
+
+  @override
+  String agendaWeekTotals(int week, String planned, String done) {
+    return 'KW $week · geplant $planned h · erledigt $done h';
+  }
+
+  @override
+  String get actPickOne => 'Wähle links eine Aktivität.';
 }

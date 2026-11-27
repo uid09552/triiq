@@ -13,6 +13,9 @@ import 'calendar_level.dart';
 import 'calendar_moves.dart';
 import 'day_cell_parts.dart';
 import 'day_events.dart';
+import '../../plan/risk_forecast.dart';
+import 'risk_badge.dart';
+import '../../util/clock.dart';
 
 const _maxMarkersPerCell = 3;
 const _weekColumnWidth = 22.0;
@@ -31,6 +34,7 @@ class MonthlyCalendarView extends StatelessWidget {
     required this.onSelect,
     this.dayEventsByDate = const {},
     this.readinessByDate = const {},
+    this.riskByDate = const {},
     this.onLongPress,
     this.onOpenWeek,
     this.onWeekLongPress,
@@ -45,6 +49,9 @@ class MonthlyCalendarView extends StatelessWidget {
 
   /// Readiness for days with wearable data.
   final Map<String, Readiness> readinessByDate;
+
+  /// Days ahead flagged by the load forecast.
+  final Map<String, DayRiskInfo> riskByDate;
 
   /// Long-press on a day, e.g. to offer clearing it.
   final ValueChanged<DateTime>? onLongPress;
@@ -78,7 +85,7 @@ class MonthlyCalendarView extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final firstOfMonth = DateTime(month.year, month.month, 1);
     final (gridStart, _) = calendarRange(CalendarLevel.month, firstOfMonth);
-    final now = dateOnly((today ?? DateTime.now)());
+    final now = dateOnly((today ?? clockNow)());
     final locale = Localizations.localeOf(context).toString();
     // A reference Monday-start week, so the header always reads Mon..Sun.
     final weekdayLabels = [
@@ -87,7 +94,7 @@ class MonthlyCalendarView extends StatelessWidget {
     ];
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
       color: colorScheme.onSurfaceVariant,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     );
 
     return Padding(
@@ -196,6 +203,7 @@ class MonthlyCalendarView extends StatelessWidget {
         dayEvents: dayEvents,
         summary: summary,
         readiness: readiness?.level,
+        risk: date.isAfter(now) ? riskByDate[key] : null,
         hovering: hovering != null,
         compact: compact,
         mover: mover,
@@ -262,6 +270,7 @@ class _DayCell extends StatelessWidget {
     required this.dayEvents,
     required this.summary,
     required this.readiness,
+    this.risk,
     required this.hovering,
     required this.compact,
     required this.mover,
@@ -280,6 +289,7 @@ class _DayCell extends StatelessWidget {
   final List<LocalEvent> dayEvents;
   final DaySummary summary;
   final ReadinessLevel? readiness;
+  final DayRiskInfo? risk;
   final bool hovering;
   final bool compact;
   final CalendarMover? mover;
@@ -365,7 +375,7 @@ class _DayCell extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: isToday
-                              ? FontWeight.w800
+                              ? FontWeight.w700
                               : FontWeight.w500,
                           color: isToday
                               ? colorScheme.primary
@@ -379,8 +389,10 @@ class _DayCell extends StatelessWidget {
                     ),
                   ),
                   SizedBox(
-                    width: 6,
-                    child: readiness == null
+                    width: risk != null ? 10 : 6,
+                    child: risk != null
+                        ? RiskBadge(info: risk!, size: 10)
+                        : readiness == null
                         ? null
                         : ReadinessDot(level: readiness!, size: 6),
                   ),

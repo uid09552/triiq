@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:triiq/client/intervalls/intervalls_client.dart';
+import '../../util/clock.dart';
 
 /// A *planned* calendar entry from Intervals.icu — a prescribed workout, a
 /// race, a note, a rest day. The counterpart to [LocalActivity], which is
@@ -108,7 +109,7 @@ class LocalEvent {
       plannedDistance: event.distance ?? event.distanceTarget,
       indoor: event.indoor ?? false,
       raw: json,
-      syncedAt: DateTime.now(),
+      syncedAt: clockNow(),
     );
   }
 

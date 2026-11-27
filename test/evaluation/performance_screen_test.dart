@@ -162,7 +162,7 @@ void main() {
     // And together they use the card's width.
     final gapBox = tester.getRect(find.byKey(const ValueKey('model-gap')));
     final lastTile = [
-      for (final k in ['model-FTP', 'model-CP', "model-W'", 'model-Pmax'])
+      for (final k in ['model-FTP', 'model-CP', 'model-W′', 'model-Pmax'])
         if (tester.any(find.byKey(ValueKey(k))))
           tester.getRect(find.byKey(ValueKey(k))),
     ].map((r) => r.right).reduce((a, b) => a > b ? a : b);

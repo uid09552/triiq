@@ -9,6 +9,7 @@ import '../../util/intervals_links.dart';
 import '../../widgets/charts/bar_chart.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/stat_tile.dart';
+import '../../util/clock.dart';
 
 /// One week of load: what was completed, what the plan asked for, and how
 /// much of it actually happened.
@@ -58,7 +59,7 @@ class _WeeklyLoadScreenState extends State<WeeklyLoadScreen> {
   }
 
   Future<void> _load() async {
-    final thisWeek = startOfWeek(DateTime.now());
+    final thisWeek = startOfWeek(clockNow());
     final start = thisWeek.subtract(
       Duration(days: 7 * (WeeklyLoadScreen._weeks - 1)),
     );

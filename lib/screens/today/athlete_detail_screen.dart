@@ -9,6 +9,8 @@ import '../../util/dates.dart';
 import '../../widgets/athlete_avatar.dart';
 import '../../widgets/section_card.dart';
 import '../activities/activity_icons.dart';
+import '../../theme/design_tokens.dart';
+import '../../util/clock.dart';
 
 /// Athlete details: who the athlete is (picture, location, age), their body
 /// stats from the latest cached wellness record, and their per-sport
@@ -65,7 +67,7 @@ class _AthleteDetailScreenState extends State<AthleteDetailScreen> {
       await _session.refreshAthlete();
     }
 
-    final today = DateTime.now();
+    final today = clockNow();
     final start = today.subtract(const Duration(days: 365));
     final wellness = await _wellnessRepository.getRange(
       isoDate(start),
@@ -339,14 +341,7 @@ class _ProfileHeader extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colorScheme.primary, colorScheme.tertiary],
-        ),
-      ),
+      decoration: inkDecoration(context),
       child: Row(
         children: [
           const AthleteAvatar(size: 64),
@@ -359,7 +354,7 @@ class _ProfileHeader extends StatelessWidget {
                   session.athleteName ?? l10n.titleAthlete,
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -395,7 +390,7 @@ class _ProfileHeader extends StatelessWidget {
     if (birthday == null || birthday.length < 10) return null;
     final date = DateTime.tryParse(birthday.substring(0, 10));
     if (date == null) return null;
-    final now = DateTime.now();
+    final now = clockNow();
     var years = now.year - date.year;
     final hadBirthday =
         now.month > date.month ||

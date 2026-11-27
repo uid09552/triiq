@@ -16,6 +16,7 @@ import 'data/sync/auto_sync_service.dart';
 import 'data/sync/background_sync.dart';
 import 'data/sync/sync_settings.dart';
 import 'locale_controller.dart';
+import 'navigation/app_destinations.dart';
 import 'navigation/navigation_layout.dart';
 import 'plan/plan_changes.dart';
 import 'notifications/app_lifecycle_tracker.dart';
@@ -25,6 +26,7 @@ import 'notifications/notification_settings.dart';
 import 'notifications/notification_taps.dart';
 import 'notifications/weekly_review_notification.dart';
 import 'screens/statistics/weekly_review_screen.dart';
+import 'agent/plan_proposals.dart';
 import 'agent/usage.dart';
 import 'screens/settings/home_widget_settings.dart';
 import 'screens/settings/weekly_targets_settings.dart';
@@ -77,6 +79,7 @@ void main() {
   // Settings and Today listen and rebuild once it resolves.
   unawaited(WeeklyTargetsSettings.instance.load());
   unawaited(UsageLedger.instance.load());
+  unawaited(AppliedChangesLog.instance.load());
   unawaited(HomeWidgetSettings.instance.load());
   unawaited(YearGoalsSettings.instance.load());
   unawaited(TodayLayoutSettings.instance.load());
@@ -162,6 +165,16 @@ void _routeNotificationTaps() {
     }
     final payload = NotificationTaps.instance.take();
     if (payload == null) return;
+    final target = openTargetOf(payload);
+    if (target != null) {
+      for (final d in appDestinations) {
+        if (d.id == target) {
+          d.open(navigator.context);
+          return;
+        }
+      }
+      return;
+    }
     final week = weeklyReviewWeekOf(payload);
     if (week == null) return;
     unawaited(

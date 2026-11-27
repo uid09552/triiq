@@ -13,6 +13,7 @@ import '../../widgets/peek_cards.dart';
 import '../../widgets/peekable.dart';
 import 'event_editor_screen.dart';
 import 'event_labels.dart';
+import '../../util/clock.dart';
 
 /// Races, notes, holidays and other non-workout calendar entries. They live
 /// in Intervals.icu; this screen creates, edits and deletes them there and
@@ -68,7 +69,7 @@ class _EventsScreenState extends State<EventsScreen> {
     try {
       final events = await _repository.getByCategories(
         editableEventCategories.toSet(),
-        oldest: isoDate(DateTime.now().subtract(SyncService.eventsLookBack)),
+        oldest: isoDate(clockNow().subtract(SyncService.eventsLookBack)),
       );
       if (!mounted) return;
       setState(() {
@@ -130,7 +131,7 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final today = isoDate(DateTime.now());
+    final today = isoDate(clockNow());
     final upcoming = _events.where((e) => e.date.compareTo(today) >= 0);
     final past = _events.where((e) => e.date.compareTo(today) < 0);
     final connected = IntervalsSession.instance.isConnected;
@@ -198,7 +199,7 @@ class _EventsScreenState extends State<EventsScreen> {
           key: ValueKey('event-tile-${event.id}'),
           title: Text(
             event.name ?? eventCategoryLabel(l10n, event.category),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
           subtitle: Text(
             '${eventCategoryLabel(l10n, event.category)} · $range'

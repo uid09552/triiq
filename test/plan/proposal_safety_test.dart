@@ -113,6 +113,17 @@ void main() {
       expect(redFlagsIn('Herzrasen in Ruhe'), [RedFlag.palpitations]);
     });
 
+    test('eating, pregnancy and severe pain', () {
+      expect(redFlagsIn('I purge after big meals'), [RedFlag.disorderedEating]);
+      expect(redFlagsIn('Ich nehme Abführmittel'), [RedFlag.disorderedEating]);
+      expect(redFlagsIn("I'm pregnant, can I still run?"), [RedFlag.pregnancy]);
+      expect(redFlagsIn('Ich bin schwanger'), [RedFlag.pregnancy]);
+      expect(redFlagsIn('sharp pain in my shin, getting worse'), [
+        RedFlag.severePain,
+      ]);
+      expect(redFlagsIn('Ich kann nicht mehr auftreten'), [RedFlag.severePain]);
+    });
+
     test('several at once', () {
       expect(
         redFlagsIn('chest pain and I almost passed out'),
@@ -128,6 +139,8 @@ void main() {
         'Wie fühlt sich meine Form an?',
         'I was out of breath on the hill',
         'My heart rate was high today',
+        'My legs are a bit sore after the long run',
+        'What should I eat before a race?',
       ]) {
         expect(redFlagsIn(text), isEmpty, reason: text);
       }
@@ -141,5 +154,43 @@ void main() {
     expect(back.limited, 435);
     expect(back.raised, isTrue);
     expect(RampClamp.fromJson({'week': 'x'}), isNull);
+  });
+
+  group('diet concerns in a trainer reply', () {
+    test('targets, deficits, weight loss and fasting are caught', () {
+      expect(dietConcernsIn('Aim for 1800 kcal per day this week.'), [
+        DietConcern.calorieTarget,
+      ]);
+      expect(dietConcernsIn('Iss täglich 2000 Kalorien pro Tag.'), [
+        DietConcern.calorieTarget,
+      ]);
+      expect(dietConcernsIn('A small calorie deficit helps.'), [
+        DietConcern.deficit,
+      ]);
+      expect(dietConcernsIn('You could lose 3 kg before the race.'), [
+        DietConcern.weightLoss,
+      ]);
+      expect(dietConcernsIn('0.5 kg per week is realistic'), [
+        DietConcern.weightLoss,
+      ]);
+      expect(dietConcernsIn('Try intermittent fasting on rest days.'), [
+        DietConcern.fasting,
+      ]);
+      expect(dietConcernsIn('Ein Kaloriendefizit von 300 kcal'), [
+        DietConcern.deficit,
+      ]);
+    });
+
+    test('fuelling for training is left alone', () {
+      for (final text in [
+        'Take 60–90 g of carbs per hour on the long ride.',
+        'Your ride burned about 1200 kcal; refuel with carbs and protein.',
+        'Eat a carb-rich dinner the night before.',
+        'Nimm 80 g Kohlenhydrate pro Stunde im Rennen.',
+        'You logged 2400 kcal on average on logged days.',
+      ]) {
+        expect(dietConcernsIn(text), isEmpty, reason: text);
+      }
+    });
   });
 }

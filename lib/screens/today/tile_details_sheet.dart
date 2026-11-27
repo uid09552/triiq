@@ -23,6 +23,7 @@ Future<void> showTileDetailsSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (sheetContext) {
@@ -45,7 +46,7 @@ Future<void> showTileDetailsSheet(
                     value,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],

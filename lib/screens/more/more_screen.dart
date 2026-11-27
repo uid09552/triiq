@@ -12,6 +12,7 @@ import '../events/events_screen.dart';
 import '../info/info_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
 import '../memory/memory_screen.dart';
+import '../plan/applied_changes_screen.dart';
 import '../plan/plan_screen.dart';
 import '../settings/settings_screen.dart';
 import '../season/season_screen.dart';
@@ -54,6 +55,14 @@ final List<MoreEntry> moreEntries = [
     title: (l) => l.trainingPlansTitle,
     subtitle: (l) => l.morePlanSubtitle,
     builder: (_) => const PlanScreen(),
+  ),
+  MoreEntry(
+    id: 'changes',
+    group: MoreGroup.plan,
+    icon: Icons.history,
+    title: (l) => l.changesTitle,
+    subtitle: (l) => l.moreChangesSubtitle,
+    builder: (_) => const AppliedChangesScreen(),
   ),
   MoreEntry(
     id: 'season',
@@ -311,7 +320,7 @@ class DestinationTile extends StatelessWidget {
             leading: Icon(destination.icon, color: theme.colorScheme.primary),
             title: Text(
               destination.title(l10n),
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,7 +400,7 @@ class _MoreTile extends StatelessWidget {
           ),
           child: Icon(icon, color: colorScheme.primary),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         subtitle: subtitle != null ? Text(subtitle!) : null,
         trailing: const Icon(Icons.chevron_right),
       ),

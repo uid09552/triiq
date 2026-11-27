@@ -17,6 +17,7 @@ import '../util/dates.dart';
 import 'plan_changes.dart';
 import 'plan_models.dart';
 import 'plan_writer.dart';
+import '../util/clock.dart';
 
 /// How a replacement went.
 enum ReplaceOutcome {
@@ -116,7 +117,7 @@ class PlanActions {
        _events = events ?? EventsRepository(),
        _activities = activities ?? ActivitiesRepository(),
        _goals = goals ?? GoalStore(),
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _queue = queue ?? PendingWritesService.instance,
        _sendEnabled =
            sendEnabled ?? (() => SyncSettings.instance.sendPlanToIntervals),

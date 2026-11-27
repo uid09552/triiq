@@ -11,6 +11,7 @@ import 'plan_models.dart';
 import 'plan_changes.dart';
 import 'plan_writer.dart';
 import 'session_content.dart';
+import '../util/clock.dart';
 
 /// Everything the Plan screen does, in one place: generate a block from the
 /// cache, store it, write it to Intervals.icu, and take its future part off
@@ -57,7 +58,7 @@ class PlanService {
     DateTime? start,
     DateTime? today,
   }) async {
-    final now = today ?? DateTime.now();
+    final now = today ?? clockNow();
     final monday = start ?? defaultStart(now);
     final loaded = await knowledge.load();
     final inputs = await _inputs.load(monday);
@@ -80,7 +81,7 @@ class PlanService {
     DateTime? start,
     DateTime? today,
   }) async {
-    final now = today ?? DateTime.now();
+    final now = today ?? clockNow();
     final monday = start ?? defaultStart(now);
     final loaded = await knowledge.load();
     final inputs = await _inputs.load(monday);
@@ -102,7 +103,7 @@ class PlanService {
   /// Completed endurance load per plan week (TSS), for target-versus-actual. Weeks
   /// that haven't started have no actual yet.
   Future<List<int?>> actualLoads(TrainingPlan plan, {DateTime? today}) async {
-    final now = dateOnly(today ?? DateTime.now());
+    final now = dateOnly(today ?? clockNow());
     final result = <int?>[];
     for (final week in plan.weeks) {
       if (week.startDate.isAfter(now)) {
@@ -178,7 +179,7 @@ class PlanService {
   }) async {
     final plan = await plans.getCurrent();
     if (plan == null) return (plan: null, count: 0);
-    final cutoff = dateOnly(today ?? DateTime.now());
+    final cutoff = dateOnly(today ?? clockNow());
     final count = plan.sessions
         .where(
           (s) =>
@@ -199,7 +200,7 @@ class PlanService {
   /// Deletes [plan]'s sessions from today on (upstream and locally). The
   /// plan itself is marked removed when nothing of it is left to keep.
   Future<int> removeUpcoming(TrainingPlan plan, {DateTime? today}) async {
-    final removed = await writer.removeFrom(plan, today ?? DateTime.now());
+    final removed = await writer.removeFrom(plan, today ?? clockNow());
     final remaining = await plans.getById(plan.id!);
     if (remaining == null || remaining.sessions.isEmpty) {
       await plans.setStatus(plan.id!, PlanStatus.removed);

@@ -7,6 +7,7 @@ import '../data/db/app_database.dart';
 import '../data/intervals_session.dart';
 import '../util/dates.dart';
 import 'performance_curves.dart' show CurveSport;
+import '../util/clock.dart';
 
 /// Best efforts over time: the best 5 s / 1 min / 5 min / 20 min power (rides)
 /// or the fastest 1 / 5 / 10 km (runs) of every session, from Intervals.icu's
@@ -141,7 +142,7 @@ class BestEffortsRepository {
     this.maxAge = const Duration(hours: 6),
   }) : _database = database ?? AppDatabase.instance,
        _fetch = fetch ?? _fetchFromApi,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final AppDatabase _database;
   final EffortsFetcher _fetch;
@@ -203,7 +204,7 @@ class BestEffortsRepository {
     final session = IntervalsSession.instance;
     final client = session.client;
     if (client == null) throw StateError('Not connected to Intervals.icu.');
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final isRide = sport == CurveSport.ride;
     final ids = [
       if (session.athleteId != null && session.athleteId != '0')

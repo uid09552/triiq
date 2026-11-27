@@ -1109,7 +1109,7 @@ abstract class AppLocalizations {
   /// No description provided for @ollamaLocalHelp.
   ///
   /// In en, this message translates to:
-  /// **'Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data.'**
+  /// **'Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data. On a laptop or small server, Qwen3 (8B or 14B) did best at tool calling in a published 2025 test; Llama 3 models were much weaker.'**
   String get ollamaLocalHelp;
 
   /// No description provided for @claudeKeySavedMessage.
@@ -5825,7 +5825,7 @@ abstract class AppLocalizations {
   /// No description provided for @anPolarizationIndex.
   ///
   /// In en, this message translates to:
-  /// **'Polarization index {value}'**
+  /// **'Polarization index {value} (above 2 = polarized: mostly easy, some very hard, little in between)'**
   String anPolarizationIndex(String value);
 
   /// No description provided for @anIntensityPeriod.
@@ -11444,6 +11444,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.'**
   String get energyCareNote;
+
+  /// No description provided for @redFlagEating.
+  ///
+  /// In en, this message translates to:
+  /// **'purging, bingeing or not eating'**
+  String get redFlagEating;
+
+  /// No description provided for @redFlagPregnancy.
+  ///
+  /// In en, this message translates to:
+  /// **'pregnancy'**
+  String get redFlagPregnancy;
+
+  /// No description provided for @redFlagSeverePain.
+  ///
+  /// In en, this message translates to:
+  /// **'severe or worsening pain'**
+  String get redFlagSeverePain;
+
+  /// No description provided for @dietNote.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ doesn\'t set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor.'**
+  String get dietNote;
+
+  /// No description provided for @feelRpeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How hard was this session? (RPE)'**
+  String get feelRpeLabel;
+
+  /// No description provided for @feelRpeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 very easy, 10 maximal. Saved on the activity in Intervals.icu; the trainer uses it to adjust similar sessions.'**
+  String get feelRpeHint;
+
+  /// No description provided for @missedWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why was it missed?'**
+  String get missedWhyTitle;
+
+  /// No description provided for @missedWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The answer shapes what happens next: illness and injury mean rest, not catching up.'**
+  String get missedWhyBody;
+
+  /// No description provided for @missedSick.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick'**
+  String get missedSick;
+
+  /// No description provided for @missedInjured.
+  ///
+  /// In en, this message translates to:
+  /// **'Injured or niggle'**
+  String get missedInjured;
+
+  /// No description provided for @missedTired.
+  ///
+  /// In en, this message translates to:
+  /// **'Too tired'**
+  String get missedTired;
+
+  /// No description provided for @missedBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'No time'**
+  String get missedBusy;
+
+  /// No description provided for @missedTravelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Travelling'**
+  String get missedTravelling;
+
+  /// No description provided for @missedSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Just skipped'**
+  String get missedSkipped;
+
+  /// No description provided for @missedRestInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Not while sick or injured: rest instead. Let the session go, and the plan eases back in.'**
+  String get missedRestInstead;
+
+  /// No description provided for @dismissWithReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss with a reason'**
+  String get dismissWithReason;
+
+  /// No description provided for @dismissNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get dismissNotNow;
+
+  /// No description provided for @dismissTooHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Too hard'**
+  String get dismissTooHard;
+
+  /// No description provided for @dismissTooEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Too easy'**
+  String get dismissTooEasy;
+
+  /// No description provided for @dismissLife.
+  ///
+  /// In en, this message translates to:
+  /// **'Clashes with life'**
+  String get dismissLife;
+
+  /// No description provided for @dismissOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other reason'**
+  String get dismissOther;
+
+  /// No description provided for @changesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied changes'**
+  String get changesTitle;
+
+  /// No description provided for @changesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing applied yet. Changes you apply from Today, Chat or Plan show up here, each with Revert.'**
+  String get changesEmpty;
+
+  /// No description provided for @changesRevert.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get changesRevert;
+
+  /// No description provided for @changesReverted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverted'**
+  String get changesReverted;
+
+  /// No description provided for @changesRevertStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t revert: the plan changed since. Revert later changes first.'**
+  String get changesRevertStale;
+
+  /// No description provided for @changesRevertDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverted.'**
+  String get changesRevertDone;
+
+  /// No description provided for @changesRevertFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t revert: {error}'**
+  String changesRevertFailed(String error);
+
+  /// No description provided for @moreChangesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What was applied, with Revert'**
+  String get moreChangesSubtitle;
+
+  /// No description provided for @riskHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High load ahead'**
+  String get riskHigh;
+
+  /// No description provided for @riskCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard days in a row'**
+  String get riskCaution;
+
+  /// No description provided for @riskFormLow.
+  ///
+  /// In en, this message translates to:
+  /// **'projected form {form}'**
+  String riskFormLow(String form);
+
+  /// No description provided for @riskHardStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hard days in a row'**
+  String riskHardStreak(int count);
+
+  /// No description provided for @healthReasonMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Your chosen mode'**
+  String get healthReasonMode;
+
+  /// No description provided for @modeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the next days'**
+  String get modeTitle;
+
+  /// No description provided for @modeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'For a few days when life gets in the way. Only these days change; later weeks stay as planned.'**
+  String get modeIntro;
+
+  /// No description provided for @modeUnwell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick or niggle'**
+  String get modeUnwell;
+
+  /// No description provided for @modeTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get modeTravel;
+
+  /// No description provided for @modeTimeCrunched.
+  ///
+  /// In en, this message translates to:
+  /// **'Short on time'**
+  String get modeTimeCrunched;
+
+  /// No description provided for @modeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String modeWindow(String from, String to);
+
+  /// No description provided for @modeEndHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to change the last day (up to 2 weeks)'**
+  String get modeEndHint;
+
+  /// No description provided for @modeRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get modeRest;
+
+  /// No description provided for @modeEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy and shorter'**
+  String get modeEasy;
+
+  /// No description provided for @modeShorter.
+  ///
+  /// In en, this message translates to:
+  /// **'Max {minutes} min'**
+  String modeShorter(int minutes);
+
+  /// No description provided for @modeNothingToChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing planned to change in these days.'**
+  String get modeNothingToChange;
+
+  /// No description provided for @modeChangeRest.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min → rest'**
+  String modeChangeRest(int minutes);
+
+  /// No description provided for @modeChangeShorter.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} min → {to} min easy'**
+  String modeChangeShorter(int from, int to);
+
+  /// No description provided for @modeAfterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From the day after, the plan carries on as it was. After illness, ease back in gently.'**
+  String get modeAfterNote;
+
+  /// No description provided for @modeApply.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Apply 1 change} other{Apply {count} changes}}'**
+  String modeApply(int count);
+
+  /// No description provided for @modeApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 session changed.} other{{count} sessions changed.}}'**
+  String modeApplied(int count);
+
+  /// No description provided for @modePartlyApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} changed, then: {error}. Try again for the rest.'**
+  String modePartlyApplied(int done, int total, String error);
+
+  /// No description provided for @aiCommentLine.
+  ///
+  /// In en, this message translates to:
+  /// **'AI: {text}'**
+  String aiCommentLine(String text);
+
+  /// No description provided for @fuellingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuelling'**
+  String get fuellingTitle;
+
+  /// No description provided for @fuellingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'About {low}–{high} g of carbohydrate per hour during this session, starting early and in small amounts. Practise it in training; your gut adapts. A guide for fuelling training, not a diet target.'**
+  String fuellingBody(int low, int high);
+
+  /// No description provided for @modelCp.
+  ///
+  /// In en, this message translates to:
+  /// **'CP · critical power'**
+  String get modelCp;
+
+  /// No description provided for @modelWPrime.
+  ///
+  /// In en, this message translates to:
+  /// **'W′ · reserve above CP'**
+  String get modelWPrime;
+
+  /// No description provided for @modelPmax.
+  ///
+  /// In en, this message translates to:
+  /// **'Pmax · peak power'**
+  String get modelPmax;
+
+  /// No description provided for @modelDPrime.
+  ///
+  /// In en, this message translates to:
+  /// **'D′ · distance reserve above CS'**
+  String get modelDPrime;
+
+  /// No description provided for @agendaPlannedItem.
+  ///
+  /// In en, this message translates to:
+  /// **'planned {name}'**
+  String agendaPlannedItem(String name);
+
+  /// No description provided for @agendaDoneItem.
+  ///
+  /// In en, this message translates to:
+  /// **'done {name}'**
+  String agendaDoneItem(String name);
+
+  /// No description provided for @agendaWeekTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week} · planned {planned} h · done {done} h'**
+  String agendaWeekTotals(int week, String planned, String done);
+
+  /// No description provided for @actPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an activity on the left.'**
+  String get actPickOne;
 }
 
 class _AppLocalizationsDelegate

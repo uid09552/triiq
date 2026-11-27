@@ -207,22 +207,14 @@ class _MainShellState extends State<MainShell> {
         bottomNavigationBar: wide
             ? null
             : DecoratedBox(
+                // Flat: a 1 px top border instead of a shadow (Design.md).
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
+                  border: Border(
+                    top: BorderSide(color: colorScheme.outlineVariant),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.shadow.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
                 ),
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
+                  borderRadius: BorderRadius.zero,
                   // Long-press anywhere on the bar arranges it; screen
                   // readers get the same as the bar's long-press action.
                   child: Semantics(

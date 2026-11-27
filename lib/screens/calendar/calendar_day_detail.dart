@@ -21,6 +21,7 @@ import 'day_events.dart';
 import '../events/event_editor_screen.dart';
 import '../events/event_labels.dart';
 import 'performance_trend_icon.dart';
+import '../../util/clock.dart';
 
 /// Planned and completed sessions for one selected day, colour-coded the
 /// same way as the grid/list markers and tappable through to full detail.
@@ -74,7 +75,7 @@ class CalendarDayDetail extends StatelessWidget {
   final DateTime Function()? today;
 
   bool _isToday() {
-    final now = (today ?? DateTime.now)();
+    final now = (today ?? clockNow)();
     return now.year == date.year &&
         now.month == date.month &&
         now.day == date.day;
@@ -166,7 +167,7 @@ class CalendarDayDetail extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colorScheme.primary.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             l10n.dayCardToday,
@@ -187,7 +188,7 @@ class CalendarDayDetail extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -403,7 +404,7 @@ class _DayEventRow extends StatelessWidget {
                   Text(
                     event.name ?? eventCategoryLabel(l10n, event.category),
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
                     maxLines: 1,
@@ -413,7 +414,7 @@ class _DayEventRow extends StatelessWidget {
                     '${eventCategoryLabel(l10n, event.category)}$span',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -509,7 +510,7 @@ class _Row extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -578,7 +579,7 @@ class _Row extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
                     maxLines: 1,
@@ -588,7 +589,7 @@ class _Row extends StatelessWidget {
                     subtitle,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -635,6 +636,7 @@ void _showActivityActions(BuildContext context, LocalActivity activity) {
   final l10n = AppLocalizations.of(context)!;
   showModalBottomSheet<void>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     builder: (sheet) => SafeArea(
       child: Column(

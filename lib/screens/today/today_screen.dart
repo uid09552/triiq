@@ -75,6 +75,7 @@ import 'train_now_screen.dart';
 import 'tss_history_screen.dart';
 import 'week_ribbon.dart';
 import 'weekly_load_screen.dart';
+import '../../util/clock.dart';
 
 /// From this content width Today lays its sections out in two columns.
 const todayTwoColumnWidth = 900.0;
@@ -196,7 +197,7 @@ class _TodayScreenState extends State<TodayScreen> {
   int _weekLoad = 0;
   int _weekPlannedLoad = 0;
 
-  DateTime get _now => (widget.clock ?? DateTime.now)();
+  DateTime get _now => (widget.clock ?? clockNow)();
 
   String get _today => isoDate(_now);
 
@@ -836,7 +837,7 @@ class _TodayScreenState extends State<TodayScreen> {
               connected
                   ? (_session.athleteName ?? l10n.connectedLabel)
                   : l10n.notConnected,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             subtitle: Text(
               connected ? _describeAthlete(l10n) : l10n.connectInProfile,
@@ -1484,7 +1485,7 @@ class _PlannedTraining extends StatelessWidget {
                     children: [
                       Text(
                         event.name ?? event.type ?? l10n.plannedSessionFallback,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -1570,7 +1571,7 @@ class _TodayActivities extends StatelessWidget {
               ),
               title: Text(
                 activity.name ?? activity.type ?? l10n.activityFallback,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
               subtitle: Text(
                 [

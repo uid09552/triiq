@@ -17,6 +17,7 @@ import '../../widgets/peek_parts.dart';
 import '../../widgets/skeleton.dart';
 import '../activities/activity_icons.dart';
 import 'load_heatmap_screen.dart' show heatColor;
+import '../../util/clock.dart';
 
 /// What the peeks draw from: the local cache, never the network, so a peek
 /// is instant and works offline.
@@ -49,7 +50,7 @@ class InsightPreviewSource {
   }) : _activities = activities,
        _wellness = wellness,
        _curves = curves,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final ActivitiesRepository? _activities;
   final WellnessRepository? _wellness;
@@ -135,7 +136,7 @@ class _InsightPreviewState extends State<InsightPreview> {
               child: Text(
                 widget.title,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -347,7 +348,7 @@ class _InsightPreviewState extends State<InsightPreview> {
                         color: day.inRange
                             ? heatColor(scheme, map.levelOf(day.tss))
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(3),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                 ],
@@ -583,7 +584,7 @@ class _InsightPreviewState extends State<InsightPreview> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:triiq/client/intervalls/intervalls_client.dart';
+import '../../util/clock.dart';
 
 /// A wellness/load record for a single day, cached from Intervals.icu.
 class LocalWellness {
@@ -38,7 +39,7 @@ class LocalWellness {
       atlLoad: wellness.atlLoad,
       rampRate: wellness.rampRate,
       raw: json,
-      syncedAt: DateTime.now(),
+      syncedAt: clockNow(),
     );
   }
 

@@ -101,7 +101,7 @@ class UsageSection extends StatelessWidget {
                         : formatCost(cost),
                     key: const ValueKey('usage-total'),
                     style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],

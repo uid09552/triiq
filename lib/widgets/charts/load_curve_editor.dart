@@ -334,7 +334,7 @@ class _LoadCurveEditorState extends State<LoadCurveEditor> {
                     color: selected == null
                         ? scheme.onSurfaceVariant
                         : scheme.onSurface,
-                    fontWeight: selected == null ? null : FontWeight.w600,
+                    fontWeight: selected == null ? null : FontWeight.w500,
                   ),
                 ),
               ),

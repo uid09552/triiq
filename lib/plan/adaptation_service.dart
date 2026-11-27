@@ -10,6 +10,7 @@ import '../util/dates.dart';
 import 'plan_adaptation.dart';
 import 'plan_models.dart';
 import 'plan_service.dart';
+import '../util/clock.dart';
 
 /// Dismissed adaptation keys, kept across restarts so a dismissed
 /// suggestion stays dismissed.
@@ -60,7 +61,7 @@ class AdaptationService {
        _planService = planService ?? PlanService(plans: plans, goals: goals),
        _proposals = proposals ?? PlanProposals.instance,
        _dismissed = dismissed ?? DismissedAdaptations(),
-       _clock = clock ?? DateTime.now {
+       _clock = clock ?? clockNow {
     _proposals.onKeyDismissed ??= (key) => _dismissed.add(key);
   }
 

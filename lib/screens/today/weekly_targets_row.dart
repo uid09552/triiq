@@ -158,7 +158,7 @@ class _PressableRingState extends State<_PressableRing> {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           onTap: widget.onTap,
           onLongPress: widget.onLongPress,
           onHighlightChanged: (v) => setState(() => _pressed = v),
@@ -254,7 +254,7 @@ class WeeklyHoursBar extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         ClipRRect(
-          borderRadius: BorderRadius.circular(3),
+          borderRadius: BorderRadius.circular(4),
           child: Container(
             height: 6,
             color: scheme.surfaceContainerHighest,

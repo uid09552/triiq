@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/models/local_activity.dart';
 import '../../util/dates.dart';
 import 'route_card.dart' show hasRouteMap;
+import '../../util/clock.dart';
 
 /// Date presets offered in the Activities filter.
 enum DatePreset { thisWeek, thisMonth, last3Months, custom }
@@ -113,7 +114,7 @@ class ActivityFilter {
 
   List<LocalActivity> apply(List<LocalActivity> all, {DateTime? now}) {
     final q = query.trim().toLowerCase();
-    final range = dateRange(now ?? DateTime.now());
+    final range = dateRange(now ?? clockNow());
     final from = range == null ? null : isoDate(range.start);
     final to = range == null ? null : isoDate(range.end);
     final out = [

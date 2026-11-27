@@ -64,6 +64,7 @@ Future<void> showAddStrengthSheet(
   final isConnected = connected ?? IntervalsSession.instance.isConnected;
   final choice = await showModalBottomSheet<StrengthChoice>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (_) => _AddStrengthSheet(day: day, connected: isConnected),
@@ -196,7 +197,7 @@ class _AddStrengthSheetState extends State<_AddStrengthSheet> {
                         visualDensity: VisualDensity.compact,
                         title: Text(
                           e.name,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         subtitle: Text(e.cue),
                         trailing: Text(

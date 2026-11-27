@@ -14,6 +14,7 @@ import 'calendar_drag.dart';
 import 'calendar_moves.dart';
 import 'day_cell_parts.dart';
 import 'day_events.dart';
+import '../../util/clock.dart';
 
 /// Week list of planned (tertiary colour) vs. completed (primary colour)
 /// trainings, one row per day, each session a block sized by its duration.
@@ -61,7 +62,7 @@ class WeeklyCalendarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final now = dateOnly((today ?? DateTime.now)());
+    final now = dateOnly((today ?? clockNow)());
     final data = CalendarData(
       eventsByDate: eventsByDate,
       activitiesByDate: activitiesByDate,
@@ -140,14 +141,14 @@ class WeeklyCalendarView extends StatelessWidget {
                 ? colorScheme.primary.withValues(alpha: 0.08)
                 : dayFillColor(summary.fill, colorScheme),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               side: isToday || hovering != null
                   ? BorderSide(color: colorScheme.primary, width: 1.5)
                   : BorderSide.none,
             ),
             child: InkWell(
               key: ValueKey('week-day-$key'),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               onTap: () => onSelect(date),
               onLongPress: onLongPress == null
                   ? null
@@ -168,7 +169,7 @@ class WeeklyCalendarView extends StatelessWidget {
                             Text(
                               '${date.day}',
                               style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 color: isToday ? colorScheme.primary : null,
                               ),
                             ),
@@ -199,7 +200,7 @@ class WeeklyCalendarView extends StatelessWidget {
                                   child: Text(
                                     DateFormat.EEEE(locale).format(date),
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),

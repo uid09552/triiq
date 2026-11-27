@@ -7,6 +7,7 @@ import '../../plan/plan_models.dart';
 import '../../plan/plan_service.dart';
 import '../../util/dates.dart';
 import '../plan_proposals.dart';
+import '../../util/clock.dart';
 
 /// The agent's view of the training plan and the proposals it may make on
 /// it. Every number comes from the plan engine and the cache; nothing here
@@ -18,7 +19,7 @@ class PlanAssistantTools {
     DateTime Function()? clock,
     this.events,
   }) : proposals = proposals ?? PlanProposals.instance,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   /// Where sick and injured days are read from, for the move safety check
   /// (default: the local events cache).

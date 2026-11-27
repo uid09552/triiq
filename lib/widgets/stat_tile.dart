@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'hover_preview.dart';
+import '../theme/design_tokens.dart';
 
 /// Which way a metric is heading, for the arrow beside a tile's sparkline.
 enum StatTrend { up, down, flat }
@@ -90,7 +91,7 @@ class StatTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
           child: Column(
@@ -111,7 +112,7 @@ class StatTile extends StatelessWidget {
                 child: Text(
                   value,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                   maxLines: 1,
                 ),
@@ -185,7 +186,7 @@ class _CompactStatTileState extends State<_CompactStatTile> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final accent = widget.accent;
-    const radius = BorderRadius.all(Radius.circular(16));
+    const radius = BorderRadius.all(Radius.circular(12));
 
     return AnimatedScale(
       scale: _pressed ? 0.97 : 1,
@@ -206,13 +207,16 @@ class _CompactStatTileState extends State<_CompactStatTile> {
           border: Border.all(
             color: accent.withValues(alpha: _hovered ? 0.45 : 0.14),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: _hovered ? 0.10 : 0.03),
-              blurRadius: _hovered ? 10 : 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          // Design.md: shadow only on hover, none at rest.
+          boxShadow: _hovered
+              ? const [
+                  BoxShadow(
+                    color: DesignData.hoverShadow,
+                    blurRadius: 30,
+                    offset: Offset(0, 8),
+                  ),
+                ]
+              : null,
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -313,7 +317,7 @@ class _CompactStatTileState extends State<_CompactStatTile> {
                             child: Text(
                               widget.value,
                               style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 height: 1.15,
                               ),
                               maxLines: 1,

@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../util/dates.dart';
 import '../../widgets/charts/line_chart.dart';
 import '../../widgets/section_card.dart';
+import '../../util/clock.dart';
 
 /// The load metrics the Today tiles drill into. Each is a single number per
 /// day, read from the cached Intervals.icu wellness records.
@@ -60,7 +61,7 @@ class _MetricHistoryScreenState extends State<MetricHistoryScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final start = today.subtract(Duration(days: _days - 1));
     final records = await _wellnessRepository.getRange(
       isoDate(start),
@@ -331,7 +332,7 @@ class _SummaryRow extends StatelessWidget {
                         entry.$2,
                         maxLines: 1,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

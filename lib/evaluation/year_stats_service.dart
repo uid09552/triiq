@@ -7,6 +7,7 @@ import '../data/repositories/sync_state_repository.dart';
 import '../data/sync/auto_sync_service.dart';
 import '../util/dates.dart';
 import 'period_stats.dart';
+import '../util/clock.dart';
 
 /// A year's per-sport statistics plus the rows to rank a session against.
 class YearSnapshot {
@@ -31,7 +32,7 @@ class YearStatsService extends ChangeNotifier {
     DateTime Function()? clock,
   }) : _activities = activities,
        _syncState = syncState,
-       _clock = clock ?? DateTime.now,
+       _clock = clock ?? clockNow,
        _invalidation = invalidation {
     _invalidation?.addListener(invalidate);
   }

@@ -77,6 +77,12 @@ athlete can:
 | Durability (Insights → Durability, rides and runs) | ✅ Implemented — how much of your fresh power or pace is left after a lot of work. Intervals.icu only serves two predefined fatigued curves, so the levels are computed in `lib/evaluation/durability.dart` from the sessions' own streams: for rides the best 5 s / 1 min / 5 min / 20 min / 1 h power of efforts that *started after* 1,000 / 2,000 / 3,000 kJ of work, for runs the fastest 1 / 3 / 5 / 10 km after 10 / 20 / 30 km already run, taken across the most recent long sessions (rides ≥ 1,000 kJ or 1.5 h, runs ≥ 10 km; last 90/180/365 days, at most 40 sessions, streams fetched once and cached). The fresh reference is the season curve (else last 42 days) from the Performance curves; the screen plots all levels, shows the value and the share kept per point, and says how many sessions it was based on. Below the line chart a **radar (spider) chart** shows the *share of the fresh value kept*: one axis per duration (rides: 5 s … 1 h) or distance (runs: 1 … 10 km), rings at 25/50/75/100 % (the outer ring is the fresh reference), one semi-transparent polygon per fatigue level told apart by colour, dash pattern and marker shape. A missing point is a gap (never 0) and an axis no visible level has data for is labelled "no data". Tap or hover a vertex or spoke for the value (W or pace), the share kept and the source session, with **Open session**; tap a legend entry to show or hide a level; the table of values sits behind **Show table** (collapsed by default). See *Radar chart* under Charts |
 | Wellness trends (Insights → Wellness trends, or "Longer trends" on the readiness screen) | ✅ Implemented — HRV, resting HR, sleep (hours) and weight over 30/90/180/365 days from the wellness cache (`lib/evaluation/wellness_trends.dart`): the daily values, a 7-day trailing average that carries through missing days, a shaded band of the usual range (median ± 1 MADσ over the period after dropping outliers — the shared robust baseline of `wellness_baseline.dart` — needs 21 values), and latest / 7-day average / change against a week earlier with a below / within / above-range note. Metrics can be hidden in the options sheet; a metric with no data has no card |
 | Energy (Insights → Energy) | ✅ Implemented — read-only calories from the cache (`lib/evaluation/energy_balance.dart`, `lib/screens/statistics/energy_screen.dart`): eaten per day as logged in Intervals.icu wellness (`kcalConsumed`, carbohydrates, protein, fat — usually from a connected food app) next to training calories from activities (`calories`), plus carbs used and taken in during sessions, over 7/28/90 days. Averages of eaten count only logged days. Resting burn is not recorded or estimated, so it is not an energy balance; a hint counts days where training burned more than half of what was logged. No targets, no deficit, no diet advice; a care note points to a dietitian or doctor. The trainer reads the same data with `get_nutrition`, which describes and never sets calorie or weight targets. Nothing new is stored and nothing is logged in TriIQ |
+| Life modes (Today ⋯ → Change the next days; Chat chips) | ✅ Implemented — `lib/season/life_modes.dart`, `lib/screens/season/life_mode_sheet.dart`: *Sick or niggle*, *Travel* or *Short on time* for a window from today (up to 2 weeks), with rest / easy and shorter / max 45 min. Every change is listed before → after and applied in one go through the illness mode's replace/remove path; sessions after the window are never touched (issue #118) |
+| Applied changes (More → Applied changes) | ✅ Implemented — `AppliedChangesLog` (`lib/agent/plan_proposals.dart`) keeps every change applied from a suggestion (Today, Chat, Plan), newest first, on the device (not in backups). Each moved session, swap or load graph can be reverted while nothing else changed the plan since (same fingerprint check as Undo). Missed-session changes ask *why* first (sick, injured, tired, no time, travelling, skipped); sick or injured never moves a session forward. Dismiss has typed reasons (not now, too hard, too easy, clashes with life, other); both reach the trainer with the outcome (issues #115, #116) |
+| Risk badges (Calendar) | ✅ Implemented — `lib/plan/risk_forecast.dart`: the CTL/ATL model run over planned load flags days ahead — *caution* (triangle) for two hard days in a row, *high* (filled circle) for three or projected form in the high-risk zone. Shape and colour; the agenda spells out why (issue #117) |
+| Session feel and fuelling | ✅ Implemented — the *How did it feel* dialog on an activity also asks RPE 1–10 and writes it to the Intervals.icu activity (`icu_rpe`). Planned sessions of 75 min and more show a carbs-per-hour band (30–60 g/h, 60–90 g/h when long or long and hard), fuelling only, no diet targets (`lib/evaluation/session_fuelling.dart`, issues #115, #120) |
+| Notification budget and AI labels | ✅ Implemented — pushes nobody scheduled (background sync found something new) are capped at 1 a day and 3 a week, with back-off after three unopened (`lib/notifications/push_budget.dart`); taps open the matching page (`open:<destination>` payloads). Text an AI wrote that leaves the chat is labelled: session descriptions sent to Intervals.icu end with *AI-written (TriIQ)*, the weekly-review sentence starts with *AI:* (`lib/agent/ai_label.dart`, issue #119) |
+| Trainer reply safety | ✅ Implemented — `dietConcernsIn` (`lib/plan/proposal_safety.dart`) checks each finished reply for calorie targets, deficits, weight-loss goals and fasting (EN/DE) and adds a care note under it; fuelling advice passes. Input red flags also cover purging, pregnancy and severe or worsening pain (issue #112) |
 | Best efforts (Insights → Best efforts, rides and runs) | ✅ Implemented — the best 5 s / 1 min / 5 min / 20 min power (rides) or fastest 1 / 5 / 10 km (runs) of every session over the last year, from Intervals.icu's per-activity curves (`activity-power-curves` / `activity-pace-curves`, `lib/evaluation/best_efforts.dart`; cached 6 h in SQLite, the last copy used offline). One line of the best per 30-day window (12 windows) with a second line of the best of the 90 days up to each, for the effort chosen in the options sheet, and a table of the last 30 days against the best of the 90 days before them with the change (green better, red worse; for pace a lower time is better). The pace response is not documented, so it is parsed defensively and not yet checked against the live API |
 | Load heatmap (Insights → Load heatmap) | ✅ Implemented — daily TSS, one square per day, coloured in five steps against the 90th percentile of training days (`lib/evaluation/load_heatmap.dart`). Three layouts, chosen under the options button and remembered (shared_preferences `heatmap.style`): **Year grid** — the contribution graph, Monday first, cells sized from the available width so a year fits without sideways scrolling; on a narrow phone (360 dp) it turns into weeks-as-rows (seven columns, month labels on the left), and only a tiny width or very large text falls back to scrolling (`HeatmapGridLayout.fit`); **Months** — a small calendar per month, 2–4 across; **Week table** — weeks × weekdays with each week's total (over a bar of its share of the busiest week) and each weekday's total. Colour scale: theme colour or **Viridis** (`heatmap.scale`; ordered so more load always stands out further from the background, in light and dark). Views in `lib/screens/statistics/heatmap_views.dart`. Last 12 months, this year or last year, all sports or swim / ride / run; tap a day for its TSS and sessions; total load, training days, longest streak and busiest week below |
 | Effort profile (activity page, runs and rides) | ✅ Implemented — from the streams the session diagram already loaded (shared in-flight, no extra download): the **variability index** (Intervals.icu's figure for rides, else normalized over average from the stream; steady ≤ 1.05, some surges ≤ 1.15, very variable beyond), a **histogram** of time at power (25 W bands, 50 W for big sprints) or pace (0.25 m/s bands) with a tap readout and the time not pedalling or stopped, and an **interval table** with duration, power or pace, heart rate, **drift** inside the interval (second half against first, intervals of 2 min or more) and **fade** against the first work interval (`lib/evaluation/activity_extras.dart`) |
@@ -837,11 +843,14 @@ agent and More sections below.
 
 ### Theming
 
-`lib/app.dart` defines one Material 3 theme spec — built twice, for
-`Brightness.light` and `Brightness.dark` — from a single seeded
-`ColorScheme` and shared component styling (rounded cards/inputs/nav
-bar/buttons). UI code should pull colors from `Theme.of(context).colorScheme`
-rather than hardcoding `Colors.*`.
+The light and dark themes follow the design system in `Design.md`. Its
+tokens are code in `lib/theme/design_tokens.dart` (`DesignColors`,
+`DesignRadius`, `DesignSpace`, `DesignFonts`) and are mapped onto Material 3
+in `lib/theme/app_theme.dart` (`buildAppTheme`). DM Sans and JetBrains Mono
+are bundled (`assets/fonts/`, OFL). UI code takes colours from
+`Theme.of(context).colorScheme` or the tokens, never hard-coded values; a
+guard test (`test/theme/design_guard_test.dart`) keeps the remaining literals
+from growing.
 
 Which one is active is controlled by `ThemeController`
 (`lib/theme_controller.dart`), a singleton `ChangeNotifier` holding a
@@ -2770,20 +2779,43 @@ Manually pull a range of history into the local cache:
 Each run shows how many wellness/activity records were synced, and the
 card at the top shows the currently cached date range.
 
+### Tested models
+
+The trainer's evaluation suite (`test/eval/trainer_eval_test.dart`, issue
+#114) runs eight fixed athlete scenarios against a real model, when given one
+with `--dart-define=EVAL_PROVIDER=… EVAL_MODEL=… EVAL_KEY=…`
+(`EVAL_BASE_URL=…` for a server). It checks mechanically:
+- the expected tools were called;
+- every number of two or more digits in the reply came from a tool or the
+  question;
+- a calorie question gets no diet target (`dietConcernsIn`);
+- a chest-pain message is referred to a doctor;
+- a missed session gets asked why.
+
+A judge-model rubric (Google's SHARP) is not automated yet.
+
+Record results here, one row per model and date:
+
+| Date | Provider / model | Passed | Notes |
+|---|---|---|---|
+| — | — | — | No run recorded yet |
+
+Default suggestions: Claude Sonnet (hosted), `gpt-oss:120b` on Ollama Cloud.
+On local hardware, Qwen3 8B/14B scored best at tool calling in Docker's 2025
+test of 21 models (F1 0.93 / 0.97). Llama 3.3 70B scored 0.61.
+
 ## 4. Known gaps / next steps
 
 - Today follow-ups from issue #78 not built yet: a compact/comfortable
   density toggle in Customize Today, haptics beyond the light tap on
   "Log how it felt" and the move's selection click, recovery tips on rest
-  days (the hero names the next key session instead), skeleton placeholders
-  instead of the spinner while Today loads, and sending a session to the
+  days (the hero names the next key session instead), and sending a session to the
   watch from *Start* (it opens the steps). The attention stack hides a card
   kind for the day as a whole; threshold suggestions no longer have their own
   on/off switch (they follow the attention section).
 
 - Calendar follow-ups from issue #73 not built yet: a plan overlay (ghost of
-  the original plan vs. moved / missed / extra), an agenda/list mode with
-  weekly totals, search ("my last long run"), a weather icon on the next 7
+  the original plan vs. moved / missed / extra), weekly totals in the agenda list, search ("my last long run"), a weather icon on the next 7
   days, a tablet/desktop split view (month left, day timeline right),
   *Copy day to…*, *Shift week by a day* and *Make recovery week* in the week
   menu (needs a one-tap path to a recovery load curve), a "key sessions only"
@@ -2810,10 +2842,9 @@ card at the top shows the currently cached date range.
   is the way to move them); no
   in-app editing, only import/enable/disable/delete.
 - The workout step syntax sent by **Create in Intervals.icu** is written by
-  the model and validated only server-side: if Intervals.icu can't parse a
-  line it silently keeps it as description text instead of a step. A local
-  parser (or reading back `push_errors` from the created event) would tell
-  the athlete which it was.
+  the model. The workout preview warns about lines that look like steps but
+  weren't read as one; reading back `push_errors` from the created event
+  would also catch what Intervals.icu itself rejects.
 - "Train now" workouts always land on *today* (plan sessions have their own
   dates and can be moved in the plan preview).
 - Plan sessions can't be written to the phone's own calendar yet: the
@@ -2836,13 +2867,10 @@ card at the top shows the currently cached date range.
   synced Intervals.icu event. Regenerating a session's content (e.g. after
   switching provider) needs regenerating the whole plan; a single already-
   sent session can't be re-authored on its own.
-- Persist chat history, so a conversation survives an app restart.
 - Expose the agent's tools over MCP as well as in-process, so an external
   client (Claude Desktop, an editor) could query the same cache. The tool
   layer is already a clean seam for it — `TrainingDataTools` has no Flutter
   dependency beyond loading the reference asset.
-- No token/cost accounting: a Claude conversation bills the user's own
-  account with nothing in the UI saying how much.
 - Local SQLite storage on web (needs a wasm-backed `sqflite` variant).
 - Web has no local cache: `sqflite` needs a wasm-backed implementation
   there, so sync is Android/Windows only (see Sync & local cache).

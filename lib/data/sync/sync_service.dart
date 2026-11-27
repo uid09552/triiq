@@ -9,6 +9,7 @@ import '../repositories/sync_state_repository.dart';
 import '../repositories/wellness_repository.dart';
 import 'sync_scope.dart';
 import 'sync_settings.dart';
+import '../../util/clock.dart';
 
 class SyncResult {
   const SyncResult({
@@ -53,7 +54,7 @@ class SyncService {
   static final DateTime _earliestPossibleDate = DateTime(2000, 1, 1);
 
   Future<SyncResult> syncScope(SyncScope scope) {
-    final today = DateTime.now();
+    final today = clockNow();
     final (oldest, newest) = switch (scope) {
       SyncScope.today => (today, today),
       SyncScope.month => (DateTime(today.year, today.month, 1), today),
@@ -190,7 +191,7 @@ class SyncService {
     if (client == null || athleteId == null) {
       throw StateError('Not connected to Intervals.icu.');
     }
-    final today = DateTime.now();
+    final today = clockNow();
     final oldest = _formatDate(today.subtract(eventsLookBack));
     final newest = _formatDate(today.add(eventsLookAhead));
     final response = await client.getVeranstaltungenApi().listEvents(
@@ -223,7 +224,7 @@ class SyncService {
     final last = (await _syncStateRepository.get(
       _eventsHorizonScope,
     ))?.lastSyncedAt;
-    if (last != null && DateTime.now().difference(last) < maxAge) return;
+    if (last != null && clockNow().difference(last) < maxAge) return;
     await syncEventsHorizon();
   }
 
@@ -231,7 +232,7 @@ class SyncService {
   /// week (for the week's TSS total) plus tomorrow (for tomorrow's planned
   /// session, which falls outside the week when today is Sunday).
   static (DateTime, DateTime) todayWindow([DateTime? now]) {
-    final today = now ?? DateTime.now();
+    final today = now ?? clockNow();
     final startOfWeek = DateTime(
       today.year,
       today.month,
@@ -257,7 +258,7 @@ class SyncService {
   /// fresh from the same round-trip — widened to [todayWindow] when the
   /// current week or tomorrow spills past a month boundary.
   static (DateTime, DateTime) monthWindow([DateTime? now]) {
-    final today = now ?? DateTime.now();
+    final today = now ?? clockNow();
     final (weekStart, weekEnd) = todayWindow(today);
     final firstOfMonth = DateTime(today.year, today.month, 1);
     // Day 0 of the next month is the last day of this one.
@@ -294,12 +295,12 @@ class SyncService {
     if (!_session.isConnected) return false;
 
     final last = _lastRefreshAt;
-    if (last != null && DateTime.now().difference(last) < refreshMinGap) {
+    if (last != null && clockNow().difference(last) < refreshMinGap) {
       return false;
     }
     // Stamped before the fetch, not after: a refresh that fails or times
     // out still counts, so repeated pulls can't hammer a dead connection.
-    _lastRefreshAt = DateTime.now();
+    _lastRefreshAt = clockNow();
 
     await syncRange(oldest, newest).timeout(refreshTimeout);
     return true;
@@ -316,7 +317,7 @@ class SyncService {
   /// the gesture stays fast instead of racing [refreshTimeout] against a
   /// whole month of wellness/activities/events.
   Future<bool> refreshDayWindow() {
-    final today = DateTime.now();
+    final today = clockNow();
     return refreshRange(today, today);
   }
 
@@ -325,7 +326,7 @@ class SyncService {
   Future<void> syncTodayWindowIfMissing() async {
     if (!_session.isConnected) return;
 
-    final today = _formatDate(DateTime.now());
+    final today = _formatDate(clockNow());
     final cached = await _wellnessRepository.getByDate(today);
     if (cached != null) return;
 
@@ -359,8 +360,7 @@ class SyncService {
 
     final state = await _syncStateRepository.get('activities');
     final lastSyncedAt = state?.lastSyncedAt;
-    if (lastSyncedAt != null &&
-        DateTime.now().difference(lastSyncedAt) < maxAge) {
+    if (lastSyncedAt != null && clockNow().difference(lastSyncedAt) < maxAge) {
       return;
     }
 

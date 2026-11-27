@@ -17,6 +17,7 @@ Future<LocalActivity?> pickActivity(
 }) {
   return showModalBottomSheet<LocalActivity>(
     context: context,
+    useSafeArea: true,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (_) => _PickerSheet(

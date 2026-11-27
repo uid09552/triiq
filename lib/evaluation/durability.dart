@@ -6,6 +6,7 @@ import '../util/dates.dart';
 import 'performance_curves.dart';
 import 'session_streams.dart';
 import 'training_analytics.dart' show LoadSport, loadSportOf;
+import '../util/clock.dart';
 
 /// Durability: how much of your fresh power (or pace) is left once you have
 /// already done a lot of work. Intervals.icu only offers two predefined
@@ -277,7 +278,7 @@ class DurabilityLoader {
   }) : _activities = activities ?? ActivitiesRepository(),
        _streams = streams ?? ActivityStreamsRepository(),
        _curves = curves ?? PerformanceCurvesRepository(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? clockNow;
 
   final ActivitiesRepository _activities;
   final ActivityStreamsRepository _streams;

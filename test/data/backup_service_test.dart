@@ -259,6 +259,7 @@ void main() {
       'chat',
       'insights',
       'season',
+      'changes',
       'events',
       'memory',
       'knowledge',

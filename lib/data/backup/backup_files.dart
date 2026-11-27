@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'backup_service.dart';
+import '../../util/clock.dart';
 
 /// Moves a backup between the app and the file system: share sheet on
 /// phones (so it can go to Drive, Files or a mail), save dialog on desktop.
@@ -32,7 +33,7 @@ class BackupFiles {
     final text = _service.encode(
       await _service.export(includeCaches: includeCaches),
     );
-    final name = fileName(DateTime.now());
+    final name = fileName(clockNow());
     if (isMobile) {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/$name');

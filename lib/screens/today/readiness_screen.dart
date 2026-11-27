@@ -14,6 +14,7 @@ import 'readiness_card.dart';
 import '../statistics/wellness_trends_screen.dart';
 import 'readiness_format.dart';
 import 'readiness_options.dart';
+import '../../util/clock.dart';
 
 /// Every signal behind today's readiness: its value, the athlete's normal
 /// range and how it was rated, plus the last 30 days of HRV and resting HR.
@@ -94,7 +95,7 @@ class _ReadinessScreenState extends State<ReadinessScreen> {
                   readinessLevelLabel(l10n, r.level),
                   style: theme.textTheme.headlineSmall?.copyWith(
                     color: color,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -188,7 +189,7 @@ class _Trend extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).toString();
-    final today = dateOnly(DateTime.now());
+    final today = dateOnly(clockNow());
     final days = [
       for (var i = ReadinessScreen.trendDays - 1; i >= 0; i--)
         DateTime(today.year, today.month, today.day - i),

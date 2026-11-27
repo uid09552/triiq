@@ -40,6 +40,21 @@ class ProposalCard extends StatelessWidget {
 
   Future<void> _apply(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
+    // A missed session: ask why first, and never move it forward when the
+    // athlete was sick or injured — that is rest, not catching up.
+    if (proposal case SessionChangeProposal(missed: true, :final to)) {
+      final reason = await _askMissedReason(context);
+      if (reason == null || !context.mounted) return;
+      proposal.reason = reason.name;
+      if (to != null &&
+          (reason == MissedReason.sick || reason == MissedReason.injured)) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.missedRestInstead)));
+        return;
+      }
+    }
+    if (!context.mounted) return;
     await proposals.apply(proposal.id, (p) async {
       try {
         switch (p) {
@@ -83,30 +98,54 @@ class ProposalCard extends StatelessWidget {
 
   /// Takes an applied change back — only while nothing else has changed the
   /// plan since, so it can never undo more than this one proposal.
+  Future<MissedReason?> _askMissedReason(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return showModalBottomSheet<MissedReason>(
+      context: context,
+      useSafeArea: true,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.missedWhyTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.missedWhyBody,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final r in MissedReason.values)
+                  ActionChip(
+                    key: ValueKey('missed-reason-${r.name}'),
+                    label: Text(missedReasonLabel(l10n, r)),
+                    onPressed: () => Navigator.pop(context, r),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _undo(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
-    final result = await proposals.undo(proposal.id, (p) async {
-      try {
-        switch (p) {
-          case CurveProposal(:final previousGoal?):
-            await _act.applyGoal(previousGoal);
-          case SessionChangeProposal(
-            :final sessionId,
-            :final from,
-            :final missed,
-            to: != null,
-          ):
-            await _act.moveSession(sessionId, from, missed: missed);
-          case SessionSwapProposal(:final first, :final second):
-            await _act.swapSessions(first.id!, second.id!);
-          case _:
-            throw _Readable(l10n.proposalUndoUnavailable);
-        }
-      } on ReplaceRefusedException catch (e) {
-        throw _Readable(refusalLabel(l10n, e));
-      }
-    });
+    final result = await revertProposal(
+      context,
+      proposals,
+      proposal,
+      actions: _act,
+    );
     messenger.showSnackBar(
       SnackBar(
         content: Text(switch (result) {
@@ -326,6 +365,19 @@ class ProposalCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  PopupMenuButton<DismissReason>(
+                    key: ValueKey('proposal-dismiss-reason-${p.id}'),
+                    tooltip: l10n.dismissWithReason,
+                    icon: const Icon(Icons.more_horiz),
+                    onSelected: (r) => proposals.dismiss(p.id, reason: r),
+                    itemBuilder: (context) => [
+                      for (final r in DismissReason.values)
+                        PopupMenuItem(
+                          value: r,
+                          child: Text(dismissReasonLabel(l10n, r)),
+                        ),
+                    ],
+                  ),
                   TextButton(
                     onPressed: () => proposals.dismiss(p.id),
                     child: Text(l10n.proposalDismiss),
@@ -488,4 +540,55 @@ class _Readable implements Exception {
 
   @override
   String toString() => message;
+}
+
+String missedReasonLabel(AppLocalizations l, MissedReason r) => switch (r) {
+  MissedReason.sick => l.missedSick,
+  MissedReason.injured => l.missedInjured,
+  MissedReason.tired => l.missedTired,
+  MissedReason.busy => l.missedBusy,
+  MissedReason.travelling => l.missedTravelling,
+  MissedReason.skipped => l.missedSkipped,
+};
+
+String dismissReasonLabel(AppLocalizations l, DismissReason r) => switch (r) {
+  DismissReason.notNow => l.dismissNotNow,
+  DismissReason.tooHard => l.dismissTooHard,
+  DismissReason.tooEasy => l.dismissTooEasy,
+  DismissReason.lifeConflict => l.dismissLife,
+  DismissReason.other => l.dismissOther,
+};
+
+/// Takes back an applied [proposal] (a moved session, a swap, a load graph
+/// with its previous goal) through [proposals], which refuses when the
+/// plan changed since. Shared by the card's Undo and Plan → Changes.
+Future<UndoResult> revertProposal(
+  BuildContext context,
+  PlanProposals proposals,
+  PlanProposal proposal, {
+  PlanActions? actions,
+}) {
+  final l10n = AppLocalizations.of(context)!;
+  final act = actions ?? PlanActions();
+  return proposals.undo(proposal.id, (p) async {
+    try {
+      switch (p) {
+        case CurveProposal(:final previousGoal?):
+          await act.applyGoal(previousGoal);
+        case SessionChangeProposal(
+          :final sessionId,
+          :final from,
+          :final missed,
+          to: != null,
+        ):
+          await act.moveSession(sessionId, from, missed: missed);
+        case SessionSwapProposal(:final first, :final second):
+          await act.swapSessions(first.id!, second.id!);
+        case _:
+          throw _Readable(l10n.proposalUndoUnavailable);
+      }
+    } on ReplaceRefusedException catch (e) {
+      throw _Readable(refusalLabel(l10n, e));
+    }
+  });
 }

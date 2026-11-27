@@ -119,6 +119,7 @@ class _ThresholdSuggestionsSectionState
   Future<void> _review(ThresholdSuggestion s) async {
     final applied = await showModalBottomSheet<bool>(
       context: context,
+      useSafeArea: true,
       isScrollControlled: true,
       builder: (context) => ThresholdConfirmSheet(suggestion: s),
     );
@@ -193,7 +194,7 @@ class _SuggestionRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     thresholdSuggestionTitle(l10n, suggestion),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Icon(

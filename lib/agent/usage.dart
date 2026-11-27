@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../util/clock.dart';
 
 /// Tokens one reply used, with the model entry that served it. The chat
 /// shows it under the reply; [UsageLedger] adds it to the month's total.
@@ -125,7 +126,7 @@ class PriceTable {
 /// here leaves the device, and it is not part of a backup.
 class UsageLedger extends ChangeNotifier {
   UsageLedger._({DateTime Function()? clock, PriceTable? prices})
-    : _clock = clock ?? DateTime.now,
+    : _clock = clock ?? clockNow,
       prices = prices ?? PriceTable();
 
   static final UsageLedger instance = UsageLedger._();

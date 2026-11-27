@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'llm_provider.dart';
 import 'openai_connection.dart';
+import '../util/clock.dart';
 
 export 'llm_provider.dart';
 
@@ -112,7 +113,7 @@ class LlmModelEntry {
   static final _random = Random();
 
   static String newId() =>
-      '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}'
+      '${clockNow().microsecondsSinceEpoch.toRadixString(36)}'
       '${_random.nextInt(1 << 20).toRadixString(36)}';
 
   /// Where this entry's API key is stored in the OS vault.

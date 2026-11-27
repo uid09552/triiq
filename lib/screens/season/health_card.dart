@@ -92,6 +92,7 @@ class _HealthCardState extends State<HealthCard> {
       ReturnReason.illness => l10n.healthReasonIllness,
       ReturnReason.injury => l10n.healthReasonInjury,
       ReturnReason.returnRamp => l10n.healthReasonReturn,
+      ReturnReason.lifeMode => l10n.healthReasonMode,
     };
     return '$what · $reason';
   }
