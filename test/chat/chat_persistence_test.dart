@@ -269,6 +269,31 @@ void main() {
       await t.pump();
     }
 
+    testWidgets('a reply that sets a calorie target gets the care note', (
+      t,
+    ) async {
+      await pump(
+        t,
+        script: (_) => Stream.value(
+          const AgentTextDelta('Aim for 1800 kcal per day to lean out.'),
+        ),
+      );
+      await ask(t, 'Should I eat less?');
+      expect(find.byKey(const ValueKey('diet-note')), findsOneWidget);
+    });
+
+    testWidgets('fuelling advice gets no care note', (t) async {
+      await pump(
+        t,
+        script: (_) => Stream.value(
+          const AgentTextDelta('Take 60-90 g carbs per hour on the long ride.'),
+        ),
+      );
+      await ask(t, 'How should I fuel?');
+      expect(find.byKey(const ValueKey('diet-note')), findsNothing);
+    });
+
+
     Stream<AgentEvent> answer(String input) async* {
       yield const AgentModelAnswering(_entry);
       yield const AgentToolStarted('get_activities', {});

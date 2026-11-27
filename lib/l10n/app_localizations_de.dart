@@ -7080,4 +7080,17 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get energyCareNote =>
       'Trainingskalorien sind Geräteschätzungen, der Grundumsatz fehlt – das ist keine Energiebilanz. Keine Ziele oder Diätratschläge. Bei Ernährungsfragen: Ernährungsberatung oder Arzt.';
+
+  @override
+  String get redFlagEating => 'Erbrechen, Essanfälle oder nicht essen';
+
+  @override
+  String get redFlagPregnancy => 'Schwangerschaft';
+
+  @override
+  String get redFlagSeverePain => 'starke oder zunehmende Schmerzen';
+
+  @override
+  String get dietNote =>
+      'TriIQ setzt keine Kalorien- oder Gewichtsziele, Defizite oder Fasten – egal, was der Trainer oben schreibt. Training richtig zu versorgen ist okay; für Ess- oder Gewichtsziele sprich bitte mit einer Ernährungsberatung oder Ärztin bzw. Arzt.';
 }

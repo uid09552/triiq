@@ -2078,5 +2078,9 @@
   "energyDaysTitle": "Pro Tag (gegessen / Training, kcal)",
   "energyEaten": "Gegessen",
   "energyTraining": "Training",
-  "energyCareNote": "Trainingskalorien sind Geräteschätzungen, der Grundumsatz fehlt – das ist keine Energiebilanz. Keine Ziele oder Diätratschläge. Bei Ernährungsfragen: Ernährungsberatung oder Arzt."
+  "energyCareNote": "Trainingskalorien sind Geräteschätzungen, der Grundumsatz fehlt – das ist keine Energiebilanz. Keine Ziele oder Diätratschläge. Bei Ernährungsfragen: Ernährungsberatung oder Arzt.",
+  "redFlagEating": "Erbrechen, Essanfälle oder nicht essen",
+  "redFlagPregnancy": "Schwangerschaft",
+  "redFlagSeverePain": "starke oder zunehmende Schmerzen",
+  "dietNote": "TriIQ setzt keine Kalorien- oder Gewichtsziele, Defizite oder Fasten – egal, was der Trainer oben schreibt. Training richtig zu versorgen ist okay; für Ess- oder Gewichtsziele sprich bitte mit einer Ernährungsberatung oder Ärztin bzw. Arzt."
 }

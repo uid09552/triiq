@@ -2490,5 +2490,9 @@
   "energyDaysTitle": "Per day (eaten / training, kcal)",
   "energyEaten": "Eaten",
   "energyTraining": "Training",
-  "energyCareNote": "Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor."
+  "energyCareNote": "Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.",
+  "redFlagEating": "purging, bingeing or not eating",
+  "redFlagPregnancy": "pregnancy",
+  "redFlagSeverePain": "severe or worsening pain",
+  "dietNote": "TriIQ doesn't set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor."
 }

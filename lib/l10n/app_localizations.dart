@@ -11444,6 +11444,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.'**
   String get energyCareNote;
+
+  /// No description provided for @redFlagEating.
+  ///
+  /// In en, this message translates to:
+  /// **'purging, bingeing or not eating'**
+  String get redFlagEating;
+
+  /// No description provided for @redFlagPregnancy.
+  ///
+  /// In en, this message translates to:
+  /// **'pregnancy'**
+  String get redFlagPregnancy;
+
+  /// No description provided for @redFlagSeverePain.
+  ///
+  /// In en, this message translates to:
+  /// **'severe or worsening pain'**
+  String get redFlagSeverePain;
+
+  /// No description provided for @dietNote.
+  ///
+  /// In en, this message translates to:
+  /// **'TriIQ doesn\'t set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor.'**
+  String get dietNote;
 }
 
 class _AppLocalizationsDelegate

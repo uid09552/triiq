@@ -7023,4 +7023,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get energyCareNote =>
       'Training calories are device estimates, and resting burn is not included, so this is not an energy balance. No targets or diet advice here. For eating questions, see a dietitian or doctor.';
+
+  @override
+  String get redFlagEating => 'purging, bingeing or not eating';
+
+  @override
+  String get redFlagPregnancy => 'pregnancy';
+
+  @override
+  String get redFlagSeverePain => 'severe or worsening pain';
+
+  @override
+  String get dietNote =>
+      'TriIQ doesn\'t set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor.';
 }
