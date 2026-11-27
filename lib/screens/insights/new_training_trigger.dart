@@ -72,6 +72,7 @@ class _NewTrainingTriggerState extends State<NewTrainingTrigger> {
       if (ModalRoute.of(context)?.isCurrent == false) return;
       await showModalBottomSheet<void>(
         context: context,
+        useSafeArea: true,
         isScrollControlled: true,
         showDragHandle: true,
         builder: (sheet) => NewTrainingSheet(

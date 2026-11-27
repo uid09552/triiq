@@ -64,6 +64,7 @@ Future<void> showAddStrengthSheet(
   final isConnected = connected ?? IntervalsSession.instance.isConnected;
   final choice = await showModalBottomSheet<StrengthChoice>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (_) => _AddStrengthSheet(day: day, connected: isConnected),

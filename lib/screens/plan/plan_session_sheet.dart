@@ -42,6 +42,7 @@ Future<void> showPlanSessionSheet(
   final l10n = AppLocalizations.of(context)!;
   return showModalBottomSheet<void>(
     context: context,
+    useSafeArea: true,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (context) {

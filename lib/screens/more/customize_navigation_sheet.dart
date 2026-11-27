@@ -17,6 +17,7 @@ Future<void> showCustomizeNavigationSheet(
   NavigationLayout layout,
 ) => showModalBottomSheet<void>(
   context: context,
+  useSafeArea: true,
   isScrollControlled: true,
   showDragHandle: true,
   builder: (context) => CustomizeNavigationSheet(layout: layout),

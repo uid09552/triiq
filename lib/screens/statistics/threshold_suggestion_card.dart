@@ -119,6 +119,7 @@ class _ThresholdSuggestionsSectionState
   Future<void> _review(ThresholdSuggestion s) async {
     final applied = await showModalBottomSheet<bool>(
       context: context,
+      useSafeArea: true,
       isScrollControlled: true,
       builder: (context) => ThresholdConfirmSheet(suggestion: s),
     );

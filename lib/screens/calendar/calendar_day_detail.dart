@@ -635,6 +635,7 @@ void _showActivityActions(BuildContext context, LocalActivity activity) {
   final l10n = AppLocalizations.of(context)!;
   showModalBottomSheet<void>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     builder: (sheet) => SafeArea(
       child: Column(

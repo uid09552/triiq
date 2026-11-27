@@ -22,6 +22,7 @@ Future<void> showOpenInIntervalsSheet(
   final l10n = AppLocalizations.of(context)!;
   final open = await showModalBottomSheet<bool>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     builder: (context) => SafeArea(
       child: ListTile(

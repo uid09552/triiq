@@ -17,6 +17,7 @@ Future<void> showReadinessExplainSheet(
   ReadinessReport report,
 ) => showModalBottomSheet<void>(
   context: context,
+  useSafeArea: true,
   isScrollControlled: true,
   showDragHandle: true,
   builder: (context) => _ReadinessExplainSheet(report: report),

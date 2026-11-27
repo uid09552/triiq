@@ -250,6 +250,7 @@ class TodayHeroCard extends StatelessWidget {
     final movable = _remaining.isNotEmpty && onMoveToTomorrow != null;
     final choice = await showModalBottomSheet<String>(
       context: context,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (context) => SafeArea(
         child: SingleChildScrollView(

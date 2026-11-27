@@ -46,6 +46,7 @@ Future<void> showDayActions(
   final locale = Localizations.localeOf(context).toString();
   final choice = await showModalBottomSheet<String>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (context) => SafeArea(
@@ -188,6 +189,7 @@ Future<void> showDayActions(
       // Second step: which kind, so the editor opens on it.
       final category = await showModalBottomSheet<String>(
         context: context,
+        useSafeArea: true,
         showDragHandle: true,
         builder: (context) => SafeArea(
           child: SingleChildScrollView(

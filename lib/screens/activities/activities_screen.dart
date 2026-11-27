@@ -116,6 +116,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   Future<void> _openFilters() async {
     await showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => _FilterSheet(

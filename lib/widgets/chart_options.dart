@@ -60,6 +60,7 @@ Future<void> showChartOptions(
   var open = true;
   return showModalBottomSheet<void>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (sheet) => StatefulBuilder(

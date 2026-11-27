@@ -471,6 +471,7 @@ class _TrainNowScreenState extends State<TrainNowScreen> {
     final reference = _reference;
     final mode = await showModalBottomSheet<_CreateMode>(
       context: context,
+      useSafeArea: true,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => _WorkoutPreviewSheet(

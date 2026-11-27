@@ -155,6 +155,11 @@ jobs:
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk "dist/triiq-${{ steps.ver.outputs.name }}.apk"
 
+      # Play requirements: target SDK 36 (fails) and 16 KB page size
+      # (warns until the 1 Feb 2027 deadline). See issue #110.
+      - name: Check Play requirements
+        run: tool/check_android_release.sh build/app/outputs/flutter-apk/app-release.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: triiq-apk

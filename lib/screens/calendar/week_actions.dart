@@ -36,6 +36,7 @@ Future<void> showWeekActions(
 
   final choice = await showModalBottomSheet<String>(
     context: context,
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (context) => SafeArea(
