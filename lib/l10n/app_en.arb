@@ -226,7 +226,7 @@
   "ollamaModelLabel": "Ollama model",
   "ollamaKeySecureHelp": "The key is stored in your operating system's credential vault and sent only to Ollama Cloud.",
   "ollamaKeyInsecureHelp": "This build cannot store the key securely, so it is kept for this session only and you will re-enter it after a reload.",
-  "ollamaLocalHelp": "Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data.",
+  "ollamaLocalHelp": "Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data. On a laptop or small server, Qwen3 (8B or 14B) did best at tool calling in a published 2025 test; Llama 3 models were much weaker.",
   "claudeKeySavedMessage": "Claude API key saved.",
   "claudeKeyRemovedMessage": "Claude API key removed.",
   "ollamaKeyRemovedMessage": "Ollama API key removed.",

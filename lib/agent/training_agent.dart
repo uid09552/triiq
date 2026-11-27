@@ -69,10 +69,14 @@ class AgentToolStarted extends AgentEvent {
 
 /// The tool returned (or failed — [failed] says which).
 class AgentToolFinished extends AgentEvent {
-  const AgentToolFinished(this.name, {required this.failed});
+  const AgentToolFinished(this.name, {required this.failed, this.output});
 
   final String name;
   final bool failed;
+
+  /// What the tool returned (JSON text), for checks such as the model
+  /// evaluation suite; the chat does not show it.
+  final String? output;
 }
 
 /// A tool registered a change for the athlete to apply or dismiss. Emitted
@@ -330,7 +334,7 @@ class TrainingAgent {
             name: call.name,
           ),
         );
-        yield AgentToolFinished(call.name, failed: failed);
+        yield AgentToolFinished(call.name, failed: failed, output: result);
         if (!failed) {
           for (final proposal in _proposalsIn(result)) {
             yield AgentProposal(proposal);

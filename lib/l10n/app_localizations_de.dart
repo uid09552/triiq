@@ -596,7 +596,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get ollamaLocalHelp =>
-      'Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen.';
+      'Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen. Auf einem Laptop oder kleinen Server schnitt Qwen3 (8B oder 14B) in einem veröffentlichten Test von 2025 beim Tool-Calling am besten ab; Llama-3-Modelle waren deutlich schwächer.';
 
   @override
   String get claudeKeySavedMessage => 'Claude-API-Schlüssel gespeichert.';

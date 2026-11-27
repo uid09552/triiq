@@ -2773,6 +2773,31 @@ Manually pull a range of history into the local cache:
 Each run shows how many wellness/activity records were synced, and the
 card at the top shows the currently cached date range.
 
+### Tested models
+
+The trainer's evaluation suite (`test/eval/trainer_eval_test.dart`, issue
+#114) runs eight fixed athlete scenarios against a real model, when given one
+with `--dart-define=EVAL_PROVIDER=… EVAL_MODEL=… EVAL_KEY=…`
+(`EVAL_BASE_URL=…` for a server). It checks mechanically:
+- the expected tools were called;
+- every number of two or more digits in the reply came from a tool or the
+  question;
+- a calorie question gets no diet target (`dietConcernsIn`);
+- a chest-pain message is referred to a doctor;
+- a missed session gets asked why.
+
+A judge-model rubric (Google's SHARP) is not automated yet.
+
+Record results here, one row per model and date:
+
+| Date | Provider / model | Passed | Notes |
+|---|---|---|---|
+| — | — | — | No run recorded yet |
+
+Default suggestions: Claude Sonnet (hosted), `gpt-oss:120b` on Ollama Cloud.
+On local hardware, Qwen3 8B/14B scored best at tool calling in Docker's 2025
+test of 21 models (F1 0.93 / 0.97). Llama 3.3 70B scored 0.61.
+
 ## 4. Known gaps / next steps
 
 - Today follow-ups from issue #78 not built yet: a compact/comfortable

@@ -220,7 +220,7 @@
   "ollamaModelLabel": "Ollama-Modell",
   "ollamaKeySecureHelp": "Der Schlüssel wird im Anmeldeinformationsspeicher deines Betriebssystems gespeichert und nur an Ollama Cloud gesendet.",
   "ollamaKeyInsecureHelp": "Dieser Build kann den Schlüssel nicht sicher speichern, daher wird er nur für diese Sitzung vorgehalten und du musst ihn nach einem Neuladen erneut eingeben.",
-  "ollamaLocalHelp": "Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen.",
+  "ollamaLocalHelp": "Nichts verlässt dein Netzwerk. Das Modell muss Tool-Aufrufe unterstützen — sonst kann der Assistent deine Trainingsdaten nicht lesen. Auf einem Laptop oder kleinen Server schnitt Qwen3 (8B oder 14B) in einem veröffentlichten Test von 2025 beim Tool-Calling am besten ab; Llama-3-Modelle waren deutlich schwächer.",
   "claudeKeySavedMessage": "Claude-API-Schlüssel gespeichert.",
   "claudeKeyRemovedMessage": "Claude-API-Schlüssel entfernt.",
   "ollamaKeyRemovedMessage": "Ollama-API-Schlüssel entfernt.",

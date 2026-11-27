@@ -586,7 +586,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ollamaLocalHelp =>
-      'Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data.';
+      'Nothing leaves your network. The model must support tool calling — without it the agent cannot read your training data. On a laptop or small server, Qwen3 (8B or 14B) did best at tool calling in a published 2025 test; Llama 3 models were much weaker.';
 
   @override
   String get claudeKeySavedMessage => 'Claude API key saved.';
