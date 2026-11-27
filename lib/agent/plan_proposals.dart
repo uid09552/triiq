@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/repositories/plans_repository.dart';
 import '../plan/load_curve.dart';
@@ -54,6 +57,11 @@ sealed class PlanProposal {
 
   /// The athlete took the change back after applying it.
   bool undone = false;
+
+  /// Why the athlete applied or dismissed it: a [MissedReason] name for a
+  /// missed session, a [DismissReason] name for a dismissal. Passed to the
+  /// trainer with the outcome.
+  String? reason;
 
   /// Whether applying this can be taken back: a moved session, a swap, a
   /// load graph whose previous goal is known. A removed session or a plan
@@ -182,6 +190,7 @@ Map<String, dynamic>? proposalToJson(PlanProposal p) {
     'state': p.state.name,
     'appliedFingerprint': p.appliedFingerprint,
     'undone': p.undone,
+    'reason': p.reason,
   };
   return switch (p) {
     CurveProposal() => {
@@ -265,6 +274,7 @@ PlanProposal? proposalFromJson(Object? json) {
     if (proposal == null) return null;
     proposal.appliedFingerprint = json['appliedFingerprint'] as String?;
     proposal.undone = json['undone'] == true;
+    proposal.reason = json['reason'] as String?;
     final state = ProposalState.values.asNameMap()[json['state']];
     // An apply that was running when the app died did not finish.
     proposal.state = state == null || state == ProposalState.applying
@@ -289,7 +299,8 @@ class ProposalOutcome {
     final what = switch (state) {
       ProposalState.applied =>
         'was applied by the athlete${detail == null ? '' : ', $detail'}',
-      ProposalState.dismissed => 'was dismissed by the athlete',
+      ProposalState.dismissed =>
+        'was dismissed by the athlete${detail == null ? '' : ' ($detail)'}',
       ProposalState.stale =>
         'could not be applied: the goal or plan changed after it was made',
       ProposalState.failed =>
@@ -312,7 +323,8 @@ class PlanProposals extends ChangeNotifier {
   /// outlives the app run (`AdaptationService` wires it up).
   void Function(String key)? onKeyDismissed;
 
-  static final PlanProposals instance = PlanProposals();
+  static final PlanProposals instance = PlanProposals()
+    ..log = AppliedChangesLog.instance;
 
   final Future<String> Function() _fingerprint;
   final Map<String, PlanProposal> _byId = {};
@@ -434,6 +446,7 @@ class PlanProposals extends ChangeNotifier {
     }
     p.undone = true;
     p.error = null;
+    log?.markUndone(p);
     // The state the plan is in now is what a later apply is judged against.
     p.appliedFingerprint = null;
     _outcomes.add(
@@ -448,19 +461,44 @@ class PlanProposals extends ChangeNotifier {
     return UndoResult.done;
   }
 
-  void dismiss(String id) {
+  void dismiss(String id, {DismissReason? reason}) {
     final p = _byId[id];
     if (p == null || !p.canApply) return;
+    if (reason != null) p.reason = reason.name;
     final key = p.key;
     if (key != null) onKeyDismissed?.call(key);
     _finish(p, ProposalState.dismissed);
   }
 
+  /// Saved applied changes (Plan → Changes); only the app-wide instance
+  /// keeps one.
+  AppliedChangesLog? log;
+
   ProposalState _finish(PlanProposal p, ProposalState state, [String? detail]) {
     p.state = state;
-    _outcomes.add(ProposalOutcome(p.id, p.summary, state, detail));
+    final why = p.reason == null ? null : 'reason: ${p.reason}';
+    _outcomes.add(
+      ProposalOutcome(
+        p.id,
+        p.summary,
+        state,
+        [?detail, ?why].isEmpty ? null : [?detail, ?why].join('; '),
+      ),
+    );
+    if (state == ProposalState.applied) log?.record(p);
     notifyListeners();
     return state;
+  }
+
+  /// Registers a change read back from the [AppliedChangesLog] as applied,
+  /// so it can be reverted through [undo] (which still checks that nothing
+  /// else changed the plan since).
+  PlanProposal? restoreApplied(Map<String, dynamic> json) {
+    final p = proposalFromJson(json);
+    if (p == null || !p.undoable) return null;
+    restore(p);
+    p.state = ProposalState.applied;
+    return p;
   }
 
   /// Outcomes not yet reported to the agent, oldest first; clears them.
@@ -493,5 +531,126 @@ class PlanProposals extends ChangeNotifier {
           [s.id, s.date.toIso8601String(), s.status.name, s.intervalsEventId],
       ],
     });
+  }
+}
+
+/// Why a missed session was missed; asked before a missed-session change
+/// is applied. Sick or injured means rest: such a session is let go, never
+/// moved to a later day.
+enum MissedReason { sick, injured, tired, busy, travelling, skipped }
+
+/// Why the athlete dismissed a suggestion.
+enum DismissReason { notNow, tooHard, tooEasy, lifeConflict, other }
+
+/// One applied change, as Plan → Changes lists it.
+class AppliedChange {
+  AppliedChange({
+    required this.at,
+    required this.summary,
+    required this.proposal,
+    this.undone = false,
+  });
+
+  final DateTime at;
+  final String summary;
+
+  /// The applied proposal ([proposalToJson]), used to revert it.
+  final Map<String, dynamic> proposal;
+  bool undone;
+
+  bool get revertible =>
+      !undone && proposalFromJson(proposal)?.undoable == true;
+
+  Map<String, dynamic> toJson() => {
+    'at': at.toIso8601String(),
+    'summary': summary,
+    'proposal': proposal,
+    'undone': undone,
+  };
+
+  static AppliedChange? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final at = DateTime.tryParse('${json['at']}');
+    final p = json['proposal'];
+    if (at == null || p is! Map<String, dynamic>) return null;
+    return AppliedChange(
+      at: at,
+      summary: '${json['summary']}',
+      proposal: p,
+      undone: json['undone'] == true,
+    );
+  }
+}
+
+/// Every change applied from a suggestion (Today, Chat or Plan), newest
+/// first, kept on the device so it survives a cleared chat. Each can be
+/// reverted while nothing else changed the plan since.
+class AppliedChangesLog extends ChangeNotifier {
+  AppliedChangesLog({DateTime Function()? clock})
+    : _clock = clock ?? DateTime.now;
+
+  static final AppliedChangesLog instance = AppliedChangesLog();
+
+  static const prefsKey = 'plan.applied_changes';
+  static const maxEntries = 100;
+
+  final DateTime Function() _clock;
+  List<AppliedChange> _entries = [];
+
+  List<AppliedChange> get entries => List.unmodifiable(_entries);
+
+  Future<void> load() async {
+    try {
+      final raw = (await SharedPreferences.getInstance()).getString(prefsKey);
+      if (raw == null) return;
+      _entries = [
+        for (final j in jsonDecode(raw) as List)
+          if (AppliedChange.fromJson(j) case final e?) e,
+      ];
+      notifyListeners();
+    } catch (error) {
+      debugPrint('AppliedChangesLog: cannot read: $error');
+    }
+  }
+
+  Future<void> _save() async {
+    try {
+      await (await SharedPreferences.getInstance()).setString(
+        prefsKey,
+        jsonEncode([for (final e in _entries) e.toJson()]),
+      );
+    } catch (error) {
+      debugPrint('AppliedChangesLog: cannot save: $error');
+    }
+  }
+
+  void record(PlanProposal p) {
+    final json = proposalToJson(p);
+    if (json == null) return;
+    _entries.insert(
+      0,
+      AppliedChange(at: _clock(), summary: p.summary, proposal: json),
+    );
+    if (_entries.length > maxEntries) _entries.length = maxEntries;
+    notifyListeners();
+    _save();
+  }
+
+  void markUndone(PlanProposal p) {
+    // Match the newest entry with the same summary that is not undone yet.
+    for (final e in _entries) {
+      if (!e.undone && e.summary == p.summary) {
+        e.undone = true;
+        break;
+      }
+    }
+    notifyListeners();
+    _save();
+  }
+
+  Future<void> clear() async {
+    _entries = [];
+    notifyListeners();
+    await _save();
   }
 }

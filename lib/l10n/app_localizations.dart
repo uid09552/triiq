@@ -11468,6 +11468,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TriIQ doesn\'t set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor.'**
   String get dietNote;
+
+  /// No description provided for @feelRpeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How hard was this session? (RPE)'**
+  String get feelRpeLabel;
+
+  /// No description provided for @feelRpeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 very easy, 10 maximal. Saved on the activity in Intervals.icu; the trainer uses it to adjust similar sessions.'**
+  String get feelRpeHint;
+
+  /// No description provided for @missedWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why was it missed?'**
+  String get missedWhyTitle;
+
+  /// No description provided for @missedWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The answer shapes what happens next: illness and injury mean rest, not catching up.'**
+  String get missedWhyBody;
+
+  /// No description provided for @missedSick.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick'**
+  String get missedSick;
+
+  /// No description provided for @missedInjured.
+  ///
+  /// In en, this message translates to:
+  /// **'Injured or niggle'**
+  String get missedInjured;
+
+  /// No description provided for @missedTired.
+  ///
+  /// In en, this message translates to:
+  /// **'Too tired'**
+  String get missedTired;
+
+  /// No description provided for @missedBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'No time'**
+  String get missedBusy;
+
+  /// No description provided for @missedTravelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Travelling'**
+  String get missedTravelling;
+
+  /// No description provided for @missedSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Just skipped'**
+  String get missedSkipped;
+
+  /// No description provided for @missedRestInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Not while sick or injured: rest instead. Let the session go, and the plan eases back in.'**
+  String get missedRestInstead;
+
+  /// No description provided for @dismissWithReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss with a reason'**
+  String get dismissWithReason;
+
+  /// No description provided for @dismissNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get dismissNotNow;
+
+  /// No description provided for @dismissTooHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Too hard'**
+  String get dismissTooHard;
+
+  /// No description provided for @dismissTooEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Too easy'**
+  String get dismissTooEasy;
+
+  /// No description provided for @dismissLife.
+  ///
+  /// In en, this message translates to:
+  /// **'Clashes with life'**
+  String get dismissLife;
+
+  /// No description provided for @dismissOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other reason'**
+  String get dismissOther;
+
+  /// No description provided for @changesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied changes'**
+  String get changesTitle;
+
+  /// No description provided for @changesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing applied yet. Changes you apply from Today, Chat or Plan show up here, each with Revert.'**
+  String get changesEmpty;
+
+  /// No description provided for @changesRevert.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get changesRevert;
+
+  /// No description provided for @changesReverted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverted'**
+  String get changesReverted;
+
+  /// No description provided for @changesRevertStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t revert: the plan changed since. Revert later changes first.'**
+  String get changesRevertStale;
+
+  /// No description provided for @changesRevertDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverted.'**
+  String get changesRevertDone;
+
+  /// No description provided for @changesRevertFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t revert: {error}'**
+  String changesRevertFailed(String error);
+
+  /// No description provided for @moreChangesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What was applied, with Revert'**
+  String get moreChangesSubtitle;
 }
 
 class _AppLocalizationsDelegate

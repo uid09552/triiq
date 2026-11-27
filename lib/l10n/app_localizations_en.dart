@@ -7036,4 +7036,86 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dietNote =>
       'TriIQ doesn\'t set calorie or weight targets, deficits or fasting, whatever the trainer wrote above. Fuelling your training is fine; for eating or weight goals, please talk to a dietitian or doctor.';
+
+  @override
+  String get feelRpeLabel => 'How hard was this session? (RPE)';
+
+  @override
+  String get feelRpeHint =>
+      '1 very easy, 10 maximal. Saved on the activity in Intervals.icu; the trainer uses it to adjust similar sessions.';
+
+  @override
+  String get missedWhyTitle => 'Why was it missed?';
+
+  @override
+  String get missedWhyBody =>
+      'The answer shapes what happens next: illness and injury mean rest, not catching up.';
+
+  @override
+  String get missedSick => 'Sick';
+
+  @override
+  String get missedInjured => 'Injured or niggle';
+
+  @override
+  String get missedTired => 'Too tired';
+
+  @override
+  String get missedBusy => 'No time';
+
+  @override
+  String get missedTravelling => 'Travelling';
+
+  @override
+  String get missedSkipped => 'Just skipped';
+
+  @override
+  String get missedRestInstead =>
+      'Not while sick or injured: rest instead. Let the session go, and the plan eases back in.';
+
+  @override
+  String get dismissWithReason => 'Dismiss with a reason';
+
+  @override
+  String get dismissNotNow => 'Not now';
+
+  @override
+  String get dismissTooHard => 'Too hard';
+
+  @override
+  String get dismissTooEasy => 'Too easy';
+
+  @override
+  String get dismissLife => 'Clashes with life';
+
+  @override
+  String get dismissOther => 'Other reason';
+
+  @override
+  String get changesTitle => 'Applied changes';
+
+  @override
+  String get changesEmpty =>
+      'Nothing applied yet. Changes you apply from Today, Chat or Plan show up here, each with Revert.';
+
+  @override
+  String get changesRevert => 'Revert';
+
+  @override
+  String get changesReverted => 'Reverted';
+
+  @override
+  String get changesRevertStale =>
+      'Can\'t revert: the plan changed since. Revert later changes first.';
+
+  @override
+  String get changesRevertDone => 'Reverted.';
+
+  @override
+  String changesRevertFailed(String error) {
+    return 'Couldn\'t revert: $error';
+  }
+
+  @override
+  String get moreChangesSubtitle => 'What was applied, with Revert';
 }

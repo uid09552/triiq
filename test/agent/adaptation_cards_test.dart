@@ -143,7 +143,11 @@ void main() {
 
     await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();
+    // A missed session asks why first.
+    await tester.tap(find.byKey(const ValueKey('missed-reason-sick')));
+    await tester.pumpAndSettle();
     expect(actions.calls, ['remove 1 missed=true']);
+    expect(p.reason, 'sick');
   });
 
   testWidgets('catch-up card moves the missed session', (tester) async {
@@ -166,7 +170,63 @@ void main() {
     expect(find.text('Catch up a missed session'), findsOneWidget);
     await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('missed-reason-busy')));
+    await tester.pumpAndSettle();
     expect(actions.calls, ['move 1 6 missed=true']);
+  });
+
+  testWidgets('sick or injured never moves a missed session forward', (
+    tester,
+  ) async {
+    final to = DateTime(2026, 11, 6);
+    final p = proposals.registerAdaptation(
+      SessionChangeProposal(
+        summary: 'move',
+        fingerprint: 'v1',
+        sessionId: 1,
+        name: tue.name,
+        sport: 'Run',
+        from: tue.date,
+        to: to,
+        missed: true,
+        adaptation: MissedSession(tue, to),
+      ),
+    );
+    await pump(tester, p);
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('missed-reason-sick')));
+    await tester.pumpAndSettle();
+    expect(actions.calls, isEmpty);
+    expect(p.state, ProposalState.pending);
+    expect(find.textContaining('rest instead'), findsOneWidget);
+  });
+
+  testWidgets('dismiss with a reason tells the trainer why', (tester) async {
+    final to = DateTime(2026, 11, 6);
+    final p = proposals.registerAdaptation(
+      SessionChangeProposal(
+        summary: 'move',
+        fingerprint: 'v1',
+        sessionId: 1,
+        name: tue.name,
+        sport: 'Run',
+        from: tue.date,
+        to: to,
+        missed: true,
+        adaptation: MissedSession(tue, to),
+      ),
+    );
+    await pump(tester, p);
+    await tester.tap(find.byKey(ValueKey('proposal-dismiss-reason-${p.id}')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Too hard'));
+    await tester.pumpAndSettle();
+    expect(p.state, ProposalState.dismissed);
+    expect(
+      proposals.takeOutcomes().single.describe(),
+      contains('reason: tooHard'),
+    );
   });
 
   testWidgets('the agent\'s own removal keeps "Remove a session"', (

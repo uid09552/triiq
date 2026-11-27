@@ -88,6 +88,8 @@ class BackupService {
       // The conversation and what it used stay on this device.
       key.startsWith('chat.') ||
       key.startsWith('usage.') ||
+      // Applied changes carry this device's plan fingerprints.
+      key == 'plan.applied_changes' ||
       (key.startsWith('llm.') && !portableLlmPrefs.contains(key)) ||
       key == PrivacySettings.aiConsentHostsPref ||
       RegExp(

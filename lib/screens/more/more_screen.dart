@@ -12,6 +12,7 @@ import '../events/events_screen.dart';
 import '../info/info_screen.dart';
 import '../knowledge/knowledge_library_screen.dart';
 import '../memory/memory_screen.dart';
+import '../plan/applied_changes_screen.dart';
 import '../plan/plan_screen.dart';
 import '../settings/settings_screen.dart';
 import '../season/season_screen.dart';
@@ -54,6 +55,14 @@ final List<MoreEntry> moreEntries = [
     title: (l) => l.trainingPlansTitle,
     subtitle: (l) => l.morePlanSubtitle,
     builder: (_) => const PlanScreen(),
+  ),
+  MoreEntry(
+    id: 'changes',
+    group: MoreGroup.plan,
+    icon: Icons.history,
+    title: (l) => l.changesTitle,
+    subtitle: (l) => l.moreChangesSubtitle,
+    builder: (_) => const AppliedChangesScreen(),
   ),
   MoreEntry(
     id: 'season',

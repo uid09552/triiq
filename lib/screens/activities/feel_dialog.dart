@@ -12,6 +12,8 @@ Future<void> showFeelDialog(
   int? initialFatigue,
   int? initialSoreness,
   WellnessActions? actions,
+  String? activityId,
+  int? initialRpe,
 }) => showDialog<void>(
   context: context,
   builder: (context) => _FeelDialog(
@@ -19,6 +21,8 @@ Future<void> showFeelDialog(
     initialFatigue: initialFatigue,
     initialSoreness: initialSoreness,
     actions: actions,
+    activityId: activityId,
+    initialRpe: initialRpe,
   ),
 );
 
@@ -28,7 +32,14 @@ class _FeelDialog extends StatefulWidget {
     this.initialFatigue,
     this.initialSoreness,
     this.actions,
+    this.activityId,
+    this.initialRpe,
   });
+
+  /// When set, the dialog also asks how hard this session was (RPE) and
+  /// writes it to the activity.
+  final String? activityId;
+  final int? initialRpe;
 
   final String date;
   final int? initialFatigue;
@@ -42,6 +53,7 @@ class _FeelDialog extends StatefulWidget {
 class _FeelDialogState extends State<_FeelDialog> {
   late int _fatigue = widget.initialFatigue ?? 1;
   late int _soreness = widget.initialSoreness ?? 1;
+  late int? _rpe = widget.initialRpe;
   bool _saving = false;
   String? _error;
 
@@ -51,11 +63,15 @@ class _FeelDialogState extends State<_FeelDialog> {
       _error = null;
     });
     try {
-      await (widget.actions ?? WellnessActions()).setFeel(
+      final actions = widget.actions ?? WellnessActions();
+      await actions.setFeel(
         date: widget.date,
         fatigue: _fatigue,
         soreness: _soreness,
       );
+      if (widget.activityId != null && _rpe != null) {
+        await actions.setSessionRpe(activityId: widget.activityId!, rpe: _rpe!);
+      }
       if (mounted) Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;
@@ -96,6 +112,25 @@ class _FeelDialogState extends State<_FeelDialog> {
             value: _soreness,
             onChanged: (v) => setState(() => _soreness = v),
           ),
+          if (widget.activityId != null) ...[
+            const SizedBox(height: 16),
+            Text(l10n.feelRpeLabel),
+            Text(
+              l10n.feelRpeHint,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+            Slider(
+              key: const ValueKey('feel-rpe'),
+              value: (_rpe ?? 5).toDouble(),
+              min: 1,
+              max: 10,
+              divisions: 9,
+              label: '${_rpe ?? 5}',
+              onChanged: (v) => setState(() => _rpe = v.round()),
+            ),
+          ],
           if (_error != null) ...[
             const SizedBox(height: 12),
             Text(_error!, style: TextStyle(color: scheme.error)),

@@ -7093,4 +7093,86 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get dietNote =>
       'TriIQ setzt keine Kalorien- oder Gewichtsziele, Defizite oder Fasten – egal, was der Trainer oben schreibt. Training richtig zu versorgen ist okay; für Ess- oder Gewichtsziele sprich bitte mit einer Ernährungsberatung oder Ärztin bzw. Arzt.';
+
+  @override
+  String get feelRpeLabel => 'Wie hart war diese Einheit? (RPE)';
+
+  @override
+  String get feelRpeHint =>
+      '1 sehr leicht, 10 maximal. Wird an der Aktivität in Intervals.icu gespeichert; der Trainer passt ähnliche Einheiten daran an.';
+
+  @override
+  String get missedWhyTitle => 'Warum ist sie ausgefallen?';
+
+  @override
+  String get missedWhyBody =>
+      'Die Antwort bestimmt, wie es weitergeht: Krankheit und Verletzung heißen Pause, nicht Nachholen.';
+
+  @override
+  String get missedSick => 'Krank';
+
+  @override
+  String get missedInjured => 'Verletzt oder Wehwehchen';
+
+  @override
+  String get missedTired => 'Zu müde';
+
+  @override
+  String get missedBusy => 'Keine Zeit';
+
+  @override
+  String get missedTravelling => 'Unterwegs';
+
+  @override
+  String get missedSkipped => 'Einfach ausgelassen';
+
+  @override
+  String get missedRestInstead =>
+      'Nicht bei Krankheit oder Verletzung: lieber Pause. Lass die Einheit ausfallen, der Plan steigt sanft wieder ein.';
+
+  @override
+  String get dismissWithReason => 'Mit Grund verwerfen';
+
+  @override
+  String get dismissNotNow => 'Nicht jetzt';
+
+  @override
+  String get dismissTooHard => 'Zu hart';
+
+  @override
+  String get dismissTooEasy => 'Zu leicht';
+
+  @override
+  String get dismissLife => 'Passt nicht in den Alltag';
+
+  @override
+  String get dismissOther => 'Anderer Grund';
+
+  @override
+  String get changesTitle => 'Übernommene Änderungen';
+
+  @override
+  String get changesEmpty =>
+      'Noch nichts übernommen. Änderungen aus Heute, Chat oder Plan erscheinen hier, jeweils mit Rückgängig.';
+
+  @override
+  String get changesRevert => 'Rückgängig';
+
+  @override
+  String get changesReverted => 'Rückgängig gemacht';
+
+  @override
+  String get changesRevertStale =>
+      'Nicht möglich: Der Plan hat sich seitdem geändert. Mach zuerst spätere Änderungen rückgängig.';
+
+  @override
+  String get changesRevertDone => 'Rückgängig gemacht.';
+
+  @override
+  String changesRevertFailed(String error) {
+    return 'Rückgängig nicht möglich: $error';
+  }
+
+  @override
+  String get moreChangesSubtitle => 'Was übernommen wurde, mit Rückgängig';
 }

@@ -150,6 +150,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       context,
       date: activity.date,
       actions: widget.wellnessActions,
+      activityId: activity.id,
+      initialRpe: activity.raw['icu_rpe'] as int?,
     );
     if (mounted) setState(() => _dayWellness = null);
     unawaited(_reloadWellness());
@@ -167,6 +169,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       initialFatigue: _dayWellness?.raw['fatigue'] as int?,
       initialSoreness: _dayWellness?.raw['soreness'] as int?,
       actions: widget.wellnessActions,
+      activityId: activity.id,
+      initialRpe: activity.raw['icu_rpe'] as int?,
     );
     await _reloadWellness();
   }
