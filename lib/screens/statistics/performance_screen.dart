@@ -693,7 +693,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> {
                 children: [
                   for (final (label, value) in all)
                     _ModelTile(
-                      key: ValueKey('model-$label'),
+                      key: ValueKey('model-${label.split(' · ').first}'),
                       width: tileWidth,
                       label: label,
                       value: value,
